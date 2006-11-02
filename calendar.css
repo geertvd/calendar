@@ -1,0 +1,265 @@
+/*  calendar calendar table styles  */
+.calendar-calendar table {
+  border: 1px solid #242;
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 98%; /* Setting at 100% causes problem in Internet Explorer. */
+  margin-bottom: 1em;
+}
+.calendar-calendar tr {
+  padding: 0;
+  margin: 0;
+  background: white;
+}
+.calendar-calendar th {
+  color: #000;
+  background: #aac;
+  text-align: center;
+  padding: 1px 0.33em;
+  border: 1px solid #242;
+}
+.calendar-calendar td {
+  width: 14%; /* 14% is about 1/7 of total table width */
+  border: 1px solid #bbb;
+  color: #777;
+  text-align: right;
+  vertical-align: top;
+  margin: 0;
+  padding: 0;
+}
+.calendar-calendar th.heading {
+  border-width: 1px 0px;
+}
+.calendar-calendar th.prev {
+  text-align: left;
+  border-width: 1px 0px 1px 1px;
+}
+.calendar-calendar th.next {
+  text-align: right;
+  border-width: 1px 1px 1px 0px;
+}
+.calendar-calendar th a {
+  font-weight: bold;
+  color: #363636;
+}
+.calendar-calendar td a {
+  color: #222244;
+  font-weight: bold;
+  text-decoration: none;
+}
+.calendar-calendar td a:hover {
+  text-decoration: underline;
+}
+.calendar-calendar td.sat, .calendar-calendar td.sun {
+  background: #fdd;
+}
+.calendar-calendar td.selected {
+  background: #99f;
+}
+.calendar-calendar td.today {
+  background: #f99;
+}
+.calendar-calendar td.year, .calendar-calendar td.month {
+  text-align: center;
+  border-width: 1px 0px;
+}
+
+/*  days of the week header cells */
+.calendar-calendar td.days {
+  color: #cce;
+  background: #224;
+  text-align: center;
+  border: 1px solid #242;
+  border-width: 0 1px 1px 0;
+}
+
+/*  floating day number div  */
+.calendar-calendar div.day {
+  float: right;
+  text-align: center;
+  border: 1px solid gray;
+  border-width: 0 0 1px 1px;
+  padding: 0.125em 0.25em 0 0.25em;
+  margin: 0;
+  background: #f3f3f3;
+}
+
+/*  calendar node times for the body */
+.calendar-nodeapi div {
+  color: #000;
+  padding: 0.5em 1em 0 0;
+}
+.calendar-nodeapi div label { color: #999; }
+
+/*  individual node container  */
+.calendar-calendar div.calendar {
+  font-style: italic;
+  background-color: #fff;
+  border: solid 1px #555;
+  text-align: left;
+  margin: 0.25em 0 0.5em 0.25em;
+}
+.calendar-calendar div.title {
+  padding-left: 3px;
+}
+.calendar-calendar div.title a {
+  color: #000;
+}
+.calendar-calendar div.title a:hover {
+  color: #c00;
+}
+.calendar-calendar .content {
+  margin: 5px;
+  padding: 3px;
+  border-left: solid 2px #ddd;
+  padding-left: 5px;
+}
+.calendar-calendar div.type {
+  margin-left: 5px;
+  font-size: 0.8em;
+}
+.calendar-calendar div.type a {
+  color: #00c;
+}
+.calendar-calendar div.type a:hover {
+  color: #c00;
+}
+.calendar-calendar div.links {
+  padding-left: 3px;
+}
+.calendar-calendar div.links a {
+  color: #00c;
+}
+.calendar-calendar div.links a:hover {
+  color: #c00;
+}
+.calendar-calendar .start {
+  font-style: normal;
+  color: #555;
+  margin: 2px 0 2px 0;
+  padding-left: 3px;
+}
+.calendar-calendar .end {
+  font-style: normal;
+  color: #555;
+  margin: 2px 0 2px 0;
+  padding-left: 9px;
+  font-size: 0.8em;
+}
+.calendar-calendar .ongoing {
+  font-style: normal;
+  color: #555;
+  margin: 2px 0 2px 0;
+  padding-left: 9px;
+  font-size: 0.8em;
+}
+.calendar-calendar div.info {
+  visibility: hidden;
+  height: 0px;
+  overflow:hidden;
+  padding-left: 3px;
+}
+
+/*  individual node view styles  */
+.calendar-calendar div.monthview .title {
+  font-size: 0.8em;
+}
+.calendar-calendar div.dayview {
+  width: auto;
+}
+.calendar-calendar div.tableview {
+  width: auto;
+}
+.calendar-calendar div.tableview .links {
+}
+.calendar-calendar .calendar-empty {
+  min-height: 6em;
+}
+/* hack to make Internet Explorer for Windows display calendar height correctly \*/
+* html .calendar-calendar .calendar-empty {
+  height: 6em;
+}
+/* end of hack */
+.container-inline .day input {
+  width: auto;
+  display: inline;
+}
+
+/*  multi-day calendar top stripes  */
+.calendar-calendar .calendar .stripe {
+  height: 5px;
+}
+.calendar-calendar .calendar .stripe-1 {
+  background-color: #FF6;
+  height: 5px;
+  width: 100%;
+}
+.calendar-calendar .calendar .stripe-2 {
+  background-color: #F66;
+  height: 5px;
+  width: 100%;
+}
+.calendar-calendar .calendar .stripe-3 {
+  background-color: #668CFF;
+  height: 5px;
+  width: 100%;
+}
+.calendar-calendar .calendar .stripe-4 {
+  background-color: #FFB366;
+  height: 5px;
+  width: 100%;
+}
+.calendar-calendar .calendar .stripe-5 {
+  background-color: #85FF66;
+  height: 5px;
+  width: 100%;
+}
+.calendar-calendar .calendar .stripe-6 {
+  background-color: #A666FF;
+  height: 5px;
+  width: 100%;
+}
+.calendar-calendar .calendar .stripe-7 {
+  background-color: #FFE066;
+  height: 5px;
+  width: 100%;
+}
+.calendar-calendar .calendar .stripe-8 {
+  background-color: #66FFFF;
+  height: 5px;
+  width: 100%;
+}
+.calendar-calendar .calendar .stripe-9 {
+  background-color: #FF66D9;
+  height: 5px;
+  width: 100%;
+}
+.calendar-calendar .calendar .stripe-10 {
+  background-color: #DDD;
+  height: 5px;
+  width: 100%;
+}
+
+#block-calendar-1 .item-list ul li a { 
+  margin-top: 8px; 
+}
+
+span.calendar-timeleft {
+  padding-bottom: 3px;
+  text-align: right;
+  width: auto;
+  display: block;
+}
+span.calendar-nodetype {
+  padding: 0px 0px 0px 5px;
+  display: block;
+  width: auto;
+  text-align: right;
+  float: right;
+}
+.ical-link {
+  text-align: right;
+}
+.calendar div.form-item {
+  white-space: normal;
+}
