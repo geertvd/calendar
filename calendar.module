@@ -558,8 +558,8 @@ function calendar_views_query_alter(&$query, &$view) {
         $view->year = _calendar_is_valid($view->args[$delta], 'year') ? $view->args[$delta] : gmdate('Y', time());
         $query_min = $view->year;
         $query_max = $view->year;
-        $next_min = '-01%';
-        $next_max = '-12%';
+        $next_min = '-01';
+        $next_max = '-12';
         $view->subtitle = l($year, $view->url .'/'. $year);
         // make sure we have at least a year available as an argument
         if (!$view->args[$delta]) {
@@ -610,7 +610,7 @@ function calendar_views_query_alter(&$query, &$view) {
   
   $query_timestamp_min = strtotime($query_min);
   $query_timestamp_max = strtotime($query_max);
-  
+  echo $query_min.'>'.date('m/d/Y', $query_timestamp_min);
   $query_min .= '%';
   $query_max .= '%';
   
