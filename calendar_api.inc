@@ -15,7 +15,7 @@
  *                "month": A month calendar.
  *                "week": A week calendar.
  *                "day": A day calendar.
- *  @param $nodes – An associative array of nodes with nids for key values.
+ *  @param $nodes An associative array of nodes with nids for key values.
  *           Node objects must have GMT timestamp values for start ($node->event_start).
  *           Optionally, an end value ($node->event_end) and a time zone offset value
  *           in the same format as drupal core ($node->tz). If a node has no end
@@ -27,6 +27,8 @@
  *           $params[force_week]  - a week number to limit the displayed calendar to only that week
  *           $params[hide_header] - true to omit td header row(s)
  *           $params[as_array]    - true to return the rows array instead of the themed table
+ *           $params[mini]        - this is a mini calendar, don't display item details
+ *           $params[url]         - an url to use as a base url in month name
  *  @return Themed calendar view of nodes or array of calendar rows
  */
 function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = array()) {
@@ -36,7 +38,6 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
   foreach ($nodes as $node) {
 
     $calendar = new stdClass();
-    $node->calendar_links = module_invoke_all('link', 'calendar_'. $view, $node, FALSE);
     $nodes[$node->nid] = $node;
     $calendar->nid = $node->nid;
 
@@ -86,6 +87,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
   }
   
   $weekdays = calendar_week_days();
+  
   switch ($view) {
     case 'day':
     case 'table':
@@ -99,7 +101,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
         }
         foreach($months as $month => $days) {
           foreach($days as $day => $calendars) {
-            $content = theme('calendar_date_box', $year, $month, $day, 'table');
+            $content = theme('calendar_date_box', $year, $month, $day, 'table', $params['mini'], $calendars);
             foreach($calendars as $calendar) {
               if(!$month_name) {
                 $month_name = gmdate('M', $calendar->stamp);
@@ -127,8 +129,10 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
 
     case 'week':
     case 'month':
+    case 'year':
       $colspan = '7';
         foreach ($data as $year => $months) {
+          $month_rows[] = $year;
           if(count($data) > 1 && !$params['hide_header']) {
             // add year heading
             $rows[][] = array(
@@ -148,6 +152,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
             $start = $offset = _calendar_day_of_week($curstamp);
             // get name of month
             $month_name = gmdate('M', $curstamp);
+            $month_link = $params['url'] ? l($month_name, $params['url'] .'/'. $year .'/'. intval($month)) : $month_name;
             // set week counter
             $week = 0;
             if (($view == 'month' || !$params['force_week'])) {
@@ -159,14 +164,23 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                   'data' => $month_name,
                   'colspan' => $colspan);
               }
-              $rows[] = calendar_week_header();
+              $rows[] = calendar_week_header($params['mini']);
             }
 
             while ($curstamp <= $lastday) {
               for ($x = $start; $x < 7; $x++) {
                 $cur_day = (($week * 7) + ($x + 1) - $offset);
-                $content = theme('calendar_date_box', $year, $month, $cur_day, $view);
-
+                $selected = FALSE;
+                if(is_array($days[$cur_day])) {
+                  // make sure dummy nodes added to create blank calendars don't get marked as having content
+                  foreach ($items = $days[$cur_day] as $item) {
+                    if ($item->nid) {
+                      $selected = TRUE;
+                    }
+                  }
+                }
+                $content = theme('calendar_date_box', $year, $month, $cur_day, $view, $params['mini'], $selected);
+                
                 // render nodes for the day
                 if(is_array($days[$cur_day])) {
                   foreach($days[$cur_day] as $calendar) {
@@ -175,14 +189,14 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                     if($output = module_invoke($module, 'calendar_node_'. $view, $node)) {
                       $content .= $output;
                     }
-                    else {
+                    elseif (!$params['mini'] && $node->nid > 0) {
                       $content .= theme('calendar_node_'. $view, $node);
                     }
                   }
                 }
 
                 $row[$x] = array(
-                  'class' => strtolower("$month_name ". $weekdays[$x]['day'] . ($curstamp == $today ? ' today' : '')),
+                  'class' => strtolower("$month_name ". $weekdays[$x]['day'] . ($curstamp == $today ? ' today' : '') . ($params['mini'] ? ' mini' : '')),
                   'id' => strtolower($month_name . $day),
                   'data' => $content);
 
@@ -201,26 +215,32 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                     'data' => t('Week ') . $cur_week,
                     'colspan' => $colspan);
                 }
-                $rows[] = calendar_week_header();
+                $rows[] = calendar_week_header($params['mini']);
               }
               // print week unless this is a week view and force_week is set and this is not the forced week
               if (!($view == 'week' && $params['force_week'] && $params['force_week'] != date('W', $curstamp))) {
                 $rows[] = array_pad($row, 7, '&nbsp;');
               }
+
               $week++;
               $start = 0;
               $row = array();
+            }
+            if ($view == 'year' && !$params['as_array']) {
+              $header = array($month_name ? array('class' => 'heading', 'data' => $month_link, 'colspan' => $colspan) : array());
+              $output = theme('calendar_month', 'page', $header, $rows);
+              unset($rows);
+              $month_rows[] = $output;
             }
           }
         }
       break;
   }
-
+    
   // if only the rows array is requested, return it
   if ($params['as_array']) return $rows;
-  
   $header[] = ($title ? array('class' => 'heading', 'data' => $title, 'colspan' => $colspan) : array());
-  return theme('calendar_'. $view, 'page', $header, $rows);
+  return theme('calendar_'. $view, 'page', $header, $rows, $month_rows);
 }
 
 /**
@@ -248,12 +268,12 @@ function calendar_week_days() {
  * @ingroup event_support
  * @return array with weekday table header data
  */
-function calendar_week_header() {
+function calendar_week_header($mini = FALSE) {
   // create week header
   $days = calendar_week_days();
 
   foreach ($days as $day) {
-    $row[] = array('class' => strtolower("days ". $day['day']), 'data' => $day['t']);
+    $row[] = array('class' => strtolower("days ". $day['day']), 'data' => $mini ? substr($day['t'], 0 , 1) : $day['t']);
   }
 
   return $row;
@@ -273,6 +293,23 @@ function _calendar_day_of_week($stamp) {
  * @addtogroup themeable
  * @{
  */
+
+/**
+ * Format a calendar view
+ *
+ * @param day
+ *   The day to display.
+ */
+function theme_calendar_year($op, $header, $rows, $month_rows) {
+  $year = array_shift($month_rows);
+  $output = '<div class="calendar-calendar"><div class="year-view">';
+  $output .= '<h1 class="title">'. $year .'</h1>';
+    foreach ($month_rows as $month) {
+      $output .= '<div class="mini">'.$month.'</div>';    
+    }
+  $output .= "</div></div>\n";
+  return $output;
+}
 
 /**
  * Format a calendar view
@@ -424,10 +461,15 @@ function theme_calendar_node_month($node) {
 
   switch ($node->calendar_state) {
     case 'singleday':
+      if ($node->calendar_start_time_format != $node->calendar_end_time_format) {
         $times = '<div class="start">'. t('Start: ') . $node->start_time_format .'</div>'."\n";
         if ($node->calendar_start != $node->calendar_end) {
           $times .= '<div class="end">'. t('End: ') . $node->end_time_format .'</div>'."\n";
         }
+      }
+      else {
+        $times = '<div class="start">'. $node->start_time_format .'</div>'."\n";
+      }
       break;
     case 'start':
         $times = '<div class="start">'. t('Start: ') . $node->start_time_format .'</div>'."\n";
@@ -576,18 +618,27 @@ function theme_calendar_node_list($node, $module = NULL) {
  * @param day
  *   The day to display.
  */
-function theme_calendar_date_box($year, $month, $day, $view) {
+function theme_calendar_date_box($year, $month, $day, $view, $mini = FALSE, $selected = FALSE) {
+  $url = 'calendar/'. $year .'/'. $month .'/'. $day;
+  if ($mini) {
+    if ($selected) {
+      return '<div class="mini_day_on">'. l($day, $url) .'</div>';
+    }
+    else {
+      return '<div class="mini_day_off">'. l($day, $url) .'</div>';
+    }
+  }
   switch ($view) {
     case 'table':
-        $output = '<div class="day">'. t('%month / %day', array('%month' => $month, '%day' => $day)) .'</div>'."\n";
+        $output = '<div class="day">'. l(t('%month / %day', array('%month' => $month, '%day' => $day)), $url) .'</div>'."\n";
       break;
     case 'list':
-        $output = '<div class="day">'. format_date(_calendar_mktime(0, 0, 0, $month, $day, $year), 'custom', 'l, F j, Y') .'</div>'."\n";
+        $output = '<div class="day">'. l(format_date(_calendar_mktime(0, 0, 0, $month, $day, $year), 'custom', 'l, F j, Y'), $url) .'</div>'."\n";
       break;
     case 'day':
      break;
     default:
-        $output = '<div class="day">'. $day .'</div>'."\n";
+        $output = '<div class="day">'. l($day, $url) .'</div>'."\n";
       break;
   }
   return $output;
@@ -651,8 +702,8 @@ function theme_calendar_filter_control($form) {
  * @param link
  *   The url for the navigation
  */
-function theme_calendar_nav_next($url) {
-  return '<span class="next">'. l('»', $url) .'</span>';
+function theme_calendar_nav_next($url, $text = TRUE) {
+  return '<span class="next">'. l(($text ? t('next') : '') .' »', $url) .'</span>';
 }
 
 /**
@@ -661,8 +712,8 @@ function theme_calendar_nav_next($url) {
  * @param link
  *   The url for the navigation
  */
-function theme_calendar_nav_prev($url) {
-  return '<span class="prev">'. l('«', $url) .'</span>';
+function theme_calendar_nav_prev($url, $text = TRUE) {
+  return '<span class="prev">'. l('« '. ($text ? t('prev') : ''), $url) .'</span>';
 }
 
 /**
@@ -723,5 +774,3 @@ function theme_calendar_upcoming_block($items) {
   $output = theme("item_list", $items);
   return $output;
 }
-
-

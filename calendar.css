@@ -1,26 +1,32 @@
 /*  calendar calendar table styles  */
 .calendar-calendar table {
-  border: 1px solid #242;
+  border: 1px solid #999;
   border-collapse: collapse;
   border-spacing: 0;
+  margin:0;
   width: 98%; /* Setting at 100% causes problem in Internet Explorer. */
-  margin-bottom: 1em;
 }
+.calendar-calendar table table {
+  border:none;
+  padding:0;
+  margin:0;
+  width:100%;
+  }
 .calendar-calendar tr {
   padding: 0;
   margin: 0;
   background: white;
 }
 .calendar-calendar th {
-  color: #000;
-  background: #aac;
+  color: #fff;
+  background: #69c;
   text-align: center;
-  padding: 1px 0.33em;
-  border: 1px solid #242;
+  padding:3px;
+  margin:0;
 }
 .calendar-calendar td {
   width: 14%; /* 14% is about 1/7 of total table width */
-  border: 1px solid #bbb;
+  border: 1px solid #999;
   color: #777;
   text-align: right;
   vertical-align: top;
@@ -28,19 +34,17 @@
   padding: 0;
 }
 .calendar-calendar th.heading {
-  border-width: 1px 0px;
 }
 .calendar-calendar th.prev {
   text-align: left;
-  border-width: 1px 0px 1px 1px;
 }
 .calendar-calendar th.next {
   text-align: right;
-  border-width: 1px 1px 1px 0px;
+  
 }
 .calendar-calendar th a {
   font-weight: bold;
-  color: #363636;
+  color: #fff;
 }
 .calendar-calendar td a {
   color: #222244;
@@ -51,7 +55,7 @@
   text-decoration: underline;
 }
 .calendar-calendar td.sat, .calendar-calendar td.sun {
-  background: #fdd;
+  background: #eee;
 }
 .calendar-calendar td.selected {
   background: #99f;
@@ -66,10 +70,10 @@
 
 /*  days of the week header cells */
 .calendar-calendar td.days {
-  color: #cce;
+  color: #ccc;
   background: #224;
   text-align: center;
-  border: 1px solid #242;
+  border: 1px solid #999;
   border-width: 0 1px 1px 0;
 }
 
@@ -111,7 +115,7 @@
 .calendar-calendar .content {
   margin: 5px;
   padding: 3px;
-  border-left: solid 2px #ddd;
+  border-left: solid 2px #999;
   padding-left: 5px;
 }
 .calendar-calendar div.type {
@@ -263,3 +267,27 @@ span.calendar-nodetype {
 .calendar div.form-item {
   white-space: normal;
 }
+
+
+table td.mini, table th.mini {
+  padding:0;
+  margin:0;
+  }
+table td.mini a {
+  font-weight:normal;
+  }  
+.mini_day_off {
+  padding:2px;
+}
+.mini_day_on {
+  padding:2px;
+}
+table .mini_day_on a {
+  text-decoration:underline;
+  }
+  
+div.mini {
+  width:33%;
+  height:175px;
+  float:left;
+  }
