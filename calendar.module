@@ -674,6 +674,103 @@ function _calendar_is_valid($value, $type) {
   return true;
 }
 
+function calendar_views_default_views() {
+$view = new stdClass();
+  $view->name = 'calendar';
+  $view->description = 'Calendar view of any date field';
+  $view->access = array ();
+  $view->view_args_php = '';
+  $view->page = TRUE;
+  $view->page_title = 'Calendar';
+  $view->page_header = "";
+  $view->page_header_format = '1';
+  $view->page_footer = "";
+  $view->page_footer_format = '1';
+  $view->page_empty = "";
+  $view->page_empty_format = '1';
+  $view->page_type = 'calendar';
+  $view->url = 'calendar';
+  $view->use_pager = TRUE;
+  $view->nodes_per_page = '99';
+  $view->block = TRUE;
+  $view->block_title = '';
+  $view->block_header = "";
+  $view->block_header_format = '1';
+  $view->block_footer = "";
+  $view->block_footer_format = '1';
+  $view->block_empty = "";
+  $view->block_empty_format = '1';
+  $view->block_type = 'calendar';
+  $view->nodes_per_block = '99';
+  $view->block_more = '1';
+  $view->block_use_page_header = FALSE;
+  $view->block_use_page_footer = FALSE;
+  $view->block_use_page_empty = FALSE;
+  $view->sort = array (
+    array (
+      'tablename' => 'node',
+      'field' => 'changed',
+      'sortorder' => 'ASC',
+      'options' => '',
+    ),
+  );
+  $view->argument = array (
+    array (
+      'type' => 'calendar_year',
+      'argdefault' => '2',
+      'title' => 'Year',
+      'options' => '',
+      'wildcard' => '',
+      'wildcard_substitution' => '',
+    ),
+    array (
+      'type' => 'calendar_month',
+      'argdefault' => '2',
+      'title' => 'Month',
+      'options' => '',
+      'wildcard' => '',
+      'wildcard_substitution' => '',
+    ),
+    array (
+      'type' => 'calendar_day',
+      'argdefault' => '2',
+      'title' => 'Day',
+      'options' => '',
+      'wildcard' => '',
+      'wildcard_substitution' => '',
+    ),
+  );
+  $view->field = array (
+    array (
+      'tablename' => 'node',
+      'field' => 'title',
+      'label' => 'Title:',
+      'handler' => 'views_handler_field_nodelink',
+      'options' => 'link',
+    ),
+    array (
+      'tablename' => 'node',
+      'field' => 'changed',
+      'label' => 'Updated:',
+      'handler' => 'views_handler_field_date_small',
+    ),
+  );
+  $view->filter = array (
+    array (
+      'tablename' => 'node',
+      'field' => 'status',
+      'operator' => '=',
+      'options' => '',
+      'value' => '1',
+    ),
+  );
+  $view->exposed_filter = array (
+  );
+  $view->requires = array(node);
+  $views[$view->name] = $view;
+  return $views;
+}
+
 /**
  *  Make sure both views and calendar are enabled
  * hunmonk's module dependency check: see http://drupal.org/node/54463
