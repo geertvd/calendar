@@ -340,6 +340,7 @@ function calendar_get_paths($cur_stamp, $view) {
       $prevpath[$x] = gmdate('n', $prev_stamp);
       break;
     case ('year'):
+      $year = $view->year;
       if (!$next_stamp) {
         $next_stamp = gmmktime(0, 0, 0, 1, 1, ($year + 1));
         $prev_stamp = gmmktime(0, 0, 0, 12, 1, ($year - 1));
@@ -354,6 +355,7 @@ function calendar_get_paths($cur_stamp, $view) {
       break;
     }
   }
+  
   return array($prevpath, $nextpath);
 
 }
@@ -560,7 +562,7 @@ function calendar_views_query_alter(&$query, &$view) {
         $query_max = $view->year;
         $next_min = '-01';
         $next_max = '-12';
-        $view->subtitle = l($year, $view->url .'/'. $year);
+        $view->subtitle = l($view->year, $view->url .'/'. $view->year);
         // make sure we have at least a year available as an argument
         if (!$view->args[$delta]) {
           $view->args[$delta] = $view->year;
@@ -610,7 +612,7 @@ function calendar_views_query_alter(&$query, &$view) {
   
   $query_timestamp_min = strtotime($query_min);
   $query_timestamp_max = strtotime($query_max);
-  echo $query_min.'>'.date('m/d/Y', $query_timestamp_min);
+  
   $query_min .= '%';
   $query_max .= '%';
   
@@ -625,6 +627,7 @@ function calendar_views_query_alter(&$query, &$view) {
     }
   }
   $query->add_where(implode(" OR ", $queries));
+  
   return;
 
 }
@@ -647,7 +650,6 @@ function calendar_views_pre_view(&$view, &$items) {
       $view->block_empty_format = 3;
     }
   }
-  
   return;
 }
 

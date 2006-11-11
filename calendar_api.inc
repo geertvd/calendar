@@ -132,7 +132,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
     case 'year':
       $colspan = '7';
         foreach ($data as $year => $months) {
-          $month_rows[] = $year;
+          $month_rows[] = $title;
           if(count($data) > 1 && !$params['hide_header']) {
             // add year heading
             $rows[][] = array(
