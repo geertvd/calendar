@@ -33,7 +33,7 @@
  */
 function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = array()) {
   
-  $today = time();
+  $today = calendar_user_date();
   $data  = array();
   foreach ($nodes as $node) {
 
@@ -42,14 +42,14 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
     $calendar->nid = $node->nid;
 
     // $node_start and $node_end are local timestamp values
-    $node_start = gmmktime(0, 0, 0, gmdate('m', $node->calendar_start), gmdate('d', $node->calendar_start), gmdate('Y', $node->calendar_start));
+    $node_start = gmmktime(0, 0, 0, calendar_event_date('m', $node->calendar_start, $node->start_offset), calendar_event_date('d', $node->calendar_start, $node->start_offset), calendar_event_date('Y', $node->calendar_start, $node->start_offset));
     if ($node->calendar_end) {
-      $node_end = gmmktime(0, 0, 0, gmdate('m', $node->calendar_end), gmdate('d', $node->calendar_end), gmdate('Y', $node->calendar_end));
+      $node_end = gmmktime(0, 0, 0, calendar_event_date('m', $node->calendar_end, $node->end_offset), calendar_event_date('d', $node->calendar_end, $node->end_offset), calendar_event_date('Y', $node->calendar_end, $node->end_offset));
     }
     else {
       $node_end = $node_start;
     }
-    
+
     if ($node_start == $node_end) {
       $calendar->calendar_state = 'singleday';
       $calendar->stamp = $node_start;
@@ -241,6 +241,115 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
   if ($params['as_array']) return $rows;
   $header[] = ($title ? array('class' => 'heading', 'data' => $title, 'colspan' => $colspan) : array());
   return theme('calendar_'. $view, 'page', $header, $rows, $month_rows);
+}
+
+/**
+ * Formats local time values to GMT timestamp using time zone offset supplied.
+ * All time values in the database are GMT and translated here prior to insertion.
+ *
+ * Time zone settings are applied in the following order:
+ * 1. If supplied, time zone offset is applied
+ * 2. If user time zones are enabled, user time zone offset is applied
+ * 3. If neither 1 nor 2 apply, the site time zone offset is applied
+ *
+ * @param $format The date() format to apply to the timestamp.
+ * @param $timestamp The GMT timestamp value.
+ * @param $offset Time zone offset to apply to the timestamp.
+ * @ingroup event_support
+ * @return gmdate() formatted date value
+ */
+function calendar_mktime($hour, $minute, $second, $month, $day, $year, $offset = NULL) {
+  global $user;
+  $timestamp = gmmktime($hour, $minute, $second, $month, $day, $year);
+  if (isset($offset)) {
+    return $timestamp - $offset;
+  }
+  elseif (variable_get('configurable_timezones', 1) && $user->uid && strlen($user->timezone) && (variable_get('event_timezone_display', 'event') == 'user')) {
+    return $timestamp - $user->timezone;
+  }
+  else {
+    return $timestamp - variable_get('date_default_timezone', 0);
+  }
+}
+
+/**
+ * Returns a local timestamp based on the user or site time zone.
+ * @return integer timestamp
+ */
+function calendar_user_time() {
+  global $user;
+
+  if (variable_get('configurable_timezones', 1) && $user->uid && strlen($user->timezone)) {
+    return (time() - date("Z")) + $user->timezone;
+  }
+  else {
+    return (time() - date("Z")) + variable_get('date_default_timezone', 0);
+  }
+}
+
+/**
+ * Returns a local timestamp (as defined by the user or site's timezone) for
+ * midnight GMT.
+ * @return integer timestamp
+ */
+function calendar_user_date($part = 'timestamp') {
+  static $date;
+  if (!$date) {
+    $now = calendar_user_time();
+    $date = gmmktime(0, 0, 0, gmdate('m', $now), gmdate('j', $now), gmdate('Y', $now));
+  }
+  switch ($part) {
+  case ('year'):
+    return gmdate('Y', $date);
+  case ('month'):
+    return gmdate('m', $date);
+  case ('day'):
+    return gmdate('j', $date);
+  case ('hour'):
+    return gmdate('H', $date);
+  case ('minute'):
+    return gmdate('i', $date);
+  default:
+    return $date;
+  }
+}
+
+/**
+ * Formats a GMT timestamp to local date values using time zone offset supplied.
+ * All timestamp values in event nodes are GMT and translated for display here.
+ *
+ * Time zone settings are applied in the following order
+ * 1. If supplied, time zone offset is applied
+ * 2. If user time zones are enabled, user time zone offset is applied
+ * 3. If neither 1 nor 2 apply, the site time zone offset is applied
+ *
+ * @param $format The date() format to apply to the timestamp.
+ * @param $timestamp The GMT timestamp value.
+ * @param $offset Time zone offset to apply to the timestamp.
+ * @ingroup event_support
+ * @return gmdate() formatted date value
+ */
+function calendar_event_date($format, $timestamp, $offset = null) {
+  global $user;
+
+  if (isset($offset)) {
+    $timestamp += $offset;
+  }
+  elseif (variable_get('configurable_timezones', 1) && $user->uid && strlen($user->timezone)) {
+    $timestamp += $user->timezone;
+  }
+  else {
+    $timestamp += variable_get('date_default_timezone', 0);
+  }
+
+  // make sure we apply the site first day of the week setting for dow requests
+  if ($format == 'w') {
+    $result = calendar_day_of_week($timestamp);
+  }
+  else {
+    $result = gmdate($format, $timestamp);
+  }
+  return  $result;
 }
 
 /**
@@ -735,7 +844,7 @@ function theme_calendar_nav_prev($url, $text = TRUE) {
  *   The current view being rendered
  */
 function theme_calendar_links($links, $view) {
-  return theme('links', $links);
+  return '<p>» '. theme('links', $links) .'</p>';
 }
 
 /**
@@ -767,9 +876,6 @@ function theme_calendar_more_link($path) {
  */
 function theme_calendar_upcoming_item($node) {
   $output = l($node->title, "node/$node->nid", array('title' => $node->title));
-  if ((calendar_get_types('all') + calendar_get_types('solo')) > 1) {
-    $output .= '<span class="calendar-nodetype">'. t("($node->typename)") .'</span>';
-  }
   $output .= '<span class="calendar-timeleft">('. $node->timeleft .')</span>';
   return $output;
 }

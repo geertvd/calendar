@@ -434,6 +434,12 @@ function _calendar_limit_nodes($nodes, $type, $year, $month, $day, $week, $offse
 
 }
 
+function calendar_offset($field_name) {
+  $default_offset = variable_get('date_default_timezone', 0);
+  $configurable_zones = variable_get('configurable_timezones', 1);
+
+}
+
 /**
  *  Implementation of hook_calendar_node() from the calendar_get_calendar() api
  *  calendar api is expecting a function for each calendar type but
@@ -529,7 +535,7 @@ function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_name, $f
  *  Insert filters into the query based on the current calendar view and the selected fields
  */
 function calendar_views_query_alter(&$query, &$view) {
-  
+
   // make sure block views default to the current month
   // and never try to show the day
 
@@ -538,7 +544,7 @@ function calendar_views_query_alter(&$query, &$view) {
     $view->args = (explode('/', str_replace($view->url .'/', '', $view->real_url)));
     foreach ($view->argument as $delta => $argument) {
       if ($argument['type'] == 'calendar_month' && !$view->args[$delta]) {
-        $view->args[$delta] = gmdate('m', time());
+        $view->args[$delta] = calendar_user_date('month');
       }
       elseif ($argument['type'] == 'calendar_day') {
         unset($view->args[$delta]);
@@ -557,7 +563,7 @@ function calendar_views_query_alter(&$query, &$view) {
       $view->argument[$delta]['argdefault'] = 2;
 
       if ($argument['type'] == 'calendar_year') {
-        $view->year = _calendar_is_valid($view->args[$delta], 'year') ? $view->args[$delta] : gmdate('Y', time());
+        $view->year = _calendar_is_valid($view->args[$delta], 'year') ? $view->args[$delta] : calendar_user_date('year');
         $query_min = $view->year;
         $query_max = $view->year;
         $next_min = '-01';
@@ -570,7 +576,7 @@ function calendar_views_query_alter(&$query, &$view) {
         $view->calendar_type = str_replace('calendar_', '', $argument['type']);
       }
       if ($argument['type'] == 'calendar_month' && $view->args[$delta]) {
-        $view->month = _calendar_is_valid($view->args[$delta], 'month') ? $view->args[$delta] : gmdate('m', time());
+        $view->month = _calendar_is_valid($view->args[$delta], 'month') ? $view->args[$delta] : calendar_user_date('month');
         $query_min .= '-'. sprintf('%02d', $view->month);
         $query_max .= '-'. sprintf('%02d', $view->month);
         $next_min = '-01';
@@ -582,7 +588,7 @@ function calendar_views_query_alter(&$query, &$view) {
         $view->calendar_type = str_replace('calendar_', '', $argument['type']);
       }
       if ($argument['type'] == 'calendar_day' && $view->args[$delta]) {
-        $view->day = _calendar_is_valid($view->args[$delta], 'day') ? $view->args[$delta] : gmdate('d', time());
+        $view->day = _calendar_is_valid($view->args[$delta], 'day') ? $view->args[$delta] : calendar_user_date('day');
         $query_min .= '-'. sprintf('%02d', $view->day);
         $query_max .= '-'. sprintf('%02d', $view->day);
         $next_min = 'T00:00:00';
@@ -632,10 +638,6 @@ function calendar_views_query_alter(&$query, &$view) {
 
 }
 
-function calendar_now() {
-  return gmmktime(0, 0, 0, gmdate('m', time()), gmdate('j', time()), gmdate('Y', time()));
-}
-
 /**
  *  Implementation of hook_views_pre_view()
  */
@@ -655,12 +657,10 @@ function calendar_views_pre_view(&$view, &$items) {
     }
   }
   if ($view->build_type == 'page') {
-    $calendar_links = array(
-      l(t('Year'), $view->url .'/'. $view->year),
-      l(t('Month'), $view->url .'/'. $view->year .'/'. ($view->month ? $view->month : gmdate('m', calendar_now()))),
-      l(t('Day'), $view->url .'/'. $view->year .'/'. ($view->month ? $view->month : gmdate('m', calendar_now())) .'/'. ($view->day ? $view->day : gmdate('j', calendar_now()))),
-      );
-    return '» '. theme('links', $calendar_links);
+    $calendar_links[] = $view->calendar_type == 'year'  ? t('Year')  : l(t('Year'), $view->url .'/'. $view->year);
+    $calendar_links[] = $view->calendar_type == 'month' ? t('Month') : l(t('Month'), $view->url .'/'. $view->year .'/'. ($view->month ? $view->month : calendar_user_date('month')));
+    $calendar_links[] = $view->calendar_type == 'day'   ? t('Day')   : l(t('Day'), $view->url .'/'. $view->year .'/'. ($view->month ? $view->month : calendar_user_date('month')) .'/'. ($view->day ? $view->day : calendar_user_date('day')));
+    return theme('calendar_links', $calendar_links, 'month');
   }
   return;
 }
