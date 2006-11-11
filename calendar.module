@@ -632,6 +632,10 @@ function calendar_views_query_alter(&$query, &$view) {
 
 }
 
+function calendar_now() {
+  return gmmktime(0, 0, 0, gmdate('m', time()), gmdate('j', time()), gmdate('Y', time()));
+}
+
 /**
  *  Implementation of hook_views_pre_view()
  */
@@ -649,6 +653,14 @@ function calendar_views_pre_view(&$view, &$items) {
       $view->block_empty .= theme('calendar_display', $view, array(), 'block');
       $view->block_empty_format = 3;
     }
+  }
+  if ($view->build_type == 'page') {
+    $calendar_links = array(
+      l(t('Year'), $view->url .'/'. $view->year),
+      l(t('Month'), $view->url .'/'. $view->year .'/'. ($view->month ? $view->month : gmdate('m', calendar_now()))),
+      l(t('Day'), $view->url .'/'. $view->year .'/'. ($view->month ? $view->month : gmdate('m', calendar_now())) .'/'. ($view->day ? $view->day : gmdate('j', calendar_now()))),
+      );
+    return '» '. theme('links', $calendar_links);
   }
   return;
 }

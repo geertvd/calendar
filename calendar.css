@@ -40,7 +40,6 @@
 }
 .calendar-calendar th.next {
   text-align: right;
-  
 }
 .calendar-calendar th a {
   font-weight: bold;
@@ -75,6 +74,8 @@
   text-align: center;
   border: 1px solid #999;
   border-width: 0 1px 1px 0;
+  padding:1px;
+  margin:0;
 }
 
 /*  floating day number div  */

@@ -219,7 +219,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
               }
               // print week unless this is a week view and force_week is set and this is not the forced week
               if (!($view == 'week' && $params['force_week'] && $params['force_week'] != date('W', $curstamp))) {
-                $rows[] = array_pad($row, 7, '&nbsp;');
+                $rows[] = array_pad($row, 7, '<nobr></nobr>');
               }
 
               $week++;
@@ -303,7 +303,7 @@ function _calendar_day_of_week($stamp) {
 function theme_calendar_year($op, $header, $rows, $month_rows) {
   $year = array_shift($month_rows);
   $output = '<div class="calendar-calendar"><div class="year-view">';
-  $output .= '<h1 class="title">'. $year .'</h1>';
+  $output .= $year;
     foreach ($month_rows as $month) {
       $output .= '<div class="mini">'.$month.'</div>';    
     }
@@ -318,7 +318,11 @@ function theme_calendar_year($op, $header, $rows, $month_rows) {
  *   The day to display.
  */
 function theme_calendar_month($op, $header, $rows) {
-  $output = theme("table", $header, $rows);
+  if (strstr($header[0]['data'], '<table')) {
+    $output = $header[0]['data'];
+    $header = array();
+  }
+  $output .= theme("table", $header, $rows);
   return '<div class="calendar-calendar"><div class="month-view">'. $output ."</div></div>\n";
 }
 
@@ -340,7 +344,11 @@ function theme_calendar_week($op, $header, $rows) {
  *   The day to display.
  */
 function theme_calendar_day($op, $header, $rows) {
-  $output = theme("table", $header, $rows);
+  if (strstr($header[0]['data'], '<table')) {
+    $output = $header[0]['data'];
+    $header = array();
+  }
+  $output .= theme("table", $header, $rows);
   return '<div class="calendar-calendar"><div class="day-view">'. $output ."</div></div>\n";
 }
 
@@ -380,7 +388,9 @@ function theme_calendar_node_day($node) {
   if ($node->calendar_start != $node->calendar_end) {
     $output .= '<div class="end">'. t('End: ') . $node->end_time_format .'</div>'."\n";
   }
-  $output .= '<div class="content">'. check_markup($node->teaser) ."</div>\n";
+  if ($node->teaser) {
+    $output .= '<div class="content">'. check_markup($node->teaser) ."</div>\n";
+  }
   $output .= '<div class="links">'. theme('links', $node->calendar_links) ."\n</div>";
   $output .= "</div>\n";
   return $output;
