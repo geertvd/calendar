@@ -5,8 +5,6 @@
  * Adds calendar display themes to views.
  */
 
-include_once('calendar_api.inc');
-
 /**
  * Implementation of hook_help().
  */
@@ -51,8 +49,14 @@ function calendar_view_types() {
  *  @return an array with fieldname, type, and table
  */
 function calendar_fields() {
+  // TODO add caching
+
+  // iterate through all the views fields
+  $delta = 0;
   foreach (_views_get_fields() as $name => $val) {
-    $type = '';
+    
+    $fromto = array();
+
     // for cck fields, get the date type
     if ($val['content_field']['type'] == 'date' || $val['content_field']['type'] == 'datestamp') {
       $type = $val['content_field']['type'] == 'date' ? 'cck_string' : 'cck_timestamp';
@@ -61,20 +65,41 @@ function calendar_fields() {
     elseif ($val['handler'] == views_handler_field_dates()) {
       $type = 'timestamp';
     }
+
+    // don't do anything if this is not a date field
     if ($type) {
-      // cck fields append a column name to the field, others do not
-      // need a real field_name with no column name appended for cck date formatters
-      $tmp = explode('.', $name);
-      $fields[$tmp[1]] = array(
-        'type' => $type,
-        'fullname' => $name,
-        'table' => $tmp[0],
-        'field' => $tmp[1],
-        'field_name' => $val['content_field']['field_name'] ? $val['content_field']['field_name'] : $tmp[1],
-        'query_name' => str_replace('.', '_', $name),
-      );
+
+      // dates with from and to dates need to handle both fields as one
+      // add the from and to dates to the first one found and ignore the second
+
+      if (!$event_field_processed && ($name == 'event.event_start' || $name == 'event.event_end')) {
+        $timestamp_fromto = array('event.event_start', 'event.event_end');
+        $event_field_processed = TRUE;
+      }
+
+      // will add handling for cck fromto dates here once date module has been updated
+
+      // skip this step on second occurance of fromto date fields, if more than one exists in view 
+      if (!$event_field_processed || $timestamp_fromto || $string_fromto) {
+        
+        // cck fields append a column name to the field, others do not
+        // need a real field_name with no column name appended for cck date formatters
+        $tmp = explode('.', $name);
+        $field_name =$val['content_field']['field_name'] ? $val['content_field']['field_name'] : $tmp[1];
+        $fields[$tmp[1]] = array(
+          'type' => $type,
+          'delta' => $delta,
+          'fullname' => $name,
+          'table' => $tmp[0],
+          'field' => $tmp[1],
+          'field_name' => $field_name,
+          'query_name' => str_replace('.', '_', $name),
+          'timestamp_fromto' => $timestamp_fromto,
+        );
+      }
     }
   }
+  
   return $fields;
 }
 
@@ -83,117 +108,117 @@ function calendar_fields() {
  */
 function theme_calendar_display($view, $items, $type) {
   
+  include_once('calendar_api.inc');
+  
   if (!is_array($items)) {
     $items = array();
   }
-  
+
+  $types = node_get_types();
+  $type_names = array_flip(array_keys($types));
+            
   if ($type == 'block' || $view->calendar_type == 'year') $params['mini'] = TRUE;
-  
-  // option to set the view by appending it after the view's other arguments
-  // i.e. 2006/5/12/day will use the calendar day page type to display the items for a view
-  // (assuming the view has already been created with year/month/day arguments)
-  if (array_key_exists($view->args[sizeof($view->argument)], calendar_view_types())) {
-    //$view->page_type = $view->args[sizeof($view->argument)];
-  }
   
   $fields = calendar_fields();
   $calendar_fields = array_keys($fields);
-  
-  // explode out field and format info from the view
-  foreach ($view->field as $data) {
-    if (in_array($data['field'], $calendar_fields)) {
-      $option = $fields[$data['field']];
-      $start_type       = strstr($option['type'], 'string') ? 'string' : 'timestamp';
-      $start_function   = strstr($option['type'], 'cck') ? 'content_format' : $data['handler'];
-      $start_formatter  = $data['options'];
-      $start_field      = $option['query_name'];
-      $start_field_name = $option['field_name'];
-    }
-    if (in_array($data['field'], $calendar_fields)) {
-      $option = $fields[$data['field']];
-      $end_type        = strstr($option['type'], 'string') ? 'string' : 'timestamp';
-      $end_function    = strstr($option['type'], 'cck') ? 'content_format' : $data['handler'];
-      $end_formatter   = $data['options'];
-      $end_field       = $option['query_name'];
-      $end_field_name  = $option['field_name'];
-    }
-  }
-  if ($start_function && !$end_function) {
-    $end_function   = $start_function;
-    $end_formatter  = $start_formatter;
-    $end_field      = $start_field;
-    $end_field_name = $start_field_name;
-    $end_type       = $start_type;
-  }
-  
-  // iterate through the $items array returned by the query and create date or pseudo date nodes
-  
   $nodes = array();
-  foreach ($items as $item) {
-    $node = node_load($item->nid);
-    
-    // If we're dealing with an event node, go ahead and use the provided values
-    if (isset($node->event_start)) $node->calendar_start = $node->event_start;
-    if (isset($node->event_end)) $node->calendar_end = $node->event_end;
-    if (isset($node->start_time_format)) $node->start_time_format = $node->start_time_format;
-    if (isset($node->end_time_format)) $node->end_time_format = $node->end_time_format;
+  $i = 0;
 
-    if (!isset($node->calendar_start) && !isset($item->$start_field)) {
-      // no date for the node and no date in the item
-      // no way to display it on the calendar
-      break;
+  // explode out field and format info from the view
+  foreach ($view->field as $delta => $data) {
+    if (in_array($data['field'], $calendar_fields)) {
 
-    } elseif ($item->$start_field) {
+      $option = $fields[$data['field']];
       
-      // if calendar_start field holds a numeric value, treat it as a unix timestamp
-      // if string, convert to timestamp using strtotime
-      if ($start_type == 'timestamp') {
-        $node->calendar_start = $item->$start_field;
-        if ($item->$end_field) {
-          $node->calendar_end = $item->$end_field;
-        } else {
-          $node->calendar_end = $node->calendar_start;
+      $field_type       = strstr($option['type'], 'string') ? 'string' : 'timestamp';
+      $field_function   = strstr($option['type'], 'cck') ? 'content_format' : $data['handler'];
+      $field_formatter  = $data['options'];
+      $field_field      = $option['query_name'];
+      $field_field_name = $option['field_name'];
+      $timestamp_fromto = $option['timestamp_fromto'];
+      $string_fromto    = $option['string_fromto'];
+      $field_id         = $delta;
+      
+      // iterate through the $items array returned by the query and create date or pseudo date nodes
+      
+      foreach ($items as $item) {
+        
+        // have to fetch a fresh version of node each time in case multiple fields are pulled from the same nid
+        // if we don't do this we get the previously cached version with data added on previous node_load()
+        $node = node_load(array('nid' => $item->nid), NULL, TRUE);
+                
+        // If we're dealing with an event node, go ahead and use the provided values
+        if (($field_field == 'event_event_start' || $field_field == 'event_event_end') && !$event_field_processed[$item->nid]) {
+          if ($node->event_start > 0) {
+            $node->calendar_start = $node->event_start;
+            $node->calendar_end   = $node->event_end;
+            $item->$field_field   = $node->event_start;
+            $event_field_processed[$item->nid] = TRUE;
+          }
         }
-      } else {
-        $node->calendar_start = strtotime($item->$start_field);
-        if ($item->$end_field) {
-          $node->calendar_end = strtotime($item->$end_field);
-        } else {
-          $node->calendar_end = $node->calendar_start;
+        elseif (($field_field == 'event_event_start' || $field_field == 'event_event_end') && $event_field_processed[$item->nid]) {
+          // if more than one event field was added to the view (like start and end dates)
+          // don't process it more than once
+          unset($node);
+        
+        }
+
+        if (isset($node) && !isset($node->calendar_start) && !isset($item->$field_field)) {
+          // if no date for the node and no date in the item
+          // there is no way to display it on the calendar
+          unset($node);
+        
+        }
+
+        if (isset($node) && !$node->calendar_start && $item->$field_field) {
+          
+          // if calendar_start field holds a numeric value, treat it as a unix timestamp
+          // if string, convert to timestamp using strtotime
+          if ($field_type == 'timestamp') {
+            $node->calendar_start = $item->$field_field;
+          } else {
+            $node->calendar_start = strtotime($item->$field_field);
+          }
+          // need to come back to this and do something better with timezone handling
+          // keep it simple until things are basically working
+          $node->start_offset = $timezone = _views_get_timezone();
+          $node->end_offset   = $node->start_offset;
+        }
+                
+        if (isset($node) && function_exists($field_function) && $node->calendar_start && $item->$field_field) {
+
+          if ($field_function == 'content_format') {
+            // force the original value for this field into the array that content_format expects
+            $node->start_time_format = content_format($field_field_name, array('value' => $item->$field_field), $field_formatter);
+            if ($node->calendar_end) $node->end_time_format = content_format($field_field_name, array('value' => $item->$field_field), $field_formatter);
+          }
+          else {
+            // or call date format function
+            $node->start_time_format = $field_function(NULL, NULL, $item->$field_field, NULL);
+            if ($node->calendar_end) $node->end_time_format = $field_function(NULL, NULL, $node->calendar_end, NULL);
+          }
+          
+          if ($node) {
+
+            // we can have multiple representations with the same nid, like multi-day values
+            // or different fields that refer to the same node
+            // create psuedo nid to make sure each gets a unique key so it gets displayed in the calendar
+            $node->nid = $item->nid.':'.$field_field;
+            
+            if ($view->build_type == 'page') {
+              
+              // create a stripe id from a combination of the field and content types
+              // and store value for legend
+              // formula tries to create a unique id for each possible combination
+              $node->stripe = intval((20 * $field_id) + $type_names[$node->type]);
+              $GLOBALS['calendar_stripe_labels'][$node->stripe] = $types[$node->type] .' '. $view->field[$delta]['label'];
+            
+            }
+            $nodes[$node->nid] = $node;
+          }
         }
       }
-      // may need to come back to this and do something better with timezone handling
-      // keep it simple until things are basically working
-      $node->start_offset = $timezone = _views_get_timezone();
-      $node->end_offset   = $node->start_offset;
-      
-      if (function_exists($start_function) && $node->calendar_start) {
-        if ($start_function == 'content_format') {
-          // force the original value for this field into the array that content_format expects
-          $node->start_time_format = content_format($start_field_name, array('value' => $item->$start_field), $start_formatter);
-        }
-        else {
-          // or call date format function
-          $node->start_time_format = $start_function(NULL, NULL, $node->calendar_start, NULL);
-        }
-      }
-      if (function_exists($end_function) && $node->calendar_end) {
-        if ($end_function == 'content_format') {
-          // force the original value for this field into the array that content_format expects
-          $node->end_time_format = content_format($end_field_name, array('value' => $item->$start_field), $end_formatter);
-        }
-        else {
-          // or call date format function
-          $node->end_time_format   = $end_function(NULL, NULL, $node->calendar_end, NULL);
-        }
-      }
-      
-    } else {
-      // no special date field supplied in the view but there is an calendar date in the node so use it
-      // no action needed
     }
-    
-    $nodes[$item->nid] = $node;
   }
   
   // make sure there is at least one item in $nodes to force the calendar to display
@@ -220,7 +245,7 @@ function theme_calendar_display($view, $items, $type) {
     // with navigation that mimics regular calendar
     
     // trim off date values that are outside the selected range to prevent display of incomplete extra calendars
-    $nodes = _calendar_limit_nodes($nodes, $view->page_type, $view->year, $view->month, $view->day, $view->week, _views_get_timezone());
+    $nodes = _calendar_limit_nodes($nodes, $view->calendar_type, $view->year, $view->month, $view->day, $view->week, _views_get_timezone());
     
     // hide the intermediate header rows created by the event api and
     // push title and navigation into calendar header 
@@ -247,8 +272,28 @@ function theme_calendar_display($view, $items, $type) {
   theme_add_style(drupal_get_path('module', 'calendar') .'/calendar.css');
   
   $params['url'] = $view->url;
+  $params['stripe'] = 'stripe';
+  
   return calendar_get_calendar($view->calendar_type, $nodes, 'calendar', $title, $params);
   
+}
+
+function calendar_block($op = 'list', $delta = 0) {
+  switch ($op) {
+    case 'list' :
+      $blocks[0]['info'] = t('Calendar Legend.');
+      $blocks[1]['info'] = t('List of upcoming events.');
+      return $blocks;
+      break;
+    case 'view' :
+      switch ($delta) {
+      case 0:
+        $block['subject'] = t('Legend');
+        $block['content'] = $GLOBALS['calendar_stripe_labels'] ? '<div class="calendar legend">'. theme('calendar_stripe_legend', $GLOBALS['calendar_stripe_labels']) .'</div>' : '';
+        return $block;
+      }
+  }
+
 }
 
 /**
@@ -397,9 +442,13 @@ function _calendar_make_node($node = NULL, $timestamp = NULL, $offset = NULL, $y
  */
 function _calendar_limit_nodes($nodes, $type, $year, $month, $day, $week, $offset) {
   
+  if (!_calendar_is_valid($day, 'day')) $day = 1;
+  if (!_calendar_is_valid($month, 'month')) $month = date('m', time());
+  if (!_calendar_is_valid($year, 'year')) $year = date('Y', time());
+
   switch ($type) {
   case ('day'):
-    $min_date = gmmktime(0, 0, 0, $month, $day, $year);
+    $min_date = mktime(0, 0, 0, $month, $day, $year);
     $max_date = $min_date;
     break;
   case ('week'):
@@ -408,12 +457,12 @@ function _calendar_limit_nodes($nodes, $type, $year, $month, $day, $week, $offse
     $max_date = $min_date + (604800);
     break;
   case ('month');
-    $min_date = gmmktime(0, 0, 0, $month, 1, $year);
+    $min_date = mktime(0, 0, 0, $month, 1, $year);
     // find the first day of the next month and subtract one day
     if ($month < 12) {
-      $max_date = gmmktime(0, 0, 0, intval($month + 1), 1, $year) - (86400);
+      $max_date = mktime(0, 0, 0, intval($month + 1), 1, $year) - (86400);
     } else {
-      $max_date = gmmktime(0, 0, 0, 1, 1, intval($year + 1)) - (86400);
+      $max_date = mktime(0, 0, 0, 1, 1, intval($year + 1)) - (86400);
     }
     break;
   }
@@ -429,11 +478,13 @@ function _calendar_limit_nodes($nodes, $type, $year, $month, $day, $week, $offse
     if ($node->calendar_start < $min_date ) $nodes[$nid]->calendar_start = $min_date;
     if ($node->calendar_end   > $max_date ) $nodes[$nid]->calendar_end   = $max_date; 
   }
-  
   return $nodes;
 
 }
 
+/**
+ *  TODO need to identify type of timezone handling needed for each date field
+ */
 function calendar_offset($field_name) {
   $default_offset = variable_get('date_default_timezone', 0);
   $configurable_zones = variable_get('configurable_timezones', 1);
@@ -446,22 +497,35 @@ function calendar_offset($field_name) {
  *  all of them need the same processing, so run them through a single function
  *  instead of duplicating the processing for each one
  */
-function calendar_node_month($node) {
-  return calendar_node($node, 'month');
+function calendar_calendar_node_month($node) {
+  return calendar_calendar_node($node, 'month');
 }
-function calendar_node_day($node) {
-  return calendar_node($node, 'day');
+function calendar_calendar_node_day($node) {
+  return calendar_calendar_node($node, 'day');
 }
-function calendar_node_week($node) {
-  return calendar_node($node, 'week');
+function calendar_calendar_node_week($node) {
+  return calendar_calendar_node($node, 'week');
 }
-function calendar_node($node, $type) {
+function calendar_calendar_node($node, $type) {
+  
+  include_once('calendar_api.inc');
+
   // restore real calendar start and end times if they were adjusted to limit calendar range
   if ($node->real_start) $node->calendar_start = $node->real_start;
   if ($node->real_end)   $node->calendar_end   = $node->real_end;
-
+  
+  if ($type == 'month') {
+    $node->start_time_format = gmdate('G:i A', $node->calendar_start);
+    $node->end_time_format = gmdate('G:i A', $node->calendar_end);
+  }
+  
   if ($node->nid > 0 && $node->calendar_start) {
     // this is a real calendar, go ahead and display it
+
+    // switch our psuedo nids back to the right values
+    $tmp = explode(':', $node->nid);
+    $node->nid = $tmp[0];
+                      
     return theme('calendar_node', $type, $node);
   
   } else {
@@ -514,9 +578,6 @@ function calendar_handler_arg_month($op, &$query, $argtype, $arg = '') {
 function calendar_handler_arg_day($op, &$query, $argtype, $arg = '') {
   return calendar_handler_arg_type($op, $query, $argtype, $arg, 'calendar_day', 'DAY');
 }
-function calendar_handler_arg_week($op, &$query, $argtype, $arg = '') {
-  return calendar_handler_arg_type($op, $query, $argtype, $arg, 'calendar_week', 'WEEK');
-}
 function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_name, $field_type) {
 
   // arguments don't actually do anything except tell us what period we're in
@@ -535,9 +596,11 @@ function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_name, $f
  *  Insert filters into the query based on the current calendar view and the selected fields
  */
 function calendar_views_query_alter(&$query, &$view) {
-
+  
+  include_once('calendar_api.inc');
+  
   // make sure block views default to the current month
-  // and never try to show the day
+  // and make sure day view is not selected
 
   if ($view->build_type == 'block') {
     $view->calendar_type = 'month';
@@ -597,6 +660,7 @@ function calendar_views_query_alter(&$query, &$view) {
         $view->subtitle = l(gmdate('l, F j Y', strtotime($iso)), $view->url .'/'. $view->year .'/'. $view->month .'/'. $view->day);
         $view->calendar_type = str_replace('calendar_', '', $argument['type']);
       }
+      // TODO this is not working yet, and not sure how best to integrate it
       if ($argument['type'] == 'calendar_week' && $view->args[$delta]) {
         $view->week = _calendar_is_valid($view->args[$delta], 'week') ? $view->args[$delta] : 1;
         $query_min .= '-'. $view->week;
@@ -624,14 +688,27 @@ function calendar_views_query_alter(&$query, &$view) {
   
   // find all datetime fields in this view and add filters for them to the query
   $fields = calendar_fields();
+  
   foreach ($view->field as $field) {
-    if ($fields[$field['field']]['type'] == 'cck_string') {
+    
+    // handling for from and to date ranges
+    if ($fields[$field['field']]['timestamp_fromto']) {
+      $queries[] = "(". $fields[$field['field']]['timestamp_fromto'][1] ." >='$query_timestamp_min' AND ". $fields[$field['field']]['timestamp_fromto'][0] ." <='$query_timestamp_max')";
+      $event_field_processed = TRUE;
+    }
+    elseif ($fields[$field['field']]['string_fromto']) {
+      $queries[] = "(". $fields[$field['field']]['string_fromto'][1] ." >='$query_min' AND ". $fields[$field['field']]['string_fromto'][0] ." <='$query_max')";
+      $event_field_processed = TRUE;
+    }
+    // handling for single day dates
+    elseif ($fields[$field['field']]['type'] == 'cck_string') {
       $queries[] = "(". $field['fullname'] .">='$query_min' AND ". $field['fullname'] ."<='$query_max')";
     }
     elseif (strstr($fields[$field['field']]['type'], 'timestamp')) {
       $queries[] = "(". $field['fullname'] .">='$query_timestamp_min' AND ". $field['fullname'] ."<='$query_timestamp_max')";
     }
   }
+  
   $query->add_where(implode(" OR ", $queries));
   
   return;
@@ -642,6 +719,8 @@ function calendar_views_query_alter(&$query, &$view) {
  *  Implementation of hook_views_pre_view()
  */
 function calendar_views_pre_view(&$view, &$items) {
+  
+  include_once('calendar_api.inc');
 
   // add this so empty calendar results will produce blank calendar page
   // needed for smooth prev/next transitions and to make sure at least
@@ -656,6 +735,8 @@ function calendar_views_pre_view(&$view, &$items) {
       $view->block_empty_format = 3;
     }
   }
+
+  // add links to the top of the calendar to switch from one view to another
   if ($view->build_type == 'page') {
     $calendar_links[] = $view->calendar_type == 'year'  ? t('Year')  : l(t('Year'), $view->url .'/'. $view->year);
     $calendar_links[] = $view->calendar_type == 'month' ? t('Month') : l(t('Month'), $view->url .'/'. $view->year .'/'. ($view->month ? $view->month : calendar_user_date('month')));

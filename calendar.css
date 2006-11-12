@@ -143,12 +143,13 @@
   color: #555;
   margin: 2px 0 2px 0;
   padding-left: 3px;
+  font-size: 0.8em;
 }
 .calendar-calendar .end {
   font-style: normal;
   color: #555;
   margin: 2px 0 2px 0;
-  padding-left: 9px;
+  padding-left: 3px;
   font-size: 0.8em;
 }
 .calendar-calendar .ongoing {
@@ -191,55 +192,56 @@
 }
 
 /*  multi-day calendar top stripes  */
-.calendar-calendar .calendar .stripe {
+.calendar .stripe {
   height: 5px;
+  visibility:hidden;
 }
-.calendar-calendar .calendar .stripe-1 {
+.calendar .stripe-1 {
   background-color: #FF6;
   height: 5px;
   width: 100%;
 }
-.calendar-calendar .calendar .stripe-2 {
+.calendar .stripe-2 {
   background-color: #F66;
   height: 5px;
   width: 100%;
 }
-.calendar-calendar .calendar .stripe-3 {
+.calendar .stripe-3 {
   background-color: #668CFF;
   height: 5px;
   width: 100%;
 }
-.calendar-calendar .calendar .stripe-4 {
+.calendar .stripe-4 {
   background-color: #FFB366;
   height: 5px;
   width: 100%;
 }
-.calendar-calendar .calendar .stripe-5 {
+.calendar .stripe-5 {
   background-color: #85FF66;
   height: 5px;
   width: 100%;
 }
-.calendar-calendar .calendar .stripe-6 {
+.calendar .stripe-6 {
   background-color: #A666FF;
   height: 5px;
   width: 100%;
 }
-.calendar-calendar .calendar .stripe-7 {
+.calendar .stripe-7 {
   background-color: #FFE066;
   height: 5px;
   width: 100%;
 }
-.calendar-calendar .calendar .stripe-8 {
+.calendar .stripe-8 {
   background-color: #66FFFF;
   height: 5px;
   width: 100%;
 }
-.calendar-calendar .calendar .stripe-9 {
+.calendar .stripe-9 {
   background-color: #FF66D9;
   height: 5px;
   width: 100%;
 }
-.calendar-calendar .calendar .stripe-10 {
+.calendar .stripe-10 {
   background-color: #DDD;
   height: 5px;
   width: 100%;
@@ -292,3 +294,11 @@ div.mini {
   height:14em;
   float:left;
   }
+  
+.legend {
+  width:200px;
+  float:left;
+  }
+.legend td {
+  text-align:left;
+  }  

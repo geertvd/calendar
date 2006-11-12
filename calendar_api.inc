@@ -16,31 +16,34 @@
  *                "week": A week calendar.
  *                "day": A day calendar.
  *  @param $nodes An associative array of nodes with nids for key values.
- *           Node objects must have GMT timestamp values for start ($node->event_start).
- *           Optionally, an end value ($node->event_end) and a time zone offset value
- *           in the same format as drupal core ($node->tz). If a node has no end
- *           value, it is rendered on only one day. If no time zone value is displayed
- *           the time is rendered with no time zone offset (GMT).
+ *     Node objects must have GMT timestamp values for start ($node->event_start).
+ *     Optionally, an end value ($node->event_end) and a time zone offset value
+ *     in the same format as drupal core ($node->tz). If a node has no end
+ *     value, it is rendered on only one day. If no time zone value is displayed
+ *     the time is rendered with no time zone offset (GMT).
  *  @param $module - String containing the name of the module calling the function
  *  @param $title - A string value that will be printed into the header of the calendar
  *  @param $params - an optional array of additional values that may be needed
- *           $params[force_week]  - a week number to limit the displayed calendar to only that week
- *           $params[hide_header] - true to omit td header row(s)
- *           $params[as_array]    - true to return the rows array instead of the themed table
- *           $params[mini]        - this is a mini calendar, don't display item details
- *           $params[url]         - an url to use as a base url in month name
+ *     $params[force_week]  - a week number to limit the displayed calendar to only that week
+ *     $params[hide_header] - true to omit td header row(s)
+ *     $params[as_array]    - true to return the rows array instead of the themed table
+ *     $params[mini]        - this is a mini calendar, don't display item details
+ *     $params[url]         - an url to use as a base url in month name
+ *     $params[stripe]      - an node field to use instead of nid for stripes
  *  @return Themed calendar view of nodes or array of calendar rows
  */
 function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = array()) {
   
   $today = calendar_user_date();
   $data  = array();
-  foreach ($nodes as $node) {
-
+  foreach ($nodes as $nid => $node) {
+    
+    $node->stripe = $params['stripe'] ? $node->$params['stripe'] : $node->nid;
+    
     $calendar = new stdClass();
     $nodes[$node->nid] = $node;
     $calendar->nid = $node->nid;
-
+    
     // $node_start and $node_end are local timestamp values
     $node_start = gmmktime(0, 0, 0, calendar_event_date('m', $node->calendar_start, $node->start_offset), calendar_event_date('d', $node->calendar_start, $node->start_offset), calendar_event_date('Y', $node->calendar_start, $node->start_offset));
     if ($node->calendar_end) {
@@ -49,26 +52,36 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
     else {
       $node_end = $node_start;
     }
-
+    
     if ($node_start == $node_end) {
       $calendar->calendar_state = 'singleday';
       $calendar->stamp = $node_start;
+      $calendar->stripe = $node->stripe;
       $data[gmdate('Y', $node_start)][gmdate('m', $node_start)][gmdate('j', $node_start)][] = $calendar;
     }
     else {
       // roll through each day the calendar occurs and set an entry for each
       for ($x = $node_start; $x <= $node_end; $x += 86400) {
         if ($x == $node_end) {
+          $calendar = new StdClass();
+          $calendar->nid = $node->nid;
+          $calendar->stripe = $node->stripe;
           $calendar->calendar_state = 'end';
           $calendar->stamp = $x;
           $data[gmdate('Y', $x)][gmdate('m', $x)][gmdate('j', $x)][] = $calendar;
         }
         elseif ($x == $node_start) {
+          $calendar = new StdClass();
+          $calendar->nid = $node->nid;
+          $calendar->stripe = $node->stripe;
           $calendar->calendar_state = 'start';
           $calendar->stamp = $x;
           $data[gmdate('Y', $x)][gmdate('m', $x)][gmdate('j', $x)][] = $calendar;
         }
         else {
+          $calendar = new StdClass();
+          $calendar->nid = $node->nid;
+          $calendar->stripe = $node->stripe;
           $calendar->calendar_state = 'ongoing';
           $calendar->stamp = $x;
           $data[gmdate('Y', $x)][gmdate('m', $x)][gmdate('j', $x)][] = $calendar;
@@ -110,6 +123,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
               $node = $nodes[$calendar->nid];
               
               $node->calendar_state = $calendar->calendar_state;
+              
               if($output = module_invoke($module, 'calendar_node_'. $view, $node)) {
                 $content .= $output;
               }
@@ -186,6 +200,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                   foreach($days[$cur_day] as $calendar) {
                     $node = $nodes[$calendar->nid];
                     $node->calendar_state = $calendar->calendar_state;
+                    
                     if($output = module_invoke($module, 'calendar_node_'. $view, $node)) {
                       $content .= $output;
                     }
@@ -309,6 +324,8 @@ function calendar_user_date($part = 'timestamp') {
     return gmdate('H', $date);
   case ('minute'):
     return gmdate('i', $date);
+  case ('week'):
+    return gmdate('W', $date);
   default:
     return $date;
   }
@@ -404,6 +421,42 @@ function _calendar_day_of_week($stamp) {
  */
 
 /**
+ * Format a node stripe legend
+ */
+function theme_calendar_stripe_legend($stripe_labels) {
+  
+  $header = array(t('Item'), t('Key'));
+  foreach ($stripe_labels as $stripe => $label) {
+    $node = new StdClass();
+    $node->stripe = $stripe;
+    $rows[] = array($label, theme('calendar_stripe_stripe', $node));
+  }
+  $output = theme('table', $header, $rows);
+  return $output;
+}
+
+/**
+ * Format node stripes
+ * Add key value to text, then hide it with css for accessibility to screen readers
+ */
+function theme_calendar_stripe_stripe($node) {
+  static $stripe, $stripe_map;
+  
+  if(!$stripe_map[$node->stripe]) {
+    if($stripe >= 10) {
+      $stripe = 1;
+    }
+    else {
+      $stripe++;
+    }
+    $stripe_map[$node->stripe] = $stripe;
+  }
+
+  $output .= '<div class="stripe-'. $stripe_map[$node->stripe] .'" title="Key: '.$stripe_map[$node->stripe] .'"><span class="stripe">Key '.$stripe_map[$node->stripe] .'</span></div>'."\n";
+  return $output;
+}
+
+/**
  * Format a calendar view
  *
  * @param day
@@ -490,11 +543,12 @@ function theme_calendar_list($op, $header, $rows) {
  */
 function theme_calendar_node_day($node) {
   $output .= '<div class="calendar dayview">'."\n";
+  $output .= theme('calendar_stripe_stripe', $node);
 
   $output .= '<div class="title">'. l($node->title, "node/$node->nid", array('title' => t('view this calendar'))) .'</div>'."\n";
 
   $output .= '<div class="start">'. t('Start: ') . $node->start_time_format .'</div>'."\n";
-  if ($node->calendar_start != $node->calendar_end) {
+  if ($node->calendar_start != $node->calendar_end && $node->calendar_end) {
     $output .= '<div class="end">'. t('End: ') . $node->end_time_format .'</div>'."\n";
   }
   if ($node->teaser) {
@@ -512,25 +566,13 @@ function theme_calendar_node_day($node) {
  *   The node being displayed
  */
 function theme_calendar_node_week($node) {
-  static $stripe, $stripe_map;
-
-  if(!$stripe_map[$node->nid]) {
-    if($stripe >= 10) {
-      $stripe = 1;
-    }
-    else {
-      $stripe++;
-    }
-    $stripe_map[$node->nid] = $stripe;
-  }
-
   $output .= '<div class="calendar weekview">'."\n";
-  $output .= '<div class="stripe-'. $stripe_map[$node->nid] .'"></div>'."\n";
-
+  $output .= theme('calendar_stripe_stripe', $node);
+  
   switch ($node->calendar_state) {
     case 'singleday':
         $times = '<div class="start">'. t('Start: ') . $node->start_time_format .'</div>'."\n";
-        if ($node->calendar_start != $node->calendar_end) {
+        if ($node->calendar_start != $node->calendar_end && $node->calendar_end) {
           $times .= '<div class="end">'. t('End: ') . $node->end_time_format .'</div>'."\n";
         }
       break;
@@ -564,27 +606,17 @@ function theme_calendar_node_week($node) {
  *   The node being displayed
  */
 function theme_calendar_node_month($node) {
-  static $stripe, $stripe_map;
-  if (!$stripe_map[$node->nid]) {
-    if ($stripe >= 10) {
-      $stripe = 1;
-    }
-    else {
-      $stripe++;
-    }
-    $stripe_map[$node->nid] = $stripe;
-  }
-
+  
   $output .= '<div class="calendar monthview">'."\n";
-  $output .= '<div class="stripe-'. $stripe_map[$node->nid] .'"></div>'."\n";
-
+  $output .= theme('calendar_stripe_stripe', $node);
+  
   switch ($node->calendar_state) {
     case 'singleday':
-      if ($node->calendar_start_time_format != $node->calendar_end_time_format) {
+      if ($node->start_time_format != $node->end_time_format) {
         $times = '<div class="start">'. t('Start: ') . $node->start_time_format .'</div>'."\n";
-        if ($node->calendar_start != $node->calendar_end) {
-          $times .= '<div class="end">'. t('End: ') . $node->end_time_format .'</div>'."\n";
-        }
+      }
+      if ($node->calendar_start != $node->calendar_end && $node->calendar_end) {
+        $times .= '<div class="end">'. t('End: ') . $node->end_time_format .'</div>'."\n";
       }
       else {
         $times = '<div class="start">'. $node->start_time_format .'</div>'."\n";
@@ -616,22 +648,12 @@ function theme_calendar_node_month($node) {
  */
 
 function theme_calendar_node_table($node) {
-  static $stripe, $stripe_map, $link_count;
+  static $link_count;
   drupal_add_js(drupal_get_path('module', 'calendar') .'/calendar.js');
   $link_count++;
 
-  if (!$stripe_map[$node->nid]) {
-    if ($stripe >= 10) {
-      $stripe = 1;
-    }
-    else {
-      $stripe++;
-    }
-    $stripe_map[$node->nid] = $stripe;
-  }
-
   $output .= '<div class="calendar tableview">'."\n";
-  $output .= '<div class="stripe-'. $stripe_map[$node->nid] .'"></div>'."\n";
+  $output .= theme('calendar_stripe_stripe', $node);
   if (variable_get('calendar_type_control', 'all') != 'never') {
     if (!$module && (calendar_get_types('all') + calendar_get_types('solo')) > 1) {
       $output .= '<div class="type">'. l('('. $node->calendar_node_title .')', 'calendar/'.gmdate('Y/m/d', $node->calendar_start).'/table/'.$node->type, array('title' => t('limit view to calendars of this type'))).'</div>'."\n";
@@ -674,22 +696,12 @@ function theme_calendar_node_table($node) {
 }
 
 function theme_calendar_node_list($node, $module = NULL) {
-  static $stripe, $stripe_map, $link_count;
+  static $link_count;
   drupal_add_js(drupal_get_path('module', 'calendar') .'/calendar.js');
   $link_count++;
 
-  if (!$stripe_map[$node->nid]) {
-    if ($stripe >= 10) {
-      $stripe = 1;
-    }
-    else {
-      $stripe++;
-    }
-    $stripe_map[$node->nid] = $stripe;
-  }
-
   $output = '<div class="calendar tableview">'."\n";
-  $output .= '<div class="stripe-'. $stripe_map[$node->nid] .'"></div>'."\n";
+  $output .= theme('calendar_stripe_stripe', $node);
   if (variable_get('calendar_type_control', 'all') != 'never') {
     if (!$module && (calendar_get_types('all') + calendar_get_types('solo')) > 1) {
       $output .= '<div class="type">'. l('('. $node->calendar_node_title .')', 'calendar/'.gmdate('Y/m/d', $node->calendar_start).'/table/'.$node->type, array('title' => t('limit view to calendars of this type'))).'</div>'."\n";
