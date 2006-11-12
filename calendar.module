@@ -597,6 +597,8 @@ function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_name, $f
  */
 function calendar_views_query_alter(&$query, &$view) {
   
+  if (!calendar_is_calendar($view)) return;
+
   include_once('calendar_api.inc');
   
   // make sure block views default to the current month
@@ -677,6 +679,10 @@ function calendar_views_query_alter(&$query, &$view) {
     }
   }
   
+  if (!$query_min) {
+    return;
+  }
+
   $query_min .= $next_min;
   $query_max .= $next_max;
   
@@ -720,6 +726,8 @@ function calendar_views_query_alter(&$query, &$view) {
  */
 function calendar_views_pre_view(&$view, &$items) {
   
+  if (!calendar_is_calendar($view)) return;
+
   include_once('calendar_api.inc');
 
   // add this so empty calendar results will produce blank calendar page
@@ -767,6 +775,27 @@ function _calendar_is_valid($value, $type) {
     if ($value < 0 || $value > 53) return false;
   }
   return true;
+}
+
+/**
+ *  Function to test whether this is a view that the calendar module should touch
+ */
+function calendar_is_calendar($view) {
+  
+  $is_calendar = FALSE;
+  if ($view->build_type == 'page' && !array_key_exists($view->page_type, calendar_view_types())) {
+    return FALSE;
+  }
+  if ($view->build_type == 'block' && !array_key_exists($view->block_type, calendar_view_types())) {
+    return FALSE;
+  }
+  
+  foreach ($view->argument as $delta => $argument) {
+    if (in_array($argument['type'], array('calendar_year', 'calendar_month', 'calendar_day', 'calendar_week'))) {
+      return TRUE;
+    }
+  }
+  return FALSE;
 }
 
 function calendar_views_default_views() {
