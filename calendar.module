@@ -186,7 +186,7 @@ function theme_calendar_display($view, $items, $type) {
         }
                 
         if (isset($node) && function_exists($field_function) && $node->calendar_start && $item->$field_field) {
-
+          
           if ($field_function == 'content_format') {
             // force the original value for this field into the array that content_format expects
             $node->start_time_format = content_format($field_field_name, array('value' => $item->$field_field), $field_formatter);
@@ -194,8 +194,10 @@ function theme_calendar_display($view, $items, $type) {
           }
           else {
             // or call date format function
-            $node->start_time_format = $field_function(NULL, NULL, $item->$field_field, NULL);
-            if ($node->calendar_end) $node->end_time_format = $field_function(NULL, NULL, $node->calendar_end, NULL);
+            if (!$node->start_time_format) {
+              $node->start_time_format = $field_function(NULL, NULL, $item->$field_field, NULL);
+              if ($node->calendar_end && !$node->end_time_format) $node->end_time_format = $field_function(NULL, NULL, $node->calendar_end, NULL);
+            }
           }
           
           if ($node) {
@@ -513,11 +515,6 @@ function calendar_calendar_node($node, $type) {
   // restore real calendar start and end times if they were adjusted to limit calendar range
   if ($node->real_start) $node->calendar_start = $node->real_start;
   if ($node->real_end)   $node->calendar_end   = $node->real_end;
-  
-  if ($type == 'month') {
-    $node->start_time_format = gmdate('G:i A', $node->calendar_start);
-    $node->end_time_format = gmdate('G:i A', $node->calendar_end);
-  }
   
   if ($node->nid > 0 && $node->calendar_start) {
     // this is a real calendar, go ahead and display it
