@@ -35,6 +35,7 @@
 function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = array()) {
   
   $today = calendar_user_date();
+  
   $data  = array();
   foreach ($nodes as $nid => $node) {
     
@@ -209,7 +210,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                     }
                   }
                 }
-
+                
                 $row[$x] = array(
                   'class' => strtolower("$month_name ". $weekdays[$x]['day'] . ($curstamp == $today ? ' today' : '') . ($params['mini'] ? ' mini' : '')),
                   'id' => strtolower($month_name . $day),
@@ -293,7 +294,7 @@ function calendar_mktime($hour, $minute, $second, $month, $day, $year, $offset =
  */
 function calendar_user_time() {
   global $user;
-
+  
   if (variable_get('configurable_timezones', 1) && $user->uid && strlen($user->timezone)) {
     return (time() - date("Z")) + $user->timezone;
   }
@@ -308,11 +309,35 @@ function calendar_user_time() {
  * @return integer timestamp
  */
 function calendar_user_date($part = 'timestamp') {
+  global $user;
   static $date;
   if (!$date) {
     $now = calendar_user_time();
     $date = gmmktime(0, 0, 0, gmdate('m', $now), gmdate('j', $now), gmdate('Y', $now));
+    
+      // this function calculates the user's date at midnight GMT
+      // and is used to check for matches against daily midnight timestamps when creating calendars
+      // since the timestamp is always compared against a midnight GMT timestamp
+      // there will be periods of time when the user will be in a different day than GMT
+      // the length of that period of mismatch is the same as the user's offset in seconds
+      // for timezones with negative offsets, that will be late in the user's day
+      // for timezones with positive offsets, that will be early in the user's day
+      // calculate the times when there will be a discrepancy and add or subtract a day to adjust
+    
+    if (variable_get('configurable_timezones', 1) && $user->uid && strlen($user->timezone)) {
+      $user_offset = $user->timezone;
+    }
+    else {
+      $user_offset = variable_get('date_default_timezone', 0);
+    }
+    if ($user_offset < 0) {
+      $date = ($date - $now) <= $user_offset ? $date : intval($date - 86400);
+    }
+    else {
+      $date = ($date - $now) >= $user_offset ? $date : intval($date + 86400);
+    }
   }
+  
   switch ($part) {
   case ('year'):
     return gmdate('Y', $date);
