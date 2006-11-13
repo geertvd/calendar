@@ -858,8 +858,8 @@ function theme_calendar_filter_control($form) {
  * @param link
  *   The url for the navigation
  */
-function theme_calendar_nav_next($url, $text = TRUE) {
-  return '<span class="next">'. l(($text ? t('next') : '') .' »', $url) .'</span>';
+function theme_calendar_nav_next($url, $text = TRUE, $querystring = NULL) {
+  return '<span class="next">'. l(($text ? t('next') : '') .' »', $url, NULL, $querystring) .'</span>';
 }
 
 /**
@@ -868,8 +868,8 @@ function theme_calendar_nav_next($url, $text = TRUE) {
  * @param link
  *   The url for the navigation
  */
-function theme_calendar_nav_prev($url, $text = TRUE) {
-  return '<span class="prev">'. l('« '. ($text ? t('prev') : ''), $url) .'</span>';
+function theme_calendar_nav_prev($url, $text = TRUE, $querystring = NULL) {
+  return '<span class="prev">'. l('« '. ($text ? t('prev') : ''), $url, NULL, $querystring) .'</span>';
 }
 
 /**

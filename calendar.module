@@ -319,10 +319,18 @@ function calendar_nav($view, $mini = FALSE) {
   $prev_path = implode('/', array_reverse($paths[0]));
   $next_path = implode('/', array_reverse($paths[1]));
   
+  // for the mini calendar in a block, use the url as a querystring to avoid actually changing the page
+  if ($mini) {
+    $prev_query = 'path='. $prev_path;
+    $prev_path = $_GET['q'];
+    $next_query = 'path='. $next_path;
+    $next_path = $_GET['q'];
+  }
+  
   $header = array();
-  $header[]  = array('data' => theme('calendar_nav_prev', $prev_path, $mini ? FALSE : TRUE), 'class' => 'prev');
+  $header[]  = array('data' => theme('calendar_nav_prev', $prev_path, $mini ? FALSE : TRUE, $prev_query), 'class' => 'prev');
   $header[]  = array('data' => $view->subtitle, 'class' => 'heading', 'colspan' => 5);
-  $header[]  = array('data' => theme('calendar_nav_next', $next_path, $mini ? FALSE : TRUE), 'class' => 'next');
+  $header[]  = array('data' => theme('calendar_nav_next', $next_path, $mini ? FALSE : TRUE, $next_query), 'class' => 'next');
   
   return $header;
 }
@@ -603,7 +611,7 @@ function calendar_views_query_alter(&$query, &$view) {
 
   if ($view->build_type == 'block') {
     $view->calendar_type = 'month';
-    $view->args = (explode('/', str_replace($view->url .'/', '', $view->real_url)));
+    $view->args = explode('/', str_replace($view->url .'/', '', $_GET['path']));
     foreach ($view->argument as $delta => $argument) {
       if ($argument['type'] == 'calendar_month' && !$view->args[$delta]) {
         $view->args[$delta] = calendar_user_date('month');
