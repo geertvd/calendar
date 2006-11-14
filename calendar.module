@@ -320,10 +320,10 @@ function calendar_nav($view, $mini = FALSE) {
   $next_path = implode('/', array_reverse($paths[1]));
   
   // for the mini calendar in a block, treat the url as a querystring to avoid actually changing the page
-  if ($mini) {
-    $prev_query = 'path='. $prev_path;
+  if ($mini && $view->calendar_type == 'month') {
+    $prev_query = 'mini='. $prev_path;
     $prev_path = $_GET['q'];
-    $next_query = 'path='. $next_path;
+    $next_query = 'mini='. $next_path;
     $next_path = $_GET['q'];
   }
   
@@ -597,7 +597,7 @@ function calendar_views_query_alter(&$query, &$view) {
 
   if ($view->build_type == 'block') {
     $view->calendar_type = 'month';
-    $view->args = explode('/', str_replace($view->url .'/', '', $_GET['path']));
+    $view->args = explode('/', str_replace($view->url .'/', '', $_GET['mini']));
     foreach ($view->argument as $delta => $argument) {
       if ($argument['type'] == 'calendar_month' && !$view->args[$delta]) {
         $view->args[$delta] = calendar_user_date('month');
