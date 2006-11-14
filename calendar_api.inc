@@ -274,7 +274,8 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
   // if only the rows array is requested, return it
   if ($params['as_array']) return $rows;
   $header[] = ($title ? array('class' => 'heading', 'data' => $title, 'colspan' => $colspan) : array());
-  return theme('calendar_'. $view, 'page', $header, $rows, $month_rows);
+  $op = $params['mini'] ? 'mini' : 'page';
+  return theme('calendar_'. $view, $op, $header, $rows, $month_rows);
 }
 
 /**
@@ -475,9 +476,9 @@ function theme_calendar_stripe_legend($stripe_labels) {
   foreach ($stripe_labels as $stripe => $label) {
     $node = new StdClass();
     $node->stripe = $stripe;
-    $rows[] = array($label, theme('calendar_stripe_stripe', $node));
+    $rows[] = array($label, theme('calendar_stripe_stripe', $node), array('class' => 'stripe'));
   }
-  $output = theme('table', $header, $rows);
+  $output = theme('table', $header, $rows, array('class' => 'mini'));
   return $output;
 }
 
@@ -534,11 +535,11 @@ function theme_calendar_year($op, $header, $rows, $month_rows) {
  *   The day to display.
  */
 function theme_calendar_month($op, $header, $rows) {
-  if (strstr($header[0]['data'], '<table')) {
-    $output = $header[0]['data'];
-    $header = array();
+  $attrs = array();
+  if ($op == 'mini') {
+    $attrs = array('class' => 'mini');
   }
-  $output .= theme("table", $header, $rows);
+  $output = theme("table", $header, $rows, $attrs);
   return '<div class="calendar-calendar"><div class="month-view">'. $output ."</div></div>\n";
 }
 

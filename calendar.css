@@ -32,8 +32,12 @@
   vertical-align: top;
   margin: 0;
   padding: 0;
-  min-height:40px;
-  _height:40px;
+  min-height:5em;
+  _height:5em;
+}
+.calendar-calendar td.days, .calendar-calendar td.mini, .calendar-calendar .mini td, .calendar-calendar .legend td {
+  min-height:1px;
+  _height:1px;
 }
 
 .calendar_nav_wrapper {
@@ -89,9 +93,6 @@
   border-width: 0 1px 1px 0;
   padding:1px;
   margin:0;
-  min-height:1px;
-  _height:1px;
-
 }
 
 /*  floating day number div  */
@@ -215,6 +216,8 @@
 /*  multi-day calendar top stripes  */
 .calendar .stripe {
   height: 5px;
+  line-height:5px;
+  font-size:5px;
   visibility:hidden;
 }
 .calendar .stripe-1 {
