@@ -19,7 +19,7 @@
 }
 .calendar-calendar th {
   color: #fff;
-  background: #69c;
+  background: #ccc;
   text-align: center;
   padding:3px;
   margin:0;
@@ -32,14 +32,27 @@
   vertical-align: top;
   margin: 0;
   padding: 0;
+  min-height:40px;
+  _height:40px;
 }
-.calendar-calendar th.heading {
+
+.calendar_nav_wrapper {
+  width:100%;
+  }
+.calendar-calendar div.title {
+  width:48%;
+  text-align:center;
+  float:left;
 }
-.calendar-calendar th.prev {
+.calendar-calendar div.prev {
   text-align: left;
+  width:25%;
+  float:left;
 }
-.calendar-calendar th.next {
+.calendar-calendar div.next {
   text-align: right;
+  width:25%;
+  float:right;
 }
 .calendar-calendar th a {
   font-weight: bold;
@@ -76,6 +89,9 @@
   border-width: 0 1px 1px 0;
   padding:1px;
   margin:0;
+  min-height:1px;
+  _height:1px;
+
 }
 
 /*  floating day number div  */
@@ -107,6 +123,9 @@
 .calendar-calendar div.title {
   padding-left: 3px;
 }
+.calendar-calendar .monthview .title {
+  clear:both;
+  }
 .calendar-calendar div.title a {
   color: #000;
 }
@@ -114,6 +133,7 @@
   color: #c00;
 }
 .calendar-calendar .content {
+  
   margin: 5px;
   padding: 3px;
   border-left: solid 2px #999;
@@ -139,6 +159,7 @@
   color: #c00;
 }
 .calendar-calendar .start {
+  clear:both;
   font-style: normal;
   color: #555;
   margin: 2px 0 2px 0;
@@ -280,25 +301,35 @@ table td.mini a {
   font-weight:normal;
   }  
 .mini_day_off {
-  padding:2px;
+  padding:1px;
 }
 .mini_day_on {
-  padding:2px;
+  padding:1px;
+  background-color:#ffc
 }
 table .mini_day_on a {
   text-decoration:underline;
   }
-  
+
+div.mini_row {
+  width:100%;
+  clear:left;
+}
 div.mini {
   width:33%;
-  height:14em;
   float:left;
   }
-  
+div.mini table {
+  margin:1%;
+  }  
 .legend {
-  width:200px;
-  float:left;
+  width:100%;
+  }
+table th.legend {
+  background-color:#ccc;
   }
 .legend td {
   text-align:left;
   }  
+  
+

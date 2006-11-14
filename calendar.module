@@ -56,6 +56,7 @@ function calendar_fields() {
   foreach (_views_get_fields() as $name => $val) {
     
     $fromto = array();
+    $type = '';
 
     // for cck fields, get the date type
     if ($val['content_field']['type'] == 'date' || $val['content_field']['type'] == 'datestamp') {
@@ -68,7 +69,7 @@ function calendar_fields() {
 
     // don't do anything if this is not a date field
     if ($type) {
-
+      
       // dates with from and to dates need to handle both fields as one
       // add the from and to dates to the first one found and ignore the second
 
@@ -99,14 +100,13 @@ function calendar_fields() {
       }
     }
   }
-  
   return $fields;
 }
 
 /**
  *  Calendar Views plugin theme, overrides default views theme
  */
-function theme_calendar_display($view, $items, $type) {
+function theme_calendar_display(&$view, &$items, $type) {
   
   include_once('calendar_api.inc');
   
@@ -116,7 +116,8 @@ function theme_calendar_display($view, $items, $type) {
 
   $types = node_get_types();
   $type_names = array_flip(array_keys($types));
-            
+  unset($params['limit']);
+
   if ($type == 'block' || $view->calendar_type == 'year') $params['mini'] = TRUE;
   
   $fields = calendar_fields();
@@ -207,13 +208,13 @@ function theme_calendar_display($view, $items, $type) {
             // create psuedo nid to make sure each gets a unique key so it gets displayed in the calendar
             $node->nid = $item->nid.':'.$field_field;
             
-            if ($view->build_type == 'page') {
+            if ($view->build_type == 'page' && $view->calendar_type != 'year') {
               
               // create a stripe id from a combination of the field and content types
               // and store value for legend
               // formula tries to create a unique id for each possible combination
               $node->stripe = intval((20 * $field_id) + $type_names[$node->type]);
-              $GLOBALS['calendar_stripe_labels'][$node->stripe] = $types[$node->type] .' '. $view->field[$delta]['label'];
+              $GLOBALS['calendar_stripe_labels'][$node->stripe] = $view->field[$delta]['label'] .' ('. $types[$node->type] .') ';
             
             }
             $nodes[$node->nid] = $node;
@@ -247,12 +248,12 @@ function theme_calendar_display($view, $items, $type) {
     // with navigation that mimics regular calendar
     
     // trim off date values that are outside the selected range to prevent display of incomplete extra calendars
-    $nodes = _calendar_limit_nodes($nodes, $view->calendar_type, $view->year, $view->month, $view->day, $view->week, _views_get_timezone());
+    $params['limit'] = _calendar_limit_nodes($nodes, $view->calendar_type, $view->year, $view->month, $view->day, $view->week, _views_get_timezone());
     
     // hide the intermediate header rows created by the event api and
     // push title and navigation into calendar header 
     $params['hide_header'] = true;
-    $title = theme('table', calendar_nav($view, $params['mini']), array());
+    $title = theme('calendar_nav_wrapper', calendar_nav($view, $params['mini']), array());
     
     // standard api displays a whole month instead of a single week
     // adjust here for single week display
@@ -284,7 +285,6 @@ function calendar_block($op = 'list', $delta = 0) {
   switch ($op) {
     case 'list' :
       $blocks[0]['info'] = t('Calendar Legend.');
-      $blocks[1]['info'] = t('List of upcoming events.');
       return $blocks;
       break;
     case 'view' :
@@ -319,7 +319,7 @@ function calendar_nav($view, $mini = FALSE) {
   $prev_path = implode('/', array_reverse($paths[0]));
   $next_path = implode('/', array_reverse($paths[1]));
   
-  // for the mini calendar in a block, use the url as a querystring to avoid actually changing the page
+  // for the mini calendar in a block, treat the url as a querystring to avoid actually changing the page
   if ($mini) {
     $prev_query = 'path='. $prev_path;
     $prev_path = $_GET['q'];
@@ -459,37 +459,24 @@ function _calendar_limit_nodes($nodes, $type, $year, $month, $day, $week, $offse
   switch ($type) {
   case ('day'):
     $min_date = mktime(0, 0, 0, $month, $day, $year);
-    $max_date = $min_date;
+    $max_date = $min_date + 86400 - 1;
     break;
   case ('week'):
     // use strtotime to find first day of requested week
     $min_date = strtotime('Jan 1, '.$year.' + '.intval($week - 1).' weeks');
-    $max_date = $min_date + (604800);
+    $max_date = $min_date + (604800) - 1;
     break;
   case ('month');
     $min_date = mktime(0, 0, 0, $month, 1, $year);
     // find the first day of the next month and subtract one day
     if ($month < 12) {
-      $max_date = mktime(0, 0, 0, intval($month + 1), 1, $year) - (86400);
+      $max_date = mktime(0, 0, 0, intval($month + 1), 1, $year) - 1;
     } else {
-      $max_date = mktime(0, 0, 0, 1, 1, intval($year + 1)) - (86400);
+      $max_date = mktime(0, 0, 0, 1, 1, intval($year + 1)) - 1;
     }
     break;
   }
-  
-  foreach ($nodes as $nid => $node) {
-    
-    // store real calendar start and end dates to swap back in before displaying the node
-    $nodes[$nid]->real_start = $node->calendar_start;
-    $nodes[$nid]->real_end   = $node->calendar_end;
-    
-    // change calendar_start and calendar_end to cut off node values outside the current range
-    // this will keep calendar api from rendering incomplete calendars for those values
-    if ($node->calendar_start < $min_date ) $nodes[$nid]->calendar_start = $min_date;
-    if ($node->calendar_end   > $max_date ) $nodes[$nid]->calendar_end   = $max_date; 
-  }
-  return $nodes;
-
+  return array($min_date, $max_date);
 }
 
 /**
@@ -508,30 +495,30 @@ function calendar_offset($field_name) {
  *  instead of duplicating the processing for each one
  */
 function calendar_calendar_node_month($node) {
-  return calendar_calendar_node($node, 'month');
+  return calendar_calendar_node($node, 'theme_calendar_node_month');
 }
 function calendar_calendar_node_day($node) {
-  return calendar_calendar_node($node, 'day');
+  return calendar_calendar_node($node, 'theme_calendar_node_day');
 }
 function calendar_calendar_node_week($node) {
-  return calendar_calendar_node($node, 'week');
+  return calendar_calendar_node($node, 'theme_calendar_node_week');
 }
 function calendar_calendar_node($node, $type) {
   
   include_once('calendar_api.inc');
-
+  
   // restore real calendar start and end times if they were adjusted to limit calendar range
   if ($node->real_start) $node->calendar_start = $node->real_start;
   if ($node->real_end)   $node->calendar_end   = $node->real_end;
   
   if ($node->nid > 0 && $node->calendar_start) {
     // this is a real calendar, go ahead and display it
-
+    
     // switch our psuedo nids back to the right values
     $tmp = explode(':', $node->nid);
     $node->nid = $tmp[0];
                       
-    return theme('calendar_node', $type, $node);
+    return $type($node);
   
   } else {
     // surpress display of psuedo calendars added to force display of a blank calendar
@@ -584,12 +571,11 @@ function calendar_handler_arg_day($op, &$query, $argtype, $arg = '') {
   return calendar_handler_arg_type($op, $query, $argtype, $arg, 'calendar_day', 'DAY');
 }
 function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_name, $field_type) {
-
+  
   // arguments don't actually do anything except tell us what period we're in
   // and make sure views knows that a page with this argument must be processed by views
   // the individual argument provides too little info to set up filters
   // filtering is done in hook_query_alter since we don't have complete view info until then
-  
   $query->field_name[] = $field_name;
   $query->field_type[] = $field_type;
   $query->field_args[] = $arg;
@@ -621,7 +607,7 @@ function calendar_views_query_alter(&$query, &$view) {
       }
     }
   }
-  
+
   foreach ($view->argument as $delta => $argument) {
     
     // there might be non-calendar arguments in the view, so we must ignore those
@@ -636,8 +622,6 @@ function calendar_views_query_alter(&$query, &$view) {
         $view->year = _calendar_is_valid($view->args[$delta], 'year') ? $view->args[$delta] : calendar_user_date('year');
         $query_min = $view->year;
         $query_max = $view->year;
-        $next_min = '-01';
-        $next_max = '-12';
         $view->subtitle = l($view->year, $view->url .'/'. $view->year);
         // make sure we have at least a year available as an argument
         if (!$view->args[$delta]) {
@@ -649,8 +633,6 @@ function calendar_views_query_alter(&$query, &$view) {
         $view->month = _calendar_is_valid($view->args[$delta], 'month') ? $view->args[$delta] : calendar_user_date('month');
         $query_min .= '-'. sprintf('%02d', $view->month);
         $query_max .= '-'. sprintf('%02d', $view->month);
-        $next_min = '-01';
-        $next_max = '-31';
         // use the second day of the month because gm functions sometimes return the previous month
         $format = $view->build_type == 'block' || $view->calendar_type == 'year' ? 'M Y' : 'F Y';
         $iso = $view->year .'-'. sprintf('%02d', $view->month) .'-02';
@@ -661,8 +643,6 @@ function calendar_views_query_alter(&$query, &$view) {
         $view->day = _calendar_is_valid($view->args[$delta], 'day') ? $view->args[$delta] : calendar_user_date('day');
         $query_min .= '-'. sprintf('%02d', $view->day);
         $query_max .= '-'. sprintf('%02d', $view->day);
-        $next_min = 'T00:00:00';
-        $next_max = 'T23:59:59';
         $iso = $view->year .'-'. sprintf('%02d', $view->month) .'-'. sprintf('%02d', $view->day) .'T12:00:00';
         $view->subtitle = l(gmdate('l, F j Y', strtotime($iso)), $view->url .'/'. $view->year .'/'. $view->month .'/'. $view->day);
         $view->calendar_type = str_replace('calendar_', '', $argument['type']);
@@ -672,8 +652,6 @@ function calendar_views_query_alter(&$query, &$view) {
         $view->week = _calendar_is_valid($view->args[$delta], 'week') ? $view->args[$delta] : 1;
         $query_min .= '-'. $view->week;
         $query_max .= '-'. $view->week;
-        $next_min = '';
-        $next_max = '';
         // use strtotime to find first day of requested week
         $week  = $view->args[$delta];
         $view->week = $week;
@@ -688,8 +666,19 @@ function calendar_views_query_alter(&$query, &$view) {
     return;
   }
 
-  $query_min .= $next_min;
-  $query_max .= $next_max;
+  // add elements to the query min a max values to finish a date value after supplying arg values
+  // in the case of a year view, we need at least a year, month, and day to get a value timestamp date to search for
+
+  $minmax = array(
+  'year' => array('-01-01', '-12-31'),
+  'month' => array('-01', '-31'),
+  'day' => array('T00', 'T23'),
+  'hour' => array(':00', ':59'),
+  'minute' => array(':00', ':59'),
+  );
+
+  $query_min .= $minmax[$view->calendar_type][0];
+  $query_max .= $minmax[$view->calendar_type][1];
   
   $query_timestamp_min = strtotime($query_min);
   $query_timestamp_max = strtotime($query_max);
@@ -732,19 +721,19 @@ function calendar_views_query_alter(&$query, &$view) {
 function calendar_views_pre_view(&$view, &$items) {
   
   if (!calendar_is_calendar($view)) return;
-
+  
   include_once('calendar_api.inc');
-
+  
   // add this so empty calendar results will produce blank calendar page
   // needed for smooth prev/next transitions and to make sure at least
   // a blank calendar is displayed in calendar block
   if (array_key_exists($view->page_type, calendar_view_types())) {
     if (!$items && $view->build_type == 'page' && $view->year) {
-      $view->page_empty .= theme('calendar_display', $view, array(), 'page');
+      $view->page_empty = $view->page_header . $view->page_empty . theme('calendar_display', $view, array(), 'page');
       $view->page_empty_format = 3;
     }
     if (!$items && $view->build_type == 'block' && $view->year) {
-      $view->block_empty .= theme('calendar_display', $view, array(), 'block');
+      $view->block_empty = $view->block_header . $view->block_empty . theme('calendar_display', $view, array(), 'block');
       $view->block_empty_format = 3;
     }
   }

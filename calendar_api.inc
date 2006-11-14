@@ -30,11 +30,22 @@
  *     $params[mini]        - this is a mini calendar, don't display item details
  *     $params[url]         - an url to use as a base url in month name
  *     $params[stripe]      - an node field to use instead of nid for stripes
+ *     $params[limit]       - an array of a minimum and maximum timestamp to include on the calendar
+                                used in case node array has values that overlap periods
  *  @return Themed calendar view of nodes or array of calendar rows
  */
 function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = array()) {
   
   $today = calendar_user_date();
+
+  if ($params['limit'][0]) {
+    $min_date = $params['limit'][0];
+    $max_date = $params['limit'][1];
+  }
+  else {
+    $min_date = 0;
+    $max_date = 999999999999;
+  }
   
   $data  = array();
   foreach ($nodes as $nid => $node) {
@@ -46,6 +57,13 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
     $calendar->nid = $node->nid;
     
     // $node_start and $node_end are local timestamp values
+    if ($min_date -  $node->start_offset > $node->calendar_start) {
+      $node->calendar_start = $min_date -  $node->start_offset;
+    }
+    if ($max_date -  $node->end_offset  < $node->calendar_end) {
+      $node->calendar_end = $max_date -  $node->end_offset;
+    }
+
     $node_start = gmmktime(0, 0, 0, calendar_event_date('m', $node->calendar_start, $node->start_offset), calendar_event_date('d', $node->calendar_start, $node->start_offset), calendar_event_date('Y', $node->calendar_start, $node->start_offset));
     if ($node->calendar_end) {
       $node_end = gmmktime(0, 0, 0, calendar_event_date('m', $node->calendar_end, $node->end_offset), calendar_event_date('d', $node->calendar_end, $node->end_offset), calendar_event_date('Y', $node->calendar_end, $node->end_offset));
@@ -197,7 +215,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                 $content = theme('calendar_date_box', $year, $month, $cur_day, $view, $params['mini'], $selected);
                 
                 // render nodes for the day
-                if(is_array($days[$cur_day])) {
+                if(is_array($days[$cur_day]) && !$params['mini']) {
                   foreach($days[$cur_day] as $calendar) {
                     $node = $nodes[$calendar->nid];
                     $node->calendar_state = $calendar->calendar_state;
@@ -450,7 +468,10 @@ function _calendar_day_of_week($stamp) {
  */
 function theme_calendar_stripe_legend($stripe_labels) {
   
-  $header = array(t('Item'), t('Key'));
+  $header = array(
+      array('class' => 'legend', 'data' => t('Item')), 
+      array('class' => 'legend', 'data' => t('Key'))
+      );
   foreach ($stripe_labels as $stripe => $label) {
     $node = new StdClass();
     $node->stripe = $stripe;
@@ -489,10 +510,18 @@ function theme_calendar_stripe_stripe($node) {
  */
 function theme_calendar_year($op, $header, $rows, $month_rows) {
   $year = array_shift($month_rows);
+    
   $output = '<div class="calendar-calendar"><div class="year-view">';
   $output .= $year;
+  $i = 0;
     foreach ($month_rows as $month) {
-      $output .= '<div class="mini">'.$month.'</div>';    
+      $i++;
+      $row .= '<div class="mini">'. $month .'</div>';    
+      if ($i == 3) {
+        $output .= '<div class="mini_row">'. $row .'</div>';
+        $row = '';
+        $i = 0;
+      }
     }
   $output .= "</div></div>\n";
   return $output;
@@ -870,6 +899,15 @@ function theme_calendar_nav_next($url, $text = TRUE, $querystring = NULL) {
  */
 function theme_calendar_nav_prev($url, $text = TRUE, $querystring = NULL) {
   return '<span class="prev">'. l('« '. ($text ? t('prev') : ''), $url, NULL, $querystring) .'</span>';
+}
+
+function theme_calendar_nav_wrapper($array) {
+  $output = '<div class="calendar_nav_wrapper">';
+  $output .= '<div class="prev">'. $array[0]['data'] . '</div>';
+  $output .= '<div class="title">'. $array[1]['data'] . '</div>';
+  $output .= '<div class="next">'. $array[2]['data'] .'</div>';
+  $output .= '</div>';
+  return $output;
 }
 
 /**
