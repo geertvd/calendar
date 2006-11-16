@@ -644,7 +644,19 @@ function calendar_views_query_alter(&$query, &$view) {
     unset($view->args[2]);
     unset($view->argument[2]);
   }
-  
+  // if this is not a week argument and view was created with a week argument, change it back
+  elseif (!strstr($view->args[1], 'W') && $view->build_type == 'page' && $view->argument[1]['type'] == 'calendar_week') {
+
+    $view->argument[1]['type'] = 'calendar_month';
+    $view->argument[1]['id'] = 'calendar_month';
+    $view->argument[1]['title'] = t('Month');
+    if ($view->args[2]) {
+      $view->argument[2]['type'] = 'calendar_day';
+      $view->argument[2]['id'] = 'calendar_day';
+      $view->argument[2]['title'] = t('Day');
+    }
+  }
+
   foreach ($view->argument as $delta => $argument) {
     
     // there might be non-calendar arguments in the view, so we must ignore those
@@ -693,7 +705,7 @@ function calendar_views_query_alter(&$query, &$view) {
         $week_end   = $week_start + 604800;
         $query_min = date('Y', $week_start) .'-'. date('m', $week_start) .'-'. date('d', $week_start) .'T00:00:00';
         $query_max = date('Y', $week_end) .'-'. date('m', $week_end) .'-'. date('d', $week_end) .'T23:59:59';
-        $view->subtitle = l(t("Week of %date", array('%date' => gmdate('F j Y', $week_start))), $view->url .'/'. $view->year .'/'. $view->week);
+        $view->subtitle = l(t("Week of %date", array('%date' => gmdate('F j Y', $week_start))), $view->url .'/'. $view->year .'/W'. $view->week);
         $view->calendar_type = str_replace('calendar_', '', $argument['type']);
       }
     }
