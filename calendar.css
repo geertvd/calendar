@@ -32,6 +32,9 @@
   vertical-align: top;
   margin: 0;
 }
+.calendar-calendar td.week {
+  width:1%;
+  }
 .calendar-calendar .inner {
   min-height:5em;
   overflow:none;
@@ -125,7 +128,7 @@
   margin: 0.25em 0 0.5em 0.25em;
 }
 .calendar-calendar div.title {
-  font-size:1em;
+  font-size:.8em;
   text-align:center;
 }
 .calendar-calendar .monthview .title {
@@ -191,6 +194,16 @@
   margin: 2px 0 2px 0;
   padding-left: 9px;
   font-size: 0.8em;
+}
+.calendar-calendar .week {
+  clear:both;
+  font-style: normal;
+  color: #555;
+  margin: 2px 0 2px 0;
+  font-size: 0.8em;
+}
+.calendar-calendar .week a {
+  font-weight:normal;
 }
 .calendar-calendar div.info {
   visibility: hidden;
@@ -299,7 +312,7 @@ span.calendar-nodetype {
 }
 
 
-table td.mini, table th.mini {
+table td.mini, table th.mini, table.mini td.week {
   padding:0;
   margin:0;
   }
@@ -318,6 +331,9 @@ table .mini_day_on a {
   }
 .calendar-calendar .mini .title {
   font-size:.8em;
+  }
+.mini .calendar-calendar .week {
+  font-size:.7em;
   }
 div.mini_row {
   width:100%;

@@ -234,6 +234,16 @@ function theme_calendar_display(&$view, &$items, $type) {
       $nodes[] = _calendar_make_node(NULL, NULL, _views_get_timezone(), $view->year, $i, 1, 12, 0);
     }
   }
+  elseif ($view->calendar_type == 'week') {
+    
+    // make sure at least one node is created for the current week
+    // add both start and end of week in case week crosses from one month to next
+    $week_start = strtotime('Jan 1, '.$view->year.' + '.intval($view->week - 1).' weeks');
+    $week_end = $week_start + 604800 -1;
+    $nodes[] = _calendar_make_node(NULL, NULL, _views_get_timezone(), $view->year, date('m', $week_start), date('j', $week_start), 12, 0);
+    $nodes[] = _calendar_make_node(NULL, NULL, _views_get_timezone(), $view->year, date('m', $week_end), date('j', $week_end), 12, 0);
+
+  }
   elseif (sizeof($nodes) == 0) {
 
     // otherwise add a blank node for the current day
@@ -252,12 +262,12 @@ function theme_calendar_display(&$view, &$items, $type) {
     
     // hide the intermediate header rows created by the event api and
     // push title and navigation into calendar header 
-    $params['hide_header'] = true;
+    $params['hide_header'] = $view->calendar_type == 'week' ? false : true;
     $title = theme('calendar_nav_wrapper', calendar_nav($view, $params['mini']), array());
     
     // standard api displays a whole month instead of a single week
     // adjust here for single week display
-    if ($view->page_type == 'week' && $view->week) {
+    if ($view->calendar_type == 'week' && $view->week) {
       $params['force_week'] = $view->week;
     }
   
@@ -276,6 +286,7 @@ function theme_calendar_display(&$view, &$items, $type) {
   
   $params['url'] = $view->url;
   $params['stripe'] = 'stripe';
+  $params['with_weekno'] = $view->build_type == 'block' ? FALSE : TRUE;
   
   return calendar_get_calendar($view->calendar_type, $nodes, 'calendar', $title, $params);
   
@@ -381,8 +392,8 @@ function calendar_get_paths($cur_stamp, $view) {
         $next_stamp = $cur_stamp + (604800);
         $prev_stamp = $cur_stamp - (604800);
       }
-      $nextpath[$x] = gmdate('W', $next_stamp);
-      $prevpath[$x] = gmdate('W', $prev_stamp);
+      $nextpath[$x] = 'W'. gmdate('W', $next_stamp);
+      $prevpath[$x] = 'W'. gmdate('W', $prev_stamp);
       break;
     case ('month'):
       $month = $path[$x]['path'];
@@ -551,7 +562,7 @@ function calendar_views_arguments() {
     'calendar_week' => array(
       'name' => t('Calendar: Week'),
       'handler' => 'calendar_handler_arg_week',
-      'help' => t("Filter by the week number (1-52). Place this argument after a 'Year' argument."),
+      'help' => t("Filter by the week number (1-52). Place this argument after a 'Year' argument and use a 'W' in front of the week number in the url."),
     ),
   );
   return $arguments;
@@ -569,6 +580,9 @@ function calendar_handler_arg_month($op, &$query, $argtype, $arg = '') {
 }
 function calendar_handler_arg_day($op, &$query, $argtype, $arg = '') {
   return calendar_handler_arg_type($op, $query, $argtype, $arg, 'calendar_day', 'DAY');
+}
+function calendar_handler_arg_week($op, &$query, $argtype, $arg = '') {
+  return calendar_handler_arg_type($op, $query, $argtype, $arg, 'calendar_week', 'WEEK');
 }
 function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_name, $field_type) {
   
@@ -596,6 +610,12 @@ function calendar_views_query_alter(&$query, &$view) {
   // and make sure day view is not selected
 
   if ($view->build_type == 'block') {
+    
+    // if the real view values were reset in the page, reset them
+    if ($view->reset_argument) {
+      $view->argument = $view->reset_argument;
+      $view->args = $view->reset_args;
+    }
     $view->calendar_type = 'month';
     $view->args = explode('/', str_replace($view->url .'/', '', $_GET['mini']));
     foreach ($view->argument as $delta => $argument) {
@@ -608,6 +628,23 @@ function calendar_views_query_alter(&$query, &$view) {
     }
   }
 
+  // see if this is a week view and reconstruct view info as needed
+  // the difference between a calendar_month arg and a calendar_week arg is the preceeding 'W'
+  if (strstr($view->args[1], 'W') && $view->build_type == 'page') {
+
+    // keep track of the original values so blocks rendered on the same page don't get wrong values
+    $view->reset_argument = $view->argument;
+    $view->reset_args = $view->args;
+    
+    $view->argument[1]['type'] = 'calendar_week';
+    $view->argument[1]['id'] = 'calendar_week';
+    $view->argument[1]['title'] = t('Week');
+    $view->args[1] = str_replace('W', '', $view->args[1]);
+    // if there's a day set, unset it
+    unset($view->args[2]);
+    unset($view->argument[2]);
+  }
+  
   foreach ($view->argument as $delta => $argument) {
     
     // there might be non-calendar arguments in the view, so we must ignore those
@@ -647,16 +684,16 @@ function calendar_views_query_alter(&$query, &$view) {
         $view->subtitle = l(gmdate('l, F j Y', strtotime($iso)), $view->url .'/'. $view->year .'/'. $view->month .'/'. $view->day);
         $view->calendar_type = str_replace('calendar_', '', $argument['type']);
       }
-      // TODO this is not working yet, and not sure how best to integrate it
       if ($argument['type'] == 'calendar_week' && $view->args[$delta]) {
         $view->week = _calendar_is_valid($view->args[$delta], 'week') ? $view->args[$delta] : 1;
-        $query_min .= '-'. $view->week;
-        $query_max .= '-'. $view->week;
         // use strtotime to find first day of requested week
         $week  = $view->args[$delta];
         $view->week = $week;
-        $date = strtotime('Jan 1, '.$year.' + '.intval($week - 1).' weeks');
-        $view->subtitle = l(t("Week of %date", array('%date' => gmdate('F j Y', $date))), $view->url .'/'. $view->year .'/'. $view->week);
+        $week_start = strtotime('Jan 1, '.$view->year.' + '.intval($week - 1).' weeks');
+        $week_end   = $week_start + 604800;
+        $query_min = date('Y', $week_start) .'-'. date('m', $week_start) .'-'. date('d', $week_start) .'T00:00:00';
+        $query_max = date('Y', $week_end) .'-'. date('m', $week_end) .'-'. date('d', $week_end) .'T23:59:59';
+        $view->subtitle = l(t("Week of %date", array('%date' => gmdate('F j Y', $week_start))), $view->url .'/'. $view->year .'/'. $view->week);
         $view->calendar_type = str_replace('calendar_', '', $argument['type']);
       }
     }
@@ -742,6 +779,7 @@ function calendar_views_pre_view(&$view, &$items) {
   if ($view->build_type == 'page') {
     $calendar_links[] = $view->calendar_type == 'year'  ? t('Year')  : l(t('Year'), $view->url .'/'. $view->year);
     $calendar_links[] = $view->calendar_type == 'month' ? t('Month') : l(t('Month'), $view->url .'/'. $view->year .'/'. ($view->month ? $view->month : calendar_user_date('month')));
+    $calendar_links[] = $view->calendar_type == 'week'  ? t('Week')  : l(t('Week'), $view->url .'/'. $view->year .'/W'. ($view->week ? $view->week : calendar_user_date('week')));
     $calendar_links[] = $view->calendar_type == 'day'   ? t('Day')   : l(t('Day'), $view->url .'/'. $view->year .'/'. ($view->month ? $view->month : calendar_user_date('month')) .'/'. ($view->day ? $view->day : calendar_user_date('day')));
     return theme('calendar_links', $calendar_links, 'month');
   }

@@ -25,6 +25,7 @@
  *  @param $title - A string value that will be printed into the header of the calendar
  *  @param $params - an optional array of additional values that may be needed
  *     $params[force_week]  - a week number to limit the displayed calendar to only that week
+ *     $params[with_weekno] - add a column for the week number to the calendar
  *     $params[hide_header] - true to omit td header row(s)
  *     $params[as_array]    - true to return the rows array instead of the themed table
  *     $params[mini]        - this is a mini calendar, don't display item details
@@ -163,7 +164,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
     case 'week':
     case 'month':
     case 'year':
-      $colspan = '7';
+      $colspan = $params['with_weekno'] ? '8' : '7';
         foreach ($data as $year => $months) {
           $month_rows[] = $title;
           if(count($data) > 1 && !$params['hide_header']) {
@@ -188,18 +189,15 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
             $month_link = $params['url'] ? l($month_name, $params['url'] .'/'. $year .'/'. intval($month)) : $month_name;
             // set week counter
             $week = 0;
-            if (($view == 'month' || !$params['force_week'])) {
-              // add month header, skip if a single week is being displayed (the week header gets added later)
-              if (!$params['hide_header']) {
-                $rows[][] = array(
-                  'class' => 'heading month',
-                  'id' => 'month'. $month,
-                  'data' => $month_name,
-                  'colspan' => $colspan);
-              }
-              $rows[] = calendar_week_header($params['mini']);
+            if (!$params['hide_header']) {
+              $rows[][] = array(
+                'class' => 'heading month',
+                'id' => 'month'. $month,
+                'data' => $month_name,
+                'colspan' => $colspan);
             }
-
+            $rows[] = calendar_week_header($params['mini'], $params['with_weekno']);
+            
             while ($curstamp <= $lastday) {
               for ($x = $start; $x < 7; $x++) {
                 $cur_day = (($week * 7) + ($x + 1) - $offset);
@@ -228,7 +226,6 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                     }
                   }
                 }
-                
                 $row[$x] = array(
                   'class' => strtolower("$month_name ". $weekdays[$x]['day'] . ($curstamp == $today ? ' today' : '') . ($params['mini'] ? ' mini' : '')),
                   'id' => strtolower($month_name . $day),
@@ -239,21 +236,21 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                   $x = 8;
                 }
               }
-              if ($view == 'week' && $params['force_week'] && $params['force_week'] == date('W', $curstamp)) {
-                // add week header if a single week display is desired and this is the week to display
-                $cur_week = date('W', $curstamp);
-                if (!$params['hide_header']) {
-                  $rows[][] = array(
-                    'class' => 'heading week',
-                    'id' => 'week'. $cur_week,
-                    'data' => t('Week ') . $cur_week,
-                    'colspan' => $colspan);
-                }
-                $rows[] = calendar_week_header($params['mini']);
-              }
+              $cur_week = date('W', $curstamp);
+
               // print week unless this is a week view and force_week is set and this is not the forced week
               if (!($view == 'week' && $params['force_week'] && $params['force_week'] != date('W', $curstamp))) {
-                $rows[] = array_pad($row, 7, '<nobr></nobr>');
+                if ($params['with_weekno']) {
+                  $week_row = array(0 => 
+                    array(
+                      'class' => 'week', 
+                      'data' => l($cur_week, $params['url'] .'/'. $year .'/W'. $cur_week),
+                    ));
+                  $rows[] = array_merge($week_row, array_pad($row, 7, '<nobr></nobr>'));
+                }
+                else {
+                  $rows[] = array_pad($row, 7, '<nobr></nobr>');
+                }
               }
 
               $week++;
@@ -438,10 +435,13 @@ function calendar_week_days() {
  * @ingroup event_support
  * @return array with weekday table header data
  */
-function calendar_week_header($mini = FALSE) {
+function calendar_week_header($mini = FALSE, $with_week = TRUE) {
   // create week header
   $days = calendar_week_days();
 
+  if ($with_week) {
+    $row[] = array('class' => "days week", 'data' => '&nbsp;');
+  }
   foreach ($days as $day) {
     $row[] = array('class' => strtolower("days ". $day['day']), 'data' => $mini ? substr($day['t'], 0 , 1) : $day['t']);
   }
@@ -642,11 +642,6 @@ function theme_calendar_node_week($node) {
       break;
   }
 
-  if (variable_get('calendar_type_control', 'all') != 'never') {
-    if ((calendar_get_types('all') + calendar_get_types('solo')) > 1) {
-      $output .= '<div class="type">'. l('('. $node->calendar_node_title .')', 'calendar/'. gmdate('Y/m/d', $node->calendar_current_date) .'/month/'.$node->type, array('title' => t('limit view to calendars of this type'))).'</div>'."\n";
-    }
-  }
   $output .= '<div class="title">'. l($node->title, "node/$node->nid", array('title' => t('view this item'))) .'</div>'."\n";
   $output .= $times;
   $output .= '<div class="links">'. theme('links', $node->calendar_links) ."\n</div>";
