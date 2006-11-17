@@ -31,14 +31,20 @@
   text-align: right;
   vertical-align: top;
   margin: 0;
-  padding: 0;
+}
+.calendar-calendar td.week {
+  width:1%;
+  }
+.calendar-calendar .inner {
   min-height:5em;
-  _height:5em;
+  overflow:none;
 }
-.calendar-calendar td.days, .calendar-calendar td.mini, .calendar-calendar .mini td, .calendar-calendar .legend td {
-  min-height:1px;
-  _height:1px;
+/* hack to make Internet Explorer for Windows display calendar height correctly \*/
+* html .calendar-calendar .inner {
+  height: 5em;
 }
+/* end of hack */
+  }
 
 .calendar_nav_wrapper {
   width:100%;
@@ -122,11 +128,17 @@
   margin: 0.25em 0 0.5em 0.25em;
 }
 .calendar-calendar div.title {
-  padding-left: 3px;
+  font-size:.8em;
+  text-align:center;
 }
 .calendar-calendar .monthview .title {
   clear:both;
-  }
+  text-align:left;
+}
+.calendar-calendar .dayview .title {
+  clear:both;
+  text-align:left;
+}
 .calendar-calendar div.title a {
   color: #000;
 }
@@ -134,7 +146,7 @@
   color: #c00;
 }
 .calendar-calendar .content {
-  
+  clear:both;
   margin: 5px;
   padding: 3px;
   border-left: solid 2px #999;
@@ -168,6 +180,7 @@
   font-size: 0.8em;
 }
 .calendar-calendar .end {
+  clear:both;
   font-style: normal;
   color: #555;
   margin: 2px 0 2px 0;
@@ -175,11 +188,22 @@
   font-size: 0.8em;
 }
 .calendar-calendar .ongoing {
+  clear:both;
   font-style: normal;
   color: #555;
   margin: 2px 0 2px 0;
   padding-left: 9px;
   font-size: 0.8em;
+}
+.calendar-calendar .week {
+  clear:both;
+  font-style: normal;
+  color: #555;
+  margin: 2px 0 2px 0;
+  font-size: 0.8em;
+}
+.calendar-calendar .week a {
+  font-weight:normal;
 }
 .calendar-calendar div.info {
   visibility: hidden;
@@ -200,14 +224,6 @@
 }
 .calendar-calendar div.tableview .links {
 }
-.calendar-calendar .calendar-empty {
-  min-height: 6em;
-}
-/* hack to make Internet Explorer for Windows display calendar height correctly \*/
-* html .calendar-calendar .calendar-empty {
-  height: 6em;
-}
-/* end of hack */
 .container-inline .day input {
   width: auto;
   display: inline;
@@ -296,7 +312,7 @@ span.calendar-nodetype {
 }
 
 
-table td.mini, table th.mini {
+table td.mini, table th.mini, table.mini td.week {
   padding:0;
   margin:0;
   }
@@ -313,7 +329,12 @@ table td.mini a {
 table .mini_day_on a {
   text-decoration:underline;
   }
-
+.calendar-calendar .mini .title {
+  font-size:.8em;
+  }
+.mini .calendar-calendar .week {
+  font-size:.7em;
+  }
 div.mini_row {
   width:100%;
   clear:left;
