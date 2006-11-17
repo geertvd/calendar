@@ -244,7 +244,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                   $week_row = array(0 => 
                     array(
                       'class' => 'week', 
-                      'data' => l($cur_week, $params['url'] .'/'. $year .'/W'. $cur_week),
+                      'data' => l(sprintf('%02d', $cur_week), $params['url'] .'/'. $year .'/W'. $cur_week),
                     ));
                   $rows[] = array_merge($week_row, array_pad($row, 7, '<nobr></nobr>'));
                 }
@@ -602,9 +602,9 @@ function theme_calendar_node_day($node) {
 
   $output .= '<div class="title">'. l($node->title, "node/$node->nid", array('title' => t('view this item'))) .'</div>'."\n";
 
-  $output .= '<div class="start">'. t('Start: ') . $node->start_time_format .'</div>'."\n";
+  $output .= '<div class="start">'. t('Start: ') . $node->start_format .'</div>'."\n";
   if ($node->calendar_start != $node->calendar_end && $node->calendar_end) {
-    $output .= '<div class="end">'. t('End: ') . $node->end_time_format .'</div>'."\n";
+    $output .= '<div class="end">'. t('End: ') . $node->end_format .'</div>'."\n";
   }
   if ($node->teaser) {
     $output .= '<div class="content">'. check_markup($node->teaser) ."</div>\n";

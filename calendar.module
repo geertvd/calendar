@@ -55,30 +55,41 @@ function calendar_fields() {
   $delta = 0;
   foreach (_views_get_fields() as $name => $val) {
     
-    $fromto = array();
+    $fromto = $timestamp_fromto = array();
     $type = '';
 
     // for cck fields, get the date type
     if ($val['content_field']['type'] == 'date' || $val['content_field']['type'] == 'datestamp') {
       $type = $val['content_field']['type'] == 'date' ? 'cck_string' : 'cck_timestamp';
     }
+    
     // all other fields that use the views date handler are timestamps
     elseif ($val['handler'] == views_handler_field_dates()) {
       $type = 'timestamp';
     }
-
+    
     // don't do anything if this is not a date field
     if ($type) {
       
       // dates with from and to dates need to handle both fields as one
       // add the from and to dates to the first one found and ignore the second
-
+      
       if (!$event_field_processed && ($name == 'event.event_start' || $name == 'event.event_end')) {
         $timestamp_fromto = array('event.event_start', 'event.event_end');
+        $offset_field = 'event.timezone';
+        $tz_handling = variable_get('event_timezone_display', 'site');
         $event_field_processed = TRUE;
       }
+      elseif ($val['content_field']['tz_handling']) {
+        $tz_handling = $val['content_field']['tz_handling'];
+        $offset_field = $val['content_db_info']['table'] .'.offset';
+      }
+      else {
+        $tz_handling = 'site';
+      }
 
-      // will add handling for cck fromto dates here once date module has been updated
+      // TODO add handling for cck fromto dates here once date module has been updated
+
 
       // skip this step on second occurance of fromto date fields, if more than one exists in view 
       if (!$event_field_processed || $timestamp_fromto || $string_fromto) {
@@ -96,10 +107,13 @@ function calendar_fields() {
           'field_name' => $field_name,
           'query_name' => str_replace('.', '_', $name),
           'timestamp_fromto' => $timestamp_fromto,
+          'tz_handling' => $tz_handling,
+          'offset_field' => $offset_field,
         );
       }
     }
   }
+  
   return $fields;
 }
 
@@ -139,21 +153,27 @@ function theme_calendar_display(&$view, &$items, $type) {
       $timestamp_fromto = $option['timestamp_fromto'];
       $string_fromto    = $option['string_fromto'];
       $field_id         = $delta;
-      
+      $tz_handling      = $option['tz_handling'];
+      $offset_field     = $option['offset_field'];
+
       // iterate through the $items array returned by the query and create date or pseudo date nodes
       
       foreach ($items as $item) {
         
-        // have to fetch a fresh version of node each time in case multiple fields are pulled from the same nid
-        // if we don't do this we get the previously cached version with data added on previous node_load()
-        $node = node_load(array('nid' => $item->nid), NULL, TRUE);
-                
-        // If we're dealing with an event node, go ahead and use the provided values
+        $node = $item;        
+        $node->title = $node->node_title;
+        foreach ($view->field as $field) {
+          // if fields other than title and dates are provided, make them into a teaser
+          if (!in_array($field['field'], $calendar_fields) && $field['field'] != 'title') {
+            $node->teaser .= '<div>'. views_theme_field('views_handle_field', $field['queryname'], $fields, $field, $node, $view) .'</div>';
+          }
+        }
+
+        // If we're dealing with an event node, join the start and to dates together in one node and get rid of the other
         if (($field_field == 'event_event_start' || $field_field == 'event_event_end') && !$event_field_processed[$item->nid]) {
-          if ($node->event_start > 0) {
-            $node->calendar_start = $node->event_start;
-            $node->calendar_end   = $node->event_end;
-            $item->$field_field   = $node->event_start;
+          if ($node->event_event_start > 0) {
+            $node->calendar_start = $node->event_event_start;
+            $node->calendar_end   = $node->event_event_end;
             $event_field_processed[$item->nid] = TRUE;
           }
         }
@@ -178,29 +198,57 @@ function theme_calendar_display(&$view, &$items, $type) {
           if ($field_type == 'timestamp') {
             $node->calendar_start = $item->$field_field;
           } else {
-            $node->calendar_start = strtotime($item->$field_field);
+            // get the timestamp value for this date, use UTC to make sure no timezone conversion gets done on it
+            $node->calendar_start = strtotime(str_replace('T', ' ', $item->$field_field) .' UTC');
           }
-          // need to come back to this and do something better with timezone handling
-          // keep it simple until things are basically working
-          $node->start_offset = $timezone = _views_get_timezone();
-          $node->end_offset   = $node->start_offset;
+        
+        }
+
+        if (isset($node)) {
+          
+          // get appropriate timezone offset
+          switch ($tz_handling) {
+          case 'user' :
+            global $user;
+            $node->start_offset = $node->end_offset = $user->timezone;
+            break;
+          case 'GMT' :
+            $node->start_offset = $node->end_offset = 0;
+            break;
+          case 'date' :
+            $node->start_offset = $node->end_offset = $offset_field;
+            break;
+          case 'event' :
+            include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
+            $node->start_offset = event_get_offset($node->event_timezone, $node->event_event_start);
+            $node->end_offset   = event_get_offset($node->event_timezone, $node->event_event_end);
+            break;
+          default :
+            $node->start_offset = $node->end_offset = variable_get('date_default_timezone', 0);
+            break;
+          }
         }
                 
         if (isset($node) && function_exists($field_function) && $node->calendar_start && $item->$field_field) {
           
           if ($field_function == 'content_format') {
             // force the original value for this field into the array that content_format expects
-            $node->start_time_format = content_format($field_field_name, array('value' => $item->$field_field), $field_formatter);
-            if ($node->calendar_end) $node->end_time_format = content_format($field_field_name, array('value' => $item->$field_field), $field_formatter);
+            $node->start_format = content_format($field_field_name, array('value' => $item->$field_field), $field_formatter);
+            if ($node->calendar_end) $node->end_format = content_format($field_field_name, array('value' => $item->$field_field), $field_formatter);
           }
           else {
             // or call date format function
-            if (!$node->start_time_format) {
-              $node->start_time_format = $field_function(NULL, NULL, $item->$field_field, NULL);
-              if ($node->calendar_end && !$node->end_time_format) $node->end_time_format = $field_function(NULL, NULL, $node->calendar_end, NULL);
+            if (!$node->start_format) {
+              $node->start_format = $field_function(NULL, NULL, $item->$field_field, NULL);
+              if ($node->calendar_end && !$node->end_format) $node->end_format = $field_function(NULL, NULL, $node->calendar_end, NULL);
             }
           }
           
+          // format a time-only display for the month calendar
+          $format = explode(' - ', variable_get('date_format_short', 'm/d/Y - H:i'));
+          $node->start_time_format = gmdate($format[1], $node->calendar_start + $node->start_offset);
+          if ($node->calendar_end) $node->end_time_format   = gmdate($format[1], $node->calendar_end + $node->end_offset);
+
           if ($node) {
 
             // we can have multiple representations with the same nid, like multi-day values
@@ -610,11 +658,12 @@ function calendar_views_query_alter(&$query, &$view) {
   // and make sure day view is not selected
 
   if ($view->build_type == 'block') {
-    
     // if the real view values were reset in the page, reset them
     if ($view->reset_argument) {
       $view->argument = $view->reset_argument;
       $view->args = $view->reset_args;
+      unset($view->reset_argument);
+      unset($view->reset_args);
     }
     $view->calendar_type = 'month';
     $view->args = explode('/', str_replace($view->url .'/', '', $_GET['mini']));
@@ -758,6 +807,8 @@ function calendar_views_query_alter(&$query, &$view) {
   
   foreach ($view->field as $field) {
     
+    $view_fields[] = $field['field'];
+
     // handling for from and to date ranges
     if ($fields[$field['field']]['timestamp_fromto']) {
       $queries[] = "(". $fields[$field['field']]['timestamp_fromto'][1] ." >='$query_timestamp_min' AND ". $fields[$field['field']]['timestamp_fromto'][0] ." <='$query_timestamp_max')";
@@ -775,9 +826,10 @@ function calendar_views_query_alter(&$query, &$view) {
       $queries[] = "(". $field['fullname'] .">='$query_timestamp_min' AND ". $field['fullname'] ."<='$query_timestamp_max')";
     }
   }
-  
+  // bring the node type into the query so we can use it in the theme
+  $query->add_field('type', 'node');
   $query->add_where(implode(" OR ", $queries));
-  
+
   return;
 
 }
@@ -823,7 +875,7 @@ function calendar_views_pre_view(&$view, &$items) {
 }
 
 /**
- *  Handle a lot of messy week calculations all in one place to make updates easier
+ *  Handle a lot of messy week calculations all in one place to make maintenance easier
  */
 function calendar_week($op, $view, $week = 0) {
 
@@ -832,7 +884,7 @@ function calendar_week($op, $view, $week = 0) {
     $week = date('W', $date);
     if ($op == 'week') return $week;
   }
-
+  // use strtotime to find first day of requested week
   $week_start = strtotime('Jan 1, '.$view->year.' + '.intval($week - 1).' weeks');
   $week_end   = $week_start + 604800;
   switch ($op) {
@@ -852,6 +904,7 @@ function calendar_week($op, $view, $week = 0) {
     return $week_start;
   }
 }
+
 
 /**
  *  A function to test the validity of various date parts
