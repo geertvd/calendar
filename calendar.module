@@ -13,8 +13,31 @@ function calendar_help($section) {
     case 'admin/modules#description':
       return t('Adds date calendar themes to views that can display any type of date field, and creates default calendar views.');
     case 'admin/help#calendar':
-      return $output;
+      return t("<p>Select the Calendar display as the 
+page type for your view and add any date fields you want to display on the calendar
+as fields to the view. Date fields can include CCK date fields, event start and end
+dates, or dates like the node created or updated dates.</p>
+
+<p>Add three arguments to the view: Calendar Year, Calendar Month, and Calendar Day, in
+that order. Set each of them to 'Display All Values'.</p>
+
+<p>A mini calendar is available using the block view if the block view is also set
+to the Calendar type.</p>
+
+<p>Two other blocks are available. A legend block will display only on calendar pages
+and will show a legend of the color coding for field names and content types.</p>
+
+<p>A Switch Calendar block will display only on calendar pages and allows the user
+to switch between calendar, list, table, teaser, and full node views for whichever
+time period is being viewed. The back/next navigation will remain at the top of the
+traditional views displays so you can move from one month to the next, for instance.
+The module includes plug-in themes for Views to display available date fields
+in calendar displays. To use them, select the Calendar display as the 
+page type for your view and add any date fields you want to display on the calendar
+as fields to the view. Date fields can include CCK date fields, event start and end
+dates, or dates like the node created or updated dates.</p>");
   }
+}
 }
 
 /**
@@ -1269,6 +1292,10 @@ function calendar_switch_view() {
       '#type' => 'select',
       '#default_value' => $_GET['edit']['view'],
       '#options' => $options,
+      ),
+    'q' => array(
+      '#type' => 'hidden',
+      '#value' => $_GET['q'],
       ),
     'submit' => array('#type' => 'submit', '#value' => t('Switch')),
     );
