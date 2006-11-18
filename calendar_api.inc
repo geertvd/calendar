@@ -830,7 +830,7 @@ function theme_calendar_date_box($year, $month, $day, $view, $mini = FALSE, $sel
   }
   switch ($view) {
     case 'table':
-        $output = '<div class="day">'. l(t('%month / %day', array('%month' => $month, '%day' => $day)), $url) .'</div>'."\n";
+        $output = '<div class="day">'. l(t('!month / !day', array('!month' => $month, '!day' => $day)), $url) .'</div>'."\n";
       break;
     case 'list':
         $output = '<div class="day">'. l(format_date(_calendar_mktime(0, 0, 0, $month, $day, $year), 'custom', 'l, F j, Y'), $url) .'</div>'."\n";
@@ -933,7 +933,7 @@ function theme_calendar_nav_wrapper($array) {
  *   The current view being rendered
  */
 function theme_calendar_links($links, $view) {
-  return '<p>» '. theme('links', $links) .'</p>';
+  return theme('links', $links);
 }
 
 /**

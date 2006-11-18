@@ -10,10 +10,30 @@
  */
 function calendar_help($section) {
   switch ($section) {
-    case 'admin/modules#description':
-      return t('Adds date calendar themes to views that can display any type of date field, and creates default calendar views.');
     case 'admin/help#calendar':
-      return $output;
+      return t("<p>Select the Calendar display as the 
+page type for your view and add any date fields you want to display on the calendar
+as fields to the view. Date fields can include CCK date fields, event start and end
+dates, or dates like the node created or updated dates.</p>
+
+<p>Add three arguments to the view: Calendar Year, Calendar Month, and Calendar Day, in
+that order. Set each of them to 'Display All Values'.</p>
+
+<p>A mini calendar is available using the block view if the block view is also set
+to the Calendar type.</p>
+
+<p>Two other blocks are available. A legend block will display only on calendar pages
+and will show a legend of the color coding for field names and content types.</p>
+
+<p>A Switch Calendar block will display only on calendar pages and allows the user
+to switch between calendar, list, table, teaser, and full node views for whichever
+time period is being viewed. The back/next navigation will remain at the top of the
+traditional views displays so you can move from one month to the next, for instance.
+The module includes plug-in themes for Views to display available date fields
+in calendar displays. To use them, select the Calendar display as the 
+page type for your view and add any date fields you want to display on the calendar
+as fields to the view. Date fields can include CCK date fields, event start and end
+dates, or dates like the node created or updated dates.</p>");
   }
 }
 
@@ -130,7 +150,7 @@ function theme_calendar_display(&$view, &$items, $type) {
   
   if ($view->build_type == 'page') {
     // bail out here to display regular views views
-    switch($_GET['edit']['view']) {
+    switch($_GET['view']) {
       case ('table') :
         $view->table_header = _views_construct_header($view, _views_get_fields());
         return theme('views_view_table', $view, $items, $type);
@@ -146,8 +166,8 @@ function theme_calendar_display(&$view, &$items, $type) {
   include_once('calendar_api.inc');
   
   $view->nodes_per_page = 0;
-  $types = node_get_types();
-  $type_names = array_flip(array_keys($types));
+  $type_names = node_get_types('names');
+  
   unset($params['limit']);
 
   if ($type == 'block' || $view->calendar_type == 'year') $params['mini'] = TRUE;
@@ -288,7 +308,7 @@ function theme_calendar_display(&$view, &$items, $type) {
               // and store value for legend
               // formula tries to create a unique id for each possible combination
               $node->stripe = intval((20 * $field_id) + $type_names[$node->type]);
-              $GLOBALS['calendar_stripe_labels'][$node->stripe] = $view->field[$delta]['label'] .' ('. $types[$node->type] .') ';
+              $GLOBALS['calendar_stripe_labels'][$node->stripe] = $view->field[$delta]['label'] .' ('. $type_names[$node->type] .') ';
             
             }
             $nodes[$id] = $node;
@@ -356,7 +376,7 @@ function theme_calendar_display(&$view, &$items, $type) {
   }
   
   // use calendar_get_calendar api to draw the calendar
-  theme_add_style(drupal_get_path('module', 'calendar') .'/calendar.css');
+  drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
   $title = ($view->build_type == 'page' ? '' : ($view->subtitle ? $view->subtitle : $view->page_type));
   $params['url'] = $view->url;
   $params['stripe'] = 'stripe';
@@ -387,23 +407,25 @@ function calendar_nav($view, $mini = FALSE) {
   $prev_path = implode('/', array_reverse($paths[0]));
   $next_path = implode('/', array_reverse($paths[1]));
 
-  if ($_GET['edit']['view']) {
-    $prev_path .= '&edit[view]='. $_GET['edit']['view'];
-    $next_path .= '&edit[view]='. $_GET['edit']['view'];
+  $prev_query = $next_query = array();
+
+  if ($_GET['view']) {
+    $prev_query[] = 'view='. $_GET['view'];
+    $next_query[] = 'view='. $_GET['view'];
   }
   
   // for the mini calendar in a block, treat the url as a querystring to avoid actually changing the page
   if ($mini && $view->calendar_type == 'month') {
-    $prev_query = 'mini='. $prev_path;
+    $prev_query[] = 'mini='. $prev_path;
     $prev_path = $_GET['q'];
-    $next_query = 'mini='. $next_path;
+    $next_query[] = 'mini='. $next_path;
     $next_path = $_GET['q'];
   }
   
   $header = array();
-  $header[]  = array('data' => theme('calendar_nav_prev', $prev_path, $mini ? FALSE : TRUE, $prev_query), 'class' => 'prev');
+  $header[]  = array('data' => theme('calendar_nav_prev', $prev_path, $mini ? FALSE : TRUE, implode('&', $prev_query)), 'class' => 'prev');
   $header[]  = array('data' => $view->subtitle, 'class' => 'heading', 'colspan' => 5);
-  $header[]  = array('data' => theme('calendar_nav_next', $next_path, $mini ? FALSE : TRUE, $next_query), 'class' => 'next');
+  $header[]  = array('data' => theme('calendar_nav_next', $next_path, $mini ? FALSE : TRUE, implode('&', $next_query)), 'class' => 'next');
   
   return $header;
 }
@@ -742,7 +764,7 @@ function calendar_views_query_alter(&$query, &$view) {
         $view->week = $week;
         $query_min = calendar_week('start_year', $view, $week) .'-'. sprintf('%02d', calendar_week('start_month', $view, $week)) .'-'. calendar_week('start_day', $view, $week) .'T00:00:00';
         $query_max = calendar_week('end_year', $view, $week) .'-'. sprintf('%02d', calendar_week('end_month', $view, $week)) .'-'. calendar_week('end_day', $view, $week) .'T23:59:59';
-        $view->subtitle = l(t("Week of %date", array('%date' => gmdate('F j Y', calendar_week('start_timestamp', $view, $week)))), $view->url .'/'. $view->year .'/W'. $view->week);
+        $view->subtitle = l(t("Week of !date", array('!date' => gmdate('F j Y', calendar_week('start_timestamp', $view, $week)))), $view->url .'/'. $view->year .'/W'. $view->week);
         $view->calendar_type = str_replace('calendar_', '', $argument['type']);
         $view->month = calendar_week('start_month', $view, $week);
         $view->day = calendar_week('start_day', $view, $week);
@@ -845,7 +867,7 @@ function calendar_views_pre_view(&$view, &$items) {
   if (!calendar_is_calendar($view)) return;
   
   include_once('calendar_api.inc');
-  theme_add_style(drupal_get_path('module', 'calendar') .'/calendar.css');
+  drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
 
   // add this so empty calendar results will produce blank calendar page
   // needed for smooth prev/next transitions and to make sure at least
@@ -860,25 +882,25 @@ function calendar_views_pre_view(&$view, &$items) {
       $view->block_empty_format = 3;
     }
   }
-
+    
   // add links to the top of the calendar to switch from one view to another
   if ($view->build_type == 'page') {
-
+    
     $base_url = $view->url .'/'. $view->year;
     $month    = $view->month ? $view->month : calendar_user_date('month');
     $day      = $view->day ? $view->day : calendar_user_date('day');
     $week     = $view->week ? $view->week : calendar_user_date('week');
 
-    if ($_GET['edit']['view']) {
-      $append = '/&edit[view]='. $_GET['edit']['view'];
+    if ($_GET['view']) {
+      $append = 'view='. $_GET['view'];
     }
 
-    $calendar_links[] = $view->calendar_type == 'year'  ? t('Year')  : l( t('Year'), $view->url .'/'. $view->year . $append);
-    $calendar_links[] = $view->calendar_type == 'month' ? t('Month') : l(t('Month'), $view->url .'/'. $view->year .'/'. $month . $append);
-    $calendar_links[] = $view->calendar_type == 'week'  ? t('Week')  : l(t('Week'), $view->url .'/'. $view->year .'/W'. $week . $append);
-    $calendar_links[] = $view->calendar_type == 'day'   ? t('Day')   : l(t('Day'), $view->url .'/'. $view->year .'/'. $month .'/'. $day . $append);
+    $calendar_links[] = array('title' => t('Year'), 'href' => $view->calendar_type == 'year'  ? '' : $view->url .'/'. $view->year, 'query' => $append);
+    $calendar_links[] = array('title' => t('Month'), 'href' => $view->calendar_type == 'month' ? '' : $view->url .'/'. $view->year .'/'. $month , 'query' => $append);
+    $calendar_links[] = array('title' => t('Week'), 'href' => $view->calendar_type == 'week'  ? '' : $view->url .'/'. $view->year .'/W'. $week, 'query' => $append);
+    $calendar_links[] = array('title' => t('Day'), 'href' => $view->calendar_type == 'day' ? '' : $view->url .'/'. $view->year .'/'. $month .'/'. $day, 'query' => $append);
     $output  .= theme('calendar_links', $calendar_links, 'month');
-
+    
     $output .= '<div class="calendar-calendar">'. theme('calendar_nav_wrapper', calendar_nav($view, $params['mini']), array()) .'<br class="clear" /></div>';
     
     return $output;
@@ -1243,7 +1265,7 @@ function calendar_block($op = 'list', $delta = 0) {
         return $block;
       case 1:
         $block['subject'] = t('Switch Calendar');
-        $block['content'] = calendar_switch_view();
+        $block['content'] = drupal_get_form('calendar_switch_view');
         return $block;
       }
   }
@@ -1267,13 +1289,16 @@ function calendar_switch_view() {
     '#method' => 'GET',
     'view' => array(
       '#type' => 'select',
-      '#default_value' => $_GET['edit']['view'],
+      '#default_value' => $_GET['view'],
       '#options' => $options,
+      ),
+    'q' => array(
+      '#type' => 'hidden',
+      '#value' => $_GET['q'],
       ),
     'submit' => array('#type' => 'submit', '#value' => t('Switch')),
     );
-  $output .= drupal_get_form('get_view', $form);
-  return $output;
+  return $form;
 }
 
 /**
