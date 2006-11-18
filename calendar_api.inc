@@ -165,7 +165,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
     case 'month':
     case 'year':
       $colspan = $params['with_weekno'] ? '8' : '7';
-        foreach ($data as $year => $months) {
+      foreach ($data as $year => $months) {
           $month_rows[] = $title;
           if(count($data) > 1 && !$params['hide_header']) {
             // add year heading
@@ -270,7 +270,8 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
     
   // if only the rows array is requested, return it
   if ($params['as_array']) return $rows;
-  $header[] = ($title ? array('class' => 'heading', 'data' => $title, 'colspan' => $colspan) : array());
+  $header = $title ? array(array('class' => 'heading', 'data' => $title, 'colspan' => $colspan)) : array();
+  
   $op = $params['mini'] ? 'mini' : 'page';
   return theme('calendar_'. $view, $op, $header, $rows, $month_rows);
 }
@@ -600,11 +601,20 @@ function theme_calendar_node_day($node) {
   $output .= '<div class="calendar dayview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
 
+  if ($node->calendar_start != $node->calendar_end && $node->start_time_format) {
+    $start_label = t('Start: ');
+    $end_label = t('End: ');
+  }
+  else {
+    $start_label = '';
+    $end_label = '';
+  }
+
   $output .= '<div class="title">'. l($node->title, "node/$node->nid", array('title' => t('view this item'))) .'</div>'."\n";
 
-  $output .= '<div class="start">'. t('Start: ') . $node->start_format .'</div>'."\n";
+  $output .= '<div class="start">'. $start_label . $node->start_format .'</div>'."\n";
   if ($node->calendar_start != $node->calendar_end && $node->calendar_end) {
-    $output .= '<div class="end">'. t('End: ') . $node->end_format .'</div>'."\n";
+    $output .= '<div class="end">'. $end_label . $node->end_format .'</div>'."\n";
   }
   if ($node->teaser) {
     $output .= '<div class="content">'. check_markup($node->teaser) ."</div>\n";
@@ -624,18 +634,27 @@ function theme_calendar_node_week($node) {
   $output .= '<div class="calendar weekview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
   
+  if ($node->calendar_start != $node->calendar_end && $node->start_time_format) {
+    $start_label = t('Start: ');
+    $end_label = t('End: ');
+  }
+  else {
+    $start_label = '';
+    $end_label = '';
+  }
+
   switch ($node->calendar_state) {
     case 'singleday':
-        $times = '<div class="start">'. t('Start: ') . $node->start_time_format .'</div>'."\n";
+        $times = '<div class="start">'. $start_label . $node->start_time_format .'</div>'."\n";
         if ($node->calendar_start != $node->calendar_end && $node->calendar_end) {
-          $times .= '<div class="end">'. t('End: ') . $node->end_time_format .'</div>'."\n";
+          $times .= '<div class="end">'. $end_label . $node->end_time_format .'</div>'."\n";
         }
       break;
     case 'start':
-        $times = '<div class="start">'. t('Start: ') . $node->start_time_format .'</div>'."\n";
+        $times = '<div class="start">'. $start_label . $node->start_time_format .'</div>'."\n";
       break;
     case 'end':
-        $times = '<div class="end">'. t('End: ') . $node->end_time_format .'</div>'."\n";
+        $times = '<div class="end">'. $end_label . $node->end_time_format .'</div>'."\n";
       break;
     case 'ongoing':
         $times = '<div class="ongoing">'. t('all day') .'</div>'."\n";
@@ -660,23 +679,32 @@ function theme_calendar_node_month($node) {
   $output .= '<div class="calendar monthview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
   
+  if ($node->calendar_start != $node->calendar_end && $node->start_time_format) {
+    $start_label = t('Start: ');
+    $end_label = t('End: ');
+  }
+  else {
+    $start_label = '';
+    $end_label = '';
+  }
+
   switch ($node->calendar_state) {
     case 'singleday':
       if ($node->start_time_format != $node->end_time_format) {
-        $times = '<div class="start">'. t('Start: ') . $node->start_time_format .'</div>'."\n";
+        $times = '<div class="start">'. $start_label . $node->start_time_format .'</div>'."\n";
       }
       if ($node->calendar_start != $node->calendar_end && $node->calendar_end) {
-        $times .= '<div class="end">'. t('End: ') . $node->end_time_format .'</div>'."\n";
+        $times .= '<div class="end">'. $end_label . $node->end_time_format .'</div>'."\n";
       }
       else {
         $times = '<div class="start">'. $node->start_time_format .'</div>'."\n";
       }
       break;
     case 'start':
-        $times = '<div class="start">'. t('Start: ') . $node->start_time_format .'</div>'."\n";
+        $times = '<div class="start">'. $start_label . $node->start_time_format .'</div>'."\n";
       break;
     case 'end':
-        $times = '<div class="end">'. t('End: ') . $node->end_time_format .'</div>'."\n";
+        $times = '<div class="end">'. $end_label . $node->end_time_format .'</div>'."\n";
       break;
     case 'ongoing':
         $times = '<div class="ongoing">'. t('all day') .'</div>'."\n";
@@ -704,11 +732,6 @@ function theme_calendar_node_table($node) {
 
   $output .= '<div class="calendar tableview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
-  if (variable_get('calendar_type_control', 'all') != 'never') {
-    if (!$module && (calendar_get_types('all') + calendar_get_types('solo')) > 1) {
-      $output .= '<div class="type">'. l('('. $node->calendar_node_title .')', 'calendar/'.gmdate('Y/m/d', $node->calendar_start).'/table/'.$node->type, array('title' => t('limit view to items of this type'))).'</div>'."\n";
-    }
-  }
   $output .= '<div class="title">'. l($node->title, "node/$node->nid", array('title' => t('view this item'))) .'</div>'."\n";
 
   switch ($node->calendar_state) {
@@ -752,11 +775,6 @@ function theme_calendar_node_list($node, $module = NULL) {
 
   $output = '<div class="calendar tableview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
-  if (variable_get('calendar_type_control', 'all') != 'never') {
-    if (!$module && (calendar_get_types('all') + calendar_get_types('solo')) > 1) {
-      $output .= '<div class="type">'. l('('. $node->calendar_node_title .')', 'calendar/'.gmdate('Y/m/d', $node->calendar_start).'/table/'.$node->type, array('title' => t('limit view to calendars of this type'))).'</div>'."\n";
-    }
-  }
   $output .= '<div class="title">'. l($node->title, "node/$node->nid", array('title' => t('view this item'))) .'</div>'."\n";
 
   switch ($node->calendar_state) {
@@ -898,13 +916,12 @@ function theme_calendar_nav_prev($url, $text = TRUE, $querystring = NULL) {
   return '<span class="prev">'. l('« '. ($text ? t('prev') : ''), $url, NULL, $querystring) .'</span>';
 }
 
+/**
+ *  Theme for the back/next navigation bar
+ *  This is really hackish to put it in a table, but so many themes break otherwise that I gave up on anything else
+ */
 function theme_calendar_nav_wrapper($array) {
-  $output = '<div class="calendar_nav_wrapper">';
-  $output .= '<div class="prev">'. $array[0]['data'] . '</div>';
-  $output .= '<div class="title">'. $array[1]['data'] . '</div>';
-  $output .= '<div class="next">'. $array[2]['data'] .'</div>';
-  $output .= '</div>';
-  return $output;
+  return theme('table', $array, array());
 }
 
 /**
