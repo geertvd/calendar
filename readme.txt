@@ -17,11 +17,6 @@ A Switch Calendar block will display only on calendar pages and allows the user
 to switch between calendar, list, table, teaser, and full node views for whichever
 time period is being viewed. The back/next navigation will remain at the top of the
 traditional views displays so you can move from one month to the next, for instance.
-The module includes plug-in themes for Views to display available date fields
-in calendar displays. To use them, select the Calendar display as the 
-page type for your view and add any date fields you want to display on the calendar
-as fields to the view. Date fields can include CCK date fields, event start and end
-dates, or dates like the node created or updated dates.
 
 
 
