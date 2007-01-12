@@ -520,7 +520,7 @@ function theme_calendar_year($op, $header, $rows, $month_rows) {
       $i++;
       $row .= '<div class="mini">'. $month .'</div>';    
       if ($i == 3) {
-        $output .= '<div class="mini_row">'. $row .'</div>';
+        $output .= '<div class="mini-row">'. $row .'</div>';
         $row = '';
         $i = 0;
       }
@@ -752,7 +752,7 @@ function theme_calendar_node_table($node) {
       break;
   }
 
-  $output .= '<div id="info_'. $link_count .'" class="info">'."\n";
+  $output .= '<div id="info-'. $link_count .'" class="info">'."\n";
   if ($node->calendar_state != 'singleday') {
     $output .= '<div class="start">'. t('Start: ') . $node->start_format .'</div>'."\n";
     if ($node->calendar_start != $node->calendar_end) {
@@ -762,7 +762,7 @@ function theme_calendar_node_table($node) {
   $output .= '<div class="content">'. check_markup($node->teaser) .'</div></div>'."\n";
 
   $links = $node->calendar_links;
-  $links[] = l(t('more info'), 'node/'.$node->nid, array('onclick' => "popupnotes('info_". $link_count ."'); return false;", 'title' => t('Show detailed information for this calendar.')));
+  $links[] = l(t('more info'), 'node/'.$node->nid, array('onclick' => "popupnotes('info-". $link_count ."'); return false;", 'title' => t('Show detailed information for this calendar.')));
   $output .= '<div class="links">'. theme('links', $links) ."\n</div>";
   $output .= '</div>'."\n";
   return $output;
@@ -795,7 +795,7 @@ function theme_calendar_node_list($node, $module = NULL) {
       break;
   }
 
-  $output .= '<div id="info_'. $link_count .'" class="info">'."\n";
+  $output .= '<div id="info-'. $link_count .'" class="info">'."\n";
   if ($node->calendar_state != 'singleday') {
     $output .= '<div class="start">'. t('Start') .': '. $node->start_format .'</div>'."\n";
     if ($node->calendar_start != $node->calendar_end) {
@@ -805,7 +805,7 @@ function theme_calendar_node_list($node, $module = NULL) {
   $output .= '<div class="content">'. check_markup($node->teaser) .'</div></div>'."\n";
 
   $links = $node->calendar_links;
-  $links[] = l(t('more info'), 'node/'.$node->nid, array('onclick' => "popupnotes('info_". $link_count ."'); return false;", 'title' => t('Show detailed information for this calendar.')));
+  $links[] = l(t('more info'), 'node/'.$node->nid, array('onclick' => "popupnotes('info-". $link_count ."'); return false;", 'title' => t('Show detailed information for this calendar.')));
   $output .= '<div class="links">'. theme('links', $links) ."\n</div>";
   $output .= '</div>'."\n";
   return $output;
@@ -822,10 +822,10 @@ function theme_calendar_date_box($year, $month, $day, $view, $mini = FALSE, $sel
   $url = $url ? $url .'/'. $year .'/'. $month .'/'. $day : 'calendar/'. $year .'/'. $month .'/'. $day;
   if ($mini) {
     if ($selected) {
-      return '<div class="mini_day_on">'. l($day, $url) .'</div>';
+      return '<div class="mini-day-on">'. l($day, $url) .'</div>';
     }
     else {
-      return '<div class="mini_day_off">'. l($day, $url) .'</div>';
+      return '<div class="mini-day-off">'. l($day, $url) .'</div>';
     }
   }
   switch ($view) {
@@ -902,7 +902,7 @@ function theme_calendar_filter_control($form) {
  * @param link
  *   The url for the navigation
  */
-function theme_calendar_nav_next($url, $text = TRUE, $querystring = NULL) {
+function theme_calendar-nav-next($url, $text = TRUE, $querystring = NULL) {
   return '<span class="next">'. l(($text ? t('next') : '') .' »', $url, NULL, $querystring) .'</span>';
 }
 
@@ -912,7 +912,7 @@ function theme_calendar_nav_next($url, $text = TRUE, $querystring = NULL) {
  * @param link
  *   The url for the navigation
  */
-function theme_calendar_nav_prev($url, $text = TRUE, $querystring = NULL) {
+function theme_calendar-nav-prev($url, $text = TRUE, $querystring = NULL) {
   return '<span class="prev">'. l('« '. ($text ? t('prev') : ''), $url, NULL, $querystring) .'</span>';
 }
 
@@ -920,7 +920,7 @@ function theme_calendar_nav_prev($url, $text = TRUE, $querystring = NULL) {
  *  Theme for the back/next navigation bar
  *  This is really hackish to put it in a table, but so many themes break otherwise that I gave up on anything else
  */
-function theme_calendar_nav_wrapper($array) {
+function theme_calendar-nav-wrapper($array) {
   return theme('table', $array, array());
 }
 
