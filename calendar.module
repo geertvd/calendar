@@ -391,8 +391,7 @@ function calendar_nav($view, $mini = FALSE) {
   }
 
   if ($view->calendar_type == 'week' && _calendar_is_valid($view->week, 'week')) {
-    $offset = _views_get_timezone();
-    $range = calendar_week_range($view->year, $view->week, $offset);
+    $range = calendar_week_range($view->year, $view->week + 1, 0);
     $cur_stamp = $range[0];
   } else {
     $cur_stamp = gmmktime(0, 0, 0, ($view->month ? $view->month : 1), ($view->day ? $view->day : 1), ($view->year ? $view->year : gmdate("Y", time())));
