@@ -299,7 +299,6 @@ function theme_calendar_display(&$view, &$items, $type) {
             // create a unique id so it gets displayed in the calendar
             $id = $item->nid.':'.$field_field;
             $node->nid = $id;
-
             if ($view->build_type == 'page' && $view->calendar_type != 'year') {
               
               // create a stripe id from a combination of the field and content types
@@ -531,7 +530,8 @@ function _calendar_make_node($node = NULL, $timestamp = NULL, $offset = NULL, $y
   $node->start_offset   = $offset;
   $node->calendar_end   = $timestamp;
   $node->end_offset     = $offset;
-  
+  $node->display = gmdate('m/d/Y H:i', $node->calendar_start);
+
   return $node;
 }
 
@@ -544,9 +544,9 @@ function _calendar_make_node($node = NULL, $timestamp = NULL, $offset = NULL, $y
 function _calendar_limit_nodes($nodes, $type, $year, $month, $day, $week, $offset) {
   
   if (!_calendar_is_valid($day, 'day')) $day = 1;
-  if (!_calendar_is_valid($month, 'month')) $month = date('m', time());
+  if (!_calendar_is_valid($month, 'month')) $month = date('n', time());
   if (!_calendar_is_valid($year, 'year')) $year = date('Y', time());
-
+  
   switch ($type) {
   case ('day'):
     $min_date = mktime(0, 0, 0, $month, $day, $year);
@@ -566,6 +566,9 @@ function _calendar_limit_nodes($nodes, $type, $year, $month, $day, $week, $offse
       $max_date = mktime(0, 0, 0, 1, 1, intval($year + 1)) - 1;
     }
     break;
+  case ('year'):
+    $min_date = mktime(0, 0, 0, 1, 1, $year);
+    $max_date = mktime(23, 59, 59, 12, 31, $year);
   }
   return array($min_date, $max_date);
 }
