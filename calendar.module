@@ -118,7 +118,7 @@ function calendar_fields() {
           'type' => $type,
           'delta' => $delta,
           'label' => $val['name'],
-          'granularity' => $val['content_field']['granularity'] ? array_keys($val['content_field']['granularity']) : array('Y', 'M', 'D', 'H', 'N'),
+          'granularity' => $val['content_field']['granularity'] ? (array) array_keys($val['content_field']['granularity']) : array('Y', 'M', 'D', 'H', 'N'),
           'fullname' => $name,
           'table' => $tmp[0],
           'field' => $tmp[1],
@@ -169,7 +169,7 @@ function theme_calendar_display(&$view, &$items, $type) {
   if ($type == 'block' || $view->calendar_type == 'year') $params['mini'] = TRUE;
   
   $fields = calendar_fields();
-  $calendar_fields = array_keys($fields);
+  $calendar_fields = (array) array_keys($fields);
   $nodes = array();
   $i = 0;
   $items_in = $items;
@@ -353,7 +353,7 @@ function theme_calendar_display(&$view, &$items, $type) {
     // hide the intermediate header rows created by the event api and
     // push title and navigation into calendar header 
     $params['hide_header'] = $view->calendar_type == 'week' ? false : true;
-    //$title = theme('calendar-nav-wrapper', calendar_nav($view, $params['mini']), array());
+    //$title = theme('calendar_nav_wrapper', calendar_nav($view, $params['mini']), array());
     
     // standard api displays a whole month instead of a single week
     // adjust here for single week display
@@ -897,7 +897,7 @@ function calendar_views_pre_view(&$view, &$items) {
     $calendar_links[] = array('title' => t('Day'), 'href' => $view->calendar_type == 'day' ? '' : $view->url .'/'. $view->year .'/'. $month .'/'. $day, 'query' => $append);
     $output  .= theme('calendar_links', $calendar_links, 'month');
     
-    $output .= '<div class="calendar-calendar">'. theme('calendar-nav-wrapper', calendar_nav($view, $params['mini']), array()) .'<br class="clear" /></div>';
+    $output .= '<div class="calendar-calendar">'. theme('calendar_nav_wrapper', calendar_nav($view, $params['mini']), array()) .'<br class="clear" /></div>';
     
     return $output;
   }
