@@ -1,0 +1,24 @@
+Views Calendar
+====================
+
+
+Version 5.x-1.1
+=====================
+
+- Force CCK multiple value fields to display as separate items on calendar.
+- #107489 use drupal_substr intead of substr to handle Russian characters
+- Fixing week handling requires change to week nav link
+- #104458 get rid of <nobr></nobr>
+- #104303 fix cell id for day value
+- Fix calculation of week start/end times and timezone adjustment of calendar views
+- Fix error in setting date constraints on year view
+- #99820 cast array_keys calls to arrays, reverse mistaken switch of underscore and hypen in theme function names
+- #100460 replace css underscores with hyphens
+
+
+
+Version 5.x-1.1-beta
+======================
+
+Initial release.
+
