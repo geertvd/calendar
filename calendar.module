@@ -566,6 +566,9 @@ function _calendar_limit_nodes($nodes, $type, $year, $month, $day, $week, $offse
       $max_date = mktime(0, 0, 0, 1, 1, intval($year + 1)) - 1;
     }
     break;
+  case ('year'):
+    $min_date = mktime(0, 0, 0, 1, 1, $year);
+    $max_date = mktime(23, 59, 59, 12, 31, $year);
   }
   return array($min_date, $max_date);
 }
