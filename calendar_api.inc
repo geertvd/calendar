@@ -153,7 +153,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
             }
             $rows[][] = array(
               'class' => strtolower("$month_name ". $weekdays[$dow]['day'] . ($calendar->stamp == $today ? ' today' : '')),
-              'id' => strtolower($month_name . $day),
+              'id' => strtolower($month_name . $cur_day),
               'data' => $content);
             $month_name = NULL;
           }
