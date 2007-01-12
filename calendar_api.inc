@@ -228,7 +228,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                 }
                 $row[$x] = array(
                   'class' => strtolower("$month_name ". $weekdays[$x]['day'] . ($curstamp == $today ? ' today' : '') . ($params['mini'] ? ' mini' : '')),
-                  'id' => strtolower($month_name . $day),
+                  'id' => strtolower($month_name . $cur_day),
                   'data' => $params['mini'] ? $content : '<div class="inner">'. $content .'</div>');
 
                 $curstamp += 86400;
