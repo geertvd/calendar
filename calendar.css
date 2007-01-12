@@ -46,13 +46,13 @@
 /* end of hack */
   }
 
-.calendar_nav_wrapper, .view-header {
+.calendar-nav-wrapper, .view-header {
   width:100%;
   clear:both;
   position:relative;
   }
 
-.calendar_nav_wrapper .nav_title {
+.calendar-nav-wrapper .nav-title {
   width:48%;
   text-align:center;
 }
@@ -319,14 +319,14 @@ table td.mini, table th.mini, table.mini td.week {
 table td.mini a {
   font-weight:normal;
   }  
-.mini_day_off {
+.mini-day-off {
   padding:0px;
 }
-.mini_day_on {
+.mini-day-on {
   padding:0px;
   background-color:#ffc
 }
-table .mini_day_on a {
+table .mini-day-on a {
   text-decoration:underline;
   }
 .calendar-calendar .mini .title {
@@ -335,7 +335,7 @@ table .mini_day_on a {
 .mini .calendar-calendar .week {
   font-size:.7em;
   }
-div.mini_row {
+div.mini-row {
   width:100%;
   clear:left;
 }
