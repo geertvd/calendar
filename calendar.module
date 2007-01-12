@@ -196,7 +196,7 @@ function theme_calendar_display(&$view, &$items, $type) {
       $granularity      = $option['granularity'];
 
       // iterate through the $items array returned by the query and create date or pseudo date nodes
-      foreach ($items as $item) {
+      foreach ($items as $delta => $item) {
 
         // we have to serialize and unserialize to force a completely new copy of $item when duplicate fields use the same node
         // without doing this, values added to the item in later iterations get applied to earlier ones
@@ -293,11 +293,17 @@ function theme_calendar_display(&$view, &$items, $type) {
           }
 
           if ($node) {
-
+            
             // we can have multiple representations with the same nid, like multi-day values
             // or different fields that refer to the same node
             // create a unique id so it gets displayed in the calendar
-            $id = $item->nid.':'.$field_field;
+            // Add delta to key to make multiple value CCK fields display as separate items.
+            if (strstr($option['type'], 'cck')) {
+              $id = $item->nid .':'. $delta .':'. $field_field;
+            }
+            else {
+              $id = $item->nid .':0:'. $field_field;
+            }
             $node->nid = $id;
             if ($view->build_type == 'page' && $view->calendar_type != 'year') {
               
@@ -309,6 +315,8 @@ function theme_calendar_display(&$view, &$items, $type) {
             
             }
             $nodes[$id] = $node;
+            // Make sure multiple values fields don't pick up each others values by unsetting and starting over on each one.
+            unset($node);
           }
         }
       }
@@ -1343,7 +1351,7 @@ function calendar_calendar_node($node, $type) {
     // switch our psuedo nids back to the right values
     $tmp = explode(':', $node->nid);
     $node->nid = $tmp[0];
-                      
+                     
     return theme('calendar_calendar_node', $node, $type);
   
   } else {
