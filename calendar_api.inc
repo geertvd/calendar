@@ -902,7 +902,7 @@ function theme_calendar_filter_control($form) {
  * @param link
  *   The url for the navigation
  */
-function theme_calendar-nav-next($url, $text = TRUE, $querystring = NULL) {
+function theme_calendar_nav_next($url, $text = TRUE, $querystring = NULL) {
   return '<span class="next">'. l(($text ? t('next') : '') .' »', $url, NULL, $querystring) .'</span>';
 }
 
@@ -912,7 +912,7 @@ function theme_calendar-nav-next($url, $text = TRUE, $querystring = NULL) {
  * @param link
  *   The url for the navigation
  */
-function theme_calendar-nav-prev($url, $text = TRUE, $querystring = NULL) {
+function theme_calendar_nav_prev($url, $text = TRUE, $querystring = NULL) {
   return '<span class="prev">'. l('« '. ($text ? t('prev') : ''), $url, NULL, $querystring) .'</span>';
 }
 
@@ -920,7 +920,7 @@ function theme_calendar-nav-prev($url, $text = TRUE, $querystring = NULL) {
  *  Theme for the back/next navigation bar
  *  This is really hackish to put it in a table, but so many themes break otherwise that I gave up on anything else
  */
-function theme_calendar-nav-wrapper($array) {
+function theme_calendar_nav_wrapper($array) {
   return theme('table', $array, array());
 }
 
