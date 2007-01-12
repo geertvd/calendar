@@ -444,7 +444,7 @@ function calendar_week_header($mini = FALSE, $with_week = TRUE) {
     $row[] = array('class' => "days week", 'data' => '&nbsp;');
   }
   foreach ($days as $day) {
-    $row[] = array('class' => strtolower("days ". $day['day']), 'data' => $mini ? substr($day['t'], 0 , 1) : $day['t']);
+    $row[] = array('class' => strtolower("days ". $day['day']), 'data' => $mini ? drupal_substr($day['t'], 0 , 1) : $day['t']);
   }
 
   return $row;
