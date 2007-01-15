@@ -1,7 +1,7 @@
 ; $Id$
 name = Calendar
 description = Adds date calendar themes to views that can display any type of date field, and creates default calendar views.
-version = 1.0
+version = "$Name$"
 package = Views
 dependencies = views
 
