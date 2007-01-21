@@ -159,8 +159,8 @@ function theme_calendar_display(&$view, &$items, $type) {
     }
   }
 
-  include_once('calendar_api.inc');
-  
+  include_once(drupal_get_path('module', 'calendar') .'/calendar_api.inc');
+
   $view->nodes_per_page = 0;
   $type_names = node_get_types('names');
   
