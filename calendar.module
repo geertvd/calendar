@@ -161,8 +161,8 @@ function theme_calendar_display(&$view, &$items, $type) {
     }
   }
 
-  include_once('calendar_api.inc');
-  
+  include_once(drupal_get_path('module', 'calendar') .'/calendar_api.inc');
+
   $view->nodes_per_page = 0;
   $types = node_get_types();
   $type_names = array_flip((array) array_keys($types));
@@ -672,8 +672,8 @@ function calendar_views_query_alter(&$query, &$view) {
   
   if (!calendar_is_calendar($view)) return;
   
-  include_once('calendar_api.inc');
-  
+  include_once(drupal_get_path('module', 'calendar') .'/calendar_api.inc');
+
   // make sure block views default to the current month
   // and make sure day view is not selected
 
@@ -890,7 +890,7 @@ function calendar_views_pre_view(&$view, &$items) {
   
   if (!calendar_is_calendar($view)) return;
   
-  include_once('calendar_api.inc');
+  include_once(drupal_get_path('module', 'calendar') .'/calendar_api.inc');
   theme_add_style(drupal_get_path('module', 'calendar') .'/calendar.css');
 
   // add this so empty calendar results will produce blank calendar page
@@ -1343,8 +1343,8 @@ function calendar_calendar_node_week($node) {
 }
 function calendar_calendar_node($node, $type) {
   
-  include_once('calendar_api.inc');
-  
+  include_once(drupal_get_path('module', 'calendar') .'/calendar_api.inc');
+
   if ($node->nid > 0 && $node->calendar_start) {
     // this is a real calendar, go ahead and display it
     
