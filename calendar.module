@@ -671,7 +671,7 @@ function calendar_views_query_alter(&$query, &$view) {
   
   if (!calendar_is_calendar($view)) return;
   
-  include_once('calendar_api.inc');
+  include_once(drupal_get_path('module', 'calendar') .'/calendar_api.inc');  
   
   // make sure block views default to the current month
   // and make sure day view is not selected
@@ -889,7 +889,7 @@ function calendar_views_pre_view(&$view, &$items) {
   
   if (!calendar_is_calendar($view)) return;
   
-  include_once('calendar_api.inc');
+  include_once(drupal_get_path('module', 'calendar') .'/calendar_api.inc');
   drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
 
   // add this so empty calendar results will produce blank calendar page
@@ -1241,36 +1241,6 @@ function calendar_sql_pad($str, $size = 2, $pad = '0', $side = 'l') {
 }
 
 /**
- *  Make sure both views and calendar are enabled
- * hunmonk's module dependency check: see http://drupal.org/node/54463
- */
-function calendar_form_alter($form_id, &$form) {
-  if ($form_id == 'system_modules' && !$_POST) {
-    calendar_system_module_validate($form);
-  }
-}
-
-/**
- * hunmonk's module dependency check: see http://drupal.org/node/54463
- */
-function calendar_system_module_validate(&$form) {
-  $module = 'calendar';
-  $dependencies = array('views');
-  foreach ($dependencies as $dependency) {
-      if (!in_array($dependency, $form['status']['#default_value'])) {
-        $missing_dependency = TRUE;
-        $missing_dependency_list[] = $dependency;
-      }
-  }
-  if (in_array($module, $form['status']['#default_value']) && isset($missing_dependency)) {
-    db_query("UPDATE {system} SET status = 0 WHERE type = 'module' AND name = '%s'", $module);
-    $key = array_search($module, $form['status']['#default_value']);
-    unset($form['status']['#default_value'][$key]);
-    drupal_set_message(t('The module %module was deactivated--it requires the following disabled/non-existant modules to function properly: %dependencies', array('%module' => $module, '%dependencies' => implode(', ', $missing_dependency_list))), 'error');
-  }
-}
-
-/**
  *  implementation of hook_block()
  */
 function calendar_block($op = 'list', $delta = 0) {
@@ -1341,8 +1311,7 @@ function calendar_calendar_node_week($node) {
 }
 function calendar_calendar_node($node, $type) {
   
-  include_once('calendar_api.inc');
-  
+  include_once(drupal_get_path('module', 'calendar') .'/calendar_api.inc');
   if ($node->nid > 0 && $node->calendar_start) {
     // this is a real calendar, go ahead and display it
     
