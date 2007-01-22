@@ -90,6 +90,7 @@ function calendar_fields() {
       // dates with from and to dates need to handle both fields as one
       // add the from and to dates to the first one found and ignore the second
       
+      // Handling for event fromto dates
       if (!$event_field_processed && ($name == 'event.event_start' || $name == 'event.event_end')) {
         $timestamp_fromto = array('event.event_start', 'event.event_end');
         $offset_field = 'event.timezone';
@@ -104,16 +105,26 @@ function calendar_fields() {
         $tz_handling = 'site';
       }
       
-      // TODO add handling for cck fromto dates here once date module has been updated
-
-
+      // Handling for cck fromto dates
+      if (!$event_field_processed && $val['content_field']['todate']) {
+        switch ($val['content_field']['type']) {
+        case 'datestamp':
+          $timestamp_fromto = array($val['table'] .'.'. $val['content_field']['field_name'] .'_value', $val['table'] .'.'. $val['content_field']['field_name'] .'_value2');
+          break;
+        case 'date':
+          $string_fromto = array($val['table'] .'.'. $val['content_field']['field_name'] .'_value', $val['table'] .'.'. $val['content_field']['field_name'] .'_value2');
+          break;
+        }
+        $event_field_processed == TRUE;
+      }
+      
       // skip this step on second occurance of fromto date fields, if more than one exists in view 
       if (!$event_field_processed || $timestamp_fromto || $string_fromto) {
         
         // cck fields append a column name to the field, others do not
         // need a real field_name with no column name appended for cck date formatters
         $tmp = explode('.', $name);
-        $field_name =$val['content_field']['field_name'] ? $val['content_field']['field_name'] : $tmp[1];
+        $field_name = $val['content_field']['field_name'] ? $val['content_field']['field_name'] : $tmp[1];
         $fields[$tmp[1]] = array(
           'type' => $type,
           'delta' => $delta,
@@ -125,6 +136,7 @@ function calendar_fields() {
           'field_name' => $field_name,
           'query_name' => str_replace('.', '_', $name),
           'timestamp_fromto' => $timestamp_fromto,
+          'string_fromto' => $string_fromto,
           'tz_handling' => $tz_handling,
           'offset_field' => $offset_field,
         );
@@ -184,6 +196,7 @@ function theme_calendar_display(&$view, &$items, $type) {
       $field_function   = strstr($option['type'], 'cck') ? 'content_format' : $data['handler'];
       $field_formatter  = $data['options'];
       $field_field      = $option['query_name'];
+      $field_end        = $field_field .'2';
       $field_field_name = $option['field_name'];
       $timestamp_fromto = $option['timestamp_fromto'];
       $string_fromto    = $option['string_fromto'];
@@ -220,7 +233,6 @@ function theme_calendar_display(&$view, &$items, $type) {
           // if more than one event field was added to the view (like start and end dates)
           // don't process it more than once
           unset($node);
-        
         }
 
         if (isset($node) && !isset($node->calendar_start) && !isset($item->$field_field)) {
@@ -236,13 +248,14 @@ function theme_calendar_display(&$view, &$items, $type) {
           // if string, convert to timestamp using strtotime
           if ($field_type == 'timestamp') {
             $node->calendar_start = $item->$field_field;
+            $node->calendar_end = $item->$field_end ? $item->$field_end : $item->$field_start;
           } else {
             // get the timestamp value for this date, use UTC to make sure no timezone conversion gets done on it
             $node->calendar_start = strtotime(str_replace('T', ' ', $item->$field_field) .' UTC');
+            $node->calendar_end = $item->$field_end ? strtotime(str_replace('T', ' ', $item->$field_end) .' UTC') : strtotime(str_replace('T', ' ', $item->$field_field) .' UTC');
           }
-        
         }
-
+        
         if (isset($node)) {
           
           // get appropriate timezone offset
@@ -272,8 +285,8 @@ function theme_calendar_display(&$view, &$items, $type) {
           
           if ($field_function == 'content_format') {
             // force the original value for this field into the array that content_format expects
-            $node->start_format = content_format($field_field_name, array('value' => $item->$field_field), $field_formatter);
-            if ($node->calendar_end) $node->end_format = content_format($field_field_name, array('value' => $item->$field_field), $field_formatter);
+            $node->start_format = content_format($field_field_name, array('value' => $item->$field_field, 'value2' => $item->$field_field), $field_formatter);
+            if ($node->calendar_end) $node->end_format = content_format($field_field_name, array('value' => $item->$field_end, 'value2' => $item->$field_end), $field_formatter);
           }
           else {
             // or call date format function
@@ -286,10 +299,13 @@ function theme_calendar_display(&$view, &$items, $type) {
           // format a time-only display for the month calendar for dates that have time elements
           if (array_intersect($granularity, array('H', 'N', 'S'))) {
             $format = explode(' - ', variable_get('date_format_short', 'm/d/Y - H:i'));
-            $node->start_time_format = gmdate($format[1], $node->calendar_start + $node->start_offset);
-            if ($node->calendar_end) $node->end_time_format   = gmdate($format[1], $node->calendar_end + $node->end_offset);
+            $node->start_time_format = gmdate($format[1], intval($node->calendar_start + $node->start_offset));
+            if ($node->calendar_end) $node->end_time_format   = gmdate($format[1], intval($node->calendar_end + $node->end_offset));
           }
-
+          else {
+            $node->start_time_format = $node->start_format;
+            $node->end_time_format = $node->end_format;
+          }
           if ($node) {
 
             // we can have multiple representations with the same nid, like multi-day values
@@ -877,7 +893,6 @@ function calendar_views_query_alter(&$query, &$view) {
   // bring the node type into the query so we can use it in the theme
   $query->add_field('type', 'node');
   if ($queries) $query->add_where(implode(" OR ", $queries));
-
   return;
 
 }
