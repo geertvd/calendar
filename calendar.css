@@ -1,4 +1,5 @@
 /*  calendar calendar table styles  */
+
 .calendar-calendar table {
   border: 1px solid #999;
   border-collapse: collapse;
@@ -64,7 +65,7 @@
   text-align: right;
   width:25%;
   }
-  
+
 .calendar-calendar th a {
   font-weight: bold;
   color: #fff;
@@ -288,8 +289,8 @@
   width: 100%;
 }
 
-#block-calendar-1 .item-list ul li a { 
-  margin-top: 8px; 
+#block-calendar-1 .item-list ul li a {
+  margin-top: 8px;
 }
 
 span.calendar-timeleft {
@@ -318,7 +319,7 @@ table td.mini, table th.mini, table.mini td.week {
   }
 table td.mini a {
   font-weight:normal;
-  }  
+  }
 .mini-day-off {
   padding:0px;
 }
@@ -345,7 +346,7 @@ div.mini {
   }
 div.mini table {
   margin:1%;
-  }  
+  }
 .legend {
   width:100%;
   }
@@ -354,6 +355,6 @@ table th.legend {
   }
 .legend td {
   text-align:left;
-  }  
-  
+  }
+
 
