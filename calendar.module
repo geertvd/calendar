@@ -721,6 +721,16 @@ function calendar_views_query_alter(&$query, &$view) {
   // to make this work we must make some adjustments to the view
 
   if ($view->build_type == 'page') {
+    if (empty($view->args)) {
+      foreach ($view->argument as $delta => $argument) {
+        if ($argument['type'] == 'calendar_month' && !$view->args[$delta]) {
+          $view->args[$delta] = calendar_user_date('month');
+        }
+        elseif ($argument['type'] == 'calendar_year' && !$view->args[$delta]) {
+          $view->args[$delta] = calendar_user_date('year');
+        }
+      }
+    }
 
     $GLOBALS['calendar_is_calendar'] = TRUE;
     foreach ($view->argument as $delta => $argument) {
@@ -787,6 +797,10 @@ function calendar_views_query_alter(&$query, &$view) {
         $format = $view->build_type == 'block' || $view->calendar_type == 'year' ? 'M Y' : 'F Y';
         $iso = $view->year .'-'. sprintf('%02d', $view->month) .'-02';
         $view->subtitle = l(gmdate($format, strtotime($iso)), $view->url .'/'. $view->year .'/'. $view->month);
+        // make sure we have at least a month available as an argument
+        if (!$view->args[$delta]) {
+          $view->args[$delta] = $view->month;
+        }
         $view->calendar_type = str_replace('calendar_', '', $argument['type']);
         $view->delta['month'] = $delta;
       }
