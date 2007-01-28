@@ -1,5 +1,6 @@
 <?php
 // $Id$
+
 /**
  * Adapted from event_get_calendar() function in the event module
  * Reworked to remove dependency on event module
@@ -36,7 +37,7 @@
  *  @return Themed calendar view of nodes or array of calendar rows
  */
 function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = array()) {
-  
+
   $today = calendar_user_date();
 
   if ($params['limit'][0]) {
@@ -47,16 +48,16 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
     $min_date = 0;
     $max_date = 999999999999;
   }
-  
+
   $data  = array();
   foreach ($nodes as $nid => $node) {
-    
+
     $node->stripe = $params['stripe'] ? $node->$params['stripe'] : $node->nid;
-    
+
     $calendar = new stdClass();
     $nodes[$node->nid] = $node;
     $calendar->nid = $node->nid;
-    
+
     // $node_start and $node_end are local timestamp values
     if ($min_date -  $node->start_offset > $node->calendar_start) {
       $node->calendar_start = $min_date -  $node->start_offset;
@@ -72,7 +73,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
     else {
       $node_end = $node_start;
     }
-    
+
     if ($node_start == $node_end) {
       $calendar->calendar_state = 'singleday';
       $calendar->stamp = $node_start;
@@ -109,7 +110,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
       }
     }
   }
-  
+
   // order the years, months and days
   ksort($data, SORT_NUMERIC);
   foreach($data as $year => $months) {
@@ -118,9 +119,9 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
       ksort($data[$year][$month], SORT_NUMERIC);
     }
   }
-  
+
   $weekdays = calendar_week_days();
-  
+
   switch ($view) {
     case 'day':
     case 'table':
@@ -141,9 +142,9 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                 $dow = _calendar_day_of_week($calendar->stamp);
               }
               $node = $nodes[$calendar->nid];
-              
+
               $node->calendar_state = $calendar->calendar_state;
-              
+
               if($output = module_invoke($module, 'calendar_node_'. $view, $node)) {
                 $content .= $output;
               }
@@ -197,7 +198,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                 'colspan' => $colspan);
             }
             $rows[] = calendar_week_header($params['mini'], $params['with_weekno']);
-            
+
             while ($curstamp <= $lastday) {
               for ($x = $start; $x < 7; $x++) {
                 $cur_day = (($week * 7) + ($x + 1) - $offset);
@@ -211,13 +212,13 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                   }
                 }
                 $content = theme('calendar_date_box', $year, $month, $cur_day, $view, $params['mini'], $selected, $params['url']);
-                
+
                 // render nodes for the day
                 if(is_array($days[$cur_day]) && !$params['mini']) {
                   foreach($days[$cur_day] as $calendar) {
                     $node = $nodes[$calendar->nid];
                     $node->calendar_state = $calendar->calendar_state;
-                    
+
                     if($output = module_invoke($module, 'calendar_node_'. $view, $node)) {
                       $content .= $output;
                     }
@@ -241,9 +242,9 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
               // print week unless this is a week view and force_week is set and this is not the forced week
               if (!($view == 'week' && $params['force_week'] && $params['force_week'] != date('W', $curstamp))) {
                 if ($params['with_weekno']) {
-                  $week_row = array(0 => 
+                  $week_row = array(0 =>
                     array(
-                      'class' => 'week', 
+                      'class' => 'week',
                       'data' => l(sprintf('%02d', $cur_week), $params['url'] .'/'. $year .'/W'. $cur_week),
                     ));
                   $rows[] = array_merge($week_row, array_pad($row, 7, '&nbsp;'));
@@ -267,11 +268,11 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
         }
       break;
   }
-    
+
   // if only the rows array is requested, return it
   if ($params['as_array']) return $rows;
   $header = $title ? array(array('class' => 'heading', 'data' => $title, 'colspan' => $colspan)) : array();
-  
+
   $op = $params['mini'] ? 'mini' : 'page';
   return theme('calendar_'. $view, $op, $header, $rows, $month_rows);
 }
@@ -311,7 +312,7 @@ function calendar_mktime($hour, $minute, $second, $month, $day, $year, $offset =
  */
 function calendar_user_time() {
   global $user;
-  
+
   if (variable_get('configurable_timezones', 1) && $user->uid && strlen($user->timezone)) {
     return (time() - date("Z")) + $user->timezone;
   }
@@ -331,7 +332,7 @@ function calendar_user_date($part = 'timestamp') {
   if (!$date) {
     $now = calendar_user_time();
     $date = gmmktime(0, 0, 0, gmdate('m', $now), gmdate('j', $now), gmdate('Y', $now));
-    
+
       // this function calculates the user's date at midnight GMT
       // and is used to check for matches against daily midnight timestamps when creating calendars
       // since the timestamp is always compared against a midnight GMT timestamp
@@ -340,7 +341,7 @@ function calendar_user_date($part = 'timestamp') {
       // for timezones with negative offsets, that will be late in the user's day
       // for timezones with positive offsets, that will be early in the user's day
       // calculate the times when there will be a discrepancy and add or subtract a day to adjust
-    
+
     if (variable_get('configurable_timezones', 1) && $user->uid && strlen($user->timezone)) {
       $user_offset = $user->timezone;
     }
@@ -354,7 +355,7 @@ function calendar_user_date($part = 'timestamp') {
       $date = ($date - $now) >= $user_offset ? $date : intval($date + 86400);
     }
   }
-  
+
   switch ($part) {
   case ('year'):
     return gmdate('Y', $date);
@@ -469,9 +470,9 @@ function _calendar_day_of_week($stamp) {
  * Format a node stripe legend
  */
 function theme_calendar_stripe_legend($stripe_labels) {
-  
+
   $header = array(
-      array('class' => 'legend', 'data' => t('Item')), 
+      array('class' => 'legend', 'data' => t('Item')),
       array('class' => 'legend', 'data' => t('Key'))
       );
   foreach ($stripe_labels as $stripe => $label) {
@@ -489,7 +490,7 @@ function theme_calendar_stripe_legend($stripe_labels) {
  */
 function theme_calendar_stripe_stripe($node) {
   static $stripe, $stripe_map;
-  
+
   if(!$stripe_map[$node->stripe]) {
     if($stripe >= 10) {
       $stripe = 1;
@@ -512,13 +513,13 @@ function theme_calendar_stripe_stripe($node) {
  */
 function theme_calendar_year($op, $header, $rows, $month_rows) {
   $year = array_shift($month_rows);
-    
+
   $output = '<div class="calendar-calendar"><div class="year-view">';
   $output .= $year;
   $i = 0;
     foreach ($month_rows as $month) {
       $i++;
-      $row .= '<div class="mini">'. $month .'</div>';    
+      $row .= '<div class="mini">'. $month .'</div>';
       if ($i == 3) {
         $output .= '<div class="mini-row">'. $row .'</div>';
         $row = '';
@@ -633,7 +634,7 @@ function theme_calendar_node_day($node) {
 function theme_calendar_node_week($node) {
   $output .= '<div class="calendar weekview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
-  
+
   if ($node->calendar_start != $node->calendar_end && $node->start_time_format) {
     $start_label = t('Start: ');
     $end_label = t('End: ');
@@ -675,10 +676,10 @@ function theme_calendar_node_week($node) {
  *   The node being displayed
  */
 function theme_calendar_node_month($node) {
-  
+
   $output .= '<div class="calendar monthview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
-  
+
   if ($node->calendar_start != $node->calendar_end && $node->start_time_format) {
     $start_label = t('Start: ');
     $end_label = t('End: ');
@@ -818,7 +819,7 @@ function theme_calendar_node_list($node, $module = NULL) {
  *   The day to display.
  */
 function theme_calendar_date_box($year, $month, $day, $view, $mini = FALSE, $selected = FALSE, $url) {
-  
+
   $url = $url ? $url .'/'. $year .'/'. $month .'/'. $day : 'calendar/'. $year .'/'. $month .'/'. $day;
   if ($mini) {
     if ($selected) {
