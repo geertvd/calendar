@@ -130,7 +130,7 @@ function calendar_fields() {
           'type' => $type,
           'delta' => $delta,
           'label' => $val['name'],
-          'granularity' => $val['content_field']['granularity'] ? (array) array_keys($val['content_field']['granularity']) : array('Y', 'M', 'D', 'H', 'N'),
+          'granularity' => is_array($val['content_field']['granularity']) ? (array) array_keys($val['content_field']['granularity']) : array('Y', 'M', 'D', 'H', 'N'),
           'fullname' => $name,
           'table' => $tmp[0],
           'field' => $tmp[1],
@@ -249,7 +249,7 @@ function theme_calendar_display(&$view, &$items, $type) {
           // if string, convert to timestamp using strtotime
           if ($field_type == 'timestamp') {
             $node->calendar_start = $item->$field_field;
-            $node->calendar_end = $item->$field_end ? $item->$field_end : $item->$field_start;
+            $node->calendar_end = $item->$field_end ? $item->$field_end : $item->$field_field;
           } else {
             // get the timestamp value for this date, use UTC to make sure no timezone conversion gets done on it
             $node->calendar_start = strtotime(str_replace('T', ' ', $item->$field_field) .' UTC');
