@@ -699,6 +699,7 @@ function theme_calendar_node_month($node) {
   }
   $output .= '<div class="title">'. l($node->title, "node/$node->nid", array('title' => t('view this item'))) .'</div>'."\n";
   $output .= $times;
+  $output .= $node->teaser;
   $output .= '<div class="links">'. theme('links', $node->calendar_links) ."\n</div>";
   $output .= '</div>' . "\n";
 
