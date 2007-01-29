@@ -177,8 +177,8 @@ function theme_calendar_display(&$view, &$items, $type) {
   include_once(drupal_get_path('module', 'calendar') .'/calendar_api.inc');
 
   $view->nodes_per_page = 0;
-  $types = node_get_types();
-  $type_names = array_flip((array) array_keys($types));
+  $type_names = node_get_types();
+
   unset($params['limit']);
 
   if ($type == 'block' || $view->calendar_type == 'year') $params['mini'] = TRUE;
@@ -301,8 +301,8 @@ function theme_calendar_display(&$view, &$items, $type) {
           }
 
           // format a time-only display for the month calendar for dates that have time elements
-          if (array_intersect($granularity, array('H', 'N', 'S'))) {
-            $format = explode(' - ', variable_get('date_format_short', 'm/d/Y - H:i'));
+          $format = explode(' ', str_replace(' - ', ' ', variable_get('date_format_short', 'm/d/Y - H:i')));
+          if (array_intersect($granularity, array('H', 'N', 'S')) && $format[1]) {
             $node->start_time_format = gmdate($format[1], intval($node->calendar_start + $node->start_offset));
             if ($node->calendar_end) $node->end_time_format   = gmdate($format[1], intval($node->calendar_end + $node->end_offset));
           }
@@ -310,6 +310,7 @@ function theme_calendar_display(&$view, &$items, $type) {
             $node->start_time_format = $node->start_format;
             $node->end_time_format = $node->end_format;
           }
+
           if ($node) {
 
             // we can have multiple representations with the same nid, like multi-day values

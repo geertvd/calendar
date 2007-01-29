@@ -470,7 +470,6 @@ function _calendar_day_of_week($stamp) {
  * Format a node stripe legend
  */
 function theme_calendar_stripe_legend($stripe_labels) {
-
   $header = array(
       array('class' => 'legend', 'data' => t('Item')),
       array('class' => 'legend', 'data' => t('Key'))
