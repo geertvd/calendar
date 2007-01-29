@@ -331,16 +331,6 @@ function calendar_user_date($part = 'timestamp') {
   static $date;
   if (!$date) {
     $now = calendar_user_time();
-    $date = gmmktime(0, 0, 0, gmdate('m', $now), gmdate('j', $now), gmdate('Y', $now));
-
-      // this function calculates the user's date at midnight GMT
-      // and is used to check for matches against daily midnight timestamps when creating calendars
-      // since the timestamp is always compared against a midnight GMT timestamp
-      // there will be periods of time when the user will be in a different day than GMT
-      // the length of that period of mismatch is the same as the user's offset in seconds
-      // for timezones with negative offsets, that will be late in the user's day
-      // for timezones with positive offsets, that will be early in the user's day
-      // calculate the times when there will be a discrepancy and add or subtract a day to adjust
 
     if (variable_get('configurable_timezones', 1) && $user->uid && strlen($user->timezone)) {
       $user_offset = $user->timezone;
@@ -348,14 +338,10 @@ function calendar_user_date($part = 'timestamp') {
     else {
       $user_offset = variable_get('date_default_timezone', 0);
     }
-    if ($user_offset < 0) {
-      $date = ($date - $now) <= $user_offset ? $date : intval($date - 86400);
-    }
-    else {
-      $date = ($date - $now) >= $user_offset ? $date : intval($date + 86400);
-    }
-  }
 
+    $now += $user_offset;
+    $date = gmmktime(0, 0, 0, gmdate('m', $now), gmdate('j', $now), gmdate('Y', $now));
+  }
   switch ($part) {
   case ('year'):
     return gmdate('Y', $date);
