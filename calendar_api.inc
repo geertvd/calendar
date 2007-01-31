@@ -891,7 +891,7 @@ function theme_calendar_filter_control($form) {
  *   The url for the navigation
  */
 function theme_calendar_nav_next($url, $text = TRUE, $querystring = NULL) {
-  return '<span class="next">'. l(($text ? t('next') : '') .' »', $url, NULL, $querystring) .'</span>';
+  return '<span class="next">'. l(($text ? t('next') : '') .' »', $url, NULL, (!empty($querystring) ? $querystring : NULL)) .'</span>';
 }
 
 /**
@@ -901,7 +901,7 @@ function theme_calendar_nav_next($url, $text = TRUE, $querystring = NULL) {
  *   The url for the navigation
  */
 function theme_calendar_nav_prev($url, $text = TRUE, $querystring = NULL) {
-  return '<span class="prev">'. l('« '. ($text ? t('prev') : ''), $url, NULL, $querystring) .'</span>';
+  return '<span class="prev">'. l('« '. ($text ? t('prev') : ''), $url, NULL, (!empty($querystring) ? $querystring : NULL)) .'</span>';
 }
 
 /**
