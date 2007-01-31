@@ -545,6 +545,7 @@ function _calendar_make_node($node = NULL, $timestamp = NULL, $offset = NULL, $y
     $day    = _calendar_is_valid($day, 'day')       ? $day    : gmdate('j', time());
     $hour   = _calendar_is_valid($hour, 'hour')     ? $hour   : gmdate('H', time());
     $minute = _calendar_is_valid($minute, 'minute') ? $minute : gmdate('i', time());
+    while (!checkdate($month, $day, $year)) $day--; // Account for days that don't exist
     $timestamp = gmmktime($hour, $minute, 0, $month, $day, $year);
   }
 
