@@ -206,6 +206,7 @@ function theme_calendar_display(&$view, &$items, $type) {
       $offset_field     = $option['offset_field'];
       $label            = $data['label'];
       $granularity      = $option['granularity'];
+      $view_fields      = _views_get_fields();
 
       // iterate through the $items array returned by the query and create date or pseudo date nodes
       foreach ($items as $delta => $item) {
@@ -218,7 +219,9 @@ function theme_calendar_display(&$view, &$items, $type) {
         $node->label = $label;
         foreach ($view->field as $field) {
           if (!in_array($field['field'], $calendar_fields) && $field['field'] != 'title') {
-            $node->fields[$field['queryname']] = views_theme_field('views_handle_field', $field['queryname'], $fields, $field, $node, $view);
+            if ($view_fields[$field['id']]['visible'] !== FALSE) {
+              $node->fields[$field['queryname']] = views_theme_field('views_handle_field', $field['queryname'], $view_fields, $field, $node, $view);
+            }
           }
         }
 
