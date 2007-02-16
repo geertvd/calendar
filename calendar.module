@@ -1411,14 +1411,14 @@ function calendar_calendar_node($node, $type) {
  *  constructs a teaser out of any non-date fields in the view
  */
 function theme_calendar_calendar_node($node, $type) {
-   $node->title = $node->title;
-   if ($node->label) {
-     $node->title .= ' ('. $node->label .')';
-   }
-   if ($node->fields) {
-     foreach ($node->fields as $field) {
-       $node->teaser .= '<div>'. $field .'</div>';
-     }
-   }
-   return $type($node);
+  $node->title = $node->title;
+  if ($node->label && !strstr($node->title, $node->label)) {
+    $node->title .= ' ('. $node->label .')';
+  }
+  if ($node->fields) {
+    foreach ($node->fields as $field) {
+      $node->teaser .= '<div>'. $field .'</div>';
+    }
+  }
+  return $type($node);
 }
