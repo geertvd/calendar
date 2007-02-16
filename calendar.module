@@ -1368,7 +1368,7 @@ function calendar_calendar_node($node, $type) {
  */
 function theme_calendar_calendar_node($node, $type) {
    $node->title = $node->title;
-   if ($node->label) {
+   if ($node->label && !strstr($node->title, $node->label)) {
      $node->title .= ' ('. $node->label .')';
    }
    if ($node->fields) {
