@@ -74,7 +74,8 @@ function calendar_fields() {
   $delta = 0;
   foreach (_views_get_fields() as $name => $val) {
 
-    $fromto = $timestamp_fromto = array();
+    $timestamp_fromto = array();
+    $string_fromto = array();
     $type = '';
 
     // for cck fields, get the date type
