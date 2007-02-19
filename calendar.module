@@ -1332,13 +1332,13 @@ function calendar_switch_view() {
  *  instead of duplicating the processing for each one
  */
 function calendar_calendar_node_month($node) {
-  return calendar_calendar_node($node, 'theme_calendar_node_month');
+  return calendar_calendar_node($node, 'calendar_node_month');
 }
 function calendar_calendar_node_day($node) {
-  return calendar_calendar_node($node, 'theme_calendar_node_day');
+  return calendar_calendar_node($node, 'calendar_node_day');
 }
 function calendar_calendar_node_week($node) {
-  return calendar_calendar_node($node, 'theme_calendar_node_week');
+  return calendar_calendar_node($node, 'calendar_node_week');
 }
 function calendar_calendar_node($node, $type) {
 
@@ -1378,5 +1378,4 @@ function theme_calendar_calendar_node($node, $type) {
    }
    $theme = str_replace('theme_', '', $type);
    return theme($theme, $node);
-   return $type($node);
 }
