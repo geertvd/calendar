@@ -1376,6 +1376,5 @@ function theme_calendar_calendar_node($node, $type) {
        $node->teaser .= '<div>'. $field .'</div>';
      }
    }
-   $theme = str_replace('theme_', '', $type);
    return theme($theme, $node);
 }
