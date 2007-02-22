@@ -1,8 +1,42 @@
 Views Calendar
 ====================
 
+Version 1.3
+===========
 
-Version 4.7.x-1.1
+- Fix week calculation, could fix a number of issues
+- 120813 first of month dates not appearing, fixed by this patch and setting field to not use timezone conversion when there is no hours granularity.
+- 98859 add filter and arg info to links and navigation so it is retained
+- Move themes into separate file to make them easier to find
+- Add dependency on Date API and remove duplicated code from Calendar
+- Move page navigation and top links into theme and make sure exposed filters don't separate navigation and calendar.
+- Clean up themeing
+- 115144 make sure label only gets added once to title
+- 115999 initialize value to prevent wrong tables from being inserted into view
+- 99254 fix missing name in block
+- 113036 add translation for default view titles
+
+Version 1.2
+===========
+
+- 113959, 114654 empty calendar not created for non-existant days
+- Fix for back/next url
+- 113714 correct invalid foreach argument by altering method of calling views handler for non-date fields
+- 112182, 111701, 108071 - extra fields not showing up in calendar teaser
+- 99223 fix current date
+- 113125 - current view needs a link in the links listed aboved the calendar
+- Fix display of time in calendar, fix content type name in legend
+- 109336 default to current month instead of year
+- Cleanup handling of 'to' date for non-CCK date, fix links at top of calendar
+- 108957 add include path, patch by retodd, incorporate from/to cck date option from latest version of date module.
+- Incorporate from/to date capability added to cvs version of date module.
+- 108957 add include path
+- 89097 reverse sign on option delta, fix view tablename aliases
+- 114265 handle empty 'to' date values by filling with 'from' date. Fix block view of date browser, use new CCK views table alias.
+- 80592 alter default value handling to match changes in CCK, display blank value as default for to date if not required, make sure blank 
+value is stored as NULL
+
+Version 1.1
 =====================
 
 - Force CCK multiple value fields to display as separate items on calendar.
@@ -16,8 +50,7 @@ Version 4.7.x-1.1
 - #100460 replace css underscores with hyphens
 
 
-
-Version 4.7.x-1.1-beta
+Version 1.1-beta
 ======================
 
 Initial release.
