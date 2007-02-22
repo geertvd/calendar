@@ -816,7 +816,6 @@ function calendar_views_query_alter(&$query, &$view) {
       }
       if ($argument['type'] == 'calendar_month' && $view->args[$delta]) {
         $view->month = _calendar_is_valid($view->args[$delta], 'month') ? $view->args[$delta] : calendar_user_date('month');
-        $view->week  = calendar_week('week', $view);
         $query_min .= '-'. sprintf('%02d', $view->month);
         $query_max .= '-'. sprintf('%02d', $view->month);
         // use the second day of the month because gm functions sometimes return the previous month
@@ -851,6 +850,8 @@ function calendar_views_query_alter(&$query, &$view) {
       }
     }
   }
+
+  if (!isset($view->week)) $view->week  = calendar_week('week', $view);
 
   if (!$query_min) {
     return;
