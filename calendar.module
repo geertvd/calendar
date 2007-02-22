@@ -286,6 +286,7 @@ function theme_calendar_display(&$view, &$items, $type) {
             global $user;
             $node->start_offset = $node->end_offset = $user->timezone;
             break;
+          case 'none':
           case 'GMT' :
             $node->start_offset = $node->end_offset = 0;
             break;
@@ -871,9 +872,6 @@ function calendar_views_query_alter(&$query, &$view) {
   $query_timestamp_min = strtotime($query_min);
   $query_timestamp_max = strtotime($query_max);
 
-  $query_min .= '%';
-  $query_max .= '%';
-
   // find all datetime fields in this view and add filters for them to the query
   $fields = calendar_fields();
 
@@ -896,7 +894,8 @@ function calendar_views_query_alter(&$query, &$view) {
         global $user;
         $start_offset = $end_offset = $user->timezone;
         break;
-      case 'GMT' :
+      case 'none':
+      case 'GMT':
         $start_offset = $end_offset = 0;
         break;
       case 'date' :
