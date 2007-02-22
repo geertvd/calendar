@@ -1153,7 +1153,7 @@ function calendar_block($op = 'list', $delta = 0) {
         return $block;
       case 1:
         $block['subject'] = t('Switch Calendar');
-        $block['content'] = drupal_get_form('calendar_switch_view');
+        $block['content'] = drupal_get_form('calendar_switch_view', calendar_switch_view());
         return $block;
       }
   }
@@ -1277,7 +1277,7 @@ function calendar_form_alter($form_id, &$form) {
  */
 function calendar_system_module_validate(&$form) {
   $module = 'calendar';
-  $dependencies = array('views date_api');
+  $dependencies = array('views', 'date_api');
   foreach ($dependencies as $dependency) {
       if (!in_array($dependency, $form['status']['#default_value'])) {
         $missing_dependency = TRUE;
