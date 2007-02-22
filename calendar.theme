@@ -33,19 +33,22 @@ function theme_calendar_show_nav($view) {
   // add links to the top of the calendar to switch from one view to another
   if ($view->build_type == 'page') {
 
-    $base_url = $view->url .'/'. $view->year;
+    $view->real_url = calendar_get_url($view, $view->args);
+
+    $base_url = $view->real_url .'/'. $view->year;
     $month    = $view->month ? $view->month : calendar_user_date('month');
     $day      = $view->day ? $view->day : calendar_user_date('day');
     $week     = $view->week ? $view->week : calendar_user_date('week');
 
+    $append = calendar_url_append();
     if ($_GET['view']) {
-      $append = 'view='. $_GET['view'];
+      $append .= '&view='. $_GET['view'];
     }
 
-    $calendar_links[] = array('title' => t('Year'), 'href' => $view->url .'/'. $view->year, 'query' => $append);
-    $calendar_links[] = array('title' => t('Month'), 'href' => $view->url .'/'. $view->year .'/'. $month , 'query' => $append);
-    $calendar_links[] = array('title' => t('Week'), 'href' => $view->url .'/'. $view->year .'/W'. $week, 'query' => $append);
-    $calendar_links[] = array('title' => t('Day'), 'href' => $view->url .'/'. $view->year .'/'. $month .'/'. $day, 'query' => $append);
+    $calendar_links[] = array('title' => t('Year'), 'href' => $view->real_url .'/'. $view->year, 'query' => $append);
+    $calendar_links[] = array('title' => t('Month'), 'href' => $view->real_url .'/'. $view->year .'/'. $month , 'query' => $append);
+    $calendar_links[] = array('title' => t('Week'), 'href' => $view->real_url .'/'. $view->year .'/W'. $week, 'query' => $append);
+    $calendar_links[] = array('title' => t('Day'), 'href' => $view->real_url .'/'. $view->year .'/'. $month .'/'. $day, 'query' => $append);
     $output  .= theme('calendar_links', $calendar_links, 'month');
 
     $output .= '<div class="calendar-calendar">'. theme('calendar_nav_wrapper', calendar_nav($view, $params['mini']), array()) .'</div>';
