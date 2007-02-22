@@ -31,6 +31,7 @@
  *     $params[as_array]    - true to return the rows array instead of the themed table
  *     $params[mini]        - this is a mini calendar, don't display item details
  *     $params[url]         - an url to use as a base url in month and days
+ *     $params[append]      - a query string to append to urls
  *     $params[stripe]      - an node field to use instead of nid for stripes
  *     $params[limit]       - an array of a minimum and maximum timestamp to include on the calendar
                                 used in case node array has values that overlap periods
@@ -135,7 +136,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
         }
         foreach($months as $month => $days) {
           foreach($days as $day => $calendars) {
-            $content = theme('calendar_date_box', $year, $month, $day, 'table', $params['mini'], $calendars, $params['url']);
+            $content = theme('calendar_date_box', $year, $month, $day, 'table', $params['mini'], $calendars, $params['url'], $params['append']);
             foreach($calendars as $calendar) {
               if(!$month_name) {
                 $month_name = gmdate('M', $calendar->stamp);
@@ -187,7 +188,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
             $start = $offset = _calendar_day_of_week($curstamp);
             // get name of month
             $month_name = gmdate('M', $curstamp);
-            $month_link = $params['url'] ? l($month_name, $params['url'] .'/'. $year .'/'. intval($month)) : $month_name;
+            $month_link = $params['url'] ? l($month_name, $params['url'] .'/'. $year .'/'. intval($month), NULL, $params['append']) : $month_name;
             // set week counter
             $week = 0;
             if (!$params['hide_header']) {
@@ -211,7 +212,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                     }
                   }
                 }
-                $content = theme('calendar_date_box', $year, $month, $cur_day, $view, $params['mini'], $selected, $params['url']);
+                $content = theme('calendar_date_box', $year, $month, $cur_day, $view, $params['mini'], $selected, $params['url'], $params['append']);
 
                 // render nodes for the day
                 if(is_array($days[$cur_day]) && !$params['mini']) {
@@ -245,7 +246,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                   $week_row = array(0 =>
                     array(
                       'class' => 'week',
-                      'data' => l(sprintf('%02d', $cur_week), $params['url'] .'/'. $year .'/W'. $cur_week),
+                      'data' => l(sprintf('%02d', $cur_week), $params['url'] .'/'. $year .'/W'. $cur_week, NULL, $params['append']),
                     ));
                   $rows[] = array_merge($week_row, array_pad($row, 7, '&nbsp;'));
                 }
