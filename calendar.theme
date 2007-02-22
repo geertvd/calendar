@@ -336,28 +336,28 @@ function theme_calendar_node_month($node) {
  * @param day
  *   The day to display.
  */
-function theme_calendar_date_box($year, $month, $day, $view, $mini = FALSE, $selected = FALSE, $url) {
+function theme_calendar_date_box($year, $month, $day, $view, $mini = FALSE, $selected = FALSE, $url, $append = '') {
 
   $url = $url ? $url .'/'. $year .'/'. $month .'/'. $day : 'calendar/'. $year .'/'. $month .'/'. $day;
   if ($mini) {
     if ($selected) {
-      return '<div class="mini-day-on">'. l($day, $url) .'</div>';
+      return '<div class="mini-day-on">'. l($day, $url, NULL, $append) .'</div>';
     }
     else {
-      return '<div class="mini-day-off">'. l($day, $url) .'</div>';
+      return '<div class="mini-day-off">'. l($day, $url, NULL, $append) .'</div>';
     }
   }
   switch ($view) {
     case 'table':
-        $output = '<div class="day">'. l(t('!month / !day', array('!month' => $month, '!day' => $day)), $url) .'</div>'."\n";
+        $output = '<div class="day">'. l(t('!month / !day', array('!month' => $month, '!day' => $day)), $url, NULL, $append) .'</div>'."\n";
       break;
     case 'list':
-        $output = '<div class="day">'. l(format_date(_calendar_mktime(0, 0, 0, $month, $day, $year), 'custom', 'l, F j, Y'), $url) .'</div>'."\n";
+        $output = '<div class="day">'. l(format_date(_calendar_mktime(0, 0, 0, $month, $day, $year), 'custom', 'l, F j, Y'), $url, NULL, $append) .'</div>'."\n";
       break;
     case 'day':
      break;
     default:
-        $output = '<div class="day">'. l($day, $url) .'</div>'."\n";
+        $output = '<div class="day">'. l($day, $url, NULL, $append) .'</div>'."\n";
       break;
   }
   return $output;
