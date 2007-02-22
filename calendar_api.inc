@@ -31,9 +31,10 @@
  *     $params[as_array]    - true to return the rows array instead of the themed table
  *     $params[mini]        - this is a mini calendar, don't display item details
  *     $params[url]         - an url to use as a base url in month and days
+ *     $params[append]      - a query string to append to urls
  *     $params[stripe]      - an node field to use instead of nid for stripes
  *     $params[limit]       - an array of a minimum and maximum timestamp to include on the calendar
-                                used in case node array has values that overlap periods
+ *                              used in case node array has values that overlap periods
  *  @return Themed calendar view of nodes or array of calendar rows
  */
 function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = array()) {

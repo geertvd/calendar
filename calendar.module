@@ -420,6 +420,7 @@ function theme_calendar_display(&$view, &$items, $type) {
   drupal_add_css(CALENDAR_PATH .'/calendar.css');
   $title = ($view->build_type == 'page' ? '' : ($view->subtitle ? $view->subtitle : $view->page_type));
   $params['url'] = calendar_get_url($view, $view->args);
+  $params['append'] = calendar_url_append();
   $params['stripe'] = 'stripe';
   $params['with_weekno'] = $view->build_type == 'block' || $view->calendar_type == 'year' ? FALSE : TRUE;
 
