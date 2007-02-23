@@ -1,5 +1,6 @@
 <?php
 // $Id$
+
 /**
  * @file
  * Adds calendar display themes to views.
@@ -23,6 +24,12 @@ function calendar_help($section) {
 function calendar_menu($may_cache) {
   define('CALENDAR_PATH', drupal_get_path('module', 'calendar'));
   define('DATE_API_PATH', drupal_get_path('module', 'date_api'));
+  if (!module_exists('event')) {
+    define('ICAL_PATH', drupal_get_path('module', 'calendar'));
+  }
+  else {
+    define('ICAL_PATH', drupal_get_path('module', 'event'));
+  }
   include_once(CALENDAR_PATH .'/calendar.theme');
   if (!$may_cache) {
     $items[] = array(
@@ -1355,7 +1362,7 @@ function calendar_setup_form() {
  * @todo - add validation of the url.
  */
 function calendar_setup_form_submit($form_id, $form_values) {
-  include_once(drupal_get_path('module', 'calendar') .'/ical.inc');
+  include_once(ICAL_PATH .'/ical.inc');
   foreach ($form_values as $value_name => $value) {
     if ($value_name == 'calendar_time_format') {
       variable_set('calendar_time_format',  $value);
@@ -1392,8 +1399,10 @@ function calendar_setup_form_submit($form_id, $form_values) {
 
 function calendar_add_feeds($view) {
   $nodes = array();
-  include_once(drupal_get_path('module', 'calendar') .'/ical.inc');
-  $feeds = variable_get('calendar_feeds_'. $view->name, array());
+  include_once(ICAL_PATH .'/ical.inc');
+  if (!$feeds = variable_get('calendar_feeds_'. $view->name, array())) {
+    return $nodes;
+  }
   foreach ($feeds as $delta => $feed) {
     if ($cached = cache_get('calendar_feeds_'. $view->name .':'. $feed['url'], 'cache')) {
       $nodes += (array) unserialize($cached->data);
