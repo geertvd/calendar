@@ -223,7 +223,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                     if($output = module_invoke($module, 'calendar_node_'. $view, $node)) {
                       $content .= $output;
                     }
-                    elseif (!$params['mini'] && $node->nid > 0) {
+                    elseif (!$params['mini'] && $node->nid != 0) {
                       $content .= theme('calendar_node_'. $view, $node);
                     }
                   }
