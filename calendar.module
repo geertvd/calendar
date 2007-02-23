@@ -287,7 +287,7 @@ function theme_calendar_display(&$view, &$items, $type) {
             $node->start_offset = $node->end_offset = $user->timezone;
             break;
           case 'none':
-          case 'GMT':
+          case 'GMT' :
             $node->start_offset = $node->end_offset = 0;
             break;
           case 'date' :
@@ -1195,23 +1195,25 @@ function calendar_switch_view() {
  *  instead of duplicating the processing for each one
  */
 function calendar_calendar_node_month($node) {
-  return calendar_calendar_node($node, 'theme_calendar_node_month');
+  return calendar_calendar_node($node, 'calendar_node_month');
 }
 function calendar_calendar_node_day($node) {
-  return calendar_calendar_node($node, 'theme_calendar_node_day');
+  return calendar_calendar_node($node, 'calendar_node_day');
 }
 function calendar_calendar_node_week($node) {
-  return calendar_calendar_node($node, 'theme_calendar_node_week');
+  return calendar_calendar_node($node, 'calendar_node_week');
 }
 function calendar_calendar_node($node, $type) {
 
   include_once(CALENDAR_PATH .'/calendar_api.inc');
-  if ($node->nid > 0 && $node->calendar_start) {
+  if ($node->nid && $node->nid !== 0 && $node->calendar_start) {
     // this is a real calendar, go ahead and display it
 
-    // switch our psuedo nids back to the right values
-    $tmp = explode(':', $node->nid);
-    $node->nid = $tmp[0];
+    if (!$node->remote) {
+      // switch our psuedo nids back to the right values
+      $tmp = explode(':', $node->nid);
+      $node->nid = $tmp[0];
+    }
 
     return theme('calendar_calendar_node', $node, $type);
 

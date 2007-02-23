@@ -22,7 +22,10 @@ function theme_calendar_calendar_node($node, $type) {
        $node->teaser .= '<div>'. $field .'</div>';
      }
    }
-   return theme($theme, $node);
+   if (!$node->url && !$node->remote) {
+     $node->url = "node/$node->nid";
+   }
+   return theme($type, $node);
 }
 
 /**
@@ -221,7 +224,7 @@ function theme_calendar_node_day($node) {
     $end_label = '';
   }
 
-  $output .= '<div class="title">'. l($node->title, "node/$node->nid", array('title' => t('view this item'))) .'</div>'."\n";
+  $output .= '<div class="title">'. l($node->title, "$node->url", array('title' => t('view this item'))) .'</div>'."\n";
 
   $output .= '<div class="start">'. $start_label . $node->start_format .'</div>'."\n";
   if ($node->calendar_start != $node->calendar_end && $node->calendar_end) {
@@ -272,7 +275,7 @@ function theme_calendar_node_week($node) {
       break;
   }
 
-  $output .= '<div class="title">'. l($node->title, "node/$node->nid", array('title' => t('view this item'))) .'</div>'."\n";
+  $output .= '<div class="title">'. l($node->title, "$node->url", array('title' => t('view this item'))) .'</div>'."\n";
   $output .= $times;
   $output .= '<div class="links">'. theme('links', $node->calendar_links) ."\n</div>";
   $output .= '</div>' . "\n";
@@ -321,10 +324,10 @@ function theme_calendar_node_month($node) {
         $times = '<div class="ongoing">'. t('all day') .'</div>'."\n";
       break;
   }
-  $output .= '<div class="title">'. l($node->title, "node/$node->nid", array('title' => t('view this item'))) .'</div>'."\n";
+  $output .= '<div class="title">'. l($node->title, "$node->url", array('title' => t('view this item'))) .'</div>'."\n";
   $output .= $times;
-  $output .= $node->teaser;
-  $output .= '<div class="links">'. theme('links', $node->calendar_links) ."\n</div>";
+  //$output .= $node->teaser;
+  //$output .= '<div class="links">'. theme('links', $node->calendar_links) ."\n</div>";
   $output .= '</div>' . "\n";
 
   return $output;
