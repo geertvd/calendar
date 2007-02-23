@@ -1196,13 +1196,13 @@ function calendar_switch_view() {
  *  instead of duplicating the processing for each one
  */
 function calendar_calendar_node_month($node) {
-  return calendar_calendar_node($node, 'theme_calendar_node_month');
+  return calendar_calendar_node($node, 'calendar_node_month');
 }
 function calendar_calendar_node_day($node) {
-  return calendar_calendar_node($node, 'theme_calendar_node_day');
+  return calendar_calendar_node($node, 'calendar_node_day');
 }
 function calendar_calendar_node_week($node) {
-  return calendar_calendar_node($node, 'theme_calendar_node_week');
+  return calendar_calendar_node($node, 'calendar_node_week');
 }
 function calendar_calendar_node($node, $type) {
 
@@ -1210,9 +1210,11 @@ function calendar_calendar_node($node, $type) {
   if ($node->nid > 0 && $node->calendar_start) {
     // this is a real calendar, go ahead and display it
 
-    // switch our psuedo nids back to the right values
-    $tmp = explode(':', $node->nid);
-    $node->nid = $tmp[0];
+    if (!$node->remote) {
+      // switch our psuedo nids back to the right values
+      $tmp = explode(':', $node->nid);
+      $node->nid = $tmp[0];
+    }
 
     return theme('calendar_calendar_node', $node, $type);
 
