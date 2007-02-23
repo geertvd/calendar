@@ -322,6 +322,11 @@ function ical_help($section) {
 
 function _ical_tz($tz) {
   //return db_fetch_object(db_query("SELECT * FROM {ical_timezones} WHERE timezone = '%s'", $tz));
+  include_once(drupal_get_path('module', 'date_api') .'/date_timezones.inc');
+  foreach (event_get_timezones() as $delta => $zone) {
+    if ($tz == $zone['timezone']);
+    return (object) $zone;
+  }
 }
 
 function _ical_chooseOffset($time, $timezone) {
