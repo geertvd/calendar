@@ -1,6 +1,5 @@
 <?php
 // $Id$
-
 /**
  * @file
  * Adds calendar display themes to views.
@@ -439,6 +438,7 @@ function theme_calendar_display(&$view, &$items, $type) {
   $params['with_weekno'] = $view->build_type == 'block' || $view->calendar_type == 'year' ? FALSE : TRUE;
 
   $nodes += calendar_add_feeds($view);
+
   return theme('calendar_show_nav', $view) . calendar_get_calendar($view->calendar_type, $nodes, 'calendar', $title, $params);
 
 }
@@ -947,6 +947,7 @@ function calendar_views_query_alter(&$query, &$view) {
   // bring the node type into the query so we can use it in the theme
   $query->add_field('type', 'node');
   if ($queries) $query->add_where(implode(" OR ", $queries));
+
   return;
 
 }
@@ -1354,14 +1355,23 @@ function calendar_setup_form() {
  * @todo - add validation of the url.
  */
 function calendar_setup_form_submit($form_id, $form_values) {
+  include_once(drupal_get_path('module', 'calendar') .'/ical.inc');
   foreach ($form_values as $value_name => $value) {
     if ($value_name == 'calendar_time_format') {
       variable_set('calendar_time_format',  $value);
     }
     elseif (is_array($value)) {
       foreach ($value as $delta => $item) {
+        // Don't save empty values.
         if (trim($item['url']) == '' || trim($item['name']) == '') {
           unset($value[$delta]);
+        }
+        else {
+          // Don't save invalid urls.
+          $events = ical_import($item['url']);
+          if (!is_array($events)) {
+            unset($value[$delta]);
+          }
         }
       }
       variable_set('calendar_feeds_'. $value_name, $value);
@@ -1382,7 +1392,7 @@ function calendar_setup_form_submit($form_id, $form_values) {
 
 function calendar_add_feeds($view) {
   $nodes = array();
-  include_once(drupal_get_path('module', 'date_api') .'/ical.inc');
+  include_once(drupal_get_path('module', 'calendar') .'/ical.inc');
   $feeds = variable_get('calendar_feeds_'. $view->name, array());
   foreach ($feeds as $delta => $feed) {
     if ($cached = cache_get('calendar_feeds_'. $view->name .':'. $feed['url'], 'cache')) {
