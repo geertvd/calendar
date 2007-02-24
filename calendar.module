@@ -1291,7 +1291,7 @@ function calendar_url_append() {
  */
 function calendar_setup_form() {
   include_once(drupal_get_path('module', 'calendar') .'/calendar.theme');
-  drupal_add_css(drupal_get_path('module', 'calendar'), '/calendar.css');
+  drupal_add_css(CALENDAR_PATH . '/calendar.css');
   for ($i = 0; $i < 10; $i++) {
     $node = new StdClass();
     $node->stripe = $i;

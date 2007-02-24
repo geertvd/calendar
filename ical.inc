@@ -32,7 +32,7 @@
  */
 function ical_export($events, $calname = NULL) {
   $output .= "BEGIN:VCALENDAR\nVERSION:2.0\n";
-  $output .= 'X-WR-CALNAME:'. ical_escape_text(variable_get('site_name', '') .' | '. $calname) ."\n";
+  $output .= 'X-WR-CALNAME:'. variable_get('site_name', '') .' | '. ical_escape_text($calname) ."\n";
   $output .= "PRODID:-//strange bird labs//Drupal iCal API//EN\n";
   foreach ($events as $uid => $event) {
     $output .= "BEGIN:VEVENT\n";
@@ -51,23 +51,11 @@ function ical_export($events, $calname = NULL) {
     else if ($event['start']) {
       $output .= "DTSTART;VALUE=DATE-TIME:" . gmdate("Ymd\THis\Z", $event['start']) . "\n";
     }
-
-    // strip_tags to get just the text.
-    $output .= "SUMMARY:" . ical_escape_text(strip_tags($event['summary'])) . "\n";
-
-    if ($event['description'])
-      // include a link to the event in the description (Google Calendar doesn't use the URL field)
-      $url = '<a href="' . $event['url'] . '">' . $event['url'] . '</a>';
-      $description = $event['description'] . "\n\n" . $url;
-      $output .= "DESCRIPTION:" . ical_escape_text($description) . "\n";
-
-    if ($event['url'])
-      $output .= "URL;VALUE=URI:" . ical_escape_text($event['url']) . "\n";
-
-    if ($event['location'])
-      $output .= "LOCATION:" . ical_escape_text($event['location']) . "\n";
-
     $output .= "UID:" . ($event['uid'] ? $event['uid'] : $uid) . "\n";
+    if ($event['url']) $output .= "URL;VALUE=URI:" . $event['url'] . "\n";
+    if ($event['location']) $output .= "LOCATION:" . ical_escape_text($event['location']) . "\n";
+    $output .= "SUMMARY:" . ical_escape_text($event['summary']) . "\n";
+    if ($event['description']) $output .= "DESCRIPTION:" . ical_escape_text($event['description']) . "\n";
     $output .= "END:VEVENT\n";
   }
   $output .= "END:VCALENDAR\n";
@@ -85,12 +73,11 @@ function ical_export($events, $calname = NULL) {
  *
  */
 function ical_escape_text($text) {
-
-  // escape these characters
-  $text = str_replace("\"", "DQUOTE", $text);
+  //$text = strip_tags($text);
+  $text = str_replace('"', '\"', $text);
   $text = str_replace("\\", "\\\\", $text);
   $text = str_replace(",", "\,", $text);
-  //$text = str_replace(":", "\":\"", $text);
+  $text = str_replace(":", "\:", $text);
   $text = str_replace(";", "\;", $text);
   $text = str_replace("\n", "\n ", $text);
   return $text;
@@ -321,7 +308,6 @@ function ical_help($section) {
 }
 
 function _ical_tz($tz) {
-  //return db_fetch_object(db_query("SELECT * FROM {ical_timezones} WHERE timezone = '%s'", $tz));
   include_once(drupal_get_path('module', 'date_api') .'/date_timezones.inc');
   foreach (event_get_timezones() as $delta => $zone) {
     if ($tz == $zone['timezone']);
