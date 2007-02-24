@@ -420,7 +420,7 @@ function theme_calendar_display(&$view, &$items, $type) {
   drupal_add_css(CALENDAR_PATH .'/calendar.css');
   $title = ($view->build_type == 'page' ? '' : ($view->subtitle ? $view->subtitle : $view->page_type));
   $params['url'] = calendar_get_url($view, $view->args);
-  $params['append'] = calendar_url_append();
+  $params['append'] = calendar_url_append($view);
   $params['stripe'] = 'stripe';
   $params['with_weekno'] = $view->build_type == 'block' || $view->calendar_type == 'year' ? FALSE : TRUE;
 
@@ -463,8 +463,8 @@ function calendar_nav($view, $mini = FALSE) {
     $next_query[] = 'mini='. $next_path;
     $next_path = $_GET['q'];
   }
-  $prev_query[] = calendar_url_append();
-  $next_query[] = calendar_url_append();
+  $prev_query[] = calendar_url_append($view);
+  $next_query[] = calendar_url_append($view);
 
   $header = array();
   $header[]  = array('data' => theme('calendar_nav_prev', $prev_path, $mini ? FALSE : TRUE, implode('&', $prev_query)), 'class' => 'prev');
@@ -806,7 +806,7 @@ function calendar_views_query_alter(&$query, &$view) {
         $view->year = _calendar_is_valid($view->args[$delta], 'year') ? $view->args[$delta] : calendar_user_date('year');
         $query_min = $view->year;
         $query_max = $view->year;
-        $view->subtitle = l($view->year, $view->real_url .'/'. $view->year);
+        $view->subtitle = l($view->year, $view->real_url .'/'. $view->year, array(), calendar_url_append($view));
         // make sure we have at least a year available as an argument
         if (!$view->args[$delta]) {
           $view->args[$delta] = $view->year;
@@ -821,7 +821,7 @@ function calendar_views_query_alter(&$query, &$view) {
         // use the second day of the month because gm functions sometimes return the previous month
         $format = $view->build_type == 'block' || $view->calendar_type == 'year' ? 'M Y' : 'F Y';
         $iso = $view->year .'-'. sprintf('%02d', $view->month) .'-02';
-        $view->subtitle = l(gmdate($format, strtotime($iso)), $view->real_url .'/'. $view->year .'/'. $view->month);
+        $view->subtitle = l(gmdate($format, strtotime($iso)), $view->real_url .'/'. $view->year .'/'. $view->month, array(), calendar_url_append($view));
         $view->calendar_type = str_replace('calendar_', '', $argument['type']);
         $view->delta['month'] = $delta;
       }
@@ -830,7 +830,7 @@ function calendar_views_query_alter(&$query, &$view) {
         $query_min .= '-'. sprintf('%02d', $view->day);
         $query_max .= '-'. sprintf('%02d', $view->day);
         $iso = $view->year .'-'. sprintf('%02d', $view->month) .'-'. sprintf('%02d', $view->day) .'T12:00:00';
-        $view->subtitle = l(gmdate('l, F j Y', strtotime($iso)), $view->real_url .'/'. $view->year .'/'. $view->month .'/'. $view->day);
+        $view->subtitle = l(gmdate('l, F j Y', strtotime($iso)), $view->real_url .'/'. $view->year .'/'. $view->month .'/'. $view->day, array(), calendar_url_append($view));
         $view->calendar_type = str_replace('calendar_', '', $argument['type']);
         $view->delta['week'] = $delta;
 
@@ -842,7 +842,7 @@ function calendar_views_query_alter(&$query, &$view) {
         $view->week = $week;
         $query_min = calendar_week('start_year', $view, $week) .'-'. sprintf('%02d', calendar_week('start_month', $view, $week)) .'-'. calendar_week('start_day', $view, $week) .'T00:00:00';
         $query_max = calendar_week('end_year', $view, $week) .'-'. sprintf('%02d', calendar_week('end_month', $view, $week)) .'-'. calendar_week('end_day', $view, $week) .'T23:59:59';
-        $view->subtitle = l(t("Week of !date", array('!date' => gmdate('F j Y', calendar_week('start_timestamp', $view, $week)))), $view->real_url .'/'. $view->year .'/W'. $view->week);
+        $view->subtitle = l(t("Week of !date", array('!date' => gmdate('F j Y', calendar_week('start_timestamp', $view, $week)))), $view->real_url .'/'. $view->year .'/W'. $view->week, array(), calendar_url_append($view));
         $view->calendar_type = str_replace('calendar_', '', $argument['type']);
         $view->month = calendar_week('start_month', $view, $week);
         $view->day = calendar_week('start_day', $view, $week);
@@ -1247,15 +1247,17 @@ function calendar_get_url($view, $args) {
 /**
  * Pick up filter and sort info from url.
  */
-function calendar_url_append() {
-  foreach ($_GET as $key => $val) {
-    if ($key != 'q') {
-      if (!is_array($val)) {
-        $url .= '&'. $key .'='. $val;
-      }
-      else {
-        foreach ($val as $v) {
-          $url .= '&'. $key .'[]='. $v;
+function calendar_url_append($view) {
+  if ($view->build_type == 'page') {
+    foreach ($_GET as $key => $val) {
+      if ($key != 'q') {
+        if (!is_array($val)) {
+          $url .= '&'. $key .'='. $val;
+        }
+        else {
+          foreach ($val as $v) {
+            $url .= '&'. $key .'[]='. $v;
+          }
         }
       }
     }
