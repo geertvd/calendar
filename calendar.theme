@@ -43,7 +43,7 @@ function theme_calendar_show_nav($view) {
     $day      = $view->day ? $view->day : calendar_user_date('day');
     $week     = $view->week ? $view->week : calendar_user_date('week');
 
-    $append = calendar_url_append();
+    $append = calendar_url_append($view);
     if ($_GET['view']) {
       $append .= '&view='. $_GET['view'];
     }
