@@ -7,6 +7,22 @@
  */
 
 /**
+ * Implementation of hook_init().
+ */
+function calendar_init() {
+  // ensure we are not serving a cached page
+  if (function_exists('drupal_set_content')) {
+    // TODO this can be removed later. Added to ease transition to new schema that requires Date API.
+    // Needed because non-existant functions will cause fatal error that prevents ability to get back
+    // to module installation page.
+    if (!module_exists('date_api')) {
+      module_disable(array('calendar'));
+      drupal_set_message(t('Date API module is not installed. Calendar module was disabled.'));
+    }
+  }
+}
+
+/**
  * Implementation of hook_help().
  */
 function calendar_help($section) {
