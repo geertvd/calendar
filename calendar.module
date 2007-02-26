@@ -7,12 +7,33 @@
  */
 
 /**
+ * Implementation of hook_init().
+ */
+function calendar_init() {
+  // ensure we are not serving a cached page
+  if (function_exists('drupal_set_content')) {
+    // TODO this can be removed later. Added to ease transition to new schema that requires Date API.
+    // Needed because non-existant functions will cause fatal error that prevents ability to get back
+    // to module installation page.
+    if (!module_exist('date_api')) {
+      db_query("UPDATE {system} SET status = 0, throttle = 0 WHERE type = 'module' AND name = '%s'", 'calendar');
+      // Refresh the module list to exclude the disabled modules.
+      module_list(TRUE, FALSE);
+      // Force to regenerate the stored list of hook implementations.
+      module_implements('', FALSE, TRUE);
+      cache_clear_all('*', 'cache_menu', TRUE);
+      drupal_set_message(t('Date API module is not installed. Calendar module was disabled.'));
+    }
+  }
+}
+
+/**
  * Implementation of hook_help().
  */
 function calendar_help($section) {
   switch ($section) {
     case 'admin/modules#description':
-      return t('Adds date calendar themes to views that can display any type of date field, and creates default calendar views.');
+      return t('Adds date calendar themes to views that can display any type of date field, and creates default calendar views. <strong>Requires Views and Date API.</strong>');
     case 'admin/help#calendar':
       return t("<p>View complete documentation at !link.</p>", array('!link' => 'http://drupal.org/node/120710'));
   }
