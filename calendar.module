@@ -48,18 +48,30 @@ function calendar_menu($may_cache) {
   }
   include_once(CALENDAR_PATH .'/calendar.theme');
   if (!$may_cache) {
-    $items[] = array(
-      'path'     => 'admin/settings/calendar',
-      'title'    => t('Calendar setup'),
-      'description' => t('Setup the Views calendar.'),
-      'access'   => user_access('administer content'),
-      'callback' => 'drupal_get_form',
-      'callback arguments' => 'calendar_setup_form',
-      'type' => MENU_NORMAL_ITEM,
-    );
+    foreach (calendar_view_types() as $view_name) {
+      $view = views_get_view($view_name);
+      $items[] = array('path' => $view->url . '/view',
+        'title' => t('View'),
+        'callback' => 'views_view_page',
+        'callback arguments' => $args,
+        'access' => user_access('access content'),
+        'weight' => 0,
+        'type' => MENU_DEFAULT_LOCAL_TASK);
+      $items[] = array(
+        'path'     => $view->url .'/setup',
+        'title'    => t('Setup'),
+        'description' => t('Calendar setup.'),
+        'access'   => user_access('administer content'),
+        'callback' => 'drupal_get_form',
+        'callback arguments' => array('calendar_setup_form', $view->name),
+        'type' => MENU_LOCAL_TASK,
+        'weight' => 5,
+      );
+    }
   }
   return $items;
 }
+
 
 /**
  *  Implementation of hook_views_style_plugins()
@@ -461,7 +473,6 @@ function theme_calendar_display(&$view, &$items, $type) {
   $params['with_weekno'] = $view->build_type == 'block' || $view->calendar_type == 'year' ? FALSE : TRUE;
 
   $nodes += calendar_add_feeds($view);
-
   return theme('calendar_show_nav', $view) . calendar_get_calendar($view->calendar_type, $nodes, 'calendar', $title, $params);
 
 }
@@ -1309,7 +1320,7 @@ function calendar_url_append($view) {
  */
 function calendar_setup_form() {
   include_once(drupal_get_path('module', 'calendar') .'/calendar.theme');
-  drupal_add_css(CALENDAR_PATH . '/calendar.css');
+  drupal_add_css(drupal_get_path('module', 'calendar'), '/calendar.css');
   for ($i = 0; $i < 10; $i++) {
     $node = new StdClass();
     $node->stripe = $i;
@@ -1380,7 +1391,7 @@ function calendar_setup_form() {
  * @todo - add validation of the url.
  */
 function calendar_setup_form_submit($form_id, $form_values) {
-  include_once(ICAL_PATH .'/ical.inc');
+  include_once(drupal_get_path('module', 'date_api') .'/date_ical.inc');
   foreach ($form_values as $value_name => $value) {
     if ($value_name == 'calendar_time_format') {
       variable_set('calendar_time_format',  $value);
@@ -1393,7 +1404,7 @@ function calendar_setup_form_submit($form_id, $form_values) {
         }
         else {
           // Don't save invalid urls.
-          $events = ical_import($item['url']);
+          $events = date_ical_import($item['url']);
           if (!is_array($events)) {
             unset($value[$delta]);
           }
@@ -1417,10 +1428,8 @@ function calendar_setup_form_submit($form_id, $form_values) {
 
 function calendar_add_feeds($view) {
   $nodes = array();
-  include_once(ICAL_PATH .'/ical.inc');
-  if (!$feeds = variable_get('calendar_feeds_'. $view->name, array())) {
-    return $nodes;
-  }
+  include_once(drupal_get_path('module', 'date_api') .'/date_ical.inc');
+  $feeds = variable_get('calendar_feeds_'. $view->name, array());
   foreach ($feeds as $delta => $feed) {
     if ($cached = cache_get('calendar_feeds_'. $view->name .':'. $feed['url'], 'cache')) {
       $nodes += (array) unserialize($cached->data);
@@ -1429,7 +1438,7 @@ function calendar_add_feeds($view) {
       switch ($feed['type']) {
       case 'ical':
         $filename = $feed['url'];
-        $events = ical_import($filename);
+        $events = date_ical_import($filename);
         $new_nodes = array();
         foreach ($events as $delta => $event) {
           $node = new StdClass();
@@ -1441,8 +1450,8 @@ function calendar_add_feeds($view) {
           $node->start_offset   = 0;
           $node->calendar_end   = $event['end'];
           $node->end_offset     = 0;
-          $node->start_time_format = format_date($event['start'], 'custom', variable_get('calendar_time_format', 'H:i'));
-          $node->end_time_format = format_date($event['end'], 'custom', variable_get('calendar_time_format', 'H:i'));
+          $node->start_time_format = gmdate(variable_get('calendar_time_format', 'H:i'), $event['start']);
+          $node->end_time_format = gmdate(variable_get('calendar_time_format', 'H:i'), $event['end']);
           $node->stripe = $feed['stripe'];
           $node->remote = TRUE;
           $node->url = $event['url'];
