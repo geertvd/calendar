@@ -104,7 +104,7 @@ function calendar_ical_setup_form($view) {
       'url' => array(
         '#title' => t('Url'),
         '#type' => 'textarea',
-        '#rows' => 1,
+        '#rows' => 2,
         '#default_value' => $feed['url'],
         '#description' => t('The external feed url or internal file path and name. Change \'webcal://\' to \'http://\'.'),
       ),
@@ -146,6 +146,8 @@ function calendar_ical_setup_form_submit($form_id, $form_values) {
           unset($value[$delta]);
         }
         else {
+          // Replace 'webcal' protocol with http protocol.
+          $item['url'] = str_replace('webcal:', 'http:', $item['url']);
           // Don't save invalid urls.
           $events = date_ical_import($item['url']);
           if (!is_array($events)) {
