@@ -19,6 +19,10 @@ function calendar_init() {
       module_disable(array('calendar'));
       drupal_set_message(t('Date API module is not installed. Calendar module was disabled.'));
     }
+    else {
+      define('CALENDAR_PATH', drupal_get_path('module', 'calendar'));
+      define('DATE_API_PATH', drupal_get_path('module', 'date_api'));
+    }
   }
 }
 
@@ -36,10 +40,33 @@ function calendar_help($section) {
  *  Implementation of hook_menu().
  */
 function calendar_menu($may_cache) {
-  define('CALENDAR_PATH', drupal_get_path('module', 'calendar'));
-  define('DATE_API_PATH', drupal_get_path('module', 'date_api'));
   include_once(CALENDAR_PATH .'/calendar.theme');
+  $items = array();
+  if (!$may_cache) {
+    foreach (calendar_view_types() as $view_name) {
+      $view = views_get_view($view_name);
+      $items[] = array('path' => $view->url . '/view',
+        'title' => t('View'),
+        'callback' => 'views_view_page',
+        'callback arguments' => $args,
+        'access' => user_access('access content'),
+        'weight' => 0,
+        'type' => MENU_DEFAULT_LOCAL_TASK);
+      $items[] = array(
+        'path'     => $view->url .'/setup',
+        'title'    => t('Setup'),
+        'description' => t('Calendar setup.'),
+        'access'   => user_access('administer content'),
+        'callback' => 'drupal_get_form',
+        'callback arguments' => array('calendar_setup_form', $view),
+        'type' => MENU_LOCAL_TASK,
+        'weight' => 5,
+      );
+    }
+  }
+  return $items;
 }
+
 
 /**
  *  Implementation of hook_views_style_plugins()
@@ -186,8 +213,22 @@ function calendar_fields() {
  *  Calendar Views plugin theme, overrides default views theme
  */
 function theme_calendar_display(&$view, &$items, $type) {
+  $results = calendar_get_nodes($view, $items, $type);
+  $nodes = $results['nodes'];
+  $params = $results['params'];
+  foreach (module_implements('calendar_add_items') as $module) {
+    $function = $module .'_calendar_add_items';
+    $nodes += $function($view);
+  }
+  return theme('calendar_show_nav', $view) . calendar_get_calendar($view->calendar_type, $nodes, 'calendar', $title, $params);
+}
 
-  if (!is_array($items)) {
+/**
+ * The workhorse function that takes the beginning array of items and alters it
+ *   to an array of calendar nodes that the theme can handle.
+ */
+function calendar_get_nodes(&$view, &$items, $type) {
+ if (!is_array($items)) {
     $items = array();
   }
 
@@ -440,8 +481,7 @@ function theme_calendar_display(&$view, &$items, $type) {
   $params['stripe'] = 'stripe';
   $params['with_weekno'] = $view->build_type == 'block' || $view->calendar_type == 'year' ? FALSE : TRUE;
 
-  return theme('calendar_show_nav', $view) . calendar_get_calendar($view->calendar_type, $nodes, 'calendar', $title, $params);
-
+  return array('nodes' => $nodes, 'params' => $params);
 }
 
 /**
@@ -948,6 +988,7 @@ function calendar_views_query_alter(&$query, &$view) {
   // bring the node type into the query so we can use it in the theme
   $query->add_field('type', 'node');
   if ($queries) $query->add_where(implode(" OR ", $queries));
+
   return;
 
 }
@@ -1220,17 +1261,14 @@ function calendar_calendar_node_week($node) {
   return calendar_calendar_node($node, 'calendar_node_week');
 }
 function calendar_calendar_node($node, $type) {
-
   include_once(CALENDAR_PATH .'/calendar_api.inc');
   if ($node->nid && $node->nid !== 0 && $node->calendar_start) {
     // this is a real calendar, go ahead and display it
-
     if (!$node->remote) {
       // switch our psuedo nids back to the right values
       $tmp = explode(':', $node->nid);
       $node->nid = $tmp[0];
     }
-
     return theme('calendar_calendar_node', $node, $type);
 
   } else {
@@ -1279,4 +1317,54 @@ function calendar_url_append($view) {
     }
   }
   return $url;
+}
+
+/**
+ * Setup Calendar parameters.
+ */
+function calendar_setup_form($view) {
+  $form = array();
+  $time = mktime(1, 15, 0, 1, 1, date('Y', time()));
+  $time_options = array(
+    'G:i' => date('G:i', $time),
+    'g:ia' => date('g:ia', $time),
+    'g:iA' => date('g:iA', $time),
+    'g:i a' => date('g:i a', $time),
+    'g:i A' => date('g:i A', $time),
+    'H:i' => date('H:i', $time),
+    'h:ia' => date('h:ia', $time),
+    'h:iA' => date('h:iA', $time),
+    'h:i a' => date('h:i a', $time),
+    'h:i A' => date('h:i A', $time),
+    );
+
+  $form['calendar_time_format_'. $view->name] = array(
+    '#title' => t('Time format'),
+    '#default_value' => variable_get('calendar_time_format_'. $view->name, 'H:i'),
+    '#type' => 'select',
+    '#options' => $time_options,
+    '#description' => t('The format to use for the time-only date display.'),
+    );
+
+  $form['view_name'] = array(
+    '#type' => 'hidden',
+    '#value' => $view->name,
+    );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+    );
+  return $form;
+}
+
+/**
+ * Save requested values.
+ */
+function calendar_setup_form_submit($form_id, $form_values) {
+  $view_name = $form_values['view_name'];
+  foreach ($form_values as $value_name => $value) {
+    if ($value_name == 'calendar_time_format_'. $view_name) {
+      variable_set('calendar_time_format_'. $view_name,  $value);
+    }
+  }
 }
