@@ -213,8 +213,22 @@ function calendar_fields() {
  *  Calendar Views plugin theme, overrides default views theme
  */
 function theme_calendar_display(&$view, &$items, $type) {
+  $results = calendar_get_nodes($view, $items, $type);
+  $nodes = $results['nodes'];
+  $params = $results['params'];
+  foreach (module_implements('calendar_add_items') as $module) {
+    $function = $module .'_calendar_add_items';
+    $nodes += $function($view);
+  }
+  return theme('calendar_show_nav', $view) . calendar_get_calendar($view->calendar_type, $nodes, 'calendar', $title, $params);
+}
 
-  if (!is_array($items)) {
+/**
+ * The workhorse function that takes the beginning array of items and alters it
+ *   to an array of calendar nodes that the theme can handle.
+ */
+function calendar_get_nodes(&$view, &$items, $type) {
+ if (!is_array($items)) {
     $items = array();
   }
 
@@ -467,12 +481,7 @@ function theme_calendar_display(&$view, &$items, $type) {
   $params['stripe'] = 'stripe';
   $params['with_weekno'] = $view->build_type == 'block' || $view->calendar_type == 'year' ? FALSE : TRUE;
 
-  foreach (module_implements('calendar_add_items') as $module) {
-    $function = $module .'_calendar_add_items';
-    $nodes += $function($view);
-  }
-  return theme('calendar_show_nav', $view) . calendar_get_calendar($view->calendar_type, $nodes, 'calendar', $title, $params);
-
+  return array('nodes' => $nodes, 'params' => $params);
 }
 
 /**
@@ -1252,7 +1261,6 @@ function calendar_calendar_node_week($node) {
   return calendar_calendar_node($node, 'calendar_node_week');
 }
 function calendar_calendar_node($node, $type) {
-
   include_once(CALENDAR_PATH .'/calendar_api.inc');
   if ($node->nid && $node->nid !== 0 && $node->calendar_start) {
     // this is a real calendar, go ahead and display it
