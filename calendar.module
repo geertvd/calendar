@@ -213,6 +213,8 @@ function calendar_fields() {
  *  Calendar Views plugin theme, overrides default views theme
  */
 function theme_calendar_display(&$view, &$items, $type) {
+  drupal_add_css(CALENDAR_PATH .'/calendar.css');
+  $title = ($view->build_type == 'page' ? '' : ($view->subtitle ? $view->subtitle : $view->page_type));
   $results = calendar_get_nodes($view, $items, $type);
   $nodes = $results['nodes'];
   $params = $results['params'];
@@ -473,9 +475,6 @@ function calendar_get_nodes(&$view, &$items, $type) {
     $title = $view->subtitle ? $view->subtitle : $view->page_type;
   }
 
-  // use calendar_get_calendar api to draw the calendar
-  drupal_add_css(CALENDAR_PATH .'/calendar.css');
-  $title = ($view->build_type == 'page' ? '' : ($view->subtitle ? $view->subtitle : $view->page_type));
   $params['url'] = calendar_get_url($view, $view->args);
   $params['append'] = calendar_url_append($view);
   $params['stripe'] = 'stripe';
