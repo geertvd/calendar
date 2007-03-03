@@ -112,6 +112,29 @@ function calendar_views_validate($type, $view, $form) {
       }
     }
   }
+  // Make sure all arguments are set to 'Display all values'.
+  $arg_types = array();
+  $cal_args = array('calendar_year', 'calendar_month', 'calendar_day', 'calendar_week');
+  foreach ($view['argument'] as $delta => $argument) {
+    if (in_array($argument['type'], $cal_args)) {
+      $view['argument'][$delta]['argdefault'] = 2;
+      if ($argument['argdefault'] != 2) {
+        form_error($form['argument'][$delta]['argdefault'], t('Calendar arguments must be set to \'Display All Values\'.'));
+      }
+      $arg_types[] = $argument['type'];
+    }
+  }
+  // Must have Year, Month, and Day or Year and Week calendar arguments.
+  if (!in_array('calendar_year', $arg_types) && ((!in_array('calendar_month', $arg_types) && !in_array('calendar_day', $arg_types) || !in_array('calendar_week', $arg_types)))) {
+    form_error($form['argument'], t('The Calendar requres as arguments Calendar: Year, Calendar: Month, and Calendar: Day, or Calendar: Year and Calendar: Week'));
+  }
+  // CCK date fields cannot use grouped handler.
+  $calendar_fields = array_keys(calendar_fields());
+  foreach ($view['field'] as $delta => $field) {
+    if (in_array($field['field'], $calendar_fields) && $field['handler'] == 'content_views_field_handler_group') {
+      form_error($form['field'][$delta]['handler'], t('Calendar CCK Date fields must be set to \'Do not group multiple values\'.'));
+    }
+  }
 }
 
 /**
@@ -153,7 +176,7 @@ function calendar_fields() {
       // add the from and to dates to the first one found and ignore the second
 
       // Handling for event fromto dates
-      if (!$event_field_processed && ($name == 'event.event_start' || $name == 'event.event_end')) {
+      if (module_exists('event') && !$event_field_processed && ($name == 'event.event_start' || $name == 'event.event_end')) {
         $timestamp_fromto = array('event.event_start', 'event.event_end');
         $offset_field = 'event.timezone';
         $tz_handling = variable_get('event_timezone_display', 'site');
@@ -303,14 +326,14 @@ function calendar_get_nodes(&$view, &$items, $type) {
         }
 
         // If we're dealing with an event node, join the start and to dates together in one node and get rid of the other
-        if (($field_field == 'event_event_start' || $field_field == 'event_event_end') && !$event_field_processed[$item->nid]) {
+        if (module_exists('event') && ($field_field == 'event_event_start' || $field_field == 'event_event_end') && !$event_field_processed[$item->nid]) {
           if ($node->event_event_start > 0) {
             $node->calendar_start = $node->event_event_start;
             $node->calendar_end   = $node->event_event_end;
             $event_field_processed[$item->nid] = TRUE;
           }
         }
-        elseif (($field_field == 'event_event_start' || $field_field == 'event_event_end') && $event_field_processed[$item->nid]) {
+        elseif (module_exists('event') && ($field_field == 'event_event_start' || $field_field == 'event_event_end') && $event_field_processed[$item->nid]) {
           // if more than one event field was added to the view (like start and end dates)
           // don't process it more than once
           unset($node);
@@ -766,7 +789,6 @@ function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_name, $f
  *  Insert filters into the query based on the current calendar view and the selected fields
  */
 function calendar_views_query_alter(&$query, &$view) {
-
   if (!calendar_is_calendar($view)) return;
 
   include_once(CALENDAR_PATH .'/calendar_api.inc');
