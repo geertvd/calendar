@@ -172,6 +172,7 @@ function calendar_ical_setup_form_submit($form_id, $form_values) {
 
 function calendar_ical_add_feeds($view, $refresh = FALSE) {
   $nodes = array();
+  include_once(drupal_get_path('module', 'date_api') .'/date.inc');
   include_once(ICAL_PATH .'/date_ical.inc');
   $feeds = variable_get('calendar_feeds_'. $view->name, array());
   foreach ($feeds as $delta => $feed) {
