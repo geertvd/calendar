@@ -176,7 +176,9 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
   include_once(ICAL_PATH .'/date_ical.inc');
   $feeds = variable_get('calendar_feeds_'. $view->name, array());
   foreach ($feeds as $delta => $feed) {
-    $GLOBALS['calendar_stripe_labels'][$feed['stripe']] = $feed['name'];
+    if ($view->build_type == 'page') {
+      $GLOBALS['calendar_stripe_labels'][$feed['stripe']] = $feed['name'];
+    }
     if (!$refresh && $cached = cache_get('calendar_feeds_'. $view->name .':'. $feed['url'], CALENDAR_ICAL_CACHE)) {
       $nodes += (array) unserialize($cached->data);
     }
