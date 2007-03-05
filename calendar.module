@@ -1197,7 +1197,7 @@ function calendar_block($op = 'list', $delta = 0) {
         return $block;
       case 1:
         $block['subject'] = t('Switch Calendar');
-        $block['content'] = drupal_get_form('calendar_switch_view', calendar_switch_view());
+        $block['content'] = $GLOBALS['calendar_is"calendar'] ? drupal_get_form('calendar_switch_view', calendar_switch_view() : '');
         return $block;
       }
   }
@@ -1208,8 +1208,6 @@ function calendar_block($op = 'list', $delta = 0) {
  *  A block with a drop-down list that allows the user to switch between views of the current period
  */
 function calendar_switch_view() {
-
-  if (!$GLOBALS['calendar_is_calendar']) return '';
 
   $options[''] = t('Calendar');
   $options['list'] = t('List');
