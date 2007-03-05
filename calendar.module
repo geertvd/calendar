@@ -409,10 +409,9 @@ function calendar_get_nodes(&$view, &$items, $type) {
           }
 
           // format a time-only display for the month calendar for dates that have time elements
-          $format = explode(' ', str_replace(' - ', ' ', variable_get('date_format_short', 'm/d/Y - H:i')));
-          if (array_intersect($granularity, array('H', 'N', 'S')) && $format[1]) {
-            $node->start_time_format = gmdate($format[1], intval($node->calendar_start + $node->start_offset));
-            if ($node->calendar_end) $node->end_time_format   = gmdate($format[1], intval($node->calendar_end + $node->end_offset));
+          if (array_intersect($granularity, array('H', 'N', 'S'))) {
+            $node->start_time_format = gmdate(variable_get('calendar_time_format_'. $view->name, 'H:i'), intval($node->calendar_start + $node->start_offset));
+            if ($node->calendar_end) $node->end_time_format   = gmdate(variable_get('calendar_time_format_'. $view->name, 'H:i'), intval($node->calendar_end + $node->end_offset));
           }
           else {
             $node->start_time_format = $node->start_format;
