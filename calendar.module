@@ -425,13 +425,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
             $node->nid = $id;
 
             if ($view->build_type == 'page' && $view->calendar_type != 'year') {
-
-              // create a stripe id from a combination of the field and content types
-              // and store value for legend
-              // formula tries to create a unique id for each possible combination
-              $node->stripe = intval((20 * $field_id) + $type_names[$node->type]);
-              $GLOBALS['calendar_stripe_labels'][$node->stripe] = $view->field[$delta]['label'] .' ('. $type_names[$node->type] .') ';
-
+              $node->stripe = calendar_node_stripe($view, $node, $option['query_name'], $delta);
             }
             $nodes[$id] = $node;
             unset($node);
@@ -1383,4 +1377,32 @@ function calendar_setup_form_submit($form_id, $form_values) {
       variable_set('calendar_time_format_'. $view_name,  $value);
     }
   }
+}
+
+/**
+ * create a stripe id from a combination of the field and content types
+ * and store value for legend
+ * formula tries to create a unique id for each possible combination
+ *
+ * @param $node - the node object
+ * @param $query_name - the views queryname for this date field
+ * @param $delta - the delta for this field, used to distinguish fields that appear more than once in the calendar
+ * @param $label - the label to give this stripe.
+ */
+function calendar_node_stripe($view, $node, $query_name, $delta, $stripe = NULL, $label = '') {
+  $type_names = node_get_types('names');
+  if (!$label) {
+    $label = $view->field[$delta]['label'] .' ('. $type_names[$node->type] .')';
+  }
+  if (!$stripe) {
+    $i = 1;
+    foreach ($type_names as $k => $v) {
+      if ($k == $node->type) {
+        break;
+      }
+    }
+    $stripe = intval((20 * $delta) + $i);
+  }
+  $GLOBALS['calendar_stripe_labels'][$stripe] = $label;
+  return $stripe;
 }
