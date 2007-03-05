@@ -13,17 +13,30 @@
  *  constructs a teaser out of any non-date fields in the view
  */
 function theme_calendar_calendar_node($node, $type) {
-   $node->title = $node->title;
-   if ($node->label && !strstr($node->title, $node->label)) {
-     $node->title .= ' ('. $node->label .')';
+   // Display the regular teaser view for local events.
+   if (!$node->remote && $type == 'calendar_node_day') {
+     $node = node_load($node->nid);
+     $node->teaser = node_view($node, TRUE, FALSE);
+     $node->title = '';
    }
-   if ($node->fields) {
-     foreach ($node->fields as $field) {
-       $node->teaser .= '<div>'. $field .'</div>';
+   // For other views, construct a teaser out of the provided fields.
+   else {
+     if ($node->label && !strstr($node->title, $node->label)) {
+       $node->title .= ' ('. $node->label .')';
+     }
+     if ($node->fields) {
+       foreach ($node->fields as $field) {
+         $node->teaser .= '<div>'. $field .'</div>';
+       }
+     }
+     if (!$node->url && !$node->remote) {
+       $node->url = "node/$node->nid";
      }
    }
-   if (!$node->url && !$node->remote) {
-     $node->url = "node/$node->nid";
+   // Remote nodes may come in with lengthy descriptions that won't fit
+   // in small boxes of year, month, and week calendars.
+   if ($type != 'calendar_node_day' && $node->remote) {
+     $node->teaser = '';
    }
    return theme($type, $node);
 }
@@ -326,8 +339,8 @@ function theme_calendar_node_month($node) {
   }
   $output .= '<div class="title">'. l($node->title, "$node->url", array('title' => t('view this item'))) .'</div>'."\n";
   $output .= $times;
-  //$output .= $node->teaser;
-  //$output .= '<div class="links">'. theme('links', $node->calendar_links) ."\n</div>";
+  $output .= $node->teaser;
+  $output .= '<div class="links">'. theme('links', $node->calendar_links) ."\n</div>";
   $output .= '</div>' . "\n";
 
   return $output;
