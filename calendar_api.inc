@@ -409,11 +409,28 @@ function calendar_week_days() {
   static $weekdays;
 
   if (!$weekdays) {
-    if (variable_get('date_first_day', 1)) {
-      $weekdays = array(array('day' => 'Mon', 't' => t('Mon')), array('day' => 'Tue', 't' => t('Tue')), array('day' => 'Wed', 't' => t('Wed')), array('day' => 'Thu', 't' => t('Thu')), array('day' => 'Fri', 't' => t('Fri')), array('day' => 'Sat', 't' => t('Sat')), array('day' => 'Sun', 't' => t('Sun')));
-    }
-    else {
-      $weekdays = array(array('day' => 'Sun', 't' => t('Sun')), array('day' => 'Mon', 't' => t('Mon')), array('day' => 'Tue', 't' => t('Tue')), array('day' => 'Wed', 't' => t('Wed')), array('day' => 'Thu', 't' => t('Thu')), array('day' => 'Fri', 't' => t('Fri')), array('day' => 'Sat', 't' => t('Sat')));
+    switch (variable_get('date_first_day', 1)) {
+      case 1:
+        $weekdays = array(array('day' => 'Mon', 't' => t('Mon')), array('day' => 'Tue', 't' => t('Tue')), array('day' => 'Wed', 't' => t('Wed')), array('day' => 'Thu', 't' => t('Thu')), array('day' => 'Fri', 't' => t('Fri')), array('day' => 'Sat', 't' => t('Sat')), array('day' => 'Sun', 't' => t('Sun')));
+        break;
+      case 2:
+        $weekdays = array(array('day' => 'Tue', 't' => t('Tue')), array('day' => 'Wed', 't' => t('Wed')), array('day' => 'Thu', 't' => t('Thu')), array('day' => 'Fri', 't' => t('Fri')), array('day' => 'Sat', 't' => t('Sat')), array('day' => 'Sun', 't' => t('Sun')), array('day' => 'Mon', 't' => t('Mon')));
+        break;
+      case 3:
+        $weekdays = array(array('day' => 'Wed', 't' => t('Wed')), array('day' => 'Thu', 't' => t('Thu')), array('day' => 'Fri', 't' => t('Fri')), array('day' => 'Sat', 't' => t('Sat')), array('day' => 'Sun', 't' => t('Sun')), array('day' => 'Mon', 't' => t('Mon')), array('day' => 'Tue', 't' => t('Tue')));
+        break;
+      case 4:
+        $weekdays = array(array('day' => 'Thu', 't' => t('Thu')), array('day' => 'Fri', 't' => t('Fri')), array('day' => 'Sat', 't' => t('Sat')), array('day' => 'Sun', 't' => t('Sun')), array('day' => 'Mon', 't' => t('Mon')), array('day' => 'Tue', 't' => t('Tue')), array('day' => 'Wed', 't' => t('Wed')));
+        break;
+      case 5:
+        $weekdays = array(array('day' => 'Fri', 't' => t('Fri')), array('day' => 'Sat', 't' => t('Sat')), array('day' => 'Sun', 't' => t('Sun')), array('day' => 'Mon', 't' => t('Mon')), array('day' => 'Tue', 't' => t('Tue')), array('day' => 'Wed', 't' => t('Wed')), array('day' => 'Thu', 't' => t('Thu')));
+        break;
+      case 6:
+        $weekdays = array(array('day' => 'Sat', 't' => t('Sat')), array('day' => 'Sun', 't' => t('Sun')), array('day' => 'Mon', 't' => t('Mon')), array('day' => 'Tue', 't' => t('Tue')), array('day' => 'Wed', 't' => t('Wed')), array('day' => 'Thu', 't' => t('Thu')), array('day' => 'Fri', 't' => t('Fri')));
+        break;
+      default:
+        $weekdays = array(array('day' => 'Sun', 't' => t('Sun')), array('day' => 'Mon', 't' => t('Mon')), array('day' => 'Tue', 't' => t('Tue')), array('day' => 'Wed', 't' => t('Wed')), array('day' => 'Thu', 't' => t('Thu')), array('day' => 'Fri', 't' => t('Fri')), array('day' => 'Sat', 't' => t('Sat')));
+        break;
     }
   }
   return $weekdays;
@@ -444,6 +461,11 @@ function calendar_week_header($mini = FALSE, $with_week = TRUE) {
  */
 function _calendar_day_of_week($stamp) {
   $dow = gmdate('w', $stamp);
-  $dow = (variable_get('date_first_day', 1) ? ($dow == 0 ? 6 : --$dow ) : $dow);
+  if ($dow - variable_get('date_first_day', 1) >= 0 ) {
+    $dow = $dow - variable_get('date_first_day', 1);
+  }
+  else {
+     $dow = 7 - variable_get('date_first_day', 1);
+  }
   return $dow;
 }
