@@ -462,7 +462,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
 
     // make sure at least one node is created for the current week
     // add both start and end of week in case week crosses from one month to next
-    $week_range = calendar_week_range($view->year, $view->week, $offset);
+    $week_range = calendar_week_range($view->year, $view->week);
     $nodes[]    = _calendar_make_node(NULL, NULL, _views_get_timezone(), $view->year, date('m', $week_range[0]), date('j', $week_range[0]), 12, 0);
     $nodes[]    = _calendar_make_node(NULL, NULL, _views_get_timezone(), $view->year, date('m', $week_range[1]), date('j', $week_range[1]), 12, 0);
 
@@ -522,7 +522,7 @@ function calendar_nav($view, $mini = FALSE) {
   }
 
   if ($view->calendar_type == 'week' && _calendar_is_valid($view->week, 'week')) {
-    $range = calendar_week_range($view->year, $view->week + 1, 0);
+    $range = calendar_week_range($view->year, $view->week + 1);
     $cur_stamp = $range[0];
   } else {
     $cur_stamp = gmmktime(0, 0, 0, ($view->month ? $view->month : 1), ($view->day ? $view->day : 1), ($view->year ? $view->year : gmdate("Y", time())));
@@ -601,12 +601,8 @@ function calendar_get_paths($cur_stamp, $view) {
     case ('week'):
       $week = $path[$x]['path'];
       $year = $view->year;
-      if (!$next_stamp) {
-        $next_stamp = $cur_stamp + (604800);
-        $prev_stamp = $cur_stamp - (604800);
-      }
-      $nextpath[$x] = 'W'. gmdate('W', $next_stamp);
-      $prevpath[$x] = 'W'. gmdate('W', $prev_stamp);
+      $nextpath[$x] = 'W'. sprintf('%02d', intval($week + 1));
+      $prevpath[$x] = 'W'. sprintf('%02d', intval($week - 1));
       break;
     case ('month'):
       $month = $path[$x]['path'];
@@ -687,7 +683,7 @@ function _calendar_limit_nodes($nodes, $type, $year, $month, $day, $week, $offse
     $max_date = $min_date + 86400 - 1;
     break;
   case ('week'):
-    return calendar_week_range($year, $week, $offset);
+    return calendar_week_range($year, $week);
   case ('month');
     $min_date = mktime(0, 0, 0, $month, 1, $year);
     // find the first day of the next month and subtract one day
@@ -701,27 +697,6 @@ function _calendar_limit_nodes($nodes, $type, $year, $month, $day, $week, $offse
     $min_date = mktime(0, 0, 0, 1, 1, $year);
     $max_date = mktime(23, 59, 59, 12, 31, $year);
   }
-  return array($min_date, $max_date);
-}
-
-/**
- * Get the start and end datestamp for a week.
- *
- * Use strtotime to find first day of requested week.
- * Strtotime uses Monday as first day of week, so adjust if necessary.
- */
-function calendar_week_range($year, $week, $offset) {
-  $min_date = strtotime('Jan 1, '.$year.' + '.intval($week - 1).' weeks') + $offset;
-  switch (variable_get('date_first_day', 0)) {
-    case(0):
-      $min_date -= 86400;
-      break;
-    case(1):
-      break;
-    default:
-      $min_date += intval(86400 * (variable_get('date_first_day', 0) - 1));
-  }
-  $max_date = $min_date + (604800) - 1;
   return array($min_date, $max_date);
 }
 
@@ -1046,6 +1021,30 @@ function calendar_views_pre_view(&$view, &$items) {
 }
 
 /**
+ * Get the start and end datestamp for a week.
+ *
+ * Use strtotime to find first day of requested week.
+ * Strtotime uses Monday as first day of week, so adjust if necessary.
+ */
+function calendar_week_range($year, $week) {
+  $min_date = strtotime('Jan 1, '.$year.' + '.intval($week).' weeks UTC');
+  // Adjust the minimum date based on whether the site first day of week is earlier
+  // or later than the ISO first day of week (Monday).
+  switch (variable_get('date_first_day', 0)) {
+    case(0):
+      $min_date -= 604800 + 86400;
+      break;
+    case(1):
+      $min_date -= 604800;
+      break;
+    default:
+      $min_date -= (2 * 604800) - intval(86400 * (variable_get('date_first_day', 0)));
+  }
+  $max_date = $min_date + (604800) - 1;
+  return array($min_date, $max_date);
+}
+
+/**
  *  Handle a lot of messy week calculations all in one place to make maintenance easier
  */
 function calendar_week($op, $view, $week = 0) {
@@ -1055,9 +1054,9 @@ function calendar_week($op, $view, $week = 0) {
     $week = date('W', $date);
     if ($op == 'week') return $week;
   }
-  // use strtotime to find first day of requested week
-  $week_start = strtotime('Jan 1, '.$view->year.' + '.intval($week - 1).' weeks');
-  $week_end   = $week_start + 604800;
+  $range = calendar_week_range($view->year, $week);
+  $week_start = $range[0];
+  $week_end = $range[1];
   switch ($op) {
   case ('start_year'):
     return date('Y', $week_start);
@@ -1075,7 +1074,6 @@ function calendar_week($op, $view, $week = 0) {
     return $week_start;
   }
 }
-
 
 /**
  *  A function to test the validity of various date parts
