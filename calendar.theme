@@ -16,7 +16,7 @@ function theme_calendar_calendar_node($node, $type) {
    // Display the regular teaser view for local events.
    if (!$node->remote && $type == 'calendar_node_day') {
      $node = node_load($node->nid);
-     $node->teaser = node_view($node);
+     $node->teaser = node_view($node, TRUE, FALSE);
      $node->title = '';
    }
    // For other views, construct a teaser out of the provided fields.
