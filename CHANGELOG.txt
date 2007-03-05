@@ -1,6 +1,25 @@
 Views Calendar
 ====================
 
+- 111947, 121956, 110883, 119874, fix miscellaneous problems with week view and navigation.
+- Add headers and dow calc for all possible first day of week options
+- Use variable for view time format
+- Fix day teaser view in theme
+- Make sure legend and switch blocks aren't displayed on non-calendar pages
+- 124320 fix fatal errors in identifying include paths
+- 123944, 123377 add validation to make sure right arguments and field settings are used. 
+- Check module_exists on event module adjustments in case custom module is named 'event'.
+- css cleanup
+- Better theme for full day nodes, make sure webcal protocol gets switched to http
+- Add ical import and export support
+- Get the feed stripe to show up in the legend.
+- Reconfiguring to move ical functions into separate, optional module and add hook to calendar module to insert other items into calendar.
+- 119712, 121451 fix to make transition to separate Date API easier since  non-existant functions will cause fatal error that prevents ability to get back to module installation page.
+- 120787 more places need the exposed filter choices appended to the url.
+- Make sure not to try to do anything if there are no feeds. 
+- Fix a mistake in the ical file where it tries to query a non-existant table. Use the timezones.inc file instead.
+- More theme cleanup.
+
 Version 1.3
 ===========
 
