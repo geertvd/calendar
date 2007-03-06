@@ -425,7 +425,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
             $node->nid = $id;
 
             if ($view->build_type == 'page' && $view->calendar_type != 'year') {
-              $node->stripe = calendar_node_stripe($view, $node, $option['query_name'], $delta);
+              $node->stripe = calendar_node_stripe($view, $node, $option['query_name'], $field_field);
             }
             $nodes[$id] = $node;
             unset($node);
