@@ -286,7 +286,6 @@ function calendar_ical_views_feed_argument($op, &$view, $arg) {
     $args = calendar_ical_post_view_make_args($view, $arg, 'ical');
     $url = views_get_url($view, $args);
     $title = views_get_title($view, 'page', $args);
-
     if ($view->used_filters) {
       $filters = drupal_query_string_encode($view->used_filters);
     }
@@ -319,7 +318,6 @@ function calendar_ical_post_view_make_args($view, $feed_id, $arg) {
 }
 
 function calendar_ical_add_ical($url = NULL, $title = '') {
-  static $stored_feed_links = array();
   if (!is_null($url)) {
     $stored_feed_links[$url] = theme('ical_icon', $url);
     drupal_add_link(array('rel' => 'alternate',
