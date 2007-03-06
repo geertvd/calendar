@@ -1003,6 +1003,8 @@ function calendar_views_pre_view(&$view, &$items) {
       $view->page_empty = $view->page_header . $view->page_empty . theme('calendar_display', $view, array(), 'page');
       $view->page_empty_format = 3;
     }
+  }
+  if (array_key_exists($view->block_type, calendar_view_types())) {
     if (!$items && $view->build_type == 'block' && $view->year) {
       $view->block_empty = $view->block_header . $view->block_empty . theme('calendar_display', $view, array(), 'block');
       $view->block_empty_format = 3;
