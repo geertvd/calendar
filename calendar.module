@@ -612,12 +612,13 @@ function calendar_get_paths($cur_stamp, $view) {
       break;
     default:
       // all other arguments are just passed through
-      $nextpath[$x] = $path[$x]['path'];
-      $prevpath[$x] = $path[$x]['path'];
+      if ($path[$x]['path']) {
+        $nextpath[$x] = $path[$x]['path'];
+        $prevpath[$x] = $path[$x]['path'];
+      }
       break;
     }
   }
-
   return array($prevpath, $nextpath);
 
 }
@@ -1295,19 +1296,23 @@ function calendar_calendar_node($node, $type) {
  * Figure out what the URL of the calendar view we're currently looking at is.
  */
 function calendar_get_url($view, $args) {
-  $url = $view->url;
-
-  if (!empty($url)) {
-    $where = 1;
-    foreach ($args as $arg) {
-      // This odd construct prevents us from strposing once there is no
-      // longer an $arg to replace.
-      if ($where && $where = strpos($url, '$arg')) {
-        $url = substr_replace($url, $arg, $where, 4);
+  static $cal_args;
+  // Figure out which arguments are calendar arguments.
+  if (empty($cal_args[$view->name])) {
+    foreach ($view->argument as $delta => $arg) {
+      if (in_array($arg['type'], array('calendar_year', 'calendar_week', 'calendar_month', 'calendar_day', 'calendar_ical'))) {
+        $cal_args[$view->name][] = $delta;
       }
     }
   }
-  return $url;
+  // Add non-calendar arguments to the base url.
+  $parts = array($view->url);
+  foreach ($args as $delta => $arg) {
+    if (!in_array($delta, $cal_args[$view->name]) && $arg) {
+      array_push($parts, $arg);
+    }
+  }
+  return implode('/', $parts);
 }
 
 /**
