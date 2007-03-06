@@ -133,7 +133,7 @@ function calendar_ical_setup_form($view) {
  * Save requested values.
  */
 function calendar_ical_setup_form_submit($form_id, $form_values) {
-  include_once(ICAL_PATH .'/date_ical.inc');
+  include_once(drupal_get_path('module', 'date_api') .'/date_ical.inc');
   $view_name = $form_values['view_name'];
   foreach ($form_values as $value_name => $value) {
     if ($value_name == 'calendar_ical_expire_'. $view_name) {
