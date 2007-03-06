@@ -67,7 +67,6 @@ function calendar_menu($may_cache) {
   return $items;
 }
 
-
 /**
  *  Implementation of hook_views_style_plugins()
  */
@@ -237,6 +236,7 @@ function calendar_fields() {
  */
 function theme_calendar_display(&$view, &$items, $type) {
   drupal_add_css(CALENDAR_PATH .'/calendar.css');
+
   $title = ($view->build_type == 'page' ? '' : ($view->subtitle ? $view->subtitle : $view->page_type));
   $results = calendar_get_nodes($view, $items, $type);
   $nodes = $results['nodes'];
@@ -611,8 +611,10 @@ function calendar_get_paths($cur_stamp, $view) {
       break;
     default:
       // all other arguments are just passed through
-      $nextpath[$x] = $path[$x]['path'];
-      $prevpath[$x] = $path[$x]['path'];
+      if ($path[$x]['path']) {
+        $nextpath[$x] = $path[$x]['path'];
+        $prevpath[$x] = $path[$x]['path'];
+      }
       break;
     }
   }
@@ -1293,19 +1295,23 @@ function calendar_calendar_node($node, $type) {
  * Figure out what the URL of the calendar view we're currently looking at is.
  */
 function calendar_get_url($view, $args) {
-  $url = $view->url;
-
-  if (!empty($url)) {
-    $where = 1;
-    foreach ($args as $arg) {
-      // This odd construct prevents us from strposing once there is no
-      // longer an $arg to replace.
-      if ($where && $where = strpos($url, '$arg')) {
-        $url = substr_replace($url, $arg, $where, 4);
+  static $cal_args;
+  // Figure out which arguments are calendar arguments.
+  if (empty($cal_args[$view->name])) {
+    foreach ($view->argument as $delta => $arg) {
+      if (in_array($arg['type'], array('calendar_year', 'calendar_week', 'calendar_month', 'calendar_day', 'calendar_ical'))) {
+        $cal_args[$view->name][] = $delta;
       }
     }
   }
-  return $url;
+  // Add non-calendar arguments to the base url.
+  $parts = array($view->url);
+  foreach ($args as $delta => $arg) {
+    if (!in_array($delta, $cal_args[$view->name]) && $arg) {
+      array_push($parts, $arg);
+    }
+  }
+  return implode('/', $parts);
 }
 
 /**
@@ -1355,7 +1361,6 @@ function calendar_setup_form($view) {
     '#options' => $time_options,
     '#description' => t('The format to use for the time-only date display.'),
     );
-
   $form['view_name'] = array(
     '#type' => 'hidden',
     '#value' => $view->name,
