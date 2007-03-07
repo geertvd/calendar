@@ -1,6 +1,12 @@
 Views Calendar
 ====================
 
+- Fix tab handling
+- 124107 translate month names
+- Keep extra ical icon from showing up in block version of the view
+- 118055, make sure view works right if only block is set up to calendar type
+- 123592 make sure arguments ahead of the calendar arguments are retained in the links
+- 121300 clean up handling of stripes to make them consistant
 - 111947, 121956, 110883, 119874, fix miscellaneous problems with week view and navigation.
 - Add headers and dow calc for all possible first day of week options
 - Use variable for view time format
