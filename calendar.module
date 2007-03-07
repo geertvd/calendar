@@ -293,6 +293,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
   }
 
   include_once(CALENDAR_PATH .'/calendar_api.inc');
+  include_once(DATE_API_PATH .'/date.inc');
 
   $view->nodes_per_page = 0;
   $type_names = node_get_types('names');
