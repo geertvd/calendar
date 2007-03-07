@@ -1,7 +1,8 @@
 Views Calendar
 ====================
 
-
+- 124910 correct site timezone for dst
+- Fix tab handling
 - 124107 translate month names
 - Keep extra ical icon from showing up in block version of the view
 - 118055, make sure view works right if only block is set up to calendar type
