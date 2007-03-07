@@ -396,12 +396,14 @@ function calendar_get_nodes(&$view, &$items, $type) {
             $node->start_offset = $node->end_offset = $offset_field;
             break;
           case 'event' :
-            include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
+            include_once(DATE_TIMEZONES);
             $node->start_offset = event_get_offset($node->event_timezone, $node->event_event_start);
             $node->end_offset   = event_get_offset($node->event_timezone, $node->event_event_end);
             break;
           default :
-            $node->start_offset = $node->end_offset = variable_get('date_default_timezone', 0);
+            include_once(DATE_TIMEZONES);
+            $node->start_offset = date_offset(date_unix2array($node->calendar_start), variable_get('date_default_timezone', 0));
+            $node->end_offset   = date_offset(date_unix2array($node->calendar_end), variable_get('date_default_timezone', 0));
             break;
           }
         }
