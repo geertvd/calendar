@@ -19,7 +19,7 @@ function calendar_ical_menu($may_cache) {
   }
   $items = array();
   if (!$may_cache) {
-    foreach (calendar_view_types() as $view_name) {
+    foreach (calendar_views('page') as $view_name) {
       $view = views_get_view($view_name);
       $items[] = array('path' => $view->url . '/view',
         'title' => t('View'),

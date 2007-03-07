@@ -43,7 +43,7 @@ function calendar_menu($may_cache) {
   include_once(CALENDAR_PATH .'/calendar.theme');
   $items = array();
   if (!$may_cache) {
-    foreach (calendar_view_types() as $view_name) {
+    foreach (calendar_views('page') as $view_name) {
       $view = views_get_view($view_name);
       $items[] = array('path' => $view->url . '/view',
         'title' => t('View'),
@@ -141,6 +141,26 @@ function calendar_views_validate($type, $view, $form) {
  */
 function calendar_view_types() {
   return array('calendar' => t('Calendar'));
+}
+
+/**
+ * All views that are of the type 'calendar';
+ *
+ */
+function calendar_views($build_type = 'page', $reset = FALSE) {
+  static $calendar_views;
+  if ($reset || !isset($calendar_views[$build_type])) {
+    $calendar_views = array();
+    $result = db_query("SELECT vid FROM {view_view} ORDER BY name");
+    while ($row = db_fetch_array($result)) {
+      $view = views_get_view($row['vid']);
+      $view->build_type = $build_type;
+      if (calendar_is_calendar($view)) {
+        $calendar_views[$build_type][] = $view->name;
+      }
+    }
+  }
+  return $calendar_views[$build_type];
 }
 
 /**
