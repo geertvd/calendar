@@ -38,7 +38,7 @@
  *  @return Themed calendar view of nodes or array of calendar rows
  */
 function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = array()) {
-
+  include_once(drupal_get_path('module', 'date_api') .'/date.inc');
   $today = calendar_user_date();
 
   if ($params['limit'][0]) {
@@ -139,7 +139,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
             $content = theme('calendar_date_box', $year, $month, $day, 'table', $params['mini'], $calendars, $params['url'], $params['append']);
             foreach($calendars as $calendar) {
               if(!$month_name) {
-                $month_name = gmdate('M', $calendar->stamp);
+                $month_name = date_format_date('M', $calendar->stamp);
                 $dow = _calendar_day_of_week($calendar->stamp);
               }
               $node = $nodes[$calendar->nid];
@@ -187,7 +187,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
             // get the day of week offset value for the first day of the month
             $start = $offset = _calendar_day_of_week($curstamp);
             // get name of month
-            $month_name = gmdate('M', $curstamp);
+            $month_name = date_format_date('M', $curstamp);
             $month_link = $params['url'] ? l($month_name, $params['url'] .'/'. $year .'/'. intval($month), NULL, $params['append']) : $month_name;
             // set week counter
             $week = 0;
