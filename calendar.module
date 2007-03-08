@@ -149,7 +149,7 @@ function calendar_view_types() {
  *
  */
 function calendar_views($build_type = 'page', $reset = FALSE) {
-  static $calendar_views;
+  //static $calendar_views;
   if ($reset || !isset($calendar_views[$build_type])) {
     $calendar_views = array();
     $result = db_query("SELECT vid FROM {view_view} ORDER BY name");
@@ -160,6 +160,9 @@ function calendar_views($build_type = 'page', $reset = FALSE) {
         $calendar_views[$build_type][] = $view->name;
       }
     }
+  }
+  if (empty($calendar_views) || !array_key_exists($build_type, $calendar_views)) {
+    $calendar_views = array($build_type => array());
   }
   return $calendar_views[$build_type];
 }
