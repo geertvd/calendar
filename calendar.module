@@ -605,10 +605,21 @@ function calendar_get_paths($cur_stamp, $view) {
       $prevpath[$x] = gmdate('j', $prev_stamp);
       break;
     case ('week'):
+      include_once(drupal_get_path('module', 'date_api') .'/date.inc');
+
       $week = $path[$x]['path'];
       $year = $view->year;
-      $nextpath[$x] = 'W'. sprintf('%02d', intval($week + 1));
-      $prevpath[$x] = 'W'. sprintf('%02d', intval($week - 1));
+      if (!$next_stamp) {
+        // ISO weeks will not match calendar week if week starts any day but Monday.
+        // Need to find prev and next ISO week for proper navigation.
+        $cal_range = calendar_week_range($year, $week);
+        $iso_range = date_iso_week($year .'-W'. $week);
+        $next_stamp = max(date_iso2unix($iso_range[1]), $cal_range[1]) + 1;
+        $prev_stamp = min(date_iso2unix($iso_range[0]), $cal_range[1]) - 1;
+      }
+      $nextpath[$x] = 'W'. gmdate('W', $next_stamp);
+      $prevpath[$x] = 'W'. gmdate('W', $prev_stamp);
+      echo $prevpath[$x].'>'.$nextpath[$x].'<br>';
       break;
     case ('month'):
       $month = $path[$x]['path'];
