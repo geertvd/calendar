@@ -401,9 +401,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
             $node->end_offset   = event_get_offset($node->event_timezone, $node->event_event_end);
             break;
           default :
-            include_once(DATE_TIMEZONES);
-            $node->start_offset = date_offset(date_unix2array($node->calendar_start), variable_get('date_default_timezone', 0));
-            $node->end_offset   = date_offset(date_unix2array($node->calendar_end), variable_get('date_default_timezone', 0));
+            $node->start_offset = $node->end_offset = variable_get('date_default_timezone', 0);
             break;
           }
         }
