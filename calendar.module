@@ -609,20 +609,18 @@ function calendar_get_paths($cur_stamp, $view) {
       break;
     case ('week'):
       include_once(drupal_get_path('module', 'date_api') .'/date.inc');
-
       $week = $path[$x]['path'];
       $year = $view->year;
       if (!$next_stamp) {
         // ISO weeks will not match calendar week if week starts any day but Monday.
         // Need to find prev and next ISO week for proper navigation.
         $cal_range = calendar_week_range($year, $week);
-        $iso_range = date_iso_week($year .'-W'. $week);
-        $next_stamp = max(date_iso2unix($iso_range[1]), $cal_range[1]) + 1;
-        $prev_stamp = min(date_iso2unix($iso_range[0]), $cal_range[1]) - 1;
+        $iso_range = date_iso_week_range($year, $week);
+        $next_stamp = max($iso_range[1], $cal_range[1]) + 1;
+        $prev_stamp = min($iso_range[0], $cal_range[1]) - 1;
       }
       $nextpath[$x] = 'W'. gmdate('W', $next_stamp);
       $prevpath[$x] = 'W'. gmdate('W', $prev_stamp);
-      echo $prevpath[$x].'>'.$nextpath[$x].'<br>';
       break;
     case ('month'):
       $month = $path[$x]['path'];
@@ -937,15 +935,14 @@ function calendar_views_query_alter(&$query, &$view) {
     return;
   }
 
-  // add elements to the query min a max values to finish a date value after supplying arg values
-  // in the case of a year view, we need at least a year, month, and day to get a value timestamp date to search for
-
+  // Add elements to the query min and max values to create a complete date value
+  // for the minimum and maximum once all the View's args have been used.
   $minmax = array(
-  'year' => array('-01-01', '-12-31'),
-  'month' => array('-01', '-31'),
-  'day' => array(' 00', ' 24'),
-  'hour' => array(':00:00', ':59:59'),
-  'minute' => array(':00', ':59'),
+    'year' => array('-01-01 00:00:00', "-12-31 23:59:59"),
+    'month' => array('-01 00:00:00', '-'. ($view->month > 0 ? sprintf("%02d", date_last_day_of_month($view->month, $view->year)) : '12') .' 23:59:59'),
+    'day' => array(' 00:00:00', '  23:59:59'),
+    'hour' => array(':00:00', ':59:59'),
+    'minute' => array(':00', ':59'),
   );
 
   $query_min .= $minmax[$view->calendar_type][0];
