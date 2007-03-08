@@ -167,6 +167,9 @@ function calendar_views($build_type = 'page', $reset = FALSE) {
       }
     }
   }
+  if (empty($calendar_views) || !array_key_exists($build_type, $calendar_views)) {
+    $calendar_views = array($build_type => array());
+  }
   return $calendar_views[$build_type];
 }
 
