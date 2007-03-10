@@ -4,6 +4,8 @@ Views Calendar
 Version 1.4
 ===========
 
+NOTE Date API has been split out into a separate module to make the API available with no dependency on CCK and the Calendar module now requires the Date API. For best update results, uninstall the Calendar module before adding the updated Calendar and Date files to the site, then immediately go to the modules page and enable both the Calendar and Date API modules.
+
 - 125913 get calendar_views array properly initialized
 - 125509 fix for postgres date ranges to use exact last day of month in SQL, more clean up of week range calculations. Requires new functions just added to Date API.
 - 125483 more corrections to week calculation
