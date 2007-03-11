@@ -153,6 +153,9 @@ function calendar_ical_setup_form_submit($form_id, $form_values) {
           if (!is_array($events)) {
             unset($value[$delta]);
           }
+          else {
+            $value[$delta]['url'] = $item['url'];
+          }
         }
       }
       variable_set('calendar_feeds_'. $value_name, $value);
