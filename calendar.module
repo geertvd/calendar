@@ -1470,6 +1470,7 @@ function calendar_url_append($view) {
  * Setup Calendar parameters.
  */
 function calendar_setup_form($view) {
+	calendar_load_date_api();
   $form = array();
   $time = mktime(1, 15, 0, 1, 1, date('Y', date_time()));
   $time_options = array(
