@@ -65,7 +65,7 @@ function theme_calendar_arg_title($field_type, $value) {
       $stamp = date_gmmktime(array('year' => $_SESSION['calendar_year'], 'mon' => $_SESSION['calendar_mon'], 'mday' => $value));
       return date_gmdate('l, F j Y', $stamp);
     case 'WEEK':
-    	return t('Week @week @year', array('@year' => $_SESSION['calendar_year'], '@week' => $value));
+    	return t('Week %week %year', array('%year' => $_SESSION['calendar_year'], '%week' => $value));
    }
 }
 
@@ -95,7 +95,7 @@ function theme_calendar_nav_title($field_type, $view) {
       $timestamp = date_array2unix(array('year' => $view->year, 'mon' => $view->month, 'mday' => $view->day, 'hours' => 12));
       return date_gmdate('l, F j Y', $timestamp);
     case 'WEEK':
-    	return t("Week of @date", array('@date' => date_gmdate('F j Y', calendar_week('start_timestamp', $view, $view->week))));
+    	return t("Week of %date", array('%date' => date_gmdate('F j Y', calendar_week('start_timestamp', $view, $view->week))));
    }
 }
 
