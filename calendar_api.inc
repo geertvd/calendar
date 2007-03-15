@@ -34,11 +34,11 @@
  *     $params[append]      - a query string to append to urls
  *     $params[stripe]      - an node field to use instead of nid for stripes
  *     $params[limit]       - an array of a minimum and maximum timestamp to include on the calendar
- *                              used in case node array has values that overlap periods
+                                used in case node array has values that overlap periods
  *  @return Themed calendar view of nodes or array of calendar rows
  */
 function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = array()) {
-  include_once(drupal_get_path('module', 'date_api') .'/date.inc');
+	calendar_load_date_api();
   $today = calendar_user_date();
 
   if ($params['limit'][0]) {
@@ -67,9 +67,17 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
       $node->calendar_end = $max_date -  $node->end_offset;
     }
 
-    $node_start = gmmktime(0, 0, 0, calendar_event_date('m', $node->calendar_start, $node->start_offset), calendar_event_date('d', $node->calendar_start, $node->start_offset), calendar_event_date('Y', $node->calendar_start, $node->start_offset));
+    $node_start = date_gmmktime(array(
+      'mon' => calendar_event_date('m', $node->calendar_start, $node->start_offset),
+      'mday' => calendar_event_date('d', $node->calendar_start, $node->start_offset),
+      'year' => calendar_event_date('Y', $node->calendar_start, $node->start_offset),
+      ));
     if ($node->calendar_end) {
-      $node_end = gmmktime(0, 0, 0, calendar_event_date('m', $node->calendar_end, $node->end_offset), calendar_event_date('d', $node->calendar_end, $node->end_offset), calendar_event_date('Y', $node->calendar_end, $node->end_offset));
+      $node_end = date_gmmktime(array(
+        'mon' => calendar_event_date('m', $node->calendar_end, $node->end_offset),
+        'mday' => calendar_event_date('d', $node->calendar_end, $node->end_offset),
+        'year' => calendar_event_date('Y', $node->calendar_end, $node->end_offset),
+        ));
     }
     else {
       $node_end = $node_start;
@@ -79,7 +87,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
       $calendar->calendar_state = 'singleday';
       $calendar->stamp = $node_start;
       $calendar->stripe = $node->stripe;
-      $data[gmdate('Y', $node_start)][gmdate('m', $node_start)][gmdate('j', $node_start)][] = $calendar;
+      $data[date_gmdate('Y', $node_start)][date_gmdate('m', $node_start)][date_gmdate('j', $node_start)][] = $calendar;
     }
     else {
       // roll through each day the calendar occurs and set an entry for each
@@ -90,7 +98,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
           $calendar->stripe = $node->stripe;
           $calendar->calendar_state = 'end';
           $calendar->stamp = $x;
-          $data[gmdate('Y', $x)][gmdate('m', $x)][gmdate('j', $x)][] = $calendar;
+          $data[date_gmdate('Y', $x)][date_gmdate('m', $x)][date_gmdate('j', $x)][] = $calendar;
         }
         elseif ($x == $node_start) {
           $calendar = new StdClass();
@@ -98,7 +106,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
           $calendar->stripe = $node->stripe;
           $calendar->calendar_state = 'start';
           $calendar->stamp = $x;
-          $data[gmdate('Y', $x)][gmdate('m', $x)][gmdate('j', $x)][] = $calendar;
+          $data[date_gmdate('Y', $x)][date_gmdate('m', $x)][date_gmdate('j', $x)][] = $calendar;
         }
         else {
           $calendar = new StdClass();
@@ -106,7 +114,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
           $calendar->stripe = $node->stripe;
           $calendar->calendar_state = 'ongoing';
           $calendar->stamp = $x;
-          $data[gmdate('Y', $x)][gmdate('m', $x)][gmdate('j', $x)][] = $calendar;
+          $data[date_gmdate('Y', $x)][date_gmdate('m', $x)][date_gmdate('j', $x)][] = $calendar;
         }
       }
     }
@@ -179,9 +187,17 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
           }
           foreach ($months as $month => $days) {
             // timestamp of first day in month
-            $curstamp = gmmktime(0, 0, 0, $month, 1, $year);
+            $curstamp = date_gmmktime(array(
+              'mon' => $month,
+              'mday' => 1,
+              'year' => $year,
+              ));
             // timestamp of last day in month
-            $lastday = gmmktime(0, 0, 0, $month, gmdate('t', $curstamp), $year);
+            $lastday = date_gmmktime(array(
+              'mon' => $month,
+              'mday' => date_gmdate('t', $curstamp),
+              'year' => $year,
+              ));
             // pad the first week row array to fill up days in the previous month we don't build
             $row = array_fill(0, 6, '');
             // get the day of week offset value for the first day of the month
@@ -201,7 +217,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
             $rows[] = calendar_week_header($params['mini'], $params['with_weekno']);
 
             while ($curstamp <= $lastday) {
-              for ($x = $start; $x < 7; $x++) {
+            	for ($x = $start; $x < 7; $x++) {
                 $cur_day = (($week * 7) + ($x + 1) - $offset);
                 $selected = FALSE;
                 if(is_array($days[$cur_day])) {
@@ -238,10 +254,10 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                   $x = 8;
                 }
               }
-              $cur_week = date('W', $curstamp);
+              $cur_week = date_gmdate('W', $curstamp);
 
               // print week unless this is a week view and force_week is set and this is not the forced week
-              if (!($view == 'week' && $params['force_week'] && $params['force_week'] != date('W', $curstamp))) {
+              if (!($view == 'week' && $params['force_week'] && $params['force_week'] != date_gmdate('W', $curstamp))) {
                 if ($params['with_weekno']) {
                   $week_row = array(0 =>
                     array(
@@ -291,11 +307,19 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
  * @param $timestamp The GMT timestamp value.
  * @param $offset Time zone offset to apply to the timestamp.
  * @ingroup event_support
- * @return gmdate() formatted date value
+ * @return date_gmdate() formatted date value
  */
 function calendar_mktime($hour, $minute, $second, $month, $day, $year, $offset = NULL) {
   global $user;
-  $timestamp = gmmktime($hour, $minute, $second, $month, $day, $year);
+  calendar_load_date_api();
+  $timestamp = date_gmmktime(array(
+    'hours' => $hour,
+    'minutes' => $minute,
+    'seconds' => $second,
+    'mon' => $month,
+    'day' => $day,
+    'year' => $year,
+    ));
   if (isset($offset)) {
     return $timestamp - $offset;
   }
@@ -308,21 +332,6 @@ function calendar_mktime($hour, $minute, $second, $month, $day, $year, $offset =
 }
 
 /**
- * Returns a local timestamp based on the user or site time zone.
- * @return integer timestamp
- */
-function calendar_user_time() {
-  global $user;
-
-  if (variable_get('configurable_timezones', 1) && $user->uid && strlen($user->timezone)) {
-    return (time() - date("Z")) + $user->timezone;
-  }
-  else {
-    return (time() - date("Z")) + variable_get('date_default_timezone', 0);
-  }
-}
-
-/**
  * Returns a local timestamp (as defined by the user or site's timezone) for
  * midnight GMT.
  * @return integer timestamp
@@ -330,8 +339,9 @@ function calendar_user_time() {
 function calendar_user_date($part = 'timestamp') {
   global $user;
   static $date;
+  calendar_load_date_api();
   if (!$date) {
-    $now = calendar_user_time();
+    $now = date_time();
 
     if (variable_get('configurable_timezones', 1) && $user->uid && strlen($user->timezone)) {
       $user_offset = $user->timezone;
@@ -341,21 +351,25 @@ function calendar_user_date($part = 'timestamp') {
     }
 
     $now += $user_offset;
-    $date = gmmktime(0, 0, 0, gmdate('m', $now), gmdate('j', $now), gmdate('Y', $now));
+    $date = date_gmmktime(array(
+      'mon' => date_gmdate('m', $now),
+      'mday' => date_gmdate('j', $now),
+      'year' => date_gmdate('Y', $now),
+      ));
   }
   switch ($part) {
   case ('year'):
-    return gmdate('Y', $date);
+    return date_gmdate('Y', $date);
   case ('month'):
-    return gmdate('m', $date);
+    return date_gmdate('m', $date);
   case ('day'):
-    return gmdate('j', $date);
+    return date_gmdate('j', $date);
   case ('hour'):
-    return gmdate('H', $date);
+    return date_gmdate('H', $date);
   case ('minute'):
-    return gmdate('i', $date);
+    return date_gmdate('i', $date);
   case ('week'):
-    return gmdate('W', $date);
+    return date_gmdate('W', $date);
   default:
     return $date;
   }
@@ -374,10 +388,11 @@ function calendar_user_date($part = 'timestamp') {
  * @param $timestamp The GMT timestamp value.
  * @param $offset Time zone offset to apply to the timestamp.
  * @ingroup event_support
- * @return gmdate() formatted date value
+ * @return date_gmdate() formatted date value
  */
 function calendar_event_date($format, $timestamp, $offset = null) {
   global $user;
+  calendar_load_date_api();
 
   if (isset($offset)) {
     $timestamp += $offset;
@@ -394,7 +409,7 @@ function calendar_event_date($format, $timestamp, $offset = null) {
     $result = calendar_day_of_week($timestamp);
   }
   else {
-    $result = gmdate($format, $timestamp);
+    $result = date_gmdate($format, $timestamp);
   }
   return  $result;
 }
@@ -460,7 +475,9 @@ function calendar_week_header($mini = FALSE, $with_week = TRUE) {
  * @return integer day of the week
  */
 function _calendar_day_of_week($stamp) {
-  $dow = gmdate('w', $stamp);
+	calendar_load_date_api();
+
+  $dow = date_gmdate('w', $stamp);
   if ($dow - variable_get('date_first_day', 1) >= 0 ) {
     $dow = $dow - variable_get('date_first_day', 1);
   }

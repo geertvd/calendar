@@ -1,5 +1,11 @@
 Views Calendar
-====================
+==============
+
+- 127291 change view titles and breadcrumbs to use %1, %2, %3 dynamic titles
+- Get rid of italics in css, make sure date_api is included where needed, add more date info to ical feed.
+- 127818 Needed Date API functions to get timezone fixes working, so Date API handling is now fully incorporated into the calendar module, which means if you are using adodb to create historical dates, you can also create historical calendars.
+- 112682 Fix handling of week views by cleaning up places where system timezone adjustment was getting included. 
+- Make sure webcal is replaced with http in the ical url
 
 Version 1.4
 ===========

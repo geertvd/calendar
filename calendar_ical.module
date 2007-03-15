@@ -7,23 +7,17 @@
  */
 
 /**
- * Implementation of hook_help().
- */
-function calendar_ical_help($section) {
-  switch ($section) {
-    case 'admin/modules#description':
-      return t('Adds ical functionality to calendar views. <strong>Requires Views, Calendar and Date API.</strong>');
-    case 'admin/help#calendar_ical':
-      return t("<p>View complete documentation at %link.</p>", array('%link' => 'http://drupal.org/node/120710'));
-  }
-}
-
-/**
  *  Implementation of hook_menu().
  */
 function calendar_ical_menu($may_cache) {
-  define('ICAL_PATH', drupal_get_path('module', 'date_api'));
-  define('CALENDAR_ICAL_CACHE', 'cache');
+  if (db_table_exists('cache_calendar_ical')) {
+    define('CALENDAR_ICAL_CACHE', 'cache_calendar_ical');
+  }
+  else {
+    define('CALENDAR_ICAL_CACHE', 'cache');
+  }
+  include_once(drupal_get_path('module', 'calendar') .'/calendar.theme');
+  theme_add_style(drupal_get_path('module', 'calendar'), '/calendar.css');
 
   $items = array();
   if (!$may_cache) {
@@ -43,13 +37,20 @@ function calendar_ical_menu($may_cache) {
         'description' => t('iCal setup.'),
         'access'   => user_access('administer content'),
         'callback' => 'drupal_get_form',
-        'callback arguments' => array('calendar_ical_setup_form', calendar_ical_setup_form($view)),
+        'callback arguments' => array('calendar_ical_setup_form', $view),
         'type' => MENU_LOCAL_TASK,
         'weight' => 6,
       );
     }
   }
   return $items;
+}
+
+/**
+ * Helper function to load date_ical file.
+ */
+function calendar_ical_load_date_ical() {
+	include_once(drupal_get_path('module', 'date_api') .'/date_ical.inc');
 }
 
 /**
@@ -65,9 +66,6 @@ function calendar_ical_calendar_add_items($view) {
  * @todo - control of the stripe color is not yet implemented.
  */
 function calendar_ical_setup_form($view) {
-
-  include_once(drupal_get_path('module', 'calendar') .'/calendar.theme');
-  theme_add_style(drupal_get_path('module', 'calendar') . '/calendar.css');
 
   $form = array();
 
@@ -141,7 +139,7 @@ function calendar_ical_setup_form($view) {
  * Save requested values.
  */
 function calendar_ical_setup_form_submit($form_id, $form_values) {
-  include_once(drupal_get_path('module', 'date_api') .'/date_ical.inc');
+  calendar_ical_load_date_ical();
   $view_name = $form_values['view_name'];
   foreach ($form_values as $value_name => $value) {
     if ($value_name == 'calendar_ical_expire_'. $view_name) {
@@ -164,6 +162,7 @@ function calendar_ical_setup_form_submit($form_id, $form_values) {
           else {
             $value[$delta]['url'] = $item['url'];
           }
+
         }
       }
       variable_set('calendar_feeds_'. $value_name, $value);
@@ -183,8 +182,8 @@ function calendar_ical_setup_form_submit($form_id, $form_values) {
 
 function calendar_ical_add_feeds($view, $refresh = FALSE) {
   $nodes = array();
-  include_once(drupal_get_path('module', 'date_api') .'/date.inc');
-  include_once(ICAL_PATH .'/date_ical.inc');
+  calendar_load_date_api();
+  calendar_ical_load_date_ical();
   $feeds = variable_get('calendar_feeds_'. $view->name, array());
   foreach ($feeds as $delta => $feed) {
     if ($view->build_type == 'page') {
@@ -205,13 +204,15 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
           $node->nid = $event['uid'];
           $node->title = $event['summary'];
           $node->label = $feed['name'];
-          $node->teaser =  strip_tags(stripslashes($event['description']));
+          $node->teaser =  $event['description'];
           $node->calendar_start = $event['start'];
           $node->start_offset   = 0;
           $node->calendar_end   = $event['end'];
           $node->end_offset     = 0;
           $node->start_time_format = gmdate(variable_get('calendar_time_format', 'H:i'), $event['start']);
           $node->end_time_format = gmdate(variable_get('calendar_time_format', 'H:i'), $event['end']);
+          $node->start_format = gmdate(variable_get('date_format_short', 'm/d/Y - H:i'), $event['start']);
+          $node->end_format = gmdate(variable_get('date_format_short', 'm/d/Y - H:i'), $event['end']);
           $node->stripe = $feed['stripe'];
           $node->remote = TRUE;
           $node->uid = $event['uid'] ? $event['uid'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
@@ -296,7 +297,6 @@ function calendar_ical_views_feed_argument($op, &$view, $arg) {
     $args = calendar_ical_post_view_make_args($view, $arg, 'ical');
     $url = views_get_url($view, $args);
     $title = views_get_title($view, 'page', $args);
-
     if ($view->used_filters) {
       $filters = drupal_query_string_encode($view->used_filters);
     }
@@ -340,7 +340,7 @@ function calendar_ical_add_ical($url = NULL, $title = '') {
 }
 
 function theme_ical_icon($url) {
-  if ($image = theme('image', ICAL_PATH .'/images/ical16x16.gif', t('Add to calendar'), t('Add to calendar'))) {
+  if ($image = theme('image', drupal_get_path('module', 'date_api') .'/images/ical16x16.gif', t('Add to calendar'), t('Add to calendar'))) {
     return '<div style="text-align:right"><a href="'. check_url($url) .'" class="ical-icon" title="ical">'. $image. '</a></div>';
   }
 }
@@ -350,7 +350,7 @@ function theme_ical_icon($url) {
  * plugin that actually displays an ical feed
  */
 function theme_calendar_ical_feed($view, $nodes, $type) {
-  include_once(ICAL_PATH .'/date_ical.inc');
+  calendar_ical_load_date_ical();
   if ($type == 'block') {
     return;
   }
