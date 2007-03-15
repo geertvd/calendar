@@ -851,8 +851,6 @@ function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_name, $f
   $query->field_args[] = $arg;
 
   // Set titles for each argument.
-  // The handling for month and week arguments is funky because either one may be
-  // used as the second argument
   switch($op) {
     case 'title':
       switch ($field_type) {
