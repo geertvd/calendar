@@ -791,6 +791,27 @@ function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_name, $f
   $query->field_name[] = $field_name;
   $query->field_type[] = $field_type;
   $query->field_args[] = $arg;
+
+  // Set titles for each argument.
+  // The handling for month and week arguments is funky because either one may be
+  // used as the second argument
+  switch($op) {
+    case 'title':
+      switch ($field_type) {
+      	case 'YEAR':
+      		$_SESSION['calendar_year'] = intval($arg ? $arg : $query);
+      		return $_SESSION['calendar_year'];
+      	case 'MONTH':
+      		$_SESSION['calendar_mon'] = intval($arg ? $arg : $query);
+      		$stamp = date_gmmktime(array('year' => $_SESSION['calendar_year'], 'mon' => $_SESSION['calendar_mon'], 'mday' => 1));
+      		return date_gmdate('F Y', $stamp);
+      	case 'DAY':
+      		$stamp = date_gmmktime(array('year' => $_SESSION['calendar_year'], 'mon' => $_SESSION['calendar_mon'], 'mday' => intval($arg ? $arg : $query)));
+      		return date_gmdate('l, F j Y', $stamp);
+      	case 'WEEK':
+      		return t('Week ') . intval(str_replace('W', '', $arg ? $arg : $query));
+      }
+  }
   return;
 }
 
@@ -859,7 +880,6 @@ function calendar_views_query_alter(&$query, &$view) {
 
           $view->argument[$delta]['type'] = 'calendar_week';
           $view->argument[$delta]['id'] = 'calendar_week';
-          $view->argument[$delta]['title'] = t('Week');
           $view->args[$delta] = str_replace('W', '', $view->args[1]);
         }
         // if this is not a week argument and view was created with a week argument, change it back
@@ -867,11 +887,9 @@ function calendar_views_query_alter(&$query, &$view) {
 
           $view->argument[$delta]['type'] = 'calendar_month';
           $view->argument[$delta]['id'] = 'calendar_month';
-          $view->argument[$delta]['title'] = t('Month');
           if ($view->args[$delta + 1]) {
             $view->argument[$delta + 1]['type'] = 'calendar_day';
             $view->argument[$delta + 1]['id'] = 'calendar_day';
-            $view->argument[$delta + 1]['title'] = t('Day');
           }
         }
       }
@@ -1192,7 +1210,7 @@ $view = new stdClass();
     array (
       'type' => 'calendar_year',
       'argdefault' => '2',
-      'title' => 'Year',
+      'title' => '%1',
       'options' => '',
       'wildcard' => '',
       'wildcard_substitution' => '',
@@ -1200,7 +1218,7 @@ $view = new stdClass();
     array (
       'type' => 'calendar_month',
       'argdefault' => '2',
-      'title' => 'Month',
+      'title' => '%2',
       'options' => '',
       'wildcard' => '',
       'wildcard_substitution' => '',
@@ -1208,7 +1226,7 @@ $view = new stdClass();
     array (
       'type' => 'calendar_day',
       'argdefault' => '2',
-      'title' => 'Day',
+      'title' => '%3',
       'options' => '',
       'wildcard' => '',
       'wildcard_substitution' => '',
