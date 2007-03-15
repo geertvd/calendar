@@ -519,14 +519,6 @@ function calendar_get_nodes(&$view, &$items, $type) {
       $params['force_week'] = $view->week;
     }
 
-  } else {
-
-    // if this is a summary page or any view that doesn't use arguments
-    // view results may contain multiple calendar months, days or weeks
-    // the standard calendar api (not using the $params and $title above)
-    // will display multiple calendar months, weeks, or days with no navigation
-    // make no change to api, just set title
-    $title = $view->subtitle ? $view->subtitle : $view->page_type;
   }
 
   // use calendar_get_calendar api to draw the calendar
@@ -861,20 +853,8 @@ function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_name, $f
   // Set titles for each argument.
   switch($op) {
     case 'title':
-      switch ($field_type) {
-      	case 'YEAR':
-      		$_SESSION['calendar_year'] = intval($arg ? $arg : $query);
-      		return $_SESSION['calendar_year'];
-      	case 'MONTH':
-      		$_SESSION['calendar_mon'] = intval($arg ? $arg : $query);
-      		$stamp = date_gmmktime(array('year' => $_SESSION['calendar_year'], 'mon' => $_SESSION['calendar_mon'], 'mday' => 1));
-      		return date_gmdate('F Y', $stamp);
-      	case 'DAY':
-      		$stamp = date_gmmktime(array('year' => $_SESSION['calendar_year'], 'mon' => $_SESSION['calendar_mon'], 'mday' => intval($arg ? $arg : $query)));
-      		return date_gmdate('l, F j Y', $stamp);
-      	case 'WEEK':
-      		return t('Week %week %year', array('%year' => $_SESSION['calendar_year'], '%week' => intval(str_replace('W', '', $arg ? $arg : $query))));
-      }
+    	$value = intval(str_replace('W', '', $arg ? $arg : $query));
+    	return theme('calendar_arg_title', $field_type, $value);
   }
   return;
 }
@@ -973,46 +953,42 @@ function calendar_views_query_alter(&$query, &$view) {
       $view->real_url = calendar_get_url($view, $view->args);
 
       if ($argument['type'] == 'calendar_year') {
+        $view->calendar_type = str_replace('calendar_', '', $argument['type']);
         $view->year = _calendar_is_valid($view->args[$delta], 'year') ? $view->args[$delta] : calendar_user_date('year');
         $query_min = $view->year;
         $query_max = $view->year;
-        $view->subtitle = l($view->year, $view->real_url .'/'. $view->year, array(), calendar_url_append($view));
+        $view->subtitle = theme_calendar_nav_title('YEAR', $view);
         // make sure we have at least a year available as an argument
         if (!$view->args[$delta]) {
           $view->args[$delta] = $view->year;
         }
-        $view->calendar_type = str_replace('calendar_', '', $argument['type']);
         $view->delta['year'] = $delta;
       }
       if ($argument['type'] == 'calendar_month' && $view->args[$delta]) {
+        $view->calendar_type = str_replace('calendar_', '', $argument['type']);
         $view->month = _calendar_is_valid($view->args[$delta], 'month') ? $view->args[$delta] : calendar_user_date('month');
         $query_min .= '-'. sprintf('%02d', $view->month);
         $query_max .= '-'. sprintf('%02d', $view->month);
-        // use the second day of the month because gm functions sometimes return the previous month
-        $format = $view->build_type == 'block' || $view->calendar_type == 'year' ? 'M Y' : 'F Y';
-        $timestamp = date_array2unix(array('year' => $view->year, 'mon' => $view->month, 'mday' => 2));
-        $view->subtitle = l(date_gmdate($format, $timestamp), $view->real_url .'/'. $view->year .'/'. $view->month, array(), calendar_url_append($view));
-        $view->calendar_type = str_replace('calendar_', '', $argument['type']);
+        $view->subtitle = theme_calendar_nav_title('MONTH', $view);
         $view->delta['month'] = $delta;
       }
       if ($argument['type'] == 'calendar_day' && $view->args[$delta]) {
+        $view->calendar_type = str_replace('calendar_', '', $argument['type']);
         $view->day = _calendar_is_valid($view->args[$delta], 'day') ? $view->args[$delta] : calendar_user_date('day');
         $query_min .= '-'. sprintf('%02d', $view->day);
         $query_max .= '-'. sprintf('%02d', $view->day);
-        $timestamp = date_array2unix(array('year' => $view->year, 'mon' => $view->month, 'mday' => $view->day, 'hours' => 12));
-        $view->subtitle = l(date_gmdate('l, F j Y', $timestamp), $view->real_url .'/'. $view->year .'/'. $view->month .'/'. $view->day, array(), calendar_url_append($view));
-        $view->calendar_type = str_replace('calendar_', '', $argument['type']);
+        $view->subtitle = theme_calendar_nav_title('DAY', $view);
         $view->delta['week'] = $delta;
 
       }
       if ($argument['type'] == 'calendar_week' && $view->args[$delta]) {
+        $view->calendar_type = str_replace('calendar_', '', $argument['type']);
         $view->week = _calendar_is_valid($view->args[$delta], 'week') ? $view->args[$delta] : 1;
         $week  = $view->args[$delta];
         $view->week = $week;
         $query_min = calendar_week('start_year', $view, $week) .'-'. sprintf('%02d', calendar_week('start_month', $view, $week)) .'-'. calendar_week('start_day', $view, $week) .'T00:00:00';
         $query_max = calendar_week('end_year', $view, $week) .'-'. sprintf('%02d', calendar_week('end_month', $view, $week)) .'-'. calendar_week('end_day', $view, $week) .'T23:59:59';
-        $view->subtitle = l(t("Week of !date", array('!date' => date_gmdate('F j Y', calendar_week('start_timestamp', $view, $week)))), $view->real_url .'/'. $view->year .'/W'. $view->week, array(), calendar_url_append($view));
-        $view->calendar_type = str_replace('calendar_', '', $argument['type']);
+        $view->subtitle = theme_calendar_nav_title('WEEK', $view);
         $view->month = calendar_week('start_month', $view, $week);
         $view->day = calendar_week('start_day', $view, $week);
         $view->delta['day'] = $delta;

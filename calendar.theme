@@ -42,6 +42,64 @@ function theme_calendar_calendar_node($node, $type) {
 }
 
 /**
+ * Theme the calendar title and breadcrumbs
+ *   Arguments are evaluated in year, month, day or year, week order
+ *   so you can track previous values in the session.
+ *
+ * @param string $field_type - 'YEAR', 'MONTH', 'DAY', 'WEEK'
+ * @param integer $value - the current number for the field type as selected in the view argument.
+ * @return string formatted title
+ */
+function theme_calendar_arg_title($field_type, $value) {
+	calendar_load_date_api();
+	$value = intval(check_plain($value));
+  switch ($field_type) {
+    case 'YEAR':
+      $_SESSION['calendar_year'] = $value;
+      return $_SESSION['calendar_year'];
+    case 'MONTH':
+      $_SESSION['calendar_mon'] = $value;
+      $stamp = date_gmmktime(array('year' => $_SESSION['calendar_year'], 'mon' => $_SESSION['calendar_mon'], 'mday' => 1));
+      return date_gmdate('F Y', $stamp);
+    case 'DAY':
+      $stamp = date_gmmktime(array('year' => $_SESSION['calendar_year'], 'mon' => $_SESSION['calendar_mon'], 'mday' => $value));
+      return date_gmdate('l, F j Y', $stamp);
+    case 'WEEK':
+    	return t('Week @week @year', array('@year' => $_SESSION['calendar_year'], '@week' => $value));
+   }
+}
+
+/**
+ * Theme the navigation bar title
+ *
+ * @param string $field_type - 'YEAR', 'MONTH', 'DAY', 'WEEK'
+ * @param integer $view - the current view object
+ * @return string formatted title
+ */
+function theme_calendar_nav_title($field_type, $view) {
+	calendar_load_date_api();
+	switch ($field_type) {
+    case 'YEAR':
+      return $view->year;
+    case 'MONTH':
+    	// Month navigation titles are used as links in blocks and in the year view.
+      // For the timestamp, use the second day of the month because gm functions sometimes return the previous month
+      $timestamp = date_array2unix(array('year' => $view->year, 'mon' => $view->month, 'mday' => 2));
+      if ($view->build_type == 'block' || $view->calendar_type == 'year') {
+      	return l(date_gmdate('M Y', $timestamp), $view->real_url .'/'. $view->year .'/'. $view->month, array(), calendar_url_append($view));
+      }
+      else {
+      	return date_gmdate('F Y', $timestamp);
+      }
+    case 'DAY':
+      $timestamp = date_array2unix(array('year' => $view->year, 'mon' => $view->month, 'mday' => $view->day, 'hours' => 12));
+      return date_gmdate('l, F j Y', $timestamp);
+    case 'WEEK':
+    	return t("Week of @date", array('@date' => date_gmdate('F j Y', calendar_week('start_timestamp', $view, $view->week))));
+   }
+}
+
+/**
  * Format the calendar navigation
  */
 function theme_calendar_show_nav($view) {
