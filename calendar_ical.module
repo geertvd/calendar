@@ -10,12 +10,7 @@
  *  Implementation of hook_menu().
  */
 function calendar_ical_menu($may_cache) {
-  if (db_table_exists('cache_calendar_ical')) {
-    define('CALENDAR_ICAL_CACHE', 'cache_calendar_ical');
-  }
-  else {
-    define('CALENDAR_ICAL_CACHE', 'cache');
-  }
+  define('CALENDAR_ICAL_CACHE', 'cache');
   include_once(drupal_get_path('module', 'calendar') .'/calendar.theme');
   theme_add_style(drupal_get_path('module', 'calendar'), '/calendar.css');
 
