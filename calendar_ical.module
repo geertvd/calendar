@@ -279,8 +279,12 @@ function views_handler_arg_ical($op, &$query, $argtype, $arg = '') {
  * post view for our own op -- mimics the feed selector
  */
 function calendar_ical_views_post_view($view, $items, $output) {
-  if ($view->page_type == 'calendar') {
-    return calendar_ical_views_feed_argument('post_view', $view, 'ical');
+  if ($view->page_type == 'calendar' ) {
+    foreach ($view->argument as $arg) {
+      if ($arg['id'] == 'calendar_ical') {
+        return calendar_ical_views_feed_argument('post_view', $view, 'ical');
+      }
+    }
   }
 }
 
@@ -349,12 +353,11 @@ function theme_ical_icon($url) {
 /**
  * plugin that actually displays an ical feed
  */
-function theme_calendar_ical_feed($view, $nodes, $type) {
+function theme_calendar_ical_feed($view, $items, $type) {
   calendar_ical_load_date_ical();
   if ($type == 'block') {
     return;
   }
-
   $results = calendar_get_nodes($view, $items, $type);
   $nodes = $results['nodes'];
   foreach (module_implements('calendar_add_items') as $module) {
