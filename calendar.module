@@ -216,7 +216,7 @@ function calendar_fields() {
       // add the from and to dates to the first one found and ignore the second
 
       // Handling for event fromto dates
-      if (module_exists('event') && !$event_field_processed && ($name == 'event.event_start' || $name == 'event.event_end')) {
+      if (module_exist('event') && !$event_field_processed && ($name == 'event.event_start' || $name == 'event.event_end')) {
         $timestamp_fromto = array('event.event_start', 'event.event_end');
         $offset_field = 'event.timezone';
         $tz_handling = variable_get('event_timezone_display', 'site');
@@ -369,14 +369,14 @@ function calendar_get_nodes(&$view, &$items, $type) {
         }
 
         // If we're dealing with an event node, join the start and to dates together in one node and get rid of the other
-        if (module_exists('event') && ($field_field == 'event_event_start' || $field_field == 'event_event_end') && !$event_field_processed[$item->nid]) {
+        if (module_exist('event') && ($field_field == 'event_event_start' || $field_field == 'event_event_end') && !$event_field_processed[$item->nid]) {
           if ($node->event_event_start > 0) {
             $node->calendar_start = $node->event_event_start;
             $node->calendar_end   = $node->event_event_end;
             $event_field_processed[$item->nid] = TRUE;
           }
         }
-        elseif (module_exists('event') && ($field_field == 'event_event_start' || $field_field == 'event_event_end') && $event_field_processed[$item->nid]) {
+        elseif (module_exist('event') && ($field_field == 'event_event_start' || $field_field == 'event_event_end') && $event_field_processed[$item->nid]) {
           // if more than one event field was added to the view (like start and end dates)
           // don't process it more than once
           unset($node);
