@@ -268,23 +268,6 @@ function calendar_fields() {
  *  Calendar Views plugin theme, overrides default views theme
  */
 function theme_calendar_display(&$view, &$items, $type) {
-
-  $title = ($view->build_type == 'page' ? '' : ($view->subtitle ? $view->subtitle : $view->page_type));
-  $results = calendar_get_nodes($view, $items, $type);
-  $nodes = $results['nodes'];
-  $params = $results['params'];
-  foreach (module_implements('calendar_add_items') as $module) {
-    $function = $module .'_calendar_add_items';
-    $nodes += $function($view);
-  }
-  return theme('calendar_show_nav', $view) . calendar_get_calendar($view->calendar_type, $nodes, 'calendar', $title, $params);
-}
-
-/**
- * The workhorse function that takes the beginning array of items and alters it
- *   to an array of calendar nodes that the theme can handle.
- */
-function calendar_get_nodes(&$view, &$items, $type) {
   if (!is_array($items)) {
     $items = array();
   }
@@ -304,6 +287,22 @@ function calendar_get_nodes(&$view, &$items, $type) {
     }
   }
 
+  $title = ($view->build_type == 'page' ? '' : ($view->subtitle ? $view->subtitle : $view->page_type));
+  $results = calendar_get_nodes($view, $items, $type);
+  $nodes = $results['nodes'];
+  $params = $results['params'];
+  foreach (module_implements('calendar_add_items') as $module) {
+    $function = $module .'_calendar_add_items';
+    $nodes += $function($view);
+  }
+  return theme('calendar_show_nav', $view) . calendar_get_calendar($view->calendar_type, $nodes, 'calendar', $title, $params);
+}
+
+/**
+ * The workhorse function that takes the beginning array of items and alters it
+ *   to an array of calendar nodes that the theme can handle.
+ */
+function calendar_get_nodes(&$view, &$items, $type) {
   calendar_load_calendar_api();
   calendar_load_date_api();
 
