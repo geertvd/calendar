@@ -119,13 +119,13 @@ function theme_calendar_show_nav($view) {
       $append .= '&view='. $_GET['view'];
     }
 
-    $calendar_links[] = array('title' => t('Year'), 'href' => $view->real_url .'/'. $view->year, 'query' => $append);
-    $calendar_links[] = array('title' => t('Month'), 'href' => $view->real_url .'/'. $view->year .'/'. $month , 'query' => $append);
+    $calendar_links[] = $view->calendar_type == 'year'  ? t('Year')  : l( t('Year'), $view->real_url .'/'. $view->year . $append);
+    $calendar_links[] = $view->calendar_type == 'month' ? t('Month') : l(t('Month'), $view->real_url .'/'. $view->year .'/'. $month . $append);
     // Week calculation is not supported for historical dates.
     if ($view->year > 1970) {
-      $calendar_links[] = array('title' => t('Week'), 'href' => $view->real_url .'/'. $view->year .'/W'. $week, 'query' => $append);
+      $calendar_links[] = $view->calendar_type == 'week'  ? t('Week')  : l(t('Week'), $view->real_url .'/'. $view->year .'/W'. $week . $append); 	     // Week calculation is not supported for historical dates.
     }
-    $calendar_links[] = array('title' => t('Day'), 'href' => $view->real_url .'/'. $view->year .'/'. $month .'/'. $day, 'query' => $append);
+    $calendar_links[] = $view->calendar_type == 'day'   ? t('Day')   : l(t('Day'), $view->real_url .'/'. $view->year .'/'. $month .'/'. $day . $append);
     $output  .= theme('calendar_links', $calendar_links, 'month');
 
     $output .= '<div class="calendar-calendar">'. theme('calendar_nav_wrapper', calendar_nav($view, $params['mini']), array()) .'</div>';
