@@ -128,7 +128,7 @@ function theme_calendar_show_nav($view) {
     $calendar_links[] = $view->calendar_type == 'day'   ? t('Day')   : l(t('Day'), $view->real_url .'/'. $view->year .'/'. $month .'/'. $day . $append);
     $output  .= theme('calendar_links', $calendar_links, 'month');
 
-    $output .= '<div class="calendar-calendar">'. theme('calendar_nav_wrapper', calendar_nav($view, $params['mini']), array()) .'</div>';
+    $output .= '<div class="calendar-calendar"><div class="calendar">'. theme('calendar_nav_wrapper', calendar_nav($view, $params['mini']), array()) .'</div></div>';
 
     return $output;
   }
