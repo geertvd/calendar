@@ -1,10 +1,12 @@
 Views Calendar
 ==============
 
+- Adapt setup tabs to new Views handling of tabs
+- Move check for non-calendar views to top of theme instead of node-creation function,  theme_calendar_ical_feed had inconsistency in variable name, check for ical argument to keep ical feed off views that don't have it.
 - 127291 change view titles and breadcrumbs to use %1, %2, %3 dynamic titles
 - Get rid of italics in css, make sure date_api is included where needed, add more date info to ical feed.
 - 127818 Needed Date API functions to get timezone fixes working, so Date API handling is now fully incorporated into the calendar module, which means if you are using adodb to create historical dates, you can also create historical calendars.
-- 112682 Fix handling of week views by cleaning up places where system timezone adjustment was getting included. 
+- 112682 Fix handling of week views by cleaning up places where system timezone adjustment was getting included.
 - Make sure webcal is replaced with http in the ical url
 
 Version 1.4
@@ -28,7 +30,7 @@ NOTE Date API has been split out into a separate module to make the API availabl
 - Fix day teaser view in theme
 - Make sure legend and switch blocks aren't displayed on non-calendar pages
 - 124320 fix fatal errors in identifying include paths
-- 123944, 123377 add validation to make sure right arguments and field settings are used. 
+- 123944, 123377 add validation to make sure right arguments and field settings are used.
 - Check module_exists on event module adjustments in case custom module is named 'event'.
 - css cleanup
 - Better theme for full day nodes, make sure webcal protocol gets switched to http
@@ -37,7 +39,7 @@ NOTE Date API has been split out into a separate module to make the API availabl
 - Reconfiguring to move ical functions into separate, optional module and add hook to calendar module to insert other items into calendar.
 - 119712, 121451 fix to make transition to separate Date API easier since  non-existant functions will cause fatal error that prevents ability to get back to module installation page.
 - 120787 more places need the exposed filter choices appended to the url.
-- Make sure not to try to do anything if there are no feeds. 
+- Make sure not to try to do anything if there are no feeds.
 - Fix a mistake in the ical file where it tries to query a non-existant table. Use the timezones.inc file instead.
 - More theme cleanup.
 
@@ -72,7 +74,7 @@ Version 1.2
 - 108957 add include path
 - 89097 reverse sign on option delta, fix view tablename aliases
 - 114265 handle empty 'to' date values by filling with 'from' date. Fix block view of date browser, use new CCK views table alias.
-- 80592 alter default value handling to match changes in CCK, display blank value as default for to date if not required, make sure blank 
+- 80592 alter default value handling to match changes in CCK, display blank value as default for to date if not required, make sure blank
 value is stored as NULL
 
 Version 1.1
