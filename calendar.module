@@ -752,20 +752,25 @@ function _calendar_limit_nodes($nodes, $type, $year, $month, $day, $week, $offse
       'year' => $year,
       ));
     // find the first day of the next month and subtract one day
-    if ($month < 12) {
+    if (intval($month) < 12) {
       $max_date = date_gmmktime(array(
         'mon' => intval($month + 1),
         'day' => 1,
         'year' => $year,
+        'hours' => 23,
+        'minutes' => 59,
+        'seconds' => 59,
         ));
     } else {
       $max_date = date_gmmktime(array(
         'mon' => 1,
         'mday' => 1,
         'year' => intval($year + 1),
+        'hours' => 23,
+        'minutes' => 59,
+        'seconds' => 59,
         ));
     }
-    $max_date = $max_date - 1;
     break;
   case ('year'):
     $min_date = date_gmmktime(array(
