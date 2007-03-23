@@ -28,7 +28,7 @@ function calendar_ical_menu($may_cache) {
         'callback' => 'views_view_page',
         'callback arguments' => $args,
         'access' => user_access('access content'),
-        'weight' => 0,
+        'weight' => -10,
         'type' => MENU_DEFAULT_LOCAL_TASK,
       );
       $items[] = array(
