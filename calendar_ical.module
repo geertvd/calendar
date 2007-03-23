@@ -23,6 +23,14 @@ function calendar_ical_menu($may_cache) {
   if (!$may_cache) {
     foreach (calendar_views('page') as $view_name) {
       $view = views_get_view($view_name);
+      $items[] = array('path' => $view->url . '/view',
+        'title' => t('View'),
+        'callback' => 'views_view_page',
+        'callback arguments' => $args,
+        'access' => user_access('access content'),
+        'weight' => -10,
+        'type' => MENU_DEFAULT_LOCAL_TASK,
+      );
       $items[] = array(
         'path'     => $view->url .'/ical',
         'title'    => t('iCal'),
