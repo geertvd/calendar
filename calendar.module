@@ -1165,10 +1165,11 @@ function calendar_week_year($timestamp) {
  *  Handle a lot of messy week calculations all in one place to make maintenance easier
  */
 function calendar_week($op, $view, $week = 0) {
-  if ($week == 0) {
-  	$isodate = $view->year .'-'. sprintf('%02d', $view->month ? $view->month : calendar_user_date('month')) .'-'. sprintf('%02d', $view->day ? $view->day : calendar_user_date('day'));
+  calendar_load_date_api();
+	if ($week == 0) {
+  	$isodate = $view->year .'-'. sprintf('%02d', $view->month ? $view->month : calendar_user_date('month')) .'-'. sprintf('%02d', $view->day ? $view->day : calendar_user_date('day')) .'T00:00:00';
   	$week_year = calendar_week_year(date_iso2unix($isodate));
-    if ($op == 'week') return $week_year[0];
+  	if ($op == 'week') return $week_year[0];
   }
   $range = calendar_week_range($view->year, $week);
   $week_start = $range[0];

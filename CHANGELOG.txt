@@ -1,6 +1,8 @@
 Views Calendar
 ==============
 
+- 128517 fix error in week calculation so week doesn't always get set to 1
+- 127038 fix limit_nodes function to include last day of month
 - Adapt setup tabs to new Views handling of tabs
 - Move check for non-calendar views to top of theme instead of node-creation function,  theme_calendar_ical_feed had inconsistency in variable name, check for ical argument to keep ical feed off views that don't have it.
 - 127291 change view titles and breadcrumbs to use %1, %2, %3 dynamic titles
