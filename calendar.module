@@ -983,8 +983,8 @@ function calendar_views_query_alter(&$query, &$view) {
         $view->week = _calendar_is_valid($view->args[$delta], 'week') ? $view->args[$delta] : 1;
         $week  = $view->args[$delta];
         $view->week = $week;
-        $query_min = calendar_week('start_year', $view, $week) .'-'. sprintf('%02d', calendar_week('start_month', $view, $week)) .'-'. calendar_week('start_day', $view, $week) .'T00:00:00';
-        $query_max = calendar_week('end_year', $view, $week) .'-'. sprintf('%02d', calendar_week('end_month', $view, $week)) .'-'. calendar_week('end_day', $view, $week) .'T23:59:59';
+        $query_min = calendar_week('start_year', $view, $week) .'-'. sprintf('%02d', calendar_week('start_month', $view, $week)) .'-'. calendar_week('start_day', $view, $week) .' 00:00:00';
+        $query_max = calendar_week('end_year', $view, $week) .'-'. sprintf('%02d', calendar_week('end_month', $view, $week)) .'-'. calendar_week('end_day', $view, $week) .' 23:59:59';
         $view->subtitle = theme_calendar_nav_title('WEEK', $view);
         $view->month = calendar_week('start_month', $view, $week);
         $view->day = calendar_week('start_day', $view, $week);
