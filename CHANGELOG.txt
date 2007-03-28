@@ -1,6 +1,7 @@
 Views Calendar
 ==============
 
+- Fix min and max date comparison for week view
 - 128517 fix error in week calculation so week doesn't always get set to 1
 - 127038 fix limit_nodes function to include last day of month
 - 129776 add class to get nav bar to show up full-width in 4.7
