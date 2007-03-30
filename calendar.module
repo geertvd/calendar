@@ -1209,72 +1209,9 @@ function calendar_views_query_alter(&$query, &$view) {
     }
   }
 
-<<<<<<< calendar.module
   // Make sure the calendar query gets inserted. May not have finished yet on views like year or year/month.
   if (!$query->calendar_finished) {
   	calendar_build_filter(&$query, &$view);
-=======
-  foreach ($view->argument as $delta => $argument) {
-
-    // there might be non-calendar arguments in the view, so we must ignore those
-
-    if (in_array($argument['type'], array('calendar_year', 'calendar_month', 'calendar_day', 'calendar_week'))) {
-
-      // make sure 'display all values' is selected for the calendar arguments
-      // summary views are meaningless and create errors in this context
-      $view->argument[$delta]['argdefault'] = 2;
-
-      $view->real_url = calendar_get_url($view, $view->args);
-
-      if ($argument['type'] == 'calendar_year') {
-        $view->calendar_type = str_replace('calendar_', '', $argument['type']);
-        $view->year = _calendar_is_valid($view->args[$delta], 'year') ? $view->args[$delta] : calendar_user_date('year');
-        $query_min = $view->year;
-        $query_max = $view->year;
-        $view->subtitle = theme_calendar_nav_title('YEAR', $view);
-        // make sure we have at least a year available as an argument
-        if (!$view->args[$delta]) {
-          $view->args[$delta] = $view->year;
-        }
-        $view->delta['year'] = $delta;
-      }
-      if ($argument['type'] == 'calendar_month' && $view->args[$delta]) {
-        $view->calendar_type = str_replace('calendar_', '', $argument['type']);
-        $view->month = _calendar_is_valid($view->args[$delta], 'month') ? $view->args[$delta] : calendar_user_date('month');
-        $query_min .= '-'. sprintf('%02d', $view->month);
-        $query_max .= '-'. sprintf('%02d', $view->month);
-        $view->subtitle = theme_calendar_nav_title('MONTH', $view);
-        $view->delta['month'] = $delta;
-      }
-      if ($argument['type'] == 'calendar_day' && $view->args[$delta]) {
-        $view->calendar_type = str_replace('calendar_', '', $argument['type']);
-        $view->day = _calendar_is_valid($view->args[$delta], 'day') ? $view->args[$delta] : calendar_user_date('day');
-        $query_min .= '-'. sprintf('%02d', $view->day);
-        $query_max .= '-'. sprintf('%02d', $view->day);
-        $view->subtitle = theme_calendar_nav_title('DAY', $view);
-        $view->delta['week'] = $delta;
-
-      }
-      if ($argument['type'] == 'calendar_week' && $view->args[$delta]) {
-        $view->calendar_type = str_replace('calendar_', '', $argument['type']);
-        $view->week = _calendar_is_valid($view->args[$delta], 'week') ? $view->args[$delta] : 1;
-        $week  = $view->args[$delta];
-        $view->week = $week;
-        $query_min = calendar_week('start_year', $view, $week) .'-'. sprintf('%02d', calendar_week('start_month', $view, $week)) .'-'. calendar_week('start_day', $view, $week) .' 00:00:00';
-        $query_max = calendar_week('end_year', $view, $week) .'-'. sprintf('%02d', calendar_week('end_month', $view, $week)) .'-'. calendar_week('end_day', $view, $week) .' 23:59:59';
-        $view->subtitle = theme_calendar_nav_title('WEEK', $view);
-        $view->month = calendar_week('start_month', $view, $week);
-        $view->day = calendar_week('start_day', $view, $week);
-        $view->delta['day'] = $delta;
-      }
-    }
-  }
-
-  if (!isset($view->week)) $view->week  = calendar_week('week', $view);
-
-  if (!$query_min) {
-    return;
->>>>>>> 1.20.2.55
   }
 
   $view->calendar_type = $query->calendar_type;
@@ -1284,74 +1221,6 @@ function calendar_views_query_alter(&$query, &$view) {
   $view->week = $query->week;
 
 }
-
-<<<<<<< calendar.module
-=======
-  $query_timestamp_min = date_iso2unix($query_min);
-  $query_timestamp_max = date_iso2unix($query_max);
-
-  // find all datetime fields in this view and add filters for them to the query
-  $fields = calendar_fields();
-
-  foreach ($view->field as $delta => $field) {
-
-    $field_name = $field['field'];
-    $this_field = $fields[$field_name];
-    $view_fields[] = $field_name;
-    if (array_key_exists($field_name, $fields)) {
-
-      $query->ensure_table($this_field['table'], $this_field['table']);
-
-      $tz_handling  = $this_field['tz_handling'];
-      $offset_field = $this_field['offset_field'];
-      $field_type   = strstr($this_field['type'], 'string') ? 'iso' : 'int';
-
-      // get appropriate timezone offset
-      switch ($tz_handling) {
-      case 'user' :
-        global $user;
-        $start_offset = $end_offset = $user->timezone;
-        break;
-      case 'none':
-      case 'GMT':
-        $start_offset = $end_offset = 0;
-        break;
-      case 'date' :
-        $start_offset = $end_offset = $offset_field;
-        break;
-      case 'event' :
-        // event-specific timezones won't work right here because no offset is stored in the database
-        // the best we can do is treat it the same as if it was a site timezone
-      default :
-        $start_offset = $end_offset = variable_get('date_default_timezone', 0);
-        break;
-      }
-
-      // handling for from and to date ranges
-      if ($this_field['timestamp_fromto']) {
-        $queries[] = "(". date_sql('DATE', $this_field['timestamp_fromto'][1], $field_type, $end_offset) ." >='$query_min' AND ". date_sql('DATE', $this_field['timestamp_fromto'][0], $field_type, $start_offset) ." <='$query_max')";
-        $event_field_processed = TRUE;
-      }
-      elseif ($this_field['string_fromto']) {
-        $queries[] = "(". date_sql('DATE', $this_field['string_fromto'][1], $field_type, $end_offset) ." >='$query_min' AND ". date_sql('DATE', $this_field['string_fromto'][0], $field_type, $start_offset) ." <='$query_max')";
-        $event_field_processed = TRUE;
-      }
-      // handling for single day dates
-      elseif ($this_field['type'] == 'cck_string') {
-        $queries[] = "(". date_sql('DATE', $this_field['fullname'], $field_type, $start_offset) .">='$query_min' AND ". date_sql('DATE', $field['fullname'], $field_type, $end_offset) ."<='$query_max')";
-      }
-      elseif (strstr($this_field['type'], 'timestamp')) {
-        $queries[] = "(". date_sql('DATE', $this_field['fullname'], $field_type, $start_offset) .">='$query_min' AND ". date_sql('DATE', $this_field['fullname'], $field_type, $end_offset) ."<='$query_max')";
-      }
-    }
-  }
-  // bring the node type into the query so we can use it in the theme
-  $query->add_field('type', 'node');
-  if ($queries) $query->add_where(implode(" OR ", $queries));
-  return;
-
-}
->>>>>>> 1.20.2.55
 
 /**
  *  Implementation of hook_views_pre_view()
