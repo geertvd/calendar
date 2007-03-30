@@ -1211,7 +1211,7 @@ function calendar_views_query_alter(&$query, &$view) {
 
   // Make sure the calendar query gets inserted. May not have finished yet on views like year or year/month.
   if (!$query->calendar_finished) {
-  	calendar_build_filter($query, &$view);
+  	calendar_build_filter($query, $view);
   }
 
   $view->calendar_type = $query->calendar_type;
