@@ -23,14 +23,6 @@ function calendar_ical_menu($may_cache) {
   if (!$may_cache) {
     foreach (calendar_views('page') as $view_name) {
       $view = views_get_view($view_name);
-      $items[] = array('path' => $view->url . '/view',
-        'title' => t('View'),
-        'callback' => 'views_view_page',
-        'callback arguments' => $args,
-        'access' => user_access('access content'),
-        'weight' => -10,
-        'type' => MENU_DEFAULT_LOCAL_TASK,
-      );
       $items[] = array(
         'path'     => $view->url .'/ical',
         'title'    => t('iCal'),
@@ -58,6 +50,13 @@ function calendar_ical_load_date_ical() {
  */
 function calendar_ical_calendar_add_items($view) {
   return calendar_ical_add_feeds($view);
+}
+
+/**
+ *  Implementation of hook_calendar_add_types().
+ */
+function calendar_ical_calendar_add_types($view) {
+  return array('calendar_ical' => t('Calendar: iCal Feed'));
 }
 
 /**
@@ -234,7 +233,7 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
 function calendar_ical_views_style_plugins() {
   return array(
     'calendar_ical' => array(
-      'name' => t('Calendar: ical feed'),
+      'name' => t('Calendar: iCal Feed'),
       'theme' => 'calendar_ical_feed',
       'needs_table_header' => TRUE,
       'needs_fields' => TRUE,
@@ -262,7 +261,7 @@ function calendar_ical_views_arguments() {
  * handler for our own ical argument; mimics the feed selector
  */
 function views_handler_arg_ical($op, &$query, $argtype, $arg = '') {
-  switch($op) {
+	switch($op) {
     case 'summary':
     case 'sort':
     case 'link':
@@ -271,7 +270,7 @@ function views_handler_arg_ical($op, &$query, $argtype, $arg = '') {
     case 'filter':
       // This is a clone of the default selector, but it just invokes ours
       // rather than calling all of them.
-      calendar_ical_views_feed_argument('argument', $GLOBALS['current_view'], $arg);
+      calendar_ical_views_feed_argument('argument', $GLOBALS['current_view'], $arg, $argtype);
   }
 }
 
@@ -279,12 +278,15 @@ function views_handler_arg_ical($op, &$query, $argtype, $arg = '') {
  * post view for our own op -- mimics the feed selector
  */
 function calendar_ical_views_post_view($view, $items, $output) {
-  if ($view->page_type == 'calendar' ) {
-    foreach ($view->argument as $arg) {
-      if ($arg['id'] == 'calendar_ical') {
-        return calendar_ical_views_feed_argument('post_view', $view, 'ical');
-      }
+	foreach ($view->argument as $id => $argument) {
+    if ($argument['type'] == 'calendar_ical') {
+      $feed = $id;
+      break;
     }
+  }
+  if ($feed !== NULL) {
+  	$query = NULL;
+    return calendar_ical_views_feed_argument('post_view', $view, 'ical', $query);
   }
 }
 
@@ -293,9 +295,24 @@ function calendar_ical_views_post_view($view, $items, $output) {
  * the 4th argument isn't part of the hook, but we use it to differentiate
  * when called as a hook or when called manually from calendar_ical_views_post_view
  */
-function calendar_ical_views_feed_argument($op, &$view, $arg) {
-  if ($op == 'argument' && $arg == 'ical') {
+function calendar_ical_views_feed_argument($op, &$view, $arg, $argtype) {
+	if ($op == 'argument' && $arg == 'ical') {
     $view->page_type = 'calendar_ical';
+    // reset the 'real url' to the URL without the feed argument.
+    $view_args = array();
+    $max = count($view->args);
+    foreach ($view->args as $id => $view_arg) {
+      ++$count;
+      if ($view_arg == $arg && $view->argument[$id]['id'] == $argtype['id']) {
+        if ($count != $max) {
+          $view_args[] = $argtype['wildcard'];
+        }
+      }
+      else {
+        $view_args[] = $view_arg;
+      }
+    }
+    $view->feed_url = views_get_url($view, $view_args);
   }
   else if ($op == 'post_view') {
     $args = calendar_ical_post_view_make_args($view, $arg, 'ical');
@@ -358,9 +375,15 @@ function theme_calendar_ical_feed($view, $items, $type) {
   if ($type == 'block') {
     return;
   }
-
   $results = calendar_get_nodes($view, $items, $type);
   $nodes = $results['nodes'];
+  $params = $results['params'];
+  foreach ($nodes as $delta => $node) {
+    // switch our psuedo nids back to the right values
+    $tmp = explode(':', $node->nid);
+    $node->nid = $tmp[0];
+    $nodes[$delta] = $node;
+  }
   foreach (module_implements('calendar_add_items') as $module) {
     $function = $module .'_calendar_add_items';
     $nodes += $function($view);
@@ -386,10 +409,4 @@ function theme_calendar_ical_feed($view, $items, $type) {
   print date_ical_export($events, $description);
   module_invoke_all('exit');
   exit;
-}
-
-function calendar_ical_views_query_alter(&$query, &$view) {
-  if (in_array('ical', $view->args)) {
-    $view->page_type = 'calendar_ical';
-  }
 }
