@@ -354,3 +354,8 @@ table th.legend {
 .legend td {
   text-align:left;
   }
+
+.calendar-empty {
+  font-size:1px;
+  line-height:1px;
+  }

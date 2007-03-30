@@ -264,10 +264,10 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
                       'class' => 'week',
                       'data' => l(sprintf('%02d', $cur_week), $params['url'] .'/'. $year .'/W'. $cur_week, NULL, $params['append']),
                     ));
-                  $rows[] = array_merge($week_row, array_pad($row, 7, '&nbsp;'));
+                  $rows[] = array_merge($week_row, array_pad($row, 7, theme('calendar_empty_day')));
                 }
                 else {
-                  $rows[] = array_pad($row, 7, '&nbsp;');
+                  $rows[] = array_pad($row, 7, theme('calendar_empty_day'));
                 }
               }
 

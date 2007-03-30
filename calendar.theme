@@ -454,21 +454,8 @@ function theme_calendar_date_box($year, $month, $day, $view, $mini = FALSE, $sel
  * @param day
  *   The day to display.
  */
-function theme_calendar_empty_day($year, $month, $day, $view) {
-  switch ($view) {
-    case 'table':
-        $output = '<div class="day">'. t('%month / %day', array('%month' => $month, '%day' => $day)) .'</div>'."\n";
-        $output .= '<div class="calendar-empty"></div>'."\n";
-      break;
-    case 'day':
-    case 'list':
-     break;
-    default:
-        $output = '<div class="day">'. $day .'</div>'."\n";
-        $output .= '<div class="calendar-empty"></div>'."\n";
-      break;
-  }
-  return $output;
+function theme_calendar_empty_day() {
+  return '<div class="calendar-empty">&nbsp;</div>'."\n";
 }
 
 
