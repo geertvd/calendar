@@ -1130,12 +1130,12 @@ function calendar_views_query_alter(&$query, &$view) {
       if ($argument['type'] == 'calendar_year') {
         if (!$view->args[$delta]) $view->args[$delta] = calendar_user_date('year');
         $query->year = $view->args[$delta];
-        calendar_filter_year(&$query, $query->year);
+        calendar_filter_year($query, $query->year);
       }
       elseif (($argument['type'] == 'calendar_month' || $argument['type'] == 'calendar_week')) {
         if (!$view->args[$delta]) $view->args[$delta] = calendar_user_date('month');
         $query->month = $view->args[$delta];
-        calendar_filter_month(&$query, $query->month);
+        calendar_filter_month($query, $query->month);
       }
       elseif ($argument['type'] == 'calendar_day') {
       	$query->day = CALENDAR_EMPTY_ARG;
@@ -1158,11 +1158,11 @@ function calendar_views_query_alter(&$query, &$view) {
       foreach ($view->argument as $delta => $argument) {
         if ($argument['type'] == 'calendar_year' && !$view->args[$delta]) {
           $view->args[$delta] = calendar_user_date('year');
-          calendar_filter_year(&$query, calendar_user_date('year'));
+          calendar_filter_year($query, calendar_user_date('year'));
         }
         elseif ($argument['type'] == 'calendar_month' && !$view->args[$delta]) {
           $view->args[$delta] = calendar_user_date('month');
-          calendar_filter_month(&$query, calendar_user_date('month'));
+          calendar_filter_month($query, calendar_user_date('month'));
         }
         elseif ($argument['type'] == 'calendar_day' && !$view->args[$delta]) {
           $view->args[$delta] = CALENDAR_EMPTY_ARG;
@@ -1211,7 +1211,7 @@ function calendar_views_query_alter(&$query, &$view) {
 
   // Make sure the calendar query gets inserted. May not have finished yet on views like year or year/month.
   if (!$query->calendar_finished) {
-  	calendar_build_filter(&$query, &$view);
+  	calendar_build_filter($query, $view);
   }
 
   $view->calendar_type = $query->calendar_type;
