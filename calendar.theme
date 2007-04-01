@@ -51,31 +51,32 @@ function theme_calendar_calendar_node($node, $type) {
  * @return string formatted title
  */
 function theme_calendar_arg_title($field_type, $value, $query) {
+	$view = $GLOBALS['current_view'];
 	calendar_load_date_api();
 	$value = intval(check_plain($value));
 	if (empty($value)) {
-    if ($_SESSION['calendar_mon']) {
-    	$stamp = date_gmmktime(array('year' => $_SESSION['calendar_year'], 'mon' => $_SESSION['calendar_mon'], 'mday' => 1));
+    if ($view->mon) {
+    	$stamp = date_gmmktime(array('year' => $view->year, 'mon' => $view->mon, 'mday' => 1));
       return date_gmdate('F Y', $stamp);
     }
-    elseif ($_SESSION['calendar_year']) {
-     return $_SESSION['calendar_year'];
+    elseif ($view->year) {
+     return $view->year;
     }
 	}
 	else {
 		switch ($field_type) {
     case 'YEAR':
-      $_SESSION['calendar_year'] = $value;
-      return $_SESSION['calendar_year'];
+      $view->year = $value;
+      return $view->year;
     case 'MONTH':
-      $_SESSION['calendar_mon'] = $value;
-      $stamp = date_gmmktime(array('year' => $_SESSION['calendar_year'], 'mon' => $_SESSION['calendar_mon'], 'mday' => 1));
+      $view->mon = $value;
+      $stamp = date_gmmktime(array('year' => $view->year, 'mon' => $view->mon, 'mday' => 1));
       return date_gmdate('F Y', $stamp);
     case 'DAY':
-      $stamp = date_gmmktime(array('year' => $_SESSION['calendar_year'], 'mon' => $_SESSION['calendar_mon'], 'mday' => $value));
+      $stamp = date_gmmktime(array('year' => $view->year, 'mon' => $view->mon, 'mday' => $value));
       return date_gmdate('l, F j Y', $stamp);
     case 'WEEK':
-    	return t('Week @week @year', array('@year' => $_SESSION['calendar_year'], '@week' => $value));
+    	return t('Week @week @year', array('@year' => $view->year, '@week' => $value));
    }
 	}
 }
@@ -113,10 +114,11 @@ function theme_calendar_nav_title($field_type, $view) {
 /**
  * Format the calendar navigation
  */
-function theme_calendar_show_nav($view, $mini = FALSE) {
+function theme_calendar_show_nav($view, $mini = FALSE, $links = FALSE) {
+  calendar_load_calendar_api();
 
   // add links to the top of the calendar to switch from one view to another
-  if ($view->build_type == 'page') {
+  if ($links) {
     $view->real_url = calendar_get_url($view, $view->args);
     $base_url = $view->real_url .'/'. $view->year;
     $month    = $view->month ? $view->month : calendar_user_date('month');
@@ -454,8 +456,21 @@ function theme_calendar_date_box($year, $month, $day, $view, $mini = FALSE, $sel
  * @param day
  *   The day to display.
  */
-function theme_calendar_empty_day() {
-  return '<div class="calendar-empty">&nbsp;</div>'."\n";
+function theme_calendar_empty_day($year, $month, $day, $view) {
+  switch ($view) {
+    case 'table':
+        $output = '<div class="day">'. t('%month / %day', array('%month' => $month, '%day' => $day)) .'</div>'."\n";
+        $output .= '<div class="calendar-empty"></div>'."\n";
+      break;
+    case 'day':
+    case 'list':
+     break;
+    default:
+        $output = '<div class="day">'. $day .'</div>'."\n";
+        $output .= '<div class="calendar-empty"></div>'."\n";
+      break;
+  }
+  return $output;
 }
 
 

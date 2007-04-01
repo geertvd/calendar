@@ -151,7 +151,7 @@ function calendar_views_validate($type, $view, $form) {
 }
 
 /**
- *  Possible calendar views page display types.
+ *  Function to return all possible calendar views page display types.
  *  Implements hook_calendar_add_types($view) for other modules to add calendar types.
  */
 function calendar_view_types($reset = FALSE) {
@@ -167,11 +167,10 @@ function calendar_view_types($reset = FALSE) {
 }
 
 /**
- * All views that are of the type 'calendar';
- *
+ * Function to return all views that are of the type 'calendar'.
  */
 function calendar_views($build_type = 'page', $reset = FALSE) {
-  //static $calendar_views;
+  static $calendar_views;
   if ($reset || !isset($calendar_views[$build_type])) {
     $calendar_views = array();
     $result = db_query("SELECT vid FROM {view_view} ORDER BY name");
@@ -190,86 +189,142 @@ function calendar_views($build_type = 'page', $reset = FALSE) {
 }
 
 /**
+ *  Function to test whether this is a view that uses the calendar plugin theme.
+ */
+function calendar_is_calendar($view, $reset = FALSE) {
+  static $is_calendar;
+  if (empty($is_calendar)) {
+  	$is_calendar = array($view->name => array($view->build_type => ''));
+  }
+  if ($reset || empty($is_calendar[$view->name][$view->build_type])) {
+  	$is_calendar = FALSE;
+    if ($view->build_type == 'page' && !array_key_exists($view->page_type, calendar_view_types())) {
+    	$is_calendar[$view->name][$view->build_type] = FALSE;
+    }
+    elseif ($view->build_type == 'page' && calendar_has_calendar_args($view)) {
+    	$is_calendar[$view->name][$view->build_type] = TRUE;
+    }
+    if ($view->build_type == 'block' && !array_key_exists($view->block_type, calendar_view_types())) {
+    	$is_calendar[$view->name][$view->build_type] = FALSE;
+    }
+    elseif ($view->build_type == 'block' && calendar_has_calendar_args($view)) {
+    	$is_calendar[$view->name][$view->build_type] = TRUE;
+    }
+  }
+  return $is_calendar[$view->name][$view->build_type];
+}
+
+/**
+ * Function to test whether any calendar args are used in this view.
+ */
+function calendar_has_calendar_args($view, $reset = FALSE) {
+	static $has_args;
+	if ($reset || empty($has_args[$view->name])) {
+		foreach ($view->argument as $delta => $argument) {
+      if (in_array($argument['type'], array('calendar_year', 'calendar_month', 'calendar_day', 'calendar_week'))) {
+        $has_args[$view->name] = TRUE;
+      }
+    }
+  }
+  return $has_args;
+}
+
+/**
+ * Identify the final calendar argument in this view.
+ *   Needed because we can't construct a query until we know all the calendar elements.
+ *   Used to tell when to add the filter to the query object.
+ *
+ * @param object $view
+ * @return string $argtype
+ */
+function calendar_last_argtype($view, $reset = FALSE) {
+	static $argtype;
+	if (!isset($argtype)) $argtype = array();
+	if ($reset || !array_key_exists($view->name, $argtype)) {
+		foreach ($view->argument as $argument) {
+      if (in_array($argument['id'], array('calendar_year', 'calendar_month', 'calendar_week', 'calendar_day'))) {
+        $calendar_args[] = $argument['id'];
+      }
+    }
+    $argtype[$view->name] = array_pop($calendar_args);
+  }
+  return $argtype[$view->name];
+}
+
+/**
  *  Identify all potential date/timestamp fields
  *  @return an array with fieldname, type, and table
+ *  TODO add caching
  */
-function calendar_fields() {
-  // TODO add caching
-
-  // iterate through all the views fields
-  $delta = 0;
-  foreach (_views_get_fields() as $name => $val) {
-
-    $timestamp_fromto = array();
-    $string_fromto = array();
-    $type = '';
-
-    // for cck fields, get the date type
-    if ($val['content_field']['type'] == 'date' || $val['content_field']['type'] == 'datestamp') {
-      $type = $val['content_field']['type'] == 'date' ? 'cck_string' : 'cck_timestamp';
-    }
-
-    // all other fields that use the views date handler are timestamps
-    elseif ($val['handler'] == views_handler_field_dates()) {
-      $type = 'timestamp';
-    }
-
-    // don't do anything if this is not a date field
-    if ($type) {
-
-      // dates with from and to dates need to handle both fields as one
-      // add the from and to dates to the first one found and ignore the second
-
-      // Handling for event fromto dates
-      if (module_exists('event') && !$event_field_processed && ($name == 'event.event_start' || $name == 'event.event_end')) {
-        $timestamp_fromto = array('event.event_start', 'event.event_end');
-        $offset_field = 'event.timezone';
-        $tz_handling = variable_get('event_timezone_display', 'site');
-        $event_field_processed = TRUE;
+function calendar_fields($reset = FALSE) {
+	static $fields;
+	if ($reset || empty($fields)) {
+    // iterate through all the views fields
+    $delta = 0;
+    foreach (_views_get_fields() as $name => $val) {
+      $timestamp_fromto = array();
+      $string_fromto = array();
+      $type = '';
+      // for cck fields, get the date type
+      if ($val['content_field']['type'] == 'date' || $val['content_field']['type'] == 'datestamp') {
+        $type = $val['content_field']['type'] == 'date' ? 'cck_string' : 'cck_timestamp';
       }
-      elseif ($val['content_field']['tz_handling']) {
-        $tz_handling = $val['content_field']['tz_handling'];
-        if ($tz_handling == 'date') $offset_field = $val['table'] .'.'. $val['content_db_info']['columns']['offset']['column'];
+      // all other fields that use the views date handler are timestamps
+      elseif ($val['handler'] == views_handler_field_dates()) {
+        $type = 'timestamp';
       }
-      else {
-        $tz_handling = 'site';
-      }
-
-      // Handling for cck fromto dates
-      if (!$event_field_processed && $val['content_field']['todate']) {
-        switch ($val['content_field']['type']) {
-        case 'datestamp':
-          $timestamp_fromto = array($val['table'] .'.'. $val['content_field']['field_name'] .'_value', $val['table'] .'.'. $val['content_field']['field_name'] .'_value2');
-          break;
-        case 'date':
-          $string_fromto = array($val['table'] .'.'. $val['content_field']['field_name'] .'_value', $val['table'] .'.'. $val['content_field']['field_name'] .'_value2');
-          break;
+      // don't do anything if this is not a date field
+      if ($type) {
+        // dates with from and to dates need to handle both fields as one
+        // add the from and to dates to the first one found and ignore the second
+        // Handling for event fromto dates
+        if (module_exists('event') && !$event_field_processed && ($name == 'event.event_start' || $name == 'event.event_end')) {
+          $timestamp_fromto = array('event.event_start', 'event.event_end');
+          $offset_field = 'event.timezone';
+          $tz_handling = variable_get('event_timezone_display', 'site');
+          $event_field_processed = TRUE;
         }
-        $event_field_processed == TRUE;
-      }
-
-      // skip this step on second occurance of fromto date fields, if more than one exists in view
-      if (!$event_field_processed || $timestamp_fromto || $string_fromto) {
-
-        // cck fields append a column name to the field, others do not
-        // need a real field_name with no column name appended for cck date formatters
-        $tmp = explode('.', $name);
-        $field_name = $val['content_field']['field_name'] ? $val['content_field']['field_name'] : $tmp[1];
-        $fields[$tmp[1]] = array(
-          'type' => $type,
-          'delta' => $delta,
-          'label' => $val['name'],
-          'granularity' => is_array($val['content_field']['granularity']) ? (array) array_keys($val['content_field']['granularity']) : array('Y', 'M', 'D', 'H', 'N'),
-          'fullname' => $name,
-          'table' => $tmp[0],
-          'field' => $tmp[1],
-          'field_name' => $field_name,
-          'query_name' => str_replace('.', '_', $name),
-          'timestamp_fromto' => $timestamp_fromto,
-          'string_fromto' => $string_fromto,
-          'tz_handling' => $tz_handling,
-          'offset_field' => $offset_field,
-        );
+        elseif ($val['content_field']['tz_handling']) {
+          $tz_handling = $val['content_field']['tz_handling'];
+          if ($tz_handling == 'date') $offset_field = $val['table'] .'.'. $val['content_db_info']['columns']['offset']['column'];
+        }
+        else {
+          $tz_handling = 'site';
+        }
+        // Handling for cck fromto dates
+        if (!$event_field_processed && $val['content_field']['todate']) {
+          switch ($val['content_field']['type']) {
+          case 'datestamp':
+            $timestamp_fromto = array($val['table'] .'.'. $val['content_field']['field_name'] .'_value', $val['table'] .'.'. $val['content_field']['field_name'] .'_value2');
+            break;
+          case 'date':
+            $string_fromto = array($val['table'] .'.'. $val['content_field']['field_name'] .'_value', $val['table'] .'.'. $val['content_field']['field_name'] .'_value2');
+            break;
+          }
+          $event_field_processed == TRUE;
+        }
+        // skip this step on second occurance of fromto date fields, if more than one exists in view
+        if (!$event_field_processed || $timestamp_fromto || $string_fromto) {
+          // cck fields append a column name to the field, others do not
+          // need a real field_name with no column name appended for cck date formatters
+          $tmp = explode('.', $name);
+          $field_name = $val['content_field']['field_name'] ? $val['content_field']['field_name'] : $tmp[1];
+          $fields[$tmp[1]] = array(
+            'type' => $type,
+            'delta' => $delta,
+            'label' => $val['name'],
+            'granularity' => is_array($val['content_field']['granularity']) ? (array) array_keys($val['content_field']['granularity']) : array('Y', 'M', 'D', 'H', 'N'),
+            'fullname' => $name,
+            'table' => $tmp[0],
+            'field' => $tmp[1],
+            'field_name' => $field_name,
+            'query_name' => str_replace('.', '_', $name),
+            'timestamp_fromto' => $timestamp_fromto,
+            'string_fromto' => $string_fromto,
+            'tz_handling' => $tz_handling,
+            'offset_field' => $offset_field,
+          );
+        }
       }
     }
   }
@@ -281,20 +336,6 @@ function calendar_fields() {
  *  Calendar Views plugin theme, overrides default views theme
  */
 function theme_calendar_display(&$view, &$items, $type) {
-  switch ($view->calendar_type) {
-  	case 'year':
-      $view->subtitle = theme_calendar_nav_title('YEAR', $view);
-  		break;
-    case 'month':
-      $view->subtitle = theme_calendar_nav_title('MONTH', $view);
-  		break;
-    case 'day':
-      $view->subtitle = theme_calendar_nav_title('DAY', $view);
-      break;
-    case 'week':
-      $view->subtitle = theme_calendar_nav_title('WEEK', $view);
-    	break;
-  }
 
   // Bail out here to display regular views views instead of calendar.
   //  Controlled by 'view' parameter in url.
@@ -313,7 +354,6 @@ function theme_calendar_display(&$view, &$items, $type) {
   }
   if ($type == 'block') {
     $view->calendar_type = 'month';
-
   }
   $results = calendar_get_nodes($view, $items, $type);
   $nodes = (array) $results['nodes'];
@@ -323,7 +363,8 @@ function theme_calendar_display(&$view, &$items, $type) {
     $nodes += $function($view);
   }
   $mini = $view->calendar_type == 'year' || $view->build_type == 'block' ? TRUE : FALSE;
-  return theme('calendar_show_nav', $view, $mini) . calendar_get_calendar($view->calendar_type, $nodes, 'calendar', '', $params);
+  $links = $view->build_type == 'block' ? FALSE : TRUE;
+  return theme('calendar_show_nav', $view, $mini, $links) . calendar_get_calendar($view->calendar_type, $nodes, 'calendar', '', $params);
 }
 
 /**
@@ -350,9 +391,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
   // explode out field and format info from the view
   foreach ($view->field as $delta => $data) {
     if (in_array($data['field'], $calendar_fields)) {
-
-      $option = $fields[$data['field']];
-
+      $option           = $fields[$data['field']];
       $field_type       = strstr($option['type'], 'string') ? 'string' : 'timestamp';
       $field_function   = strstr($option['type'], 'cck') ? 'content_format' : $data['handler'];
       $field_formatter  = $data['options'];
@@ -370,7 +409,6 @@ function calendar_get_nodes(&$view, &$items, $type) {
 
       // iterate through the $items array returned by the query and create date or pseudo date nodes
       foreach ($items as $delta => $item) {
-
         // we have to serialize and unserialize to force a completely new copy of $item when duplicate fields use the same node
         // without doing this, values added to the item in later iterations get applied to earlier ones
         $node = unserialize(serialize($item));
@@ -384,7 +422,6 @@ function calendar_get_nodes(&$view, &$items, $type) {
             }
           }
         }
-
         // If we're dealing with an event node, join the start and to dates together in one node and get rid of the other
         if (module_exists('event') && ($field_field == 'event_event_start' || $field_field == 'event_event_end') && !$event_field_processed[$item->nid]) {
           if ($node->event_event_start > 0) {
@@ -398,16 +435,12 @@ function calendar_get_nodes(&$view, &$items, $type) {
           // don't process it more than once
           unset($node);
         }
-
         if (isset($node) && !isset($node->calendar_start) && !isset($item->$field_field)) {
           // if no date for the node and no date in the item
           // there is no way to display it on the calendar
           unset($node);
-
         }
-
         if (isset($node) && !$node->calendar_start && $item->$field_field) {
-
           // if calendar_start field holds a numeric value, treat it as a unix timestamp
           // if string, convert to timestamp
           if ($field_type == 'timestamp') {
@@ -420,7 +453,6 @@ function calendar_get_nodes(&$view, &$items, $type) {
           }
         }
         if (isset($node)) {
-
           // get appropriate timezone offset
           switch ($tz_handling) {
           case 'user' :
@@ -444,9 +476,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
             break;
           }
         }
-
         if (isset($node) && function_exists($field_function) && $node->calendar_start && $item->$field_field) {
-
           if ($field_function == 'content_format') {
             // force the original value for this field into the array that content_format expects
             $node->start_format = content_format($field_field_name, array('value' => $item->$field_field, 'value2' => $item->$field_field), $field_formatter);
@@ -470,7 +500,6 @@ function calendar_get_nodes(&$view, &$items, $type) {
             $node->end_time_format = $node->end_format;
           }
           if ($node) {
-
             // we can have multiple representations with the same nid, like multi-day values
             // or different fields that refer to the same node
             // create a unique id so it gets displayed in the calendar
@@ -497,25 +526,21 @@ function calendar_get_nodes(&$view, &$items, $type) {
   // set the hour to 12 to minimize timezone adjustments that might push it to previous or next day
 
   if ($view->calendar_type == 'year') {
-
     // for the year view to work, must have at least one node in each month
     for ($i=1; $i<13; $i++) {
       $nodes[] = _calendar_make_node(NULL, NULL, _views_get_timezone(), $view->year, $i, 1, 12, 0);
     }
   }
   elseif ($view->calendar_type == 'week') {
-
     // make sure at least one node is created for the current week
     // add both start and end of week in case week crosses from one month to next
     $week_range = calendar_week_range($view->year, $view->week);
     $nodes[]    = _calendar_make_node(NULL, NULL, _views_get_timezone(), date_gmdate('Y', $week_range[0]), date_gmdate('m', $week_range[0]), date_gmdate('j', $week_range[0]), 12, 0);
     $nodes[]    = _calendar_make_node(NULL, NULL, _views_get_timezone(), date_gmdate('Y', $week_range[1]), date_gmdate('m', $week_range[1]), date_gmdate('j', $week_range[1]), 12, 0);
-
   }
   elseif (sizeof($nodes) == 0) {
     // otherwise add a blank node for the current day
     $nodes = array(_calendar_make_node(NULL, NULL, _views_get_timezone(), $view->year, $view->month, $view->day, 12, 0));
-
   }
 
   if (_calendar_is_valid($view->year, 'year')) {
@@ -537,9 +562,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
     if ($view->calendar_type == 'week' && $view->week) {
       $params['force_week'] = $view->week;
     }
-
   }
-
   // use calendar_get_calendar api to draw the calendar
   $params['url'] = calendar_get_url($view, $view->args);
   $params['append'] = calendar_url_append($view);
@@ -562,13 +585,8 @@ function calendar_nav($view, $mini = FALSE) {
     $range = calendar_week_range($view->year, $view->week + 1);
     $cur_stamp = $range[0];
   } else {
-    $cur_stamp = date_gmmktime(array(
-      'mon' => $view->month ? $view->month : 1,
-      'mday' => $view->day ? $view->day : 1,
-      'year' => $view->year ? $view->year : date_gmdate("Y", (date_time())),
-      ));
+    $cur_stamp = date_gmmktime(array('mon' => $view->month ? $view->month : 1, 'mday' => $view->day ? $view->day : 1, 'year' => $view->year ? $view->year : date_gmdate("Y", (date_time()))));
   }
-
   // make the navigation into a header, with prev and next links
   // use the calendar_nav themes to mimic standard calendar navigation
   $paths = calendar_get_paths($cur_stamp, $view);
@@ -581,7 +599,6 @@ function calendar_nav($view, $mini = FALSE) {
     $prev_query[] = 'view='. $_GET['view'];
     $next_query[] = 'view='. $_GET['view'];
   }
-
   // for the mini calendar in a block, treat the url as a querystring to avoid actually changing the page
   if ($mini && $view->calendar_type == 'month') {
     $prev_query[] = 'mini='. $prev_path;
@@ -661,16 +678,8 @@ function calendar_get_paths($cur_stamp, $view) {
         $next_year = $month < 12 ? $year : $year + 1;
         $prev_year = $month > 1 ? $year : $year - 1;
         if (!$next_stamp) {
-          $next_stamp = date_gmmktime(array(
-            'mon' => $month < 12 ? $month + 1 : 1,
-            'mday' => 1,
-            'year' => $next_year,
-            ));
-          $prev_stamp = date_gmmktime(array(
-            'mon' => $month > 1  ? $month - 1 : 12,
-            'mday' => 1,
-            'year' => $prev_year,
-            ));
+          $next_stamp = date_gmmktime(array('mon' => $month < 12 ? $month + 1 : 1, 'mday' => 1, 'year' => $next_year));
+          $prev_stamp = date_gmmktime(array('mon' => $month > 1  ? $month - 1 : 12, 'mday' => 1, 'year' => $prev_year));
         }
         $nextpath[$x] = date_gmdate('n', $next_stamp);
         $prevpath[$x] = date_gmdate('n', $prev_stamp);
@@ -678,16 +687,8 @@ function calendar_get_paths($cur_stamp, $view) {
       case ('year'):
         $year = $view->year;
         if (!$next_stamp) {
-          $next_stamp = date_gmmktime(array(
-            'mon' => 1,
-            'mday' => 1,
-            'year' => $next_year ? $next_year : $year + 1,
-            ));
-          $prev_stamp = date_gmmktime(array(
-            'mon' => 12,
-            'mday' => 1,
-            'year' => $prev_year ? $prev_year : $year - 1,
-            ));
+          $next_stamp = date_gmmktime(array('mon' => 1, 'mday' => 1, 'year' => $next_year ? $next_year : $year + 1));
+          $prev_stamp = date_gmmktime(array('mon' => 12, 'mday' => 1, 'year' => $prev_year ? $prev_year : $year - 1));
         }
         $nextpath[$x] = date_gmdate('Y', $next_stamp);
         $prevpath[$x] = date_gmdate('Y', $prev_stamp);
@@ -723,13 +724,7 @@ function _calendar_make_node($node = NULL, $timestamp = NULL, $offset = NULL, $y
     $hour   = _calendar_is_valid($hour, 'hour')     ? $hour   : date_gmdate('H', date_time());
     $minute = _calendar_is_valid($minute, 'minute') ? $minute : date_gmdate('i', date_time());
     while (!checkdate($month, $day, $year)) $day--; // Account for days that don't exist
-    $timestamp = date_gmmktime(array(
-      'hours' => $hour,
-      'minutes' => $minute,
-      'mon' => $month,
-      'mday' => $day,
-      'year' => $year,
-      ));
+    $timestamp = date_gmmktime(array('hours' => $hour, 'minutes' => $minute, 'mon' => $month, 'mday' => $day, 'year' => $year));
   }
 
   if (!$node) {
@@ -758,59 +753,23 @@ function _calendar_limit_nodes($nodes, $type, $year, $month, $day, $week, $offse
 
   switch ($type) {
   case ('day'):
-    $min_date = date_gmmktime(array(
-      'mon' => $month,
-      'mday' => $day,
-      'year' => $year,
-      ));
+    $min_date = date_gmmktime(array('mon' => $month, 'mday' => $day, 'year' => $year));
     $max_date = $min_date + 86400 - 1;
     break;
   case ('week'):
     return calendar_week_range($year, $week);
   case ('month');
-    $min_date = date_gmmktime(array(
-      'mon' => $month,
-      'mday' => 1,
-      'year' => $year,
-      ));
+    $min_date = date_gmmktime(array('mon' => $month, 'mday' => 1, 'year' => $year));
     // find the first day of the next month and subtract one day
     if (intval($month) < 12) {
-      $max_date = date_gmmktime(array(
-        'mon' => intval($month + 1),
-        'day' => 1,
-        'year' => $year,
-        'hours' => 23,
-        'minutes' => 59,
-        'seconds' => 59,
-        ));
+      $max_date = date_gmmktime(array('mon' => intval($month + 1), 'day' => 1, 'year' => $year, 'hours' => 23, 'minutes' => 59, 'seconds' => 59));
     } else {
-      $max_date = date_gmmktime(array(
-        'mon' => 1,
-        'mday' => 1,
-        'year' => intval($year + 1),
-        'hours' => 23,
-        'minutes' => 59,
-        'seconds' => 59,
-        ));
+      $max_date = date_gmmktime(array('mon' => 1, 'mday' => 1, 'year' => intval($year + 1), 'hours' => 23, 'minutes' => 59, 'seconds' => 59));
     }
     break;
   case ('year'):
-    $min_date = date_gmmktime(array(
-      'hours' => 0,
-      'minutes' => 0,
-      'seconds' => 0,
-      'mon' => 1,
-      'mday' => 1,
-      'year' => $year,
-      ));
-    $max_date = date_gmmktime(array(
-      'hours' => 23,
-      'minutes' => 59,
-      'seconds' => 59,
-      'mon' => 12,
-      'mday' => 31,
-      'year' => $year,
-      ));
+    $min_date = date_gmmktime(array('hours' => 0, 'minutes' => 0, 'seconds' => 0, 'mon' => 1, 'mday' => 1, 'year' => $year));
+    $max_date = date_gmmktime(array('hours' => 23, 'minutes' => 59, 'seconds' => 59, 'mon' => 12, 'mday' => 31, 'year' => $year));
   }
   return array($min_date, $max_date);
 }
@@ -821,7 +780,6 @@ function _calendar_limit_nodes($nodes, $type, $year, $month, $day, $week, $offse
 function calendar_offset($field_name) {
   $default_offset = variable_get('date_default_timezone', 0);
   $configurable_zones = variable_get('configurable_timezones', 1);
-
 }
 
 /**
@@ -872,7 +830,7 @@ function calendar_handler_arg_year($op, &$query, $argtype, $arg = '') {
  */
 function calendar_filter_year(&$query, $arg) {
 	calendar_load_calendar_api();
-  $query->calendar_type = 'year';
+	$query->calendar_type = 'year';
   $query->year = _calendar_is_valid($arg, 'year') ? $arg : calendar_user_date('year');
   $query->month = CALENDAR_EMPTY_ARG;
   $query->day = CALENDAR_EMPTY_ARG;
@@ -900,6 +858,9 @@ function calendar_handler_arg_month($op, &$query, $argtype, $arg = '') {
 function calendar_filter_month(&$query, $arg) {
   calendar_load_calendar_api();
   $query->calendar_type = 'month';
+  if (!isset($query->year)) {
+  	calendar_filter_year($query, calendar_user_date('year'));
+  }
   $query->month = _calendar_is_valid($arg, 'month') ? $arg : calendar_user_date('month');
   $query->day = CALENDAR_EMPTY_ARG;
   $query->min .= '-'. sprintf('%02d', $query->month);
@@ -925,7 +886,10 @@ function calendar_handler_arg_day($op, &$query, $argtype, $arg = '') {
  */
 function calendar_filter_day(&$query, $arg) {
   calendar_load_calendar_api();
-	$query->calendar_type = 'day';
+  if (!isset($query->month)) {
+  	calendar_filter_month($query, calendar_user_date('month'));
+  }
+  $query->calendar_type = 'day';
   $query->day = _calendar_is_valid($arg, 'day') ? $arg : calendar_user_date('day');
   $query->min .= '-'. sprintf('%02d', $query->day);
   $query->max .= '-'. sprintf('%02d', $query->day);
@@ -950,7 +914,10 @@ function calendar_handler_arg_week($op, &$query, $argtype, $arg = '') {
  */
 function calendar_filter_week(&$query, $arg) {
 	calendar_load_calendar_api();
-	$arg = str_replace('W', '', $arg);
+	if (!isset($query->year)) {
+  	calendar_filter_year($query, calendar_user_date('year'));
+  }
+  $arg = str_replace('W', '', $arg);
 	$query->calendar_type = 'week';
   $query->week = _calendar_is_valid($arg, 'week') ? $arg : calendar_user_date('week');
   $query->month = calendar_week('start_month', $query, $query->week);
@@ -963,11 +930,18 @@ function calendar_filter_week(&$query, $arg) {
  *  Custom views handler for all calendar arguments.
  */
 function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_type) {
-  calendar_load_date_api();
-  $view = $GLOBALS['current_view'];
+	calendar_load_date_api();
   switch ($op) {
+  	case 'summary':
+  	case 'link':
+  		// The query to do summaries when date rangess can include multiple days, months, and years
+  		// is extremely complex and has been omitted, so summary views with these arguments just will not work.
+  		// TODO add some kind of validation or warning to keep people from trying to use summary views.
+  		break;
+
   	case 'filter':
   		// Figure out which will be the final calendar argument in this view so we know when to insert the query.
+      $view = $GLOBALS['current_view'];
       if ($argtype['type'] == calendar_last_argtype($view)) {
   			$query->calendar_finished = TRUE;
       	calendar_build_filter($query, $view);
@@ -977,29 +951,9 @@ function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_type) {
     case 'title':
     	// Set titles for each argument.
       $value = intval(str_replace('W', '', $arg ? $arg : $query));
-    	return theme('calendar_arg_title', $field_type, $value, $query);
+      return theme('calendar_arg_title', $field_type, $value, $query);
   }
   return;
-}
-
-/**
- * Identify the final calendar argument in this view.
- *
- * @param object $view
- * @return string $argtype
- */
-function calendar_last_argtype($view) {
-	static $argtype;
-	if (!isset($argtype)) $argtype = array();
-	if (!array_key_exists($view->name, $argtype)) {
-		foreach ($view->argument as $argument) {
-      if (in_array($argument['id'], array('calendar_year', 'calendar_month', 'calendar_week', 'calendar_day'))) {
-        $calendar_args[] = $argument['id'];
-      }
-    }
-    $argtype[$view->name] = array_pop($calendar_args);
-  }
-  return $argtype[$view->name];
 }
 
 /**
@@ -1110,13 +1064,11 @@ function calendar_build_field_query(&$query, $field) {
  *  @param object $view
  */
 function calendar_views_query_alter(&$query, &$view) {
-  if (!calendar_is_calendar($view)) return;
 
+	if (!calendar_has_calendar_args($view)) {
+  		return;
+  }
   $view->real_url = calendar_get_url($view, $view->args);
-
-  unset($_SESSION['calendar_year']);
-  unset($_SESSION['calendar_mon']);
-
   calendar_load_calendar_api();
   calendar_load_date_api();
 
@@ -1226,11 +1178,35 @@ function calendar_views_query_alter(&$query, &$view) {
  *  Implementation of hook_views_pre_view()
  */
 function calendar_views_pre_view(&$view, &$items) {
-  if (!calendar_is_calendar($view)) return;
-  // add this so empty calendar results will produce blank calendar page
-  // needed for smooth prev/next transitions and to make sure at least
-  // a blank calendar is displayed in calendar block
+	// If no part of this view has calendar elements, exit.
+	if (!calendar_is_calendar($view) && !calendar_has_calendar_args($view)) {
+		return;
+	}
 
+	// Construct a formatted title for the view from the last calendar argument encountered.
+  switch ($view->calendar_type) {
+    case 'year':
+      $view->subtitle = theme_calendar_nav_title('YEAR', $view);
+  		break;
+    case 'month':
+      $view->subtitle = theme_calendar_nav_title('MONTH', $view);
+  	 break;
+    case 'day':
+      $view->subtitle = theme_calendar_nav_title('DAY', $view);
+      break;
+    case 'week':
+      $view->subtitle = theme_calendar_nav_title('WEEK', $view);
+     break;
+  }
+
+  // If this is a view with calendar arguments but not a calendar view,
+  // add navigation to the top of the view and return.
+  if (!calendar_is_calendar($view) && calendar_has_calendar_args($view)) {
+    return theme('calendar_show_nav', $view,  $view->build_type == 'block', calendar_is_calendar($view));
+  }
+
+  // If this is a calendar plugin theme view, make sure empty results
+  // will produce blank calendar page
   if (array_key_exists($view->page_type, calendar_view_types())) {
     if (!$items && $view->build_type == 'page' && $view->year) {
       $view->page_empty = $view->page_header . $view->page_empty . theme('calendar_display', $view, array(), 'page');
@@ -1361,27 +1337,6 @@ function _calendar_is_valid($value, $type) {
   return true;
 }
 
-/**
- *  Function to test whether this is a view that the calendar module should touch
- */
-function calendar_is_calendar($view) {
-
-  $is_calendar = FALSE;
-  if ($view->build_type == 'page' && !array_key_exists($view->page_type, calendar_view_types())) {
-    return FALSE;
-  }
-  if ($view->build_type == 'block' && !array_key_exists($view->block_type, calendar_view_types())) {
-    return FALSE;
-  }
-
-  foreach ($view->argument as $delta => $argument) {
-    if (in_array($argument['type'], array('calendar_year', 'calendar_month', 'calendar_day', 'calendar_week'))) {
-      return TRUE;
-    }
-  }
-  return FALSE;
-}
-
 function calendar_views_default_views() {
 $view = new stdClass();
   $view->name = t('calendar');
@@ -1501,7 +1456,6 @@ function calendar_block($op = 'list', $delta = 0) {
         return $block;
       }
   }
-
 }
 
 /**
