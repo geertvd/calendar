@@ -1527,8 +1527,9 @@ function calendar_calendar_node($node, $type) {
 function calendar_get_url($view, $args) {
   static $cal_args;
   // Figure out which arguments are calendar arguments.
+  if (!is_array($cal_args)) $cal_args = array();
   if (empty($cal_args[$view->name])) {
-    foreach ($view->argument as $delta => $arg) {
+  	foreach ($view->argument as $delta => $arg) {
       if (in_array($arg['type'], array('calendar_year', 'calendar_week', 'calendar_month', 'calendar_day', 'calendar_ical'))) {
         $cal_args[$view->name][] = $delta;
       }
