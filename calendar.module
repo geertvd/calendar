@@ -358,6 +358,8 @@ function theme_calendar_display(&$view, &$items, $type) {
   $results = calendar_get_nodes($view, $items, $type);
   $nodes = (array) $results['nodes'];
   $params = (array) $results['params'];
+  // Weeks still aren't working right in all situations, turning them off for now.
+  $params[with_weekno] = FALSE;
   foreach (module_implements('calendar_add_items') as $module) {
     $function = $module .'_calendar_add_items';
     $nodes += $function($view);

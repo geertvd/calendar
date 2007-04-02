@@ -134,7 +134,8 @@ function theme_calendar_show_nav($view, $mini = FALSE, $links = FALSE) {
     $calendar_links[] = array('title' => t('Month'), 'href' => $view->real_url .'/'. $view->year .'/'. $month , 'query' => $append);
     // Week calculation is not supported for historical dates.
     if ($view->year > 1970) {
-      $calendar_links[] = array('title' => t('Week'), 'href' => $view->real_url .'/'. $view->year .'/W'. $week, 'query' => $append);
+    	// Hiding week view for now since it isn't working right.
+      //$calendar_links[] = array('title' => t('Week'), 'href' => $view->real_url .'/'. $view->year .'/W'. $week, 'query' => $append);
     }
     $calendar_links[] = array('title' => t('Day'), 'href' => $view->real_url .'/'. $view->year .'/'. $month .'/'. $day, 'query' => $append);
     $output  .= theme('calendar_links', $calendar_links, 'month');
