@@ -134,7 +134,8 @@ function theme_calendar_show_nav($view, $mini = FALSE, $links = FALSE) {
     $calendar_links[] = array('title' => t('Month'), 'href' => $view->real_url .'/'. $view->year .'/'. $month , 'query' => $append);
     // Week calculation is not supported for historical dates.
     if ($view->year > 1970) {
-      $calendar_links[] = array('title' => t('Week'), 'href' => $view->real_url .'/'. $view->year .'/W'. $week, 'query' => $append);
+    	// Hiding week view for now since it isn't working right.
+      //$calendar_links[] = array('title' => t('Week'), 'href' => $view->real_url .'/'. $view->year .'/W'. $week, 'query' => $append);
     }
     $calendar_links[] = array('title' => t('Day'), 'href' => $view->real_url .'/'. $view->year .'/'. $month .'/'. $day, 'query' => $append);
     $output  .= theme('calendar_links', $calendar_links, 'month');
@@ -456,21 +457,8 @@ function theme_calendar_date_box($year, $month, $day, $view, $mini = FALSE, $sel
  * @param day
  *   The day to display.
  */
-function theme_calendar_empty_day($year, $month, $day, $view) {
-  switch ($view) {
-    case 'table':
-        $output = '<div class="day">'. t('%month / %day', array('%month' => $month, '%day' => $day)) .'</div>'."\n";
-        $output .= '<div class="calendar-empty"></div>'."\n";
-      break;
-    case 'day':
-    case 'list':
-     break;
-    default:
-        $output = '<div class="day">'. $day .'</div>'."\n";
-        $output .= '<div class="calendar-empty"></div>'."\n";
-      break;
-  }
-  return $output;
+function theme_calendar_empty_day() {
+  return '<div class="calendar-empty">&nbsp;</div>'."\n";
 }
 
 
