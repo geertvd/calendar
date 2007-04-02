@@ -171,7 +171,10 @@ function calendar_view_types($reset = FALSE) {
  */
 function calendar_views($build_type = 'page', $reset = FALSE) {
   static $calendar_views;
-  if ($reset || !isset($calendar_views[$build_type])) {
+  if (empty($calendar_views)) {
+  	$calendar_views = array($build_type => '');
+  }
+  if ($reset || empty($calendar_views[$build_type])) {
     $calendar_views = array();
     $result = db_query("SELECT vid FROM {view_view} ORDER BY name");
     while ($row = db_fetch_array($result)) {
@@ -194,7 +197,7 @@ function calendar_views($build_type = 'page', $reset = FALSE) {
 function calendar_is_calendar($view, $reset = FALSE) {
   static $is_calendar;
   if (empty($is_calendar)) {
-  	$is_calendar = array($view->name => array($view->build_type => ''));
+  	$is_calendar = array($view->name => array($view->build_type => FALSE));
   }
   if ($reset || empty($is_calendar[$view->name][$view->build_type])) {
   	$is_calendar = FALSE;
@@ -219,6 +222,9 @@ function calendar_is_calendar($view, $reset = FALSE) {
  */
 function calendar_has_calendar_args($view, $reset = FALSE) {
 	static $has_args;
+	if (empty($has_args)) {
+		$has_args = array($view->name => FALSE);
+	}
 	if ($reset || empty($has_args[$view->name])) {
 		foreach ($view->argument as $delta => $argument) {
       if (in_array($argument['type'], array('calendar_year', 'calendar_month', 'calendar_day', 'calendar_week'))) {
@@ -239,8 +245,11 @@ function calendar_has_calendar_args($view, $reset = FALSE) {
  */
 function calendar_last_argtype($view, $reset = FALSE) {
 	static $argtype;
-	if (!isset($argtype)) $argtype = array();
-	if ($reset || !array_key_exists($view->name, $argtype)) {
+	if (empty($argtype)) {
+		$argtype = array($view->name => '');
+	}
+	if ($reset || empty($argtype[$view->name])) {
+		$calendar_args[] = array();
 		foreach ($view->argument as $argument) {
       if (in_array($argument['id'], array('calendar_year', 'calendar_month', 'calendar_week', 'calendar_day'))) {
         $calendar_args[] = $argument['id'];
@@ -337,23 +346,31 @@ function calendar_fields($reset = FALSE) {
  */
 function theme_calendar_display(&$view, &$items, $type) {
 
-  // Bail out here to display regular views views instead of calendar.
-  //  Controlled by 'view' parameter in url.
-  if ($view->build_type == 'page') {
-    switch($_GET['view']) {
-      case ('table') :
-        $view->table_header = _views_construct_header($view, _views_get_fields());
-        return theme('calendar_show_nav', $view) . theme('views_view_table', $view, $items, $type);
-      case ('teasers') :
-        return theme('calendar_show_nav', $view) . theme('views_view_teasers', $view, $items, $type);
-      case ('nodes') :
-        return theme('calendar_show_nav', $view) . theme('views_view_nodes', $view, $items, $type);
-      case ('list') :
-        return theme('calendar_show_nav', $view) . theme('views_view_list', $view, $items, $type);
-    }
-  }
   if ($type == 'block') {
     $view->calendar_type = 'month';
+  }
+  $mini = $view->calendar_type == 'year' || $view->build_type == 'block' ? TRUE : FALSE;
+  $links = $view->build_type == 'block' ? FALSE : TRUE;
+
+  // Bail out here to display regular views views instead of calendar.
+  // Check first for 'view' in url, then for 'calendar_display_format' variable, default to normal calendar display.
+  if ($_GET['view'] && $view->build_type == 'page') {
+  	$display = check_plain($_GET['view']);
+  }
+  else {
+  	$display_formats = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar'));
+  	$display = $display_formats[$view->calendar_type];
+  }
+  switch($display) {
+    case ('table') :
+      $view->table_header = _views_construct_header($view, _views_get_fields());
+      return theme('calendar_show_nav', $view, $mini, $links) . theme('views_view_table', $view, $items, $type);
+    case ('teasers') :
+      return theme('calendar_show_nav', $view, $mini, $links) . theme('views_view_teasers', $view, $items, $type);
+    case ('nodes') :
+      return theme('calendar_show_nav', $view, $mini, $links) . theme('views_view_nodes', $view, $items, $type);
+    case ('list') :
+      return theme('calendar_show_nav', $view, $mini, $links) . theme('views_view_list', $view, $items, $type);
   }
   $results = calendar_get_nodes($view, $items, $type);
   $nodes = (array) $results['nodes'];
@@ -364,8 +381,6 @@ function theme_calendar_display(&$view, &$items, $type) {
     $function = $module .'_calendar_add_items';
     $nodes += $function($view);
   }
-  $mini = $view->calendar_type == 'year' || $view->build_type == 'block' ? TRUE : FALSE;
-  $links = $view->build_type == 'block' ? FALSE : TRUE;
   return theme('calendar_show_nav', $view, $mini, $links) . calendar_get_calendar($view->calendar_type, $nodes, 'calendar', '', $params);
 }
 
@@ -1066,7 +1081,6 @@ function calendar_build_field_query(&$query, $field) {
  *  @param object $view
  */
 function calendar_views_query_alter(&$query, &$view) {
-
 	if (!calendar_has_calendar_args($view)) {
   		return;
   }
@@ -1180,6 +1194,7 @@ function calendar_views_query_alter(&$query, &$view) {
  *  Implementation of hook_views_pre_view()
  */
 function calendar_views_pre_view(&$view, &$items) {
+
 	// If no part of this view has calendar elements, exit.
 	if (!calendar_is_calendar($view) && !calendar_has_calendar_args($view)) {
 		return;
@@ -1551,7 +1566,7 @@ function calendar_get_url($view, $args) {
 function calendar_url_append($view) {
   if ($view->build_type == 'page') {
     foreach ($_GET as $key => $val) {
-      if ($key != 'q') {
+      if ($key != 'q' && $key != 'view') {
         if (!is_array($val)) {
           $url .= '&'. $key .'='. $val;
         }
@@ -1586,14 +1601,39 @@ function calendar_setup_form($view) {
     'h:i A' => date('h:i A', $time),
     );
 
-  $form['calendar_time_format_'. $view->name] = array(
+  $form['calendar_time_format'] = array(
     '#title' => t('Time format'),
     '#default_value' => variable_get('calendar_time_format_'. $view->name, 'H:i'),
     '#type' => 'select',
     '#options' => $time_options,
     '#description' => t('The format to use for the time-only date display.'),
     );
-
+  $display_options = array('calendar' => t('Calendar'), 'table' => t('Table'), 'teasers' => t('Teasers'), 'nodes' => t('Full Nodes'), 'list' => t('List'));
+  $display_format = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar'));
+  $form['year'] = array(
+    '#title' => t('Year display'),
+    '#default_value' => $display_format['year'],
+    '#type' => 'select',
+    '#options' => $display_options,
+  );
+  $form['month'] = array(
+    '#title' => t('Month display'),
+    '#default_value' => $display_format['month'],
+    '#type' => 'select',
+    '#options' => $display_options,
+  );
+  $form['week'] = array(
+    '#title' => t('Week display'),
+    '#default_value' => $display_format['week'],
+    '#type' => 'select',
+    '#options' => $display_options,
+  );
+  $form['day'] = array(
+    '#title' => t('Day display'),
+    '#default_value' => $display_format['day'],
+    '#type' => 'select',
+    '#options' => $display_options,
+  );
   $form['calendar_empty_arg'] = array(
     '#title' => t('Wildcard argument'),
     '#type' => 'textfield',
@@ -1616,12 +1656,22 @@ function calendar_setup_form($view) {
  */
 function calendar_setup_form_submit($form_id, $form_values) {
   $view_name = $form_values['view_name'];
+  $display_format = array();
   variable_set('calendar_empty_arg', check_plain($form_values['calendar_empty_arg']));
   foreach ($form_values as $value_name => $value) {
-    if ($value_name == 'calendar_time_format_'. $view_name) {
-      variable_set('calendar_time_format_'. $view_name,  $value);
+  	switch ($value_name) {
+  		case 'calendar_time_format':
+        variable_set('calendar_time_format_'. $view_name,  $value);
+        break;
+  		case 'year':
+  		case 'month':
+  		case 'week':
+  		case 'day':
+  			$display_format[$value_name] = $value;
+  			break;
     }
   }
+  variable_set('calendar_display_format_'. $view_name, $display_format);
 }
 
 /**
