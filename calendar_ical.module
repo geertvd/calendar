@@ -10,12 +10,6 @@
  *  Implementation of hook_menu().
  */
 function calendar_ical_menu($may_cache) {
-  if (db_table_exists('cache_calendar_ical')) {
-    define('CALENDAR_ICAL_CACHE', 'cache_calendar_ical');
-  }
-  else {
-    define('CALENDAR_ICAL_CACHE', 'cache');
-  }
   include_once(drupal_get_path('module', 'calendar') .'/calendar.theme');
   drupal_add_css(drupal_get_path('module', 'calendar'), '/calendar.css');
 
@@ -36,6 +30,27 @@ function calendar_ical_menu($may_cache) {
     }
   }
   return $items;
+}
+
+/**
+ * Identify the cache where the ical feeds are stored.
+ *
+ * @return unknown
+ */
+function calendar_ical_cache() {
+	if (db_table_exists('cache_calendar_ical')) {
+    return 'cache_calendar_ical';
+  }
+  else {
+    return 'cache';
+  }
+}
+
+/**
+ * Implementation of hook_cron().
+ */
+function calendar_ical_cron() {
+	cache_clear_all('calendar_feeds_', calendar_ical_cache());
 }
 
 /**
@@ -167,7 +182,7 @@ function calendar_ical_setup_form_submit($form_id, $form_values) {
       variable_set('calendar_feeds_'. $value_name, $value);
      }
   }
-  cache_clear_all('calendar_feeds_'. $view->name, CALENDAR_ICAL_CACHE, TRUE);
+  cache_clear_all('calendar_feeds_'. $view->name, calendar_ical_cache(), TRUE);
 }
 
 /**
@@ -184,14 +199,16 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
   calendar_load_date_api();
   calendar_ical_load_date_ical();
   $feeds = variable_get('calendar_feeds_'. $view->name, array());
+  $expire = intval(variable_get('calendar_ical_expire_'. $view->name, 9676800) + time());
   foreach ($feeds as $delta => $feed) {
     if ($view->build_type == 'page') {
       $GLOBALS['calendar_stripe_labels'][$feed['stripe']] = $feed['name'];
     }
-    if (!$refresh && $cached = cache_get('calendar_feeds_'. $view->name .':'. $feed['url'], CALENDAR_ICAL_CACHE)) {
+    if (!$refresh && $cached = cache_get('calendar_feeds_'. $view->name .':'. $feed['url'], calendar_ical_cache())) {
       $nodes += (array) unserialize($cached->data);
     }
     else {
+    	echo 'expired';
       $expire = intval(variable_get('calendar_ical_expire_'. $view->name, 9676800) + time());
       switch ($feed['type']) {
       case 'ical':
@@ -208,8 +225,8 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
           $node->start_offset   = 0;
           $node->calendar_end   = $event['end'];
           $node->end_offset     = 0;
-          $node->start_time_format = gmdate(variable_get('calendar_time_format', 'H:i'), $event['start']);
-          $node->end_time_format = gmdate(variable_get('calendar_time_format', 'H:i'), $event['end']);
+          $node->start_time_format = gmdate(variable_get('calendar_time_format_'. $view->name, 'H:i'), $event['start']);
+          $node->end_time_format = gmdate(variable_get('calendar_time_format_'. $view->name, 'H:i'), $event['end']);
           $node->start_format = gmdate(variable_get('date_format_short', 'm/d/Y - H:i'), $event['start']);
           $node->end_format = gmdate(variable_get('date_format_short', 'm/d/Y - H:i'), $event['end']);
           $node->stripe = $feed['stripe'];
@@ -217,8 +234,9 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
           $node->uid = $event['uid'] ? $event['uid'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
           $node->url = $event['url']? $event['url'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
           $new_nodes[$event['uid']] = $node;
+          echo 'time:'. gmdate(variable_get('calendar_time_format_'. $view->name, 'H:i'), $event['start']);
         }
-        cache_set('calendar_feeds_'. $view->name .':'. $feed['url'], CALENDAR_ICAL_CACHE, serialize($new_nodes), $expire);
+        cache_set('calendar_feeds_'. $view->name .':'. $feed['url'], calendar_ical_cache(), serialize($new_nodes), $expire);
         $nodes += (array) $new_nodes;
         break;
       }
@@ -400,7 +418,7 @@ function theme_calendar_ical_feed($view, $items, $type) {
     $event['end'] = $node->calendar_end;
     $event['location'] = $node->calendar_location;
     $event['summary'] = $node->title;
-    $event['description'] = check_markup($node->teaser);
+    $event['description'] = $node->teaser;
     $event['uid'] = $node->uid ? $node->uid : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
     $event['url'] = $node->url ? $node->url : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
     $events[] = $event;
