@@ -309,13 +309,18 @@ function theme_calendar_node_day($node) {
     $end_label = '';
   }
 
-  $output .= '<div class="title">'. l($node->title, "$node->url", array('title' => t('view this item'))) .'</div>'."\n";
+  $output .= '<h2 class="title">'. l($node->title, "$node->url", array('title' => t('view this item'))) .'</h2>'."\n";
 
   $output .= '<div class="start">'. $start_label . $node->start_format .'</div>'."\n";
   if ($node->calendar_start != $node->calendar_end && $node->calendar_end) {
     $output .= '<div class="end">'. $end_label . $node->end_format .'</div>'."\n";
   }
   if ($node->teaser) {
+  	$node->teaser = str_replace('\n', "\n", $node->teaser);
+    // Remove escaping added by ical.
+    $node->teaser = stripslashes($node->teaser);
+    // Run through check_markup.
+    $node->teaser = check_markup($node->teaser);
     $output .= '<div class="content">'. check_markup($node->teaser) ."</div>\n";
   }
   $output .= '<div class="links">'. theme('links', $node->calendar_links) ."\n</div>";
