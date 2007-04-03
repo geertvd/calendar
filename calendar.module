@@ -358,30 +358,130 @@ function theme_calendar_display(&$view, &$items, $type) {
   	$display = check_plain($_GET['view']);
   }
   else {
-  	$display_formats = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar'));
-  	$display = $display_formats[$view->calendar_type];
+  	$display_formats = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar', 'block' => 'calendar'));
+  	$display = $view->build_type == 'block' ? $display_formats['block'] : $display_formats[$view->calendar_type];
   }
   switch($display) {
     case ('table') :
       $view->table_header = _views_construct_header($view, _views_get_fields());
-      return theme('calendar_show_nav', $view, $mini, $links) . theme('views_view_table', $view, $items, $type);
+      return theme('calendar_show_nav', $view, $mini, $links) . theme('calendar_view_table', $view, $items, $type);
     case ('teasers') :
-      return theme('calendar_show_nav', $view, $mini, $links) . theme('views_view_teasers', $view, $items, $type);
+      return theme('calendar_show_nav', $view, $mini, $links) . theme('calendar_view_teasers', $view, $items, $type);
     case ('nodes') :
-      return theme('calendar_show_nav', $view, $mini, $links) . theme('views_view_nodes', $view, $items, $type);
+      return theme('calendar_show_nav', $view, $mini, $links) . theme('calendar_view_nodes', $view, $items, $type);
     case ('list') :
-      return theme('calendar_show_nav', $view, $mini, $links) . theme('views_view_list', $view, $items, $type);
+      return theme('calendar_show_nav', $view, $mini, $links) . theme('calendar_view_list', $view, $items, $type);
   }
   $results = calendar_get_nodes($view, $items, $type);
   $nodes = (array) $results['nodes'];
   $params = (array) $results['params'];
   // Weeks still aren't working right in all situations, turning them off for now.
   $params[with_weekno] = FALSE;
+  $nodes += calendar_add_items($view, 'calendar');
+  return theme('calendar_show_nav', $view, $mini, $links) . calendar_get_calendar($view->calendar_type, $nodes, 'calendar', '', $params);
+}
+
+/**
+ * Display the nodes of a view as a list.
+ */
+function theme_calendar_view_list($view, $nodes, $type) {
+  $fields = _views_get_fields();
+  $items = array();
+  foreach ($nodes as $node) {
+    $item = '';
+    foreach ($view->field as $field) {
+      if ($fields[$field['id']]['visible'] !== FALSE) {
+        if ($field['label']) {
+          $item .= "<div class='view-label ". views_css_safe('view-label-'. $field['queryname']) ."'>" . $field['label'] . "</div>";
+        }
+        $item .= "<div class='view-field ". views_css_safe('view-data-'. $field['queryname']) ."'>" . views_theme_field('views_handle_field', $field['queryname'], $fields, $field, $node, $view) . "</div>";
+      }
+    }
+    $items[] = "<div class='view-item ". views_css_safe('view-item-'. $view->name) ."'>$item</div>\n"; // l($node->title, "node/$node->nid");
+  }
+  $items += calendar_add_items($view, 'list');
+  if ($items) {
+   	return theme('item_list', $items);
+  }
+}
+
+/**
+ * Display the nodes of a view as a table.
+ */
+function theme_calendar_view_table($view, $nodes, $type) {
+  $fields = _views_get_fields();
+  $rows = array();
+  foreach ($nodes as $node) {
+    $row = array();
+    foreach ($view->field as $field) {
+      if ($fields[$field['id']]['visible'] !== FALSE) {
+        $cell['data'] = views_theme_field('views_handle_field', $field['queryname'], $fields, $field, $node, $view);
+        $cell['class'] = "view-field ". views_css_safe('view-field-'. $field['queryname']);
+        $row[] = $cell;
+      }
+    }
+    $rows[] = $row;
+  }
+  $rows[] += calendar_add_items($view, 'table');
+  return theme('table', $view->table_header, $rows);
+}
+
+/**
+ * Display the nodes of a view as teasers.
+ */
+function theme_calendar_view_teasers($view, $nodes, $type) {
+  return views_theme('calendar_view_nodes', $view, $nodes, 'teasers');
+}
+
+/**
+ * Display the nodes of a view as plain nodes.
+ */
+function theme_calendar_view_nodes($view, $nodes, $type, $teasers = false, $links = true) {
+	$output = array();
+  foreach ($nodes as $n) {
+    $node = node_load($n->nid);
+    $output[] = node_view($node, $teasers, false, $links);
+  }
+  $output += calendar_add_items($view, $teasers ? 'teasers' : 'nodes');
+  return implode($output);
+}
+
+/**
+ * Call hooks in other modules to add other items to a calendar view.
+ *
+ * @param object $view
+ * @param string $type - display type, 'table', 'teasers', 'nodes', 'list', 'calendar'
+ * @return array of additional items to add.
+ */
+function calendar_add_items($view, $type) {
+	$new_items = array();
   foreach (module_implements('calendar_add_items') as $module) {
     $function = $module .'_calendar_add_items';
-    $nodes += $function($view);
+    if (function_exists($function)) {
+      $feeds = $function($view);
+      // Calendar items are just added as objects, themeing will be done by the calendar api.
+      // For other types, theme the items and add them.
+      foreach ($feeds as $feed) {
+    	  if ($type == 'calendar') {
+    		  $new_items[] = $feed;
+    	  }
+    	  else {
+    		  switch ($type) {
+    			 case 'table':
+    				  $output = theme('calendar_node_month', $feed);
+    				  break;
+    			  case 'nodes':
+    			  case 'teasers':
+    			  case 'list':
+    				  $output = theme('calendar_node_day', $feed);
+    				  break;
+    		  }
+    	    if (!empty($output)) $new_items[] = $output;
+    	  }
+      }
+    }
   }
-  return theme('calendar_show_nav', $view, $mini, $links) . calendar_get_calendar($view->calendar_type, $nodes, 'calendar', '', $params);
+  return $new_items;
 }
 
 /**
@@ -1609,7 +1709,7 @@ function calendar_setup_form($view) {
     '#description' => t('The format to use for the time-only date display.'),
     );
   $display_options = array('calendar' => t('Calendar'), 'table' => t('Table'), 'teasers' => t('Teasers'), 'nodes' => t('Full Nodes'), 'list' => t('List'));
-  $display_format = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar'));
+  $display_format = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar', 'block' => 'calendar'));
   $form['year'] = array(
     '#title' => t('Year display'),
     '#default_value' => $display_format['year'],
@@ -1631,6 +1731,12 @@ function calendar_setup_form($view) {
   $form['day'] = array(
     '#title' => t('Day display'),
     '#default_value' => $display_format['day'],
+    '#type' => 'select',
+    '#options' => $display_options,
+  );
+  $form['block'] = array(
+    '#title' => t('Block display'),
+    '#default_value' => $display_format['block'],
     '#type' => 'select',
     '#options' => $display_options,
   );
@@ -1667,6 +1773,7 @@ function calendar_setup_form_submit($form_id, $form_values) {
   		case 'month':
   		case 'week':
   		case 'day':
+  		case 'block':
   			$display_format[$value_name] = $value;
   			break;
     }
