@@ -232,7 +232,7 @@ function calendar_has_calendar_args($view, $reset = FALSE) {
       }
     }
   }
-  return $has_args;
+  return $has_args[$view->name];
 }
 
 /**
@@ -1181,9 +1181,11 @@ function calendar_build_field_query(&$query, $field) {
  *  @param object $view
  */
 function calendar_views_query_alter(&$query, &$view) {
+
 	if (!calendar_has_calendar_args($view)) {
   		return;
   }
+
   $view->real_url = calendar_get_url($view, $view->args);
   calendar_load_calendar_api();
   calendar_load_date_api();
