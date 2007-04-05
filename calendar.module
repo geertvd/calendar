@@ -232,7 +232,7 @@ function calendar_has_calendar_args($view, $reset = FALSE) {
       }
     }
   }
-  return $has_args;
+  return $has_args[$view->name];
 }
 
 /**
