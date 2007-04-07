@@ -346,13 +346,18 @@ table th.legend {
   border: 1px solid #999;
   border-collapse: collapse;
   border-spacing: 0;
-  margin:0;
-  width:100%;
-  _width: 98%; /* Setting at 100% causes problem in Internet Explorer. */
+  margin:0 auto;
+  width: 100%; /* Setting at 100% causes problem in Internet Explorer. */
 }
-.calendar-calendar table table {
+.calendar-calendar .month-view table {
   border:none;
   padding:0;
   margin:0;
   width:100%;
+  }
+.mini .calendar-calendar .month-view table {
+  border:none;
+  padding:0;
+  margin:1%;
+  width:98%;
   }
