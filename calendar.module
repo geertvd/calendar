@@ -17,6 +17,7 @@ function calendar_init() {
     // to module installation page.
     if (!module_exists('date_api')) {
       module_disable(array('calendar'));
+      module_disable(array('calendar_ical'));
       drupal_set_message(t('Date API module is not installed. Calendar module was disabled.'));
     }
   }
