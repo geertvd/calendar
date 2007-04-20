@@ -17,6 +17,7 @@ function calendar_init() {
     // to module installation page.
     if (!module_exist('date_api')) {
       db_query("UPDATE {system} SET status = 0, throttle = 0 WHERE type = 'module' AND name = '%s'", 'calendar');
+      db_query("UPDATE {system} SET status = 0, throttle = 0 WHERE type = 'module' AND name = '%s'", 'calendar_ical');
       // Refresh the module list to exclude the disabled modules.
       module_list(TRUE, FALSE);
       // Force to regenerate the stored list of hook implementations.
