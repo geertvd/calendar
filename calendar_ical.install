@@ -3,40 +3,15 @@
 
 /**
  * Implementation of hook_install().
- *
  */
 function calendar_ical_install() {
-
-  switch ($GLOBALS['db_type']) {
-    case 'mysql':
-    case 'mysqli':
-      db_query("CREATE TABLE {cache_calendar_ical} (
-        cid varchar(255) NOT NULL default '',
-        data longblob,
-        expire int NOT NULL default '0',
-        created int NOT NULL default '0',
-        headers text,
-        PRIMARY KEY (cid),
-        INDEX expire (expire)
-        ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ");
-      break;
-    case 'pgsql':
-      db_query("CREATE TABLE {cache_calendar_ical} (
-        cid varchar(255) NOT NULL default '',
-        data longblob,
-        expire int NOT NULL default '0',
-        created int NOT NULL default '0',
-        headers text,
-        PRIMARY KEY (cid),
-        ) ");
-      db_query("CREATE INDEX {cache_calendar_ical}_pc_idx ON {cache_calendar_ical} (expire)");
-      break;
-  }
+  db_query("UPDATE {system} SET weight = 1 WHERE name = 'calendar_ical'");
 }
 
-/**
- * Implementation of hook_uninstall().
- */
-function calendar_ical_uninstall() {
-  db_query('DROP TABLE {cache_calendar_ical}');
+function calendar_ical_update_1() {
+  $ret = array();
+  $ret[] = update_sql("UPDATE {system} SET weight = 1 WHERE name = 'calendar_ical'");
+  $ret[] = update_sql("INSERT INTO {cache} (cid, data, expire, created, headers) SELECT cid, data, expire, created, headers FROM {calendar_ical}");
+  $ret[] = update_sql('DROP TABLE {cache_calendar_ical}');
+  return $ret;
 }
