@@ -187,6 +187,12 @@ function calendar_views($build_type = 'page', $reset = FALSE) {
         $calendar_views[$build_type][] = $view->name;
       }
     }
+    $check = $build_type .'_type';
+    foreach (_views_get_default_views() as $view) {
+      if ($view->$check == 'calendar' && empty($view->disabled)) {
+        $calendar_views[$build_type][] = $view->name;
+      }
+    }
   }
   if (empty($calendar_views) || !array_key_exists($build_type, $calendar_views)) {
     $calendar_views = array($build_type => array());
