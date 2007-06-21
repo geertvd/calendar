@@ -11,7 +11,7 @@
  */
 function calendar_ical_menu($may_cache) {
   include_once(drupal_get_path('module', 'calendar') .'/calendar.theme');
-  drupal_add_css(drupal_get_path('module', 'calendar'), '/calendar.css');
+  drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
 
   $items = array();
   if (!$may_cache) {
