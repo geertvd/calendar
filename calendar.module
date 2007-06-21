@@ -1546,6 +1546,7 @@ function calendar_node_stripe($view, $node, $query_name, $delta, $stripe = NULL,
       if ($k == $node->type) {
         break;
       }
+      $i++;
     }
     $stripe = intval((20 * $delta) + $i);
   }
