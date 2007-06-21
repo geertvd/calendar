@@ -24,7 +24,7 @@ function theme_calendar_calendar_node($node, $type) {
      if ($node->label && !strstr($node->title, $node->label)) {
        $node->title .= ' ('. $node->label .')';
      }
-     if ($node->fields) {
+     if (isset($node->fields) && !isset($node->teaser)) {
        foreach ($node->fields as $field) {
          $node->teaser .= '<div>'. $field .'</div>';
        }
