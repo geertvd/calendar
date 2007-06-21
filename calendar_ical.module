@@ -22,7 +22,7 @@ function calendar_ical_menu($may_cache) {
         'description' => t('iCal setup.'),
         'access'   => user_access('administer content'),
         'callback' => 'drupal_get_form',
-        'callback arguments' => array('calendar_ical_setup_form', $view),
+        'callback arguments' => array('calendar_ical_setup_form', $view_name['name']),
         'type' => MENU_LOCAL_TASK,
         'weight' => 6,
       );
@@ -88,10 +88,10 @@ function calendar_ical_calendar_add_types($view) {
  *
  * @todo - control of the stripe color is not yet implemented.
  */
-function calendar_ical_setup_form($view) {
+function calendar_ical_setup_form($view_name) {
 
   $form = array();
-
+  $view = views_get_view($view_name);
   for ($i = 0; $i < 10; $i++) {
     $node = new StdClass();
     $node->stripe = $i;
