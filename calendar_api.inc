@@ -342,15 +342,6 @@ function calendar_user_date($part = 'timestamp') {
   calendar_load_date_api();
   if (!$date) {
     $now = date_time();
-
-    if (variable_get('configurable_timezones', 1) && $user->uid && strlen($user->timezone)) {
-      $user_offset = $user->timezone;
-    }
-    else {
-      $user_offset = variable_get('date_default_timezone', 0);
-    }
-
-    $now += $user_offset;
     $date = date_gmmktime(array(
       'mon' => date_gmdate('m', $now),
       'mday' => date_gmdate('j', $now),
