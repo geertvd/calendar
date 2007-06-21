@@ -12,7 +12,7 @@
 function calendar_ical_menu($may_cache) {
   define('CALENDAR_ICAL_CACHE', 'cache');
   include_once(drupal_get_path('module', 'calendar') .'/calendar.theme');
-  theme_add_style(drupal_get_path('module', 'calendar'), '/calendar.css');
+  theme_add_style(drupal_get_path('module', 'calendar') .'/calendar.css');
 
   $items = array();
   if (!$may_cache) {
