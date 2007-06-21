@@ -45,9 +45,8 @@ function calendar_menu($may_cache) {
   $items = array();
   if (!$may_cache) {
     foreach (calendar_views('page') as $view_name) {
-      $view = views_get_view($view_name);
       $items[] = array(
-        'path'     => $view->url .'/setup',
+        'path'     => $view_name['url'] .'/setup',
         'title'    => t('Setup'),
         'description' => t('Calendar setup.'),
         'access'   => user_access('administer content'),
@@ -174,23 +173,23 @@ function calendar_view_types($reset = FALSE) {
  */
 function calendar_views($build_type = 'page', $reset = FALSE) {
   static $calendar_views;
+  views_load_cache();
   if (empty($calendar_views)) {
   	$calendar_views = array($build_type => '');
   }
   if ($reset || empty($calendar_views[$build_type])) {
     $calendar_views = array();
-    $result = db_query("SELECT vid FROM {view_view} ORDER BY name");
-    while ($row = db_fetch_array($result)) {
-      $view = views_get_view($row['vid']);
+    $result = db_query("SELECT vid, name, url FROM {view_view} ORDER BY name");
+    while ($view = db_fetch_object($result)) {
       $view->build_type = $build_type;
       if (calendar_is_calendar($view)) {
-        $calendar_views[$build_type][] = $view->name;
+        $calendar_views[$build_type][] = array('name' => $view->name, 'url' => $view->url);
       }
     }
     $check = $build_type .'_type';
     foreach (_views_get_default_views() as $view) {
       if ($view->$check == 'calendar' && empty($view->disabled)) {
-        $calendar_views[$build_type][] = $view->name;
+        $calendar_views[$build_type][] = array('name' => $view->name, 'url' => $view->url);
       }
     }
   }

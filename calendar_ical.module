@@ -16,9 +16,8 @@ function calendar_ical_menu($may_cache) {
   $items = array();
   if (!$may_cache) {
     foreach (calendar_views('page') as $view_name) {
-      $view = views_get_view($view_name);
       $items[] = array(
-        'path'     => $view->url .'/ical',
+        'path'     => $view_name['url'] .'/ical',
         'title'    => t('iCal'),
         'description' => t('iCal setup.'),
         'access'   => user_access('administer content'),
