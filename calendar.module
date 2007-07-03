@@ -49,7 +49,7 @@ function calendar_menu($may_cache) {
         'path'     => $view_name['url'] .'/setup',
         'title'    => t('Setup'),
         'description' => t('Calendar setup.'),
-        'access'   => user_access('administer content'),
+        'access'   => user_access('administer views'),
         'callback' => 'drupal_get_form',
         'callback arguments' => array('calendar_setup_form', $view_name['name']),
         'type' => MENU_LOCAL_TASK,

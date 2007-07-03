@@ -20,7 +20,7 @@ function calendar_ical_menu($may_cache) {
         'path'     => $view_name['url'] .'/ical',
         'title'    => t('iCal'),
         'description' => t('iCal setup.'),
-        'access'   => user_access('administer content'),
+        'access'   => user_access('administer views'),
         'callback' => 'drupal_get_form',
         'callback arguments' => array('calendar_ical_setup_form', $view_name['name']),
         'type' => MENU_LOCAL_TASK,
