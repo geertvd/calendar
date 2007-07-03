@@ -60,10 +60,10 @@ function theme_calendar_arg_title($field_type, $value) {
     case 'MONTH':
       $_SESSION['calendar_mon'] = $value;
       $stamp = date_gmmktime(array('year' => $_SESSION['calendar_year'], 'mon' => $_SESSION['calendar_mon'], 'mday' => 1));
-      return date_gmdate('F Y', $stamp);
+      return date_format_date('F Y', $stamp);
     case 'DAY':
       $stamp = date_gmmktime(array('year' => $_SESSION['calendar_year'], 'mon' => $_SESSION['calendar_mon'], 'mday' => $value));
-      return date_gmdate('l, F j Y', $stamp);
+      return date_format_date('l, F j Y', $stamp);
     case 'WEEK':
     	return t('Week @week @year', array('@year' => $_SESSION['calendar_year'], '@week' => $value));
    }
@@ -86,16 +86,16 @@ function theme_calendar_nav_title($field_type, $view) {
       // For the timestamp, use the second day of the month because gm functions sometimes return the previous month
       $timestamp = date_array2unix(array('year' => $view->year, 'mon' => $view->month, 'mday' => 2));
       if ($view->build_type == 'block' || $view->calendar_type == 'year') {
-      	return l(date_gmdate('M Y', $timestamp), $view->real_url .'/'. $view->year .'/'. $view->month, array(), calendar_url_append($view));
+      	return l(date_format_date('M Y', $timestamp), $view->real_url .'/'. $view->year .'/'. $view->month, array(), calendar_url_append($view));
       }
       else {
-      	return date_gmdate('F Y', $timestamp);
+      	return date_format_date('F Y', $timestamp);
       }
     case 'DAY':
       $timestamp = date_array2unix(array('year' => $view->year, 'mon' => $view->month, 'mday' => $view->day, 'hours' => 12));
-      return date_gmdate('l, F j Y', $timestamp);
+      return date_format_date('l, F j Y', $timestamp);
     case 'WEEK':
-    	return t("Week of @date", array('@date' => date_gmdate('F j Y', calendar_week('start_timestamp', $view, $view->week))));
+    	return t("Week of @date", array('@date' => date_format_date('F j Y', calendar_week('start_timestamp', $view, $view->week))));
    }
 }
 
@@ -429,7 +429,7 @@ function theme_calendar_date_box($year, $month, $day, $view, $mini = FALSE, $sel
         $output = '<div class="day">'. l(t('!month / !day', array('!month' => $month, '!day' => $day)), $url, NULL, $append) .'</div>'."\n";
       break;
     case 'list':
-        $output = '<div class="day">'. l(format_date(_calendar_mktime(0, 0, 0, $month, $day, $year), 'custom', 'l, F j, Y'), $url, NULL, $append) .'</div>'."\n";
+        $output = '<div class="day">'. l(date_format_date(date_mktime(array('month' => $month, 'day' => $day, 'year' => $year)), 'custom', 'l, F j, Y'), $url, NULL, $append) .'</div>'."\n";
       break;
     case 'day':
      break;
