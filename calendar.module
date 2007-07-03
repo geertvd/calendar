@@ -430,7 +430,7 @@ function theme_calendar_view_table($view, $nodes, $type) {
     }
     $rows[] = $row;
   }
-  $rows[] += calendar_add_items($view, 'table');
+  $rows += calendar_add_items($view, 'table');
   return theme('table', $view->table_header, $rows);
 }
 
@@ -476,7 +476,7 @@ function calendar_add_items($view, $type) {
     	  else {
     		  switch ($type) {
     			 case 'table':
-    				  $output = theme('calendar_node_month', $feed);
+    			    $output = array('data' => array(theme('calendar_node_month', $feed)));
     				  break;
     			  case 'nodes':
     			  case 'teasers':
