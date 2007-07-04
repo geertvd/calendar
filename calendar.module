@@ -1311,16 +1311,16 @@ function calendar_views_pre_view(&$view, &$items) {
 	// Construct a formatted title for the view from the last calendar argument encountered.
   switch ($view->calendar_type) {
     case 'year':
-      $view->subtitle = theme_('calendar_nav_title', 'YEAR', $view);
+      $view->subtitle = theme('calendar_nav_title', 'YEAR', $view);
   		break;
     case 'month':
-      $view->subtitle = theme_('calendar_nav_title', 'MONTH', $view);
+      $view->subtitle = theme('calendar_nav_title', 'MONTH', $view);
   	 break;
     case 'day':
-      $view->subtitle = theme_('calendar_nav_title', 'DAY', $view);
+      $view->subtitle = theme('calendar_nav_title', 'DAY', $view);
       break;
     case 'week':
-      $view->subtitle = theme_('calendar_nav_title', 'WEEK', $view);
+      $view->subtitle = theme('calendar_nav_title', 'WEEK', $view);
      break;
   }
 
