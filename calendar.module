@@ -617,8 +617,8 @@ function calendar_get_nodes(&$view, &$items, $type) {
 
           // format a time-only display for the month calendar for dates that have time elements
           if (array_intersect($granularity, array('H', 'N', 'S'))) {
-            $node->start_time_format = date_gmdate(variable_get('calendar_time_format_'. $view->name, 'H:i'), intval($node->calendar_start + $node->start_offset));
-            if ($node->calendar_end) $node->end_time_format   = date_gmdate(variable_get('calendar_time_format_'. $view->name, 'H:i'), intval($node->calendar_end + $node->end_offset));
+            $node->start_time_format = date_format_date(variable_get('calendar_time_format_'. $view->name, 'H:i'), intval($node->calendar_start + $node->start_offset));
+            if ($node->calendar_end) $node->end_time_format   = date_format_date(variable_get('calendar_time_format_'. $view->name, 'H:i'), intval($node->calendar_end + $node->end_offset));
           }
           else {
             $node->start_time_format = $node->start_format;
@@ -660,8 +660,8 @@ function calendar_get_nodes(&$view, &$items, $type) {
     // make sure at least one node is created for the current week
     // add both start and end of week in case week crosses from one month to next
     $week_range = calendar_week_range($view->year, $view->week);
-    $nodes[]    = _calendar_make_node(NULL, NULL, _views_get_timezone(), date_gmdate('Y', $week_range[0]), date_gmdate('m', $week_range[0]), date_gmdate('j', $week_range[0]), 12, 0);
-    $nodes[]    = _calendar_make_node(NULL, NULL, _views_get_timezone(), date_gmdate('Y', $week_range[1]), date_gmdate('m', $week_range[1]), date_gmdate('j', $week_range[1]), 12, 0);
+    $nodes[]    = _calendar_make_node(NULL, NULL, _views_get_timezone(), date_format_date('Y', $week_range[0]), date_format_date('m', $week_range[0]), date_format_date('j', $week_range[0]), 12, 0);
+    $nodes[]    = _calendar_make_node(NULL, NULL, _views_get_timezone(), date_format_date('Y', $week_range[1]), date_format_date('m', $week_range[1]), date_format_date('j', $week_range[1]), 12, 0);
   }
   elseif (sizeof($nodes) == 0) {
     // otherwise add a blank node for the current day
@@ -710,7 +710,7 @@ function calendar_nav($view, $mini = FALSE) {
     $range = calendar_week_range($view->year, $view->week + 1);
     $cur_stamp = $range[0];
   } else {
-    $cur_stamp = date_gmmktime(array('mon' => $view->month ? $view->month : 1, 'mday' => $view->day ? $view->day : 1, 'year' => $view->year ? $view->year : date_gmdate("Y", (date_time()))));
+    $cur_stamp = date_gmmktime(array('mon' => $view->month ? $view->month : 1, 'mday' => $view->day ? $view->day : 1, 'year' => $view->year ? $view->year : date_format_date("Y", (date_time()))));
   }
   // make the navigation into a header, with prev and next links
   // use the calendar_nav themes to mimic standard calendar navigation
@@ -779,8 +779,8 @@ function calendar_get_paths($cur_stamp, $view) {
       	$day = $path[$x]['path'];
         $next_stamp = $cur_stamp + (86400);
         $prev_stamp = $cur_stamp - (86400);
-        $nextpath[$x] = date_gmdate('j', $next_stamp);
-        $prevpath[$x] = date_gmdate('j', $prev_stamp);
+        $nextpath[$x] = date_format_date('j', $next_stamp);
+        $prevpath[$x] = date_format_date('j', $prev_stamp);
         break;
       case ('week'):
         $week = $path[$x]['path'];
@@ -806,8 +806,8 @@ function calendar_get_paths($cur_stamp, $view) {
           $next_stamp = date_gmmktime(array('mon' => $month < 12 ? $month + 1 : 1, 'mday' => 1, 'year' => $next_year));
           $prev_stamp = date_gmmktime(array('mon' => $month > 1  ? $month - 1 : 12, 'mday' => 1, 'year' => $prev_year));
         }
-        $nextpath[$x] = date_gmdate('n', $next_stamp);
-        $prevpath[$x] = date_gmdate('n', $prev_stamp);
+        $nextpath[$x] = date_format_date('n', $next_stamp);
+        $prevpath[$x] = date_format_date('n', $prev_stamp);
         break;
       case ('year'):
         $year = $view->year;
@@ -815,8 +815,8 @@ function calendar_get_paths($cur_stamp, $view) {
           $next_stamp = date_gmmktime(array('mon' => 1, 'mday' => 1, 'year' => $next_year ? $next_year : $year + 1));
           $prev_stamp = date_gmmktime(array('mon' => 12, 'mday' => 1, 'year' => $prev_year ? $prev_year : $year - 1));
         }
-        $nextpath[$x] = date_gmdate('Y', $next_stamp);
-        $prevpath[$x] = date_gmdate('Y', $prev_stamp);
+        $nextpath[$x] = date_format_date('Y', $next_stamp);
+        $prevpath[$x] = date_format_date('Y', $prev_stamp);
         break;
       default:
         // all other arguments are just passed through
@@ -843,11 +843,11 @@ function _calendar_make_node($node = NULL, $timestamp = NULL, $offset = NULL, $y
   $offset = $offset ? $offset : _views_get_timezone();
 
   if (!$timestamp) {
-    $year   = _calendar_is_valid($year, 'year')     ? $year   : date_gmdate('Y', date_time());
-    $month  = _calendar_is_valid($month, 'month')   ? $month  : date_gmdate('m', date_time());
-    $day    = _calendar_is_valid($day, 'day')       ? $day    : date_gmdate('j', date_time());
-    $hour   = _calendar_is_valid($hour, 'hour')     ? $hour   : date_gmdate('H', date_time());
-    $minute = _calendar_is_valid($minute, 'minute') ? $minute : date_gmdate('i', date_time());
+    $year   = _calendar_is_valid($year, 'year')     ? $year   : date_format_date('Y', date_time());
+    $month  = _calendar_is_valid($month, 'month')   ? $month  : date_format_date('m', date_time());
+    $day    = _calendar_is_valid($day, 'day')       ? $day    : date_format_date('j', date_time());
+    $hour   = _calendar_is_valid($hour, 'hour')     ? $hour   : date_format_date('H', date_time());
+    $minute = _calendar_is_valid($minute, 'minute') ? $minute : date_format_date('i', date_time());
     while (!checkdate($month, $day, $year)) $day--; // Account for days that don't exist
     $timestamp = date_gmmktime(array('hours' => $hour, 'minutes' => $minute, 'mon' => $month, 'mday' => $day, 'year' => $year));
   }
@@ -873,8 +873,8 @@ function _calendar_make_node($node = NULL, $timestamp = NULL, $offset = NULL, $y
 function _calendar_limit_nodes($nodes, $type, $year, $month, $day, $week, $offset) {
   calendar_load_date_api();
   if (!_calendar_is_valid($day, 'day')) $day = 1;
-  if (!_calendar_is_valid($month, 'month')) $month = date_gmdate('m', date_time());
-  if (!_calendar_is_valid($year, 'year')) $year = date_gmdate('Y', date_time());
+  if (!_calendar_is_valid($month, 'month')) $month = date_format_date('m', date_time());
+  if (!_calendar_is_valid($year, 'year')) $year = date_format_date('Y', date_time());
 
   switch ($type) {
   case ('day'):
@@ -1311,16 +1311,16 @@ function calendar_views_pre_view(&$view, &$items) {
 	// Construct a formatted title for the view from the last calendar argument encountered.
   switch ($view->calendar_type) {
     case 'year':
-      $view->subtitle = theme_calendar_nav_title('YEAR', $view);
+      $view->subtitle = theme_('calendar_nav_title', 'YEAR', $view);
   		break;
     case 'month':
-      $view->subtitle = theme_calendar_nav_title('MONTH', $view);
+      $view->subtitle = theme_('calendar_nav_title', 'MONTH', $view);
   	 break;
     case 'day':
-      $view->subtitle = theme_calendar_nav_title('DAY', $view);
+      $view->subtitle = theme_('calendar_nav_title', 'DAY', $view);
       break;
     case 'week':
-      $view->subtitle = theme_calendar_nav_title('WEEK', $view);
+      $view->subtitle = theme_('calendar_nav_title', 'WEEK', $view);
      break;
   }
 
@@ -1354,7 +1354,7 @@ function calendar_week_range($year, $week) {
   // Get timestamp for January 1 of the requested year.
   $min_date = date_gmmktime(array('mon' => 1, 'mday' => 1, 'year' => $year));
   // Adjust back or forward to the first day of the calendar week for the specified first day of week.
-  $dow = date_gmdate('w', $min_date);
+  $dow = date_format_date('w', $min_date);
   $first_day = variable_get('date_first_day', 0);
   $diff = -((7 - $first_day + $dow) % 7);
   $min_date += $diff * 86400;
@@ -1378,8 +1378,8 @@ function calendar_week_range($year, $week) {
  */
 function calendar_week_year($timestamp) {
   $first_day = variable_get('date_first_day', 0);
-  $iso_week = intval(date_gmdate('W', $timestamp));
-  $year = date_gmdate('Y', $timestamp);
+  $iso_week = intval(date_format_date('W', $timestamp));
+  $year = date_format_date('Y', $timestamp);
   // Where does this timestamp fall within the range for the iso week number.
   $range = calendar_week_range($year, $iso_week);
   // If the timestamp is in the range, the ISO week number is correct.
@@ -1423,17 +1423,17 @@ function calendar_week($op, $view, $week = 0) {
   $week_end = $range[1];
   switch ($op) {
   case ('start_year'):
-    return date_gmdate('Y', $week_start);
+    return date_format_date('Y', $week_start);
   case ('end_year'):
-    return date_gmdate('Y', $week_end);
+    return date_format_date('Y', $week_end);
   case ('start_month'):
-    return date_gmdate('n', $week_start);
+    return date_format_date('n', $week_start);
   case ('end_month'):
-    return date_gmdate('n', $week_end);
+    return date_format_date('n', $week_end);
   case ('start_day'):
-    return date_gmdate('d', $week_start);
+    return date_format_date('d', $week_start);
   case ('end_day'):
-    return date_gmdate('d', $week_end);
+    return date_format_date('d', $week_end);
   default:
     return $week_start;
   }
