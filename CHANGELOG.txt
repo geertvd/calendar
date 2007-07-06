@@ -1,6 +1,24 @@
 Views Calendar
 ==============
 
+Version 1.5
+===========
+
+- 149668  fixes to the way calendar_views() is computed never got committed to the 4.7 branch.
+- 141267 fix css attribute, should be overflow:hidden.
+- 146347 fix some more places where date_format_date() should be used instead of gm_date() so they are translated.
+- Make sure nav titles get run through theme properly.
+- 122568 for multi-day fields make sure $node->teaser doesn't keep adding the same fields.
+- 153580 use date_format_date instead of date_gmdate to get date parts translated.
+- 147386 remove redundant adjustment for user time.
+- 121300 make sure stripe index gets incremented.
+- Fix typo that creates a parsing error.
+- 149668 fix wrong permissions.
+- Fix wrong object name in calendar_views().
+- 141264 fix typo in style inclusion.
+- 150054 rework the way the calendar_views() function works to improve performance.
+- Clean up css.
+- Make sure calendar module loads before calendar_ical.
 - Fix min and max date comparison for week view
 - 128517 fix error in week calculation so week doesn't always get set to 1
 - 127038 fix limit_nodes function to include last day of month
