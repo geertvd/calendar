@@ -1,0 +1,14 @@
+<?php
+
+// $Id$
+
+// Make sure Calendar iCal is loaded after Calendar module so constants and functions work correctly.
+function calendar_ical_install() {
+  db_query("UPDATE {system} SET weight = 1 WHERE name = 'calendar_ical'");
+}
+
+function calendar_ical_update_1() {
+  $ret = array();
+  $ret[] = update_sql("UPDATE {system} SET weight = 1 WHERE name = 'calendar_ical'");
+  return $ret;
+}
