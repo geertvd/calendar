@@ -1,6 +1,38 @@
 Views Calendar
 ==============
 
+Version 1.5
+===========
+
+- 146347 fix some more places where date_format_date() should be used instead of gm_date() so they are translated.
+- make sure nav titles get run through theme properly.
+- 141267 fix css attribute, should be overflow:hidden.
+- 140922 fix the way the table view array is constructed.
+- Found some debugging cruft in ical module when cache is cleared.
+- 153580 use date_format_date instead of date_gmdate to get date parts translated.
+- 149668 fix wrong permissions.
+- 147386 remove redundant adjustment for user time.
+- 121300 make sure stripe index gets incremented.
+- 122568 for multi-day fields make sure $node->teaser doesn't keep adding the same fields.
+- 141264 fix typo in style inclusion.
+- 150054 also need to fix the setup forms now that they only have a view name and not the whole view object passed to them.
+- 150054 rework the way the calendar_views() function works to improve performance.
+- 149668 make sure default views get included as calendar views.
+- Add in new hook_views_tabs() for menu tab.
+- Make sure ical module gets uninstalled if calendar is uninstalled.
+- Make sure calendar module loads before calendar_ical.
+- Clean up css.
+- Fix error in calendar_has_calendar_args() function.
+- Now that all views will work with calendar arguments, add setup items to select which view you want for each time period and make sure feed items get added to all of them.
+- Add some improvements to the way feed items are displayed in the day view by undoing ical escaping.
+- Set up cron to expire the cache, fix mistake in function applying time format to feed items.
+- Add new setup item to set display format for year, month, week, and day.
+- Make sure links to 'all' days and months get reset to current value.
+- 133018 initialize array.
+- Since I can't get the week view working completely right, I'm just going to hide it for now.
+- 132357, fix pass-by-reference typos.
+- Fix default page info in default view and push handling of empty days through theme.
+- Refactor arguments handling to be more consistent with normal argument handling and clean up ical argument problems.
 - Fix min and max date comparison for week view
 - 128517 fix error in week calculation so week doesn't always get set to 1
 - 127038 fix limit_nodes function to include last day of month
