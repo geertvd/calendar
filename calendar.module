@@ -964,7 +964,7 @@ function calendar_views_query_alter(&$query, &$view) {
         $view->year = _calendar_is_valid($view->args[$delta], 'year') ? $view->args[$delta] : calendar_user_date('year');
         $query_min = $view->year;
         $query_max = $view->year;
-        $view->subtitle = theme)'calendar_nav_title', 'YEAR', $view);
+        $view->subtitle = theme('calendar_nav_title', 'YEAR', $view);
         // make sure we have at least a year available as an argument
         if (!$view->args[$delta]) {
           $view->args[$delta] = $view->year;
