@@ -1,6 +1,8 @@
 Views Calendar
 ==============
 
+- fix parse error when calling theme_nav_title.
+
 Version 1.5
 ===========
 
