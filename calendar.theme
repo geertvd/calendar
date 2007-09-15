@@ -55,8 +55,8 @@ function theme_calendar_arg_title($field_type, $value, $query) {
 	calendar_load_date_api();
 	$value = intval(check_plain($value));
 	if (empty($value)) {
-    if ($view->mon) {
-    	$stamp = date_gmmktime(array('year' => $view->year, 'mon' => $view->mon, 'mday' => 1));
+    if ($view->month) {
+    	$stamp = date_gmmktime(array('year' => $view->year, 'mon' => $view->month, 'mday' => 1));
       return date_format_date('F Y', $stamp);
     }
     elseif ($view->year) {
@@ -69,11 +69,11 @@ function theme_calendar_arg_title($field_type, $value, $query) {
       $view->year = $value;
       return $view->year;
     case 'MONTH':
-      $view->mon = $value;
-      $stamp = date_gmmktime(array('year' => $view->year, 'mon' => $view->mon, 'mday' => 1));
+      $view->month = $value;
+      $stamp = date_gmmktime(array('year' => $view->year, 'mon' => $view->month, 'mday' => 1));
       return date_format_date('F Y', $stamp);
     case 'DAY':
-      $stamp = date_gmmktime(array('year' => $view->year, 'mon' => $view->mon, 'mday' => $value));
+      $stamp = date_gmmktime(array('year' => $view->year, 'mon' => $view->month, 'mday' => $value));
       return date_format_date('l, F j Y', $stamp);
     case 'WEEK':
     	return t('Week @week @year', array('@year' => $view->year, '@week' => $value));
