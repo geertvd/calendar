@@ -56,7 +56,10 @@ function theme_calendar_arg_title($field_type, $value, $query) {
 	$value = intval(check_plain($value));
 	if (empty($value)) {
     if ($view->month) {
-    	$stamp = date_gmmktime(array('year' => $view->year, 'mon' => $view->month, 'mday' => 1));
+      if ($view->month == "all") {
+        $view->month = 1;
+      }
+      $stamp = date_gmmktime(array('year' => $view->year, 'mon' => $view->month, 'mday' => 1));
       return date_format_date('F Y', $stamp);
     }
     elseif ($view->year) {
