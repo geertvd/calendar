@@ -75,6 +75,7 @@ function calendar_views_tabs($op) {
  */
 function calendar_load_date_api() {
   include_once(drupal_get_path('module', 'date_api') .'/date.inc');
+  include_once(DATE_TIMEZONES);
 }
 
 /**
@@ -592,9 +593,8 @@ function calendar_get_nodes(&$view, &$items, $type) {
             $node->start_offset = $node->end_offset = $offset_field;
             break;
           case 'event' :
-            include_once(DATE_TIMEZONES);
-            $node->start_offset = event_get_offset($node->event_timezone, $node->event_event_start);
-            $node->end_offset   = event_get_offset($node->event_timezone, $node->event_event_end);
+            $node->start_offset = date_get_offset($node->event_timezone, $node->event_event_start);
+            $node->end_offset   = date_get_offset($node->event_timezone, $node->event_event_end);
             break;
           default :
             $node->start_offset = $node->end_offset = variable_get('date_default_timezone', 0);
