@@ -319,12 +319,16 @@ function theme_calendar_node_day($node) {
     $output .= '<div class="end">'. $end_label . $node->end_format .'</div>'."\n";
   }
   if ($node->teaser) {
-  	$node->teaser = str_replace('\n', "\n", $node->teaser);
-    // Remove escaping added by ical.
-    $node->teaser = stripslashes($node->teaser);
-    // Run through check_markup.
-    $node->teaser = check_markup($node->teaser);
-    $output .= '<div class="content">'. check_markup($node->teaser) ."</div>\n";
+  	// Locally-created nodes already have output themed, so it was run through check_markup, etc.
+  	// Remote nodes need some cleanup.
+    if ($node->remote) {
+      $node->teaser = str_replace('\n', "\n", $node->teaser);
+      // Remove escaping added by ical.
+      $node->teaser = stripslashes($node->teaser);
+      // Run through check_markup.
+      $node->teaser = check_markup($node->teaser);
+    }
+    $output .= '<div class="content">'. ($node->teaser) ."</div>\n";
   }
   $output .= '<div class="links">'. theme('links', $node->calendar_links) ."\n</div>";
   $output .= "</div>\n";
