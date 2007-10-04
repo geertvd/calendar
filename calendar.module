@@ -542,12 +542,13 @@ function calendar_get_nodes(&$view, &$items, $type) {
         $node->title = $node->node_title;
         $node->label = $label;
         foreach ($view->field as $field) {
-          if (!in_array($field['field'], $calendar_fields) && $field['field'] != 'title') {
+          if (in_array($field['field'], $calendar_fields) && $field['field'] != 'title') {
             if ($view_fields[$field['id']]['visible'] !== FALSE) {
               $node->fields[$field['queryname']] = views_theme_field('views_handle_field', $field['queryname'], $view_fields, $field, $node, $view);
             }
           }
         }
+
         // If we're dealing with an event node, join the start and to dates together in one node and get rid of the other
         if (module_exists('event') && ($field_field == 'event_event_start' || $field_field == 'event_event_end') && !$event_field_processed[$item->nid]) {
           if ($node->event_event_start > 0) {
@@ -694,7 +695,6 @@ function calendar_get_nodes(&$view, &$items, $type) {
   $params['append'] = calendar_url_append($view);
   $params['stripe'] = 'stripe';
   $params['with_weekno'] = $view->build_type == 'block' || $view->calendar_type == 'year' || $view->year < 1970 ? FALSE : TRUE;
-
   return array('nodes' => $nodes, 'params' => $params);
 }
 
