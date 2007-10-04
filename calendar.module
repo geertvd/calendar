@@ -528,7 +528,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
       $string_fromto    = $option['string_fromto'];
       $field_id         = $delta;
       $tz_handling      = $option['tz_handling'];
-      $offset_field     = $option['offset_field'];
+      $offset_field     = str_replace('.', '_', $option['offset_field']);
       $label            = $data['label'];
       $granularity      = $option['granularity'];
       $view_fields      = _views_get_fields();
@@ -590,7 +590,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
             $node->start_offset = $node->end_offset = 0;
             break;
           case 'date' :
-            $node->start_offset = $node->end_offset = $offset_field;
+            $node->start_offset = $node->end_offset = $node->$offset_field;
             break;
           case 'event' :
             $node->start_offset = date_get_offset($node->event_timezone, $node->event_event_start);
@@ -624,6 +624,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
             $node->start_time_format = $node->start_format;
             $node->end_time_format = $node->end_format;
           }
+
           if ($node) {
             // we can have multiple representations with the same nid, like multi-day values
             // or different fields that refer to the same node
