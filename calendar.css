@@ -30,7 +30,7 @@
   height:auto !important;
   height:5em;
 }
-.calendar-nav-wrapper, .view-header {
+.calendar-nav-wrapper {
   width:100%;
   clear:both;
   position:relative;
