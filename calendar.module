@@ -1207,6 +1207,9 @@ function calendar_week($op, $view, $week = 0) {
  *  A function to test the validity of various date parts
  */
 function _calendar_is_valid($value, $type) {
+  if ( !preg_match('/^[0-9]*$/', $value) ) {
+    return false;
+  }
   calendar_load_date_api();
   $value = intval($value);
   if ($value <= 0) return false;
