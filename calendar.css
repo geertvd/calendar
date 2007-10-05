@@ -25,15 +25,9 @@
   }
 .calendar-calendar .inner {
   min-height:5em;
-  overflow:hidden;
+  height:auto !important;
+  height:5em;
 }
-/* hack to make Internet Explorer for Windows display calendar height correctly \*/
-* html .calendar-calendar .inner {
-  height: 5em;
-}
-/* end of hack */
-  }
-
 .calendar-nav-wrapper, .view-header {
   width:100%;
   clear:both;
