@@ -542,7 +542,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
         $node->title = $node->node_title;
         $node->label = $label;
         foreach ($view->field as $field) {
-          if (in_array($field['field'], $calendar_fields) && $field['field'] != 'title') {
+          if (!in_array($field['field'], $calendar_fields) && $field['field'] != 'title') {
             if ($view_fields[$field['id']]['visible'] !== FALSE) {
               $node->fields[$field['queryname']] = views_theme_field('views_handle_field', $field['queryname'], $view_fields, $field, $node, $view);
             }
