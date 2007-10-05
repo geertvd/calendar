@@ -53,7 +53,6 @@ function calendar_menu($may_cache) {
         'title' => t('View'),
         'callback' => 'views_view_page',
         'callback arguments' => $args,
-        'access' => user_access('administer views'),
         'weight' => 0,
         'type' => MENU_DEFAULT_LOCAL_TASK);
       $items[] = array(
