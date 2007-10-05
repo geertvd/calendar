@@ -43,6 +43,8 @@
 .calendar-calendar td.week {
   width:1%;
   }
+
+/* IE6 does not support min-height, using Min-Height fast hack from http://www.dustindiaz.com/min-height-fast-hack */
 .calendar-calendar .inner {
   min-height:5em;
   height:auto !important;
