@@ -21,9 +21,6 @@ function theme_calendar_calendar_node($node, $type) {
    }
    // For other views, construct a teaser out of the provided fields.
    else {
-     if ($node->label && !strstr($node->title, $node->label)) {
-       $node->title .= ' ('. $node->label .')';
-     }
      if (isset($node->fields) && !isset($node->teaser)) {
        foreach ($node->fields as $field) {
       	 // Locally-created nodes already have output themed, so it was run through check_markup, etc.
