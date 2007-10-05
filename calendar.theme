@@ -288,6 +288,7 @@ function theme_calendar_day($op, $header, $rows) {
   return '<div class="calendar-calendar"><div class="day-view">'. $output ."</div></div>\n";
 }
 
+
 /**
  * Format an calendar node for display in an expanded calendar, like a calendar page
  *
@@ -298,21 +299,15 @@ function theme_calendar_node_day($node) {
   $output .= '<div class="calendar dayview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
 
-  if ($node->calendar_start != $node->calendar_end && $node->start_time_format) {
-    $start_label = t('Start: ');
-    $end_label = t('End: ');
-  }
-  else {
-    $start_label = '';
-    $end_label = '';
-  }
+  $output .= '<h2 class="title">'. l($node->title, "$node->url", array('title' => t('view this item'))) .'</h2>'."\n";
 
-  $output .= '<div class="title">'. l($node->title, "$node->url", array('title' => t('view this item'))) .'</div>'."\n";
-
-  $output .= '<div class="start">'. $start_label . $node->start_format .'</div>'."\n";
+  $output .= '<div class="times">';
+  $output .= '<span class="start">'. $start_label . $node->start_format .'</span>'."\n";
   if ($node->calendar_start != $node->calendar_end && $node->calendar_end) {
-    $output .= '<div class="end">'. $end_label . $node->end_format .'</div>'."\n";
+    $output .= '<span class="end"> - '. $end_label . $node->end_format .'</span>'."\n";
   }
+  $output .= '</div>';
+
   if ($node->teaser) {
     $output .= '<div class="content">'. ($node->teaser) ."</div>\n";
   }
@@ -331,35 +326,26 @@ function theme_calendar_node_week($node) {
   $output .= '<div class="calendar weekview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
 
-  if ($node->calendar_start != $node->calendar_end && $node->start_time_format) {
-    $start_label = t('Start: ');
-    $end_label = t('End: ');
-  }
-  else {
-    $start_label = '';
-    $end_label = '';
-  }
-
   switch ($node->calendar_state) {
     case 'singleday':
-        $times = '<div class="start">'. $start_label . $node->start_time_format .'</div>'."\n";
+        $times = '<span class="start">'. $node->start_time_format .'</span>'."\n";
         if ($node->calendar_start != $node->calendar_end && $node->calendar_end) {
-          $times .= '<div class="end">'. $end_label . $node->end_time_format .'</div>'."\n";
+          $times .= '<span class="end"> - '. $node->end_time_format .'</span>'."\n";
         }
       break;
     case 'start':
-        $times = '<div class="start">'. $start_label . $node->start_time_format .'</div>'."\n";
+        $times = '<span class="start">'. $start_label . $node->start_time_format .'</span>'."\n";
       break;
     case 'end':
-        $times = '<div class="end">'. $end_label . $node->end_time_format .'</div>'."\n";
+        $times = '<span class="end">'. $end_label . $node->end_time_format .'</span>'."\n";
       break;
     case 'ongoing':
-        $times = '<div class="ongoing">'. t('all day') .'</div>'."\n";
+        $times = '<span class="ongoing">'. t('all day') .'</span>'."\n";
       break;
   }
 
   $output .= '<div class="title">'. l($node->title, "$node->url", array('title' => t('view this item'))) .'</div>'."\n";
-   $output .= $times;
+  $output .= '<div class="times">'. $times .'</div>';
   $output .= '<div class="links">'. theme('links', $node->calendar_links) ."\n</div>";
   $output .= '</div>' . "\n";
   return $output;
@@ -376,39 +362,30 @@ function theme_calendar_node_month($node) {
   $output .= '<div class="calendar monthview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
 
-  if ($node->calendar_start != $node->calendar_end && $node->start_time_format) {
-    $start_label = t('Start: ');
-    $end_label = t('End: ');
-  }
-  else {
-    $start_label = '';
-    $end_label = '';
-  }
-
   switch ($node->calendar_state) {
     case 'singleday':
       if ($node->start_time_format != $node->end_time_format) {
-        $times = '<div class="start">'. $start_label . $node->start_time_format .'</div>'."\n";
+        $times = '<span class="start">'. $node->start_time_format .'</span>'."\n";
       }
       if ($node->calendar_start != $node->calendar_end && $node->calendar_end) {
-        $times .= '<div class="end">'. $end_label . $node->end_time_format .'</div>'."\n";
+        $times .= '<span class="end"> - '. $node->end_time_format .'</span>'."\n";
       }
       else {
-        $times = '<div class="start">'. $node->start_time_format .'</div>'."\n";
+        $times = '<span class="start">'. $node->start_time_format .'</span>'."\n";
       }
       break;
     case 'start':
-        $times = '<div class="start">'. $start_label . $node->start_time_format .'</div>'."\n";
+        $times = '<span class="start">'. $start_label . $node->start_time_format .'</span>'."\n";
       break;
     case 'end':
-        $times = '<div class="end">'. $end_label . $node->end_time_format .'</div>'."\n";
+        $times = '<span class="end">'. $end_label . $node->end_time_format .'</span>'."\n";
       break;
     case 'ongoing':
-        $times = '<div class="ongoing">'. t('all day') .'</div>'."\n";
+        $times = '<span class="ongoing">'. t('all day') .'</span>'."\n";
       break;
   }
   $output .= '<div class="title">'. l($node->title, "$node->url", array('title' => t('view this item'))) .'</div>'."\n";
-  $output .= $times;
+  $output .= '<div class="times">'. $times .'</div>';
   $output .= $node->teaser;
   $output .= '<div class="links">'. theme('links', $node->calendar_links) ."\n</div>";
   $output .= '</div>' . "\n";
@@ -438,7 +415,7 @@ function theme_calendar_date_box($year, $month, $day, $view, $mini = FALSE, $sel
         $output = '<div class="day">'. l(t('!month / !day', array('!month' => $month, '!day' => $day)), $url, NULL, $append) .'</div>'."\n";
       break;
     case 'list':
-        $output = '<div class="day">'. l(date_format_date(date_mktime(array('month' => $month, 'day' => $day, 'year' => $year)), 'custom', 'l, F j, Y'), $url, NULL, $append) .'</div>'."\n";
+        $output = '<div class="day">'. l(date_format_date('l, F j, Y', date_mktime(array('mon' => $month, 'mday' => $day, 'year' => $year))), $url, NULL, $append) .'</div>'."\n";
       break;
     case 'day':
      break;
@@ -455,21 +432,8 @@ function theme_calendar_date_box($year, $month, $day, $view, $mini = FALSE, $sel
  * @param day
  *   The day to display.
  */
-function theme_calendar_empty_day($year, $month, $day, $view) {
-  switch ($view) {
-    case 'table':
-        $output = '<div class="day">'. t('%month / %day', array('%month' => $month, '%day' => $day)) .'</div>'."\n";
-        $output .= '<div class="calendar-empty"></div>'."\n";
-      break;
-    case 'day':
-    case 'list':
-     break;
-    default:
-        $output = '<div class="day">'. $day .'</div>'."\n";
-        $output .= '<div class="calendar-empty"></div>'."\n";
-      break;
-  }
-  return $output;
+function theme_calendar_empty_day() {
+  return '<div class="calendar-empty">&nbsp;</div>'."\n";
 }
 
 
