@@ -14,6 +14,8 @@ Views Calendar 5.x
 - Fixing the day view - view fields weren't getting added in correctly.
 - 135296 Offset for date-specific timezone was using the offset field name instead of its value, so being ignored. This will fix problems where time was showing up in the calendar adjusted to GMT timezone.
 - 160623 change event_get_offset() to date_get_offset() to match change in timezone.inc file.
+- 138825 $view->all was not getting converted back to a number in the theme.
+- 163552 fix inconsistancy between integer values and zero-padded values in date formatting,
 - 157393 make sure ical cache table isn't dropped if it was never created.
 
 Version 1.5
