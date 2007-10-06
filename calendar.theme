@@ -9,42 +9,50 @@
 /**
  *  Themeable node display
  *
- *  appends the field name to the title
- *  constructs a teaser out of any non-date fields in the view
+ *  Constructs a teaser out of any non-date fields in the view
  */
 function theme_calendar_calendar_node($node, $type) {
-   // Display the regular teaser view for local events.
-   if (!$node->remote && $type == 'calendar_node_day') {
-     $node = node_load($node->nid);
-     $node->teaser = node_view($node, TRUE, FALSE);
-     $node->title = '';
-   }
-   // For other views, construct a teaser out of the provided fields.
-   else {
-     if (isset($node->fields) && !isset($node->teaser)) {
-       foreach ($node->fields as $field) {
-      	 // Locally-created nodes already have output themed, so it was run through check_markup, etc.
-  	     // Remote nodes need some cleanup.
-         if ($node->remote) {
-           $field = str_replace('\n', "\n", $field);
-           // Remove escaping added by ical.
-           $field = stripslashes($field);
-           // Run through check_markup.
-           $field = check_markup($field);
-         }
-         $node->teaser .= '<div>'. $field .'</div>';
-       }
-     }
-     if (!$node->url && !$node->remote) {
-       $node->url = "node/$node->nid";
-     }
-   }
-   // Remote nodes may come in with lengthy descriptions that won't fit
-   // in small boxes of year, month, and week calendars.
-   if ($type != 'calendar_node_day' && $node->remote) {
-     $node->teaser = '';
-   }
-   return theme($type, $node);
+  static $set_nodes;
+
+  // Make sure the same node does not get its content altered more than
+  // once if it has multiple instances in the calendar.
+  if (in_array($node->nid, $set_nodes)) {
+    return theme($type, $node);
+  }
+
+  // Display the regular teaser view for local events.
+  if (!$node->remote && $type == 'calendar_node_day') {
+    $node = node_load($node->nid);
+    $node->teaser = node_view($node, TRUE, FALSE);
+    $node->title = '';
+  }
+  // For other views, construct a teaser out of the provided fields.
+  else {
+    if (isset($node->fields) && !isset($node->teaser)) {
+      foreach ($node->fields as $field) {
+     	 // Locally-created nodes already have output themed, so it was run through check_markup, etc.
+       // Remote nodes need some cleanup.
+        if ($node->remote) {
+          $field = str_replace('\n', "\n", $field);
+          // Remove escaping added by ical.
+          $field = stripslashes($field);
+          // Run through check_markup.
+          $field = check_markup($field);
+        }
+        $node->teaser .= '<div>'. $field .'</div>';
+      }
+    }
+    if (!$node->url && !$node->remote) {
+      $node->url = "node/$node->nid";
+    }
+  }
+  // Remote nodes may come in with lengthy descriptions that won't fit
+  // in small boxes of year, month, and week calendars.
+  if ($type != 'calendar_node_day' && $node->remote) {
+    $node->teaser = '';
+  }
+  $set_nodes[] = $node->nid;
+  return theme($type, $node);
 }
 
 /**
