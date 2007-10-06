@@ -302,7 +302,8 @@ function theme_calendar_display(&$view, &$items, $type) {
   foreach (module_implements('calendar_add_items') as $module) {
     $function = $module .'_calendar_add_items';
     if (function_exists($function)) {
-      $nodes += $function($view);
+      $nodes = array_merge($node, (array) $function($view));
+
     }
   }
   return theme('calendar_show_nav', $view) . calendar_get_calendar($view->calendar_type, $nodes, 'calendar', $title, $params);
