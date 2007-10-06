@@ -199,7 +199,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
               'year' => $year,
               ));
             // pad the first week row array to fill up days in the previous month we don't build
-            $row = array_fill(0, 6, '');
+            $row = array_fill(0, 6, theme('calendar_empty_day'));
             // get the day of week offset value for the first day of the month
             $start = $offset = _calendar_day_of_week($curstamp);
             // get name of month
