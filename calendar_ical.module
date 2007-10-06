@@ -286,7 +286,7 @@ function calendar_ical_views_post_view($view, $items, $output) {
  * the 4th argument isn't part of the hook, but we use it to differentiate
  * when called as a hook or when called manually from calendar_ical_views_post_view
  */
-function calendar_ical_views_feed_argument($op, &$view, $arg) {
+function calendar_ical_views_feed_argument($op, &$view, $arg, $argtype = NULL) {
   if ($op == 'argument' && $arg == 'ical') {
     $view->page_type = 'calendar_ical';
   }
