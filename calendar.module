@@ -431,7 +431,7 @@ function theme_calendar_view_table($view, $nodes, $type) {
     }
     $rows[] = $row;
   }
-  $rows = array_merge($items, (array) calendar_add_items($view, 'table'));
+  $rows = array_merge($rows, (array) calendar_add_items($view, 'table'));
   return theme('table', $view->table_header, $rows);
 }
 
