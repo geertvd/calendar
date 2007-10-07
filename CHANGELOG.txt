@@ -1,6 +1,7 @@
 Views Calendar 4.7
 ==================
 
+- 172073 Allow for non-calendar arguments before any calendar arguments to dynamically filter calendar.
 - Remove date fields from default view to force user to add the right field. Tired of handling support questions about unexpected date fields.
 - 171306 keep empty nodes out of ical feed.
 - 166659 and 160378 clean up handling of header and footer on empty pages.
