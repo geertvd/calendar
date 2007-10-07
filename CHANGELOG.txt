@@ -1,6 +1,7 @@
 Views Calendar 5.x
 ==================
 
+- 159326 slight correction to indicating 'selected' day in mini calendar.
 - 134240 fourth ical argument is optional, add '=NULL' so it will always work.
 - 115144 make sure multiple day nodes don't get title and teaser created more than one time.
 - 165845 make sure empty days have empty days theme.
