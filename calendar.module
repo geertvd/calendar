@@ -180,10 +180,10 @@ function calendar_views($build_type = 'page', $reset = FALSE) {
   }
   if ($reset || empty($calendar_views[$build_type])) {
     $calendar_views = array();
-    $result = db_query("SELECT vid, name, url FROM {view_view} ORDER BY name");
+    $result = db_query("SELECT vid, name, url, page_type, block_type FROM {view_view} ORDER BY name");
     while ($view = db_fetch_object($result)) {
       $view->build_type = $build_type;
-      if (calendar_is_calendar($view)) {
+      if (calendar_is_calendar($view, $reset)) {
         $calendar_views[$build_type][] = array('name' => $view->name, 'url' => $view->url);
       }
     }
@@ -209,17 +209,14 @@ function calendar_is_calendar($view, $reset = FALSE) {
   	$is_calendar = array($view->name => array($view->build_type => FALSE));
   }
   if ($reset || empty($is_calendar[$view->name][$view->build_type])) {
-  	$is_calendar = FALSE;
-    if ($view->build_type == 'page' && !array_key_exists($view->page_type, calendar_view_types())) {
-    	$is_calendar[$view->name][$view->build_type] = FALSE;
-    }
-    elseif ($view->build_type == 'page' && calendar_has_calendar_args($view)) {
+  	$is_calendar[$view->name][$view->build_type] = FALSE;
+  	if ($view->build_type == 'page' && array_key_exists($view->page_type, calendar_view_types())) {
     	$is_calendar[$view->name][$view->build_type] = TRUE;
     }
-    if ($view->build_type == 'block' && !array_key_exists($view->block_type, calendar_view_types())) {
-    	$is_calendar[$view->name][$view->build_type] = FALSE;
+    if ($view->build_type == 'block' && array_key_exists($view->block_type, calendar_view_types())) {
+    	$is_calendar[$view->name][$view->build_type] = TRUE;
     }
-    elseif ($view->build_type == 'block' && calendar_has_calendar_args($view)) {
+    if (calendar_has_calendar_args($view)) {
     	$is_calendar[$view->name][$view->build_type] = TRUE;
     }
   }
@@ -235,7 +232,7 @@ function calendar_has_calendar_args($view, $reset = FALSE) {
 		$has_args = array($view->name => FALSE);
 	}
 	if ($reset || empty($has_args[$view->name])) {
-		foreach ($view->argument as $delta => $argument) {
+		foreach ((array) $view->argument as $delta => $argument) {
       if (in_array($argument['type'], array('calendar_year', 'calendar_month', 'calendar_day', 'calendar_week'))) {
         $has_args[$view->name] = TRUE;
       }
