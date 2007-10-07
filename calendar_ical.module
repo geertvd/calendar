@@ -354,6 +354,9 @@ function theme_calendar_ical_feed($view, $items, $type) {
 
   $results = calendar_get_nodes($view, $items, $type);
   $nodes = $results['nodes'];
+  // Unset empty nodes that might have been created to fill out empty calendars.
+  unset($nodes[0]);
+  if (empty($nodes)) $nodes = array();
   foreach (module_implements('calendar_add_items') as $module) {
     $function = $module .'_calendar_add_items';
     $nodes += $function($view);
