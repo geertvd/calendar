@@ -95,7 +95,7 @@ function calendar_views_style_plugins() {
     $plugins[$name] = array(
       'name' => $type,
       'theme' => 'calendar_display',
-      'summary_theme' => 'calendar_display',
+      'summary_theme' => 'calendar_summary_display',
       'validate' => 'calendar_views_validate',
       'needs_fields' => TRUE,
       'needs_table_header' => FALSE,
@@ -130,7 +130,7 @@ function calendar_views_validate($type, $view, $form) {
   }
   // Make sure all arguments are set to 'Display all values'.
   $arg_types = array();
-  $cal_args = array('calendar_year', 'calendar_month', 'calendar_day', 'calendar_week');
+  $cal_args = calendar_args();
   foreach ($view['argument'] as $delta => $argument) {
     if (in_array($argument['type'], $cal_args)) {
       $view['argument'][$delta]['argdefault'] = 2;
@@ -233,7 +233,7 @@ function calendar_has_calendar_args($view, $reset = FALSE) {
 	}
 	if ($reset || empty($has_args[$view->name])) {
 		foreach ((array) $view->argument as $delta => $argument) {
-      if (in_array($argument['type'], array('calendar_year', 'calendar_month', 'calendar_day', 'calendar_week'))) {
+      if (in_array($argument['type'], calendar_args())) {
         $has_args[$view->name] = TRUE;
       }
     }
@@ -257,7 +257,7 @@ function calendar_last_argtype($view, $reset = FALSE) {
 	if ($reset || empty($argtype[$view->name])) {
 		$calendar_args[] = array();
 		foreach ($view->argument as $argument) {
-      if (in_array($argument['id'], array('calendar_year', 'calendar_month', 'calendar_week', 'calendar_day'))) {
+      if (in_array($argument['id'], calendar_args())) {
         $calendar_args[] = $argument['id'];
       }
     }
@@ -348,10 +348,25 @@ function calendar_fields($reset = FALSE) {
 }
 
 /**
- *  Calendar Views plugin theme, overrides default views theme
+ * Calendar summary display.
+ *
+ * Intercept arguments before calendar and return their summary view,
+ * Otherwise return calendar view.
+ */
+function theme_calendar_summary_display(&$view, $type, $level, &$items, $args) {
+  if (!calendar_is_calendar_arg($view)) {
+    return theme('views_summary', $view, $type, $level, $items, $args);
+  }
+  else {
+    return theme('calendar_display', $view, $items, $type);
+  }
+}
+
+/**
+ * Calendar Views plugin theme, overrides default views theme
+ * to create a calendar view.
  */
 function theme_calendar_display(&$view, &$items, $type) {
-
   if ($type == 'block') {
     $view->calendar_type = 'month';
   }
@@ -1187,9 +1202,10 @@ function calendar_build_field_query(&$query, $field) {
  *  @param object $view
  */
 function calendar_views_query_alter(&$query, &$view) {
-	if (!calendar_has_calendar_args($view)) {
-  		return;
+	if (!calendar_has_calendar_args($view) || !calendar_is_calendar_arg($view)) {
+    return;
   }
+
   $view->real_url = calendar_get_url($view, $view->args);
   calendar_load_calendar_api();
   calendar_load_date_api();
@@ -1225,7 +1241,7 @@ function calendar_views_query_alter(&$query, &$view) {
   if ($view->build_type == 'page') {
     $GLOBALS['calendar_is_calendar'] = TRUE;
 
-    if (empty($view->args)) {
+    if (empty($view->args) || !calendar_is_calendar_arg($view)) {
 
     	// If no arguments are provided, default to current month view.
     	$query->calendar_type = 'month';
@@ -1245,7 +1261,7 @@ function calendar_views_query_alter(&$query, &$view) {
     }
 
     foreach ($view->argument as $delta => $argument) {
-      if (in_array($argument['type'], array('calendar_year', 'calendar_month', 'calendar_day', 'calendar_week'))) {
+      if (in_array($argument['type'], calendar_args())) {
         // make sure 'display all values' is selected for the calendar arguments
         // summary views are meaningless and create errors in this context
         $view->argument[$delta]['argdefault'] = 2;
@@ -1301,7 +1317,7 @@ function calendar_views_query_alter(&$query, &$view) {
  */
 function calendar_views_pre_view(&$view, &$items) {
 	// If no part of this view has calendar elements, exit.
-	if (!calendar_is_calendar($view) && !calendar_has_calendar_args($view)) {
+	if ((!calendar_is_calendar($view) && !calendar_has_calendar_args($view)) || !calendar_is_calendar_arg($view)) {
 		return;
 	}
 
@@ -1633,20 +1649,18 @@ function calendar_calendar_node($node, $type) {
 }
 
 /**
+ * Valid calendar arguments.
+ */
+function calendar_args() {
+  return array('calendar_year', 'calendar_week', 'calendar_month', 'calendar_day', 'calendar_ical');
+}
+
+/**
  * Figure out what the URL of the calendar view we're currently looking at is.
  */
 function calendar_get_url($view, $args) {
-  static $cal_args;
-  // Figure out which arguments are calendar arguments.
-  if (!is_array($cal_args)) $cal_args = array();
-  if (empty($cal_args[$view->name])) {
-  	foreach ($view->argument as $delta => $arg) {
-      if (in_array($arg['type'], array('calendar_year', 'calendar_week', 'calendar_month', 'calendar_day', 'calendar_ical'))) {
-        $cal_args[$view->name][] = $delta;
-      }
-    }
-  }
   // Add non-calendar arguments to the base url.
+  $cal_args = calendar_arg_positions($view);
   $parts = array($view->url);
   foreach ($args as $delta => $arg) {
     if (!in_array($delta, $cal_args[$view->name]) && $arg) {
@@ -1654,6 +1668,40 @@ function calendar_get_url($view, $args) {
     }
   }
   return implode('/', $parts);
+}
+
+/**
+ * The positions in the view that hold calendar arguments.
+ */
+function calendar_arg_positions($view) {
+  static $positions;
+  // Figure out which arguments are calendar arguments.
+  if (!is_array($cal_args)) $cal_args = array();
+  if (empty($positions[$view->name])) {
+  	foreach ($view->argument as $delta => $arg) {
+      if (in_array($arg['type'], calendar_args())) {
+        $positions[$view->name][] = $delta;
+      }
+    }
+  }
+  return (array) $positions;
+}
+
+/**
+ * Is the current argument a calendar argument.
+ * Used to sort out whether or not to display the calendar at each point.
+ */
+function calendar_is_calendar_arg($view) {
+  if (empty($view->args)) {
+    $delta = 0;
+  }
+  else {
+    $delta = max(array_values(calendar_arg_positions($view)));
+  }
+  if (in_array($delta, calendar_arg_positions($view))) {
+    return TRUE;
+  }
+  return FALSE;
 }
 
 /**
