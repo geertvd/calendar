@@ -402,8 +402,10 @@ function theme_calendar_ical_feed($view, $items, $type) {
   }
   $results = calendar_get_nodes($view, $items, $type);
   $nodes = $results['nodes'];
+  // Unset empty nodes that might have been created to fill out empty calendars.
+  unset($nodes[0]);
   $params = $results['params'];
-  foreach ($nodes as $delta => $node) {
+  foreach ((array) $nodes as $delta => $node) {
     // switch our psuedo nids back to the right values
     $tmp = explode(':', $node->nid);
     $node->nid = $tmp[0];
@@ -413,7 +415,6 @@ function theme_calendar_ical_feed($view, $items, $type) {
     $function = $module .'_calendar_add_items';
     $nodes += $function($view);
   }
-
   drupal_set_header('Content-Type: text/calendar; charset=utf-8');
   drupal_set_header('Content-Disposition: attachment; filename="calendar.ics"; ');
   $events = array();

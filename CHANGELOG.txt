@@ -1,6 +1,7 @@
 Views Calendar 5.x
 ==================
 
+- 171306 keep empty nodes out of ical feed.
 - 166659 and 160378 clean up handling of header and footer on empty pages.
 - 155701 and 167110 ical and setup tabs sometimes didn't show up. Needed to rework the logic of calendar_is_calendar() and calendar_views() to properly identify views that have calendar types or calendar args.
 - 159326 slight correction to indicating 'selected' day in mini calendar.
