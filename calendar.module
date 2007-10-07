@@ -70,7 +70,6 @@ function calendar_menu($may_cache) {
   return $items;
 }
 
-
 /**
  * Helper function for loading date_api.
  */
@@ -161,18 +160,26 @@ function calendar_view_types() {
 }
 
 /**
- * All views that are of the type 'calendar';
- *
+ * Function to return all views that are of the type 'calendar'.
  */
 function calendar_views($build_type = 'page', $reset = FALSE) {
   static $calendar_views;
-  if ($reset || !isset($calendar_views[$build_type])) {
+  views_load_cache();
+  if (empty($calendar_views)) {
+  	$calendar_views = array($build_type => '');
+  }
+  if ($reset || empty($calendar_views[$build_type])) {
     $calendar_views = array();
-    $result = db_query("SELECT vid, name, url FROM {view_view} ORDER BY name");
+    $result = db_query("SELECT vid, name, url, page_type, block_type FROM {view_view} ORDER BY name");
     while ($view = db_fetch_object($result)) {
       $view->build_type = $build_type;
-      $view->page_type = 'calendar';
-      if (calendar_is_calendar($view)) {
+      if (calendar_is_calendar($view, $reset)) {
+        $calendar_views[$build_type][] = array('name' => $view->name, 'url' => $view->url);
+      }
+    }
+    $check = $build_type .'_type';
+    foreach (_views_get_default_views() as $view) {
+      if ($view->$check == 'calendar' && empty($view->disabled)) {
         $calendar_views[$build_type][] = array('name' => $view->name, 'url' => $view->url);
       }
     }
@@ -181,6 +188,47 @@ function calendar_views($build_type = 'page', $reset = FALSE) {
     $calendar_views = array($build_type => array());
   }
   return $calendar_views[$build_type];
+}
+
+/**
+ *  Function to test whether this is a view that uses the calendar plugin theme.
+ */
+function calendar_is_calendar($view, $reset = FALSE) {
+  static $is_calendar;
+  if (empty($is_calendar)) {
+  	$is_calendar = array($view->name => array($view->build_type => FALSE));
+  }
+  if ($reset || empty($is_calendar[$view->name][$view->build_type])) {
+  	$is_calendar[$view->name][$view->build_type] = FALSE;
+  	if ($view->build_type == 'page' && array_key_exists($view->page_type, calendar_view_types())) {
+    	$is_calendar[$view->name][$view->build_type] = TRUE;
+    }
+    if ($view->build_type == 'block' && array_key_exists($view->block_type, calendar_view_types())) {
+    	$is_calendar[$view->name][$view->build_type] = TRUE;
+    }
+    if (calendar_has_calendar_args($view)) {
+    	$is_calendar[$view->name][$view->build_type] = TRUE;
+    }
+  }
+  return $is_calendar[$view->name][$view->build_type];
+}
+
+/**
+ * Function to test whether any calendar args are used in this view.
+ */
+function calendar_has_calendar_args($view, $reset = FALSE) {
+	static $has_args;
+	if (empty($has_args)) {
+		$has_args = array($view->name => FALSE);
+	}
+	if ($reset || empty($has_args[$view->name])) {
+		foreach ((array) $view->argument as $delta => $argument) {
+      if (in_array($argument['type'], array('calendar_year', 'calendar_month', 'calendar_day', 'calendar_week'))) {
+        $has_args[$view->name] = TRUE;
+      }
+    }
+  }
+  return $has_args[$view->name];
 }
 
 /**
@@ -1227,51 +1275,6 @@ function _calendar_is_valid($value, $type) {
     if ($value < 0 || $value > 53) return false;
   }
   return true;
-}
-
-/**
- *  Function to test whether this is a view that the calendar module should touch
- */
-function calendar_is_calendar($view, $reset = FALSE) {
-  static $is_calendar;
-  if (empty($is_calendar)) {
-  	$is_calendar = array($view->name => array($view->build_type => FALSE));
-  }
-  if ($reset || empty($is_calendar[$view->name][$view->build_type])) {
-  	$is_calendar = FALSE;
-    if ($view->build_type == 'page' && !array_key_exists($view->page_type, calendar_view_types())) {
-    	$is_calendar[$view->name][$view->build_type] = FALSE;
-    }
-    elseif ($view->build_type == 'page' && calendar_has_calendar_args($view)) {
-    	$is_calendar[$view->name][$view->build_type] = TRUE;
-    }
-    if ($view->build_type == 'block' && !array_key_exists($view->block_type, calendar_view_types())) {
-    	$is_calendar[$view->name][$view->build_type] = FALSE;
-    }
-    elseif ($view->build_type == 'block' && calendar_has_calendar_args($view)) {
-    	$is_calendar[$view->name][$view->build_type] = TRUE;
-    }
-  }
-  return $is_calendar[$view->name][$view->build_type];
-}
-
-/**
- * Function to test whether any calendar args are used in this view.
- */
-function calendar_has_calendar_args($view, $reset = FALSE) {
-	static $has_args;
-	if (empty($has_args)) {
-		$has_args = array($view->name => FALSE);
-	}
-	if ($reset || empty($has_args[$view->name])) {
-	  if (!isset($view->argument)) $view = views_get_view($view->name);
-		foreach ($view->argument as $delta => $argument) {
-      if (in_array($argument['type'], array('calendar_year', 'calendar_month', 'calendar_day', 'calendar_week'))) {
-        $has_args[$view->name] = TRUE;
-      }
-    }
-  }
-  return $has_args[$view->name];
 }
 
 function calendar_views_default_views() {
