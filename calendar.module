@@ -1143,18 +1143,17 @@ function calendar_views_pre_view(&$view, &$items) {
 
   if (!calendar_is_calendar($view)) return;
 
-  // add this so empty calendar results will produce blank calendar page
-  // needed for smooth prev/next transitions and to make sure at least
-  // a blank calendar is displayed in calendar block
+  // If this is a calendar plugin theme view, make sure empty results
+  // will produce blank calendar page
   if (array_key_exists($view->page_type, calendar_view_types())) {
     if (!$items && $view->build_type == 'page' && $view->year) {
-      $view->page_empty = $view->page_header . $view->page_empty . theme('calendar_display', $view, array(), 'page');
+      $view->page_empty = check_markup($view->page_header, $view->page_header_format) . check_markup($view->page_empty, $view->page_empty_format) . theme('calendar_display', $view, array(), 'page') . check_markup($view->page_footer, $view->page_footer_format);
       $view->page_empty_format = 3;
     }
   }
   if (array_key_exists($view->block_type, calendar_view_types())) {
     if (!$items && $view->build_type == 'block' && $view->year) {
-      $view->block_empty = $view->block_header . $view->block_empty . theme('calendar_display', $view, array(), 'block');
+      $view->block_empty = check_markup($view->block_header, $view->block_header_format) . check_markup($view->block_empty, $view->block_empty_format) . theme('calendar_display', $view, array(), 'block') . check_markup($view->block_footer, $view->block_footer_format);
       $view->block_empty_format = 3;
     }
   }
