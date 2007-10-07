@@ -16,7 +16,7 @@ function theme_calendar_calendar_node($node, $type) {
 
   // Make sure the same node does not get its content altered more than
   // once if it has multiple instances in the calendar.
-  if (in_array($node->nid, $set_nodes)) {
+  if (in_array($node->nid, (array) $set_nodes)) {
     return theme($type, $node);
   }
 
