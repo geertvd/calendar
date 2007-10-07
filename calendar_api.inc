@@ -144,7 +144,7 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
         }
         foreach($months as $month => $days) {
           foreach($days as $day => $calendars) {
-            $content = theme('calendar_date_box', $year, $month, $day, 'table', $params['mini'], $calendars, $params['url'], $params['append']);
+            $content = theme('calendar_date_box', $year, $month, $day, 'table', $params['mini'], !empty($calendars), $params['url'], $params['append']);
             foreach($calendars as $calendar) {
               if(!$month_name) {
                 $month_name = date_format_date('M', $calendar->stamp);
