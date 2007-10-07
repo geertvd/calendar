@@ -1,6 +1,7 @@
 Views Calendar 5.x
 ==================
 
+- Remove date fields from default view to force user to add the right field. Tired of handling support questions about unexpected date fields.
 - 171306 keep empty nodes out of ical feed.
 - 166659 and 160378 clean up handling of header and footer on empty pages.
 - 155701 and 167110 ical and setup tabs sometimes didn't show up. Needed to rework the logic of calendar_is_calendar() and calendar_views() to properly identify views that have calendar types or calendar args.

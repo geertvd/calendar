@@ -1465,7 +1465,7 @@ function _calendar_is_valid($value, $type) {
 function calendar_views_default_views() {
 $view = new stdClass();
   $view->name = t('calendar');
-  $view->description = t('Calendar view of any date field');
+  $view->description = t('Calendar view of any date field, add a date field to the view to use it.');
   $view->access = array ();
   $view->view_args_php = '';
   $view->page = TRUE;
@@ -1489,19 +1489,13 @@ $view = new stdClass();
   $view->block_empty = "";
   $view->block_empty_format = '1';
   $view->block_type = 'calendar';
-  $view->nodes_per_block = '99';
+  $view->nodes_per_block = '0';
   $view->block_more = '1';
   $view->block_use_page_header = FALSE;
   $view->block_use_page_footer = FALSE;
   $view->block_use_page_empty = FALSE;
-  $view->sort = array (
-    array (
-      'tablename' => 'node',
-      'field' => 'changed',
-      'sortorder' => 'ASC',
-      'options' => '',
-    ),
-  );
+  $view->disabled = TRUE;
+  $view->sort = array ();
   $view->argument = array (
     array (
       'type' => 'calendar_year',
@@ -1535,12 +1529,6 @@ $view = new stdClass();
       'label' => 'Title:',
       'handler' => 'views_handler_field_nodelink',
       'options' => 'link',
-    ),
-    array (
-      'tablename' => 'node',
-      'field' => 'changed',
-      'label' => 'Updated:',
-      'handler' => 'views_handler_field_date_small',
     ),
   );
   $view->filter = array (
