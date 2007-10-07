@@ -1488,7 +1488,7 @@ function calendar_get_url($view, $args) {
 function calendar_arg_positions($view) {
   static $positions;
   // Figure out which arguments are calendar arguments.
-  if (!is_array($cal_args)) $cal_args = array();
+  if (!is_array($positions)) $positions = array();
   if (empty($positions[$view->name])) {
   	foreach ($view->argument as $delta => $arg) {
       if (in_array($arg['type'], calendar_args())) {
