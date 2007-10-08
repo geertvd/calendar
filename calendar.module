@@ -1205,7 +1205,6 @@ function calendar_views_query_alter(&$query, &$view) {
 	if (!calendar_has_calendar_args($view) || !calendar_is_calendar_arg($view)) {
     return;
   }
-
   $view->real_url = calendar_get_url($view, $view->args);
   calendar_load_calendar_api();
   calendar_load_date_api();
@@ -1663,7 +1662,7 @@ function calendar_get_url($view, $args) {
   $cal_args = calendar_arg_positions($view);
   $parts = array($view->url);
   foreach ($args as $delta => $arg) {
-    if (!in_array($delta, $cal_args[$view->name]) && $arg) {
+    if (!in_array($delta, $cal_args) && $arg) {
       array_push($parts, $arg);
     }
   }
@@ -1684,7 +1683,7 @@ function calendar_arg_positions($view) {
       }
     }
   }
-  return (array) $positions;
+  return (array) $positions[$view->name];
 }
 
 /**
@@ -1696,7 +1695,7 @@ function calendar_is_calendar_arg($view) {
     $delta = 0;
   }
   else {
-    $delta = max(array_values(calendar_arg_positions($view)));
+    $delta = max(array_keys($view->args));
   }
   if (in_array($delta, calendar_arg_positions($view))) {
     return TRUE;
