@@ -256,7 +256,7 @@ function theme_calendar_show_nav($view, $mini = FALSE, $links = FALSE) {
 
   // add links to the top of the calendar to switch from one view to another
   if ($links) {
-    $view->real_url = calendar_get_url($view, $view->args);
+    $view->real_url = calendar_real_url($view, $view->args);
     $base_url = $view->real_url .'/'. $view->year;
     $month    = $view->month && $view->month != CALENDAR_EMPTY_ARG ? $view->month : calendar_user_date('month');
     $day      = $view->day && $view->day != CALENDAR_EMPTY_ARG ? $view->day : calendar_user_date('day');

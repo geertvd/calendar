@@ -22,11 +22,11 @@ function calendar_help($section) {
  *  Implementation of hook_menu().
  */
 function calendar_menu($may_cache) {
-  include_once(CALENDAR_PATH .'/calendar.theme');
-  drupal_add_css(CALENDAR_PATH .'/calendar.css');
-  define('CALENDAR_EMPTY_ARG', variable_get('calendar_empty_arg', 'all'));
   $items = array();
   if (!$may_cache) {
+    include_once(CALENDAR_PATH .'/calendar.theme');
+    drupal_add_css(CALENDAR_PATH .'/calendar.css');
+    define('CALENDAR_EMPTY_ARG', variable_get('calendar_empty_arg', 'all'));
     foreach (calendar_info() as $view_name => $view) {
       $items[] = array(
         'path'     => $view['url'] .'/setup',
@@ -283,7 +283,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
     $nodes = array(_calendar_make_node(NULL, NULL, _views_get_timezone(), $view->year, $view->month, $view->day, 12, 0));
   }
 
-  if (_calendar_is_valid($view->year, 'year')) {
+  if (calendar_part_is_valid($view->year, 'year')) {
 
     // valid year is a test that indicates if arguments were available to establish a date for the calendar
     // a full view with an argument date will display a single month, day or week calendar page
@@ -304,7 +304,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
     }
   }
   // use calendar_get_calendar api to draw the calendar
-  $params['url'] = calendar_get_url($view, $view->args);
+  $params['url'] = calendar_real_url($view, $view->args);
   $params['append'] = calendar_url_append($view);
   $params['stripe'] = 'stripe';
   $params['with_weekno'] = $view->build_type == 'block' || $view->calendar_type == 'year' || $view->year < 1970 ? FALSE : TRUE;
@@ -315,12 +315,12 @@ function calendar_get_nodes(&$view, &$items, $type) {
  *  Function to construct back and next navigation from views arguments
  */
 function calendar_nav($view, $mini = FALSE) {
-  if (!_calendar_is_valid($view->year, 'year')) {
+  if (!calendar_part_is_valid($view->year, 'year')) {
     return $view->subtitle;
   }
   calendar_load_date_api();
 
-  if ($view->calendar_type == 'week' && _calendar_is_valid($view->week, 'week')) {
+  if ($view->calendar_type == 'week' && calendar_part_is_valid($view->week, 'week')) {
     $range = calendar_week_range($view->year, $view->week + 1);
     $cur_stamp = $range[0];
   } else {
@@ -457,11 +457,11 @@ function _calendar_make_node($node = NULL, $timestamp = NULL, $offset = NULL, $y
   $offset = $offset ? $offset : _views_get_timezone();
 
   if (!$timestamp) {
-    $year   = _calendar_is_valid($year, 'year')     ? $year   : date_format_date('Y', date_time());
-    $month  = _calendar_is_valid($month, 'month')   ? $month  : date_format_date('m', date_time());
-    $day    = _calendar_is_valid($day, 'day')       ? $day    : date_format_date('j', date_time());
-    $hour   = _calendar_is_valid($hour, 'hour')     ? $hour   : date_format_date('H', date_time());
-    $minute = _calendar_is_valid($minute, 'minute') ? $minute : date_format_date('i', date_time());
+    $year   = calendar_part_is_valid($year, 'year')     ? $year   : date_format_date('Y', date_time());
+    $month  = calendar_part_is_valid($month, 'month')   ? $month  : date_format_date('m', date_time());
+    $day    = calendar_part_is_valid($day, 'day')       ? $day    : date_format_date('j', date_time());
+    $hour   = calendar_part_is_valid($hour, 'hour')     ? $hour   : date_format_date('H', date_time());
+    $minute = calendar_part_is_valid($minute, 'minute') ? $minute : date_format_date('i', date_time());
     while (!checkdate($month, $day, $year)) $day--; // Account for days that don't exist
     $timestamp = date_gmmktime(array('hours' => $hour, 'minutes' => $minute, 'mon' => $month, 'mday' => $day, 'year' => $year));
   }
@@ -486,9 +486,9 @@ function _calendar_make_node($node = NULL, $timestamp = NULL, $offset = NULL, $y
  */
 function _calendar_limit_nodes($nodes, $type, $year, $month, $day, $week, $offset) {
   calendar_load_date_api();
-  if (!_calendar_is_valid($day, 'day')) $day = 1;
-  if (!_calendar_is_valid($month, 'month')) $month = date_format_date('m', date_time());
-  if (!_calendar_is_valid($year, 'year')) $year = date_format_date('Y', date_time());
+  if (!calendar_part_is_valid($day, 'day')) $day = 1;
+  if (!calendar_part_is_valid($month, 'month')) $month = date_format_date('m', date_time());
+  if (!calendar_part_is_valid($year, 'year')) $year = date_format_date('Y', date_time());
 
   switch ($type) {
   case ('day'):
@@ -541,7 +541,7 @@ function calendar_handler_arg_year($op, &$query, $argtype, $arg = '') {
 function calendar_filter_year(&$query, $arg) {
 	calendar_load_calendar_api();
 	$query->calendar_type = 'year';
-  $query->year = _calendar_is_valid($arg, 'year') ? $arg : calendar_user_date('year');
+  $query->year = calendar_part_is_valid($arg, 'year') ? $arg : calendar_user_date('year');
   $query->month = CALENDAR_EMPTY_ARG;
   $query->day = CALENDAR_EMPTY_ARG;
   $query->min = $query->year;
@@ -571,7 +571,7 @@ function calendar_filter_month(&$query, $arg) {
   if (!isset($query->year)) {
   	calendar_filter_year($query, calendar_user_date('year'));
   }
-  $query->month = _calendar_is_valid($arg, 'month') ? $arg : calendar_user_date('month');
+  $query->month = calendar_part_is_valid($arg, 'month') ? $arg : calendar_user_date('month');
   $query->day = CALENDAR_EMPTY_ARG;
   $query->min .= '-'. sprintf('%02d', $query->month);
   $query->max .= '-'. sprintf('%02d', $query->month);
@@ -600,7 +600,7 @@ function calendar_filter_day(&$query, $arg) {
   	calendar_filter_month($query, calendar_user_date('month'));
   }
   $query->calendar_type = 'day';
-  $query->day = _calendar_is_valid($arg, 'day') ? $arg : calendar_user_date('day');
+  $query->day = calendar_part_is_valid($arg, 'day') ? $arg : calendar_user_date('day');
   $query->min .= '-'. sprintf('%02d', $query->day);
   $query->max .= '-'. sprintf('%02d', $query->day);
 }
@@ -629,7 +629,7 @@ function calendar_filter_week(&$query, $arg) {
   }
   $arg = str_replace('W', '', $arg);
 	$query->calendar_type = 'week';
-  $query->week = _calendar_is_valid($arg, 'week') ? $arg : calendar_user_date('week');
+  $query->week = calendar_part_is_valid($arg, 'week') ? $arg : calendar_user_date('week');
   $query->month = calendar_week('start_month', $query, $query->week);
   $query->day = calendar_week('start_day', $query, $query->week);
   $query->min = calendar_week('start_year', $query, $query->week) .'-'. sprintf('%02d', calendar_week('start_month', $query, $query->week)) .'-'. calendar_week('start_day', $query, $query->week) .' 00:00:00';
@@ -774,10 +774,12 @@ function calendar_build_field_query(&$query, $field) {
  *  @param object $view
  */
 function calendar_views_query_alter(&$query, &$view) {
-	if (!calendar_has_calendar_args($view)) {
-    return;
+  $view->real_args = $view->args;
+  $view->real_url = calendar_real_url($view, $view->args);
+
+  if (!calendar_has_calendar_args($view) || !calendar_is_calendar_arg($view)) {
+	  return;
   }
-  $view->real_url = calendar_get_url($view, $view->args);
   calendar_load_calendar_api();
   calendar_load_date_api();
 
@@ -889,7 +891,7 @@ function calendar_views_query_alter(&$query, &$view) {
  */
 function calendar_views_pre_view(&$view, &$items) {
 	// If no part of this view has calendar elements, exit.
-	if ((!calendar_is_calendar($view) && !calendar_has_calendar_args($view))) {
+	if ((!calendar_is_calendar($view) || !calendar_has_calendar_args($view))) {
 		return;
 	}
 
@@ -1027,7 +1029,7 @@ function calendar_week($op, $view, $week = 0) {
 /**
  *  A function to test the validity of various date parts
  */
-function _calendar_is_valid($value, $type) {
+function calendar_part_is_valid($value, $type) {
   if ( !preg_match('/^[0-9]*$/', $value) ) {
     return false;
   }
@@ -1145,12 +1147,11 @@ function calendar_args() {
 /**
  * Figure out what the URL of the calendar view we're currently looking at is.
  */
-function calendar_get_url($view, $args) {
+function calendar_real_url($view, $args) {
   // Add non-calendar arguments to the base url.
-  $cal_args = calendar_arg_positions($view);
   $parts = array($view->url);
   foreach ($args as $delta => $arg) {
-    if (!in_array($delta, $cal_args) && $arg) {
+    if (!in_array($delta, calendar_arg_positions($view)) && !empty($arg)) {
       array_push($parts, $arg);
     }
   }
@@ -1212,11 +1213,11 @@ function calendar_arg_positions($view) {
  * Used to sort out whether or not to display the calendar at each point.
  */
 function calendar_is_calendar_arg($view) {
-  if (empty($view->args)) {
+  if (empty($view->real_args)) {
     $delta = 0;
   }
   else {
-    $delta = max(array_keys($view->args));
+    $delta = max(array_keys($view->real_args));
   }
   if (in_array($delta, calendar_arg_positions($view))) {
     return TRUE;
