@@ -208,7 +208,7 @@ function _calendar_views_validate($type, $view, $form) {
   // Reset calendar_fields() and calendar_views().
   if (!form_get_errors()) {
     calendar_fields(TRUE);
-    calendar_views(TRUE);
+    calendar_info(TRUE);
   }
 }
 
@@ -284,8 +284,7 @@ function _calendar_setup_form($view_name) {
     );
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Submit'),
-    );
+    '#value' => t('Submit'),    );
   return $form;
 }
 

@@ -26,17 +26,16 @@ function calendar_menu($may_cache) {
   include_once(CALENDAR_PATH .'/calendar.theme');
   drupal_add_css(CALENDAR_PATH .'/calendar.css');
   define('CALENDAR_EMPTY_ARG', variable_get('calendar_empty_arg', 'all'));
-
   $items = array();
   if (!$may_cache) {
-    foreach (calendar_views('page') as $view_name) {
+    foreach (calendar_info() as $view_name => $view) {
       $items[] = array(
-        'path'     => $view_name['url'] .'/setup',
+        'path'     => $view['url'] .'/setup',
         'title'    => t('Setup'),
         'description' => t('Calendar setup.'),
         'access'   => user_access('administer views'),
         'callback' => 'drupal_get_form',
-        'callback arguments' => array('calendar_setup_form', $view_name['name']),
+        'callback arguments' => array('calendar_setup_form', $view_name),
         'type' => MENU_LOCAL_TASK,
         'weight' => 5,
       );
