@@ -205,7 +205,7 @@ function _calendar_views_validate($type, $view, $form) {
     }
   }
 
-  // Reset calendar_fields() and calendar_views().
+  // Reset calendar_fields() and calendar_info().
   if (!form_get_errors()) {
     calendar_fields(TRUE);
     calendar_info(TRUE);

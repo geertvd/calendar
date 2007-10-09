@@ -22,7 +22,6 @@ function calendar_help($section) {
  *  Implementation of hook_menu().
  */
 function calendar_menu($may_cache) {
-
   include_once(CALENDAR_PATH .'/calendar.theme');
   drupal_add_css(CALENDAR_PATH .'/calendar.css');
   define('CALENDAR_EMPTY_ARG', variable_get('calendar_empty_arg', 'all'));
@@ -1177,20 +1176,6 @@ function calendar_url_append($view) {
     }
   }
   return $url;
-}
-
-/**
- * Function to return all views that use a calendar display
- * for this build type.
- */
-function calendar_views($build_type = 'page') {
-  $types = array();
-  foreach (calendar_info() as $name => $view) {
-    if ($view[$build_type]) {
-      $types[] = $name;
-    }
-  }
-  return $types;
 }
 
 /**
