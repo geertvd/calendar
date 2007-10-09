@@ -777,7 +777,7 @@ function calendar_views_query_alter(&$query, &$view) {
   $view->real_args = $view->args;
   $view->real_url = calendar_real_url($view, $view->args);
 
-  if (!calendar_has_calendar_args($view) || !calendar_is_calendar_arg($view)) {
+  if (!calendar_has_calendar_args($view)) {
 	  return;
   }
   calendar_load_calendar_api();
@@ -830,11 +830,10 @@ function calendar_views_query_alter(&$query, &$view) {
           $view->args[$delta] = CALENDAR_EMPTY_ARG;
         }
         else {
-          $view->args[$delta] = $prev_args[$delta];
+          $view->args[$delta] = $view->real_args[$delta];
         }
       }
     }
-
     foreach ($view->argument as $delta => $argument) {
       if (in_array($argument['type'], calendar_args())) {
         // make sure 'display all values' is selected for the calendar arguments
