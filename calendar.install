@@ -1,0 +1,22 @@
+<?php
+//$Id$
+/**
+ * @file
+ * Install File
+ */
+
+calendar_enable() {
+  calendar_clear_all();
+}
+
+calendar_disable() {
+  calendar_clear_all();
+}
+
+calendar_install() {
+  calendar_clear_all();
+}
+
+calendar_uninstall() {
+  calendar_clear_all();
+}

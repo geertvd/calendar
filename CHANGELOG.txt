@@ -1,6 +1,7 @@
 Views Calendar 5.x
 ==================
 
+- Make sure plugin works even_empty, add install file that can clear cached calendar settings.
 - Move administrative code to separate file so it isn't always parsed.
 - Move plugin display themes to calendar.theme.
 - Cache calendar fields() and calendar views() arrays.

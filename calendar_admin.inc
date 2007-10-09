@@ -207,8 +207,7 @@ function _calendar_views_validate($type, $view, $form) {
 
   // Reset calendar_fields() and calendar_info().
   if (!form_get_errors()) {
-    calendar_fields(TRUE);
-    calendar_info(TRUE);
+    calendar_clear_all();
   }
 }
 
@@ -326,6 +325,7 @@ function _calendar_views_style_plugins() {
       'validate' => 'calendar_views_validate',
       'needs_fields' => TRUE,
       'needs_table_header' => FALSE,
+      'even_empty' => TRUE,
       );
   }
   return $plugins;
