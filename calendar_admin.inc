@@ -29,58 +29,51 @@ function _calendar_view_types($reset = FALSE) {
  * @return
  *   array with views that use calendar plugins or have calendar arguments.
  */
-function _calendar_info($reset = FALSE) {
-  static $calendar_views;
-  if (empty($calendar_views) || $reset) {
-    $cid = 'calendar_views';
-    if (!$reset && $cached = cache_get($cid, 'cache')) {
-      $calendar_views = unserialize($cached->data);
-    }
-    else {
-      $calendar_views = array();
-      $calendar_types = calendar_view_types();
-      $result = db_query("SELECT vid, name FROM {view_view} ORDER BY name");
-      while ($v = db_fetch_object($result)) {
-        $view = views_get_view($v->vid);
-        $additions = array();
-        $additions['vid'] = $view->vid;
-        $additions['name'] = $view->name;
-        $additions['url'] = $view->url;
-        $additions['args'] = array();
-        $additions['page'] = array_key_exists($view->page_type, $calendar_types);
-        $additions['block'] = array_key_exists($view->block_type, $calendar_types);
-        foreach ((array) $view->argument as $delta => $argument) {
-          if (in_array($argument['type'], calendar_args())) {
-            $additions['args'][$delta] = $argument['id'];
-          }
-        }
-        if (!empty($additions['args']) || $additions['page'] || $additions['block']) {
-          $calendar_views[$view->name] = $additions;
-        }
-      }
-      views_load_cache();
-      foreach (_views_get_default_views() as $view) {
-        if (empty($view->disabled)) {
-          $additions = array();
-          $additions['vid'] = $view->vid;
-          $additions['name'] = $view->name;
-          $additions['url'] = $view->url;
-          $additions['args'] = array();
-          $additions['page'] = array_key_exists($view->page_type, $calendar_types);
-          $additions['block'] = array_key_exists($view->block_type, $calendar_types);
-          foreach ((array) $view->argument as $delta => $argument) {
-            if (in_array($argument['type'], calendar_args())) {
-              $additions['args'][$delta] = $argument['id'];
-            }
-          }
-          if (!empty($additions['args']) || $additions['page'] || $additions['block']) {
-            $calendar_views[$view->name] = $additions;
-          }
-        }
+function _calendar_info() {
+  $cid = 'calendar_views';
+  cache_clear_all($cid, 'cache');
+  $calendar_views = array();
+  $calendar_types = calendar_view_types();
+  $result = db_query("SELECT vid, name FROM {view_view} ORDER BY name");
+  while ($v = db_fetch_object($result)) {
+    $view = views_get_view($v->vid);
+    $additions = array();
+    $additions['vid'] = $view->vid;
+    $additions['name'] = $view->name;
+    $additions['url'] = $view->url;
+    $additions['args'] = array();
+    $additions['page'] = array_key_exists($view->page_type, $calendar_types);
+    $additions['block'] = array_key_exists($view->block_type, $calendar_types);
+    foreach ((array) $view->argument as $delta => $argument) {
+      if (in_array($argument['type'], calendar_args())) {
+        $additions['args'][$delta] = $argument['id'];
       }
     }
-    cache_set($cid, 'cache', serialize($calendar_views));
+    if (!empty($additions['args']) || $additions['page'] || $additions['block']) {
+      $calendar_views[$view->name] = $additions;
+    }
   }
+  views_load_cache();
+  foreach (_views_get_default_views() as $view) {
+    if (empty($view->disabled)) {
+      $additions = array();
+      $additions['vid'] = $view->vid;
+      $additions['name'] = $view->name;
+      $additions['url'] = $view->url;
+      $additions['args'] = array();
+      $additions['page'] = array_key_exists($view->page_type, $calendar_types);
+      $additions['block'] = array_key_exists($view->block_type, $calendar_types);
+      foreach ((array) $view->argument as $delta => $argument) {
+        if (in_array($argument['type'], calendar_args())) {
+          $additions['args'][$delta] = $argument['id'];
+        }
+      }
+      if (!empty($additions['args']) || $additions['page'] || $additions['block']) {
+        $calendar_views[$view->name] = $additions;
+      }
+    }
+  }
+  cache_set($cid, 'cache', serialize($calendar_views));
   return $calendar_views;
 }
 
@@ -90,83 +83,77 @@ function _calendar_info($reset = FALSE) {
  *  @return
  *   array with fieldname, type, and table
  */
-function _calendar_fields($reset = FALSE) {
-  static $fields;
-  if (empty($fields) || $reset) {
-    $cid = 'calendar_fields';
-    if (!$reset && $cached = cache_get($cid, 'cache')) {
-      $fields = unserialize($cached->data);
+function _calendar_fields() {
+  $cid = 'calendar_fields';
+  cache_clear_all($cid, 'cache');
+  $delta = 0;
+  foreach (_views_get_fields() as $name => $val) {
+    $timestamp_fromto = array();
+    $string_fromto = array();
+    $type = '';
+    // for cck fields, get the date type
+    if ($val['content_field']['type'] == 'date' || $val['content_field']['type'] == 'datestamp') {
+      $type = $val['content_field']['type'] == 'date' ? 'cck_string' : 'cck_timestamp';
     }
-    else {
-	    $delta = 0;
-      foreach (_views_get_fields() as $name => $val) {
-        $timestamp_fromto = array();
-        $string_fromto = array();
-        $type = '';
-        // for cck fields, get the date type
-        if ($val['content_field']['type'] == 'date' || $val['content_field']['type'] == 'datestamp') {
-          $type = $val['content_field']['type'] == 'date' ? 'cck_string' : 'cck_timestamp';
+    // all other fields that use the views date handler are timestamps
+    elseif ($val['handler'] == views_handler_field_dates()) {
+      $type = 'timestamp';
+    }
+    // don't do anything if this is not a date field
+    if ($type) {
+      // dates with from and to dates need to handle both fields as one
+      // add the from and to dates to the first one found and ignore the second
+      // Handling for event fromto dates
+      if (module_exists('event') && !$event_field_processed && ($name == 'event.event_start' || $name == 'event.event_end')) {
+        $timestamp_fromto = array('event.event_start', 'event.event_end');
+        $offset_field = 'event.timezone';
+        $tz_handling = variable_get('event_timezone_display', 'site');
+        $event_field_processed = TRUE;
+      }
+      elseif ($val['content_field']['tz_handling']) {
+        $tz_handling = $val['content_field']['tz_handling'];
+        if ($tz_handling == 'date') $offset_field = $val['table'] .'.'. $val['content_db_info']['columns']['offset']['column'];
+      }
+      else {
+        $tz_handling = 'site';
+      }
+      // Handling for cck fromto dates
+      if (!$event_field_processed && $val['content_field']['todate']) {
+        switch ($val['content_field']['type']) {
+        case 'datestamp':
+          $timestamp_fromto = array($val['table'] .'.'. $val['content_field']['field_name'] .'_value', $val['table'] .'.'. $val['content_field']['field_name'] .'_value2');
+          break;
+        case 'date':
+          $string_fromto = array($val['table'] .'.'. $val['content_field']['field_name'] .'_value', $val['table'] .'.'. $val['content_field']['field_name'] .'_value2');
+          break;
         }
-        // all other fields that use the views date handler are timestamps
-        elseif ($val['handler'] == views_handler_field_dates()) {
-          $type = 'timestamp';
-        }
-        // don't do anything if this is not a date field
-        if ($type) {
-          // dates with from and to dates need to handle both fields as one
-          // add the from and to dates to the first one found and ignore the second
-          // Handling for event fromto dates
-          if (module_exists('event') && !$event_field_processed && ($name == 'event.event_start' || $name == 'event.event_end')) {
-            $timestamp_fromto = array('event.event_start', 'event.event_end');
-            $offset_field = 'event.timezone';
-            $tz_handling = variable_get('event_timezone_display', 'site');
-            $event_field_processed = TRUE;
-          }
-          elseif ($val['content_field']['tz_handling']) {
-            $tz_handling = $val['content_field']['tz_handling'];
-            if ($tz_handling == 'date') $offset_field = $val['table'] .'.'. $val['content_db_info']['columns']['offset']['column'];
-          }
-          else {
-            $tz_handling = 'site';
-          }
-          // Handling for cck fromto dates
-          if (!$event_field_processed && $val['content_field']['todate']) {
-            switch ($val['content_field']['type']) {
-            case 'datestamp':
-              $timestamp_fromto = array($val['table'] .'.'. $val['content_field']['field_name'] .'_value', $val['table'] .'.'. $val['content_field']['field_name'] .'_value2');
-              break;
-            case 'date':
-              $string_fromto = array($val['table'] .'.'. $val['content_field']['field_name'] .'_value', $val['table'] .'.'. $val['content_field']['field_name'] .'_value2');
-              break;
-            }
-            $event_field_processed == TRUE;
-          }
-          // skip this step on second occurance of fromto date fields, if more than one exists in view
-          if (!$event_field_processed || $timestamp_fromto || $string_fromto) {
-            // cck fields append a column name to the field, others do not
-            // need a real field_name with no column name appended for cck date formatters
-            $tmp = explode('.', $name);
-            $field_name = $val['content_field']['field_name'] ? $val['content_field']['field_name'] : $tmp[1];
-            $fields[$tmp[1]] = array(
-              'type' => $type,
-              'delta' => $delta,
-              'label' => $val['name'],
-              'granularity' => is_array($val['content_field']['granularity']) ? (array) array_keys($val['content_field']['granularity']) : array('Y', 'M', 'D', 'H', 'N'),
-              'fullname' => $name,
-              'table' => $tmp[0],
-              'field' => $tmp[1],
-              'field_name' => $field_name,
-              'query_name' => str_replace('.', '_', $name),
-              'timestamp_fromto' => $timestamp_fromto,
-              'string_fromto' => $string_fromto,
-              'tz_handling' => $tz_handling,
-              'offset_field' => $offset_field,
-            );
-          }
-        }
+        $event_field_processed == TRUE;
+      }
+      // skip this step on second occurance of fromto date fields, if more than one exists in view
+      if (!$event_field_processed || $timestamp_fromto || $string_fromto) {
+        // cck fields append a column name to the field, others do not
+        // need a real field_name with no column name appended for cck date formatters
+        $tmp = explode('.', $name);
+        $field_name = $val['content_field']['field_name'] ? $val['content_field']['field_name'] : $tmp[1];
+        $fields[$tmp[1]] = array(
+          'type' => $type,
+          'delta' => $delta,
+          'label' => $val['name'],
+          'granularity' => is_array($val['content_field']['granularity']) ? (array) array_keys($val['content_field']['granularity']) : array('Y', 'M', 'D', 'H', 'N'),
+          'fullname' => $name,
+          'table' => $tmp[0],
+          'field' => $tmp[1],
+          'field_name' => $field_name,
+          'query_name' => str_replace('.', '_', $name),
+          'timestamp_fromto' => $timestamp_fromto,
+          'string_fromto' => $string_fromto,
+          'tz_handling' => $tz_handling,
+          'offset_field' => $offset_field,
+        );
       }
     }
   }
+  cache_set($cid, 'cache', serialize($fields));
   return $fields;
 }
 

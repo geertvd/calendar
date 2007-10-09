@@ -1341,16 +1341,36 @@ function calendar_view_types($reset = FALSE) {
  * Function to get information about all views that have calendar components.
  */
 function calendar_info($reset = FALSE) {
-  include_once(CALENDAR_PATH .'/calendar_admin.inc');
-  return _calendar_info($reset);
+  static $calendar_views;
+  if (empty($calendar_views) || $reset) {
+    $cid = 'calendar_views';
+    if (!$reset && $cached = cache_get($cid, 'cache')) {
+      $calendar_views = unserialize($cached->data);
+    }
+    else {
+     include_once(CALENDAR_PATH .'/calendar_admin.inc');
+     $calendar_views = _calendar_info();
+    }
+  }
+  return $calendar_views;
 }
 
 /**
  *  Identify all potential date/timestamp fields
  */
 function calendar_fields($reset = FALSE) {
-  include_once(CALENDAR_PATH .'/calendar_admin.inc');
-  return _calendar_fields($reset);
+  static $fields;
+  if (empty($fields) || $reset) {
+    $cid = 'calendar_fields';
+    if (!$reset && $cached = cache_get($cid, 'cache')) {
+      $fields = unserialize($cached->data);
+    }
+    else {
+      include_once(CALENDAR_PATH .'/calendar_admin.inc');
+      $fields = _calendar_fields();
+    }
+  }
+  return $fields;
 }
 
 /**
