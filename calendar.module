@@ -3,25 +3,10 @@
 
 /**
  * @file
- * Adds calendar display themes to views.
+ * Adds calendar filtering and displays to Views.
  */
 
-/**
- * Implementation of hook_init().
- */
-function calendar_init() {
-  // ensure we are not serving a cached page
-  if (function_exists('drupal_set_content')) {
-    // TODO this can be removed later. Added to ease transition to new schema that requires Date API.
-    // Needed because non-existant functions will cause fatal error that prevents ability to get back
-    // to module installation page.
-    if (!module_exists('date_api')) {
-      module_disable(array('calendar'));
-      module_disable(array('calendar_ical'));
-      drupal_set_message(t('Date API module is not installed. Calendar module was disabled.'));
-    }
-  }
-}
+define('CALENDAR_PATH', './'. drupal_get_path('module', 'calendar'));
 
 /**
  * Implementation of hook_help().
@@ -38,8 +23,8 @@ function calendar_help($section) {
  */
 function calendar_menu($may_cache) {
 
-  include_once(drupal_get_path('module', 'calendar') .'/calendar.theme');
-  drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
+  include_once(CALENDAR_PATH .'/calendar.theme');
+  drupal_add_css(CALENDAR_PATH .'/calendar.css');
   define('CALENDAR_EMPTY_ARG', variable_get('calendar_empty_arg', 'all'));
 
   $items = array();
@@ -82,389 +67,7 @@ function calendar_load_date_api() {
  * Helper function for loading calendar_api.
  */
 function calendar_load_calendar_api() {
-	include_once(drupal_get_path('module', 'calendar') .'/calendar_api.inc');
-}
-
-/**
- *  Implementation of hook_views_style_plugins()
- */
-function calendar_views_style_plugins() {
-  $plugins = array();
-  $types = array('calendar' => t('Calendar'));
-  foreach ($types as $name => $type) {
-    $plugins[$name] = array(
-      'name' => $type,
-      'theme' => 'calendar_display',
-      'summary_theme' => 'calendar_summary_display',
-      'validate' => 'calendar_views_validate',
-      'needs_fields' => TRUE,
-      'needs_table_header' => FALSE,
-      );
-  }
-  return $plugins;
-}
-
-/**
- * Validate a view.
- */
-function calendar_views_validate($type, $view, $form) {
-  // list (and table) modes require there to be at least 1 field active.
-  if (is_array($view['field'])) {
-    $fields = array_filter(array_keys($view['field']), 'is_numeric');
-  }
-  if (!$fields) {
-    form_error($form["$type-info"][$type . '_type'], t('The Calendar View requires at least one field.'));
-  }
-
-  if (isset($view['field']['count'])) {
-    $defaultsort = false;
-    for ($i = 0; $i < $view['field']['count']; $i++) {
-      if ($view['field'][$i]['defaultsort']) {
-        if ($defaultsort) {
-          form_error($form['field'][$i]['defaultsort'], t('You can only set on Default Sort on one field.'));
-          break;
-        }
-        $defaultsort = true;
-      }
-    }
-  }
-  // Make sure all arguments are set to 'Display all values'.
-  $arg_types = array();
-  $cal_args = calendar_args();
-  foreach ($view['argument'] as $delta => $argument) {
-    if (in_array($argument['type'], $cal_args)) {
-      $view['argument'][$delta]['argdefault'] = 2;
-      if ($argument['argdefault'] != 2) {
-        form_error($form['argument'][$delta]['argdefault'], t('Calendar arguments must be set to \'Display All Values\'.'));
-      }
-      $arg_types[] = $argument['type'];
-    }
-  }
-  // Must have Year, Month, and Day or Year and Week calendar arguments.
-  if (!in_array('calendar_year', $arg_types) && ((!in_array('calendar_month', $arg_types) && !in_array('calendar_day', $arg_types) || !in_array('calendar_week', $arg_types)))) {
-    form_error($form['argument'], t('The Calendar requres as arguments Calendar: Year, Calendar: Month, and Calendar: Day, or Calendar: Year and Calendar: Week'));
-  }
-  // CCK date fields cannot use grouped handler.
-  $calendar_fields = array_keys(calendar_fields());
-  foreach ($view['field'] as $delta => $field) {
-    if (in_array($field['field'], $calendar_fields) && $field['handler'] == 'content_views_field_handler_group') {
-      form_error($form['field'][$delta]['handler'], t('Calendar CCK Date fields must be set to \'Do not group multiple values\'.'));
-    }
-  }
-}
-
-/**
- *  Function to return all possible calendar views page display types.
- *  Implements hook_calendar_add_types($view) for other modules to add calendar types.
- */
-function calendar_view_types($reset = FALSE) {
-  static $types;
-  if ($reset || !isset($types)) {
-  	$types = array('calendar' => t('Calendar'));
-    foreach (module_implements('calendar_add_items') as $module) {
-      $function = $module .'_calendar_add_types';
-      $types += $function($view);
-    }
-  }
-  return $types;
-}
-
-/**
- * Function to return all views that are of the type 'calendar'.
- */
-function calendar_views($build_type = 'page', $reset = FALSE) {
-  static $calendar_views;
-  views_load_cache();
-  if (empty($calendar_views)) {
-  	$calendar_views = array($build_type => '');
-  }
-  if ($reset || empty($calendar_views[$build_type])) {
-    $calendar_views = array();
-    $result = db_query("SELECT vid, name, url, page_type, block_type FROM {view_view} ORDER BY name");
-    while ($view = db_fetch_object($result)) {
-      $view->build_type = $build_type;
-      if (calendar_is_calendar($view, $reset)) {
-        $calendar_views[$build_type][] = array('name' => $view->name, 'url' => $view->url);
-      }
-    }
-    $check = $build_type .'_type';
-    foreach (_views_get_default_views() as $view) {
-      if ($view->$check == 'calendar' && empty($view->disabled)) {
-        $calendar_views[$build_type][] = array('name' => $view->name, 'url' => $view->url);
-      }
-    }
-  }
-  if (empty($calendar_views) || !array_key_exists($build_type, $calendar_views)) {
-    $calendar_views = array($build_type => array());
-  }
-  return $calendar_views[$build_type];
-}
-
-/**
- *  Function to test whether this is a view that uses the calendar plugin theme.
- */
-function calendar_is_calendar($view, $reset = FALSE) {
-  static $is_calendar;
-  if (empty($is_calendar)) {
-  	$is_calendar = array($view->name => array($view->build_type => FALSE));
-  }
-  if ($reset || empty($is_calendar[$view->name][$view->build_type])) {
-  	$is_calendar[$view->name][$view->build_type] = FALSE;
-  	if ($view->build_type == 'page' && array_key_exists($view->page_type, calendar_view_types())) {
-    	$is_calendar[$view->name][$view->build_type] = TRUE;
-    }
-    if ($view->build_type == 'block' && array_key_exists($view->block_type, calendar_view_types())) {
-    	$is_calendar[$view->name][$view->build_type] = TRUE;
-    }
-    if (calendar_has_calendar_args($view)) {
-    	$is_calendar[$view->name][$view->build_type] = TRUE;
-    }
-  }
-  return $is_calendar[$view->name][$view->build_type];
-}
-
-/**
- * Function to test whether any calendar args are used in this view.
- */
-function calendar_has_calendar_args($view, $reset = FALSE) {
-	static $has_args;
-	if (empty($has_args)) {
-		$has_args = array($view->name => FALSE);
-	}
-	if ($reset || empty($has_args[$view->name])) {
-		foreach ((array) $view->argument as $delta => $argument) {
-      if (in_array($argument['type'], calendar_args())) {
-        $has_args[$view->name] = TRUE;
-      }
-    }
-  }
-  return $has_args[$view->name];
-}
-
-/**
- * Identify the final calendar argument in this view.
- *   Needed because we can't construct a query until we know all the calendar elements.
- *   Used to tell when to add the filter to the query object.
- *
- * @param object $view
- * @return string $argtype
- */
-function calendar_last_argtype($view, $reset = FALSE) {
-	static $argtype;
-	if (empty($argtype)) {
-		$argtype = array($view->name => '');
-	}
-	if ($reset || empty($argtype[$view->name])) {
-		$calendar_args[] = array();
-		foreach ($view->argument as $argument) {
-      if (in_array($argument['id'], calendar_args())) {
-        $calendar_args[] = $argument['id'];
-      }
-    }
-    $argtype[$view->name] = array_pop($calendar_args);
-  }
-  return $argtype[$view->name];
-}
-
-/**
- *  Identify all potential date/timestamp fields
- *  @return an array with fieldname, type, and table
- *  TODO add caching
- */
-function calendar_fields($reset = FALSE) {
-	static $fields;
-	if ($reset || empty($fields)) {
-    // iterate through all the views fields
-    $delta = 0;
-    foreach (_views_get_fields() as $name => $val) {
-      $timestamp_fromto = array();
-      $string_fromto = array();
-      $type = '';
-      // for cck fields, get the date type
-      if ($val['content_field']['type'] == 'date' || $val['content_field']['type'] == 'datestamp') {
-        $type = $val['content_field']['type'] == 'date' ? 'cck_string' : 'cck_timestamp';
-      }
-      // all other fields that use the views date handler are timestamps
-      elseif ($val['handler'] == views_handler_field_dates()) {
-        $type = 'timestamp';
-      }
-      // don't do anything if this is not a date field
-      if ($type) {
-        // dates with from and to dates need to handle both fields as one
-        // add the from and to dates to the first one found and ignore the second
-        // Handling for event fromto dates
-        if (module_exists('event') && !$event_field_processed && ($name == 'event.event_start' || $name == 'event.event_end')) {
-          $timestamp_fromto = array('event.event_start', 'event.event_end');
-          $offset_field = 'event.timezone';
-          $tz_handling = variable_get('event_timezone_display', 'site');
-          $event_field_processed = TRUE;
-        }
-        elseif ($val['content_field']['tz_handling']) {
-          $tz_handling = $val['content_field']['tz_handling'];
-          if ($tz_handling == 'date') $offset_field = $val['table'] .'.'. $val['content_db_info']['columns']['offset']['column'];
-        }
-        else {
-          $tz_handling = 'site';
-        }
-        // Handling for cck fromto dates
-        if (!$event_field_processed && $val['content_field']['todate']) {
-          switch ($val['content_field']['type']) {
-          case 'datestamp':
-            $timestamp_fromto = array($val['table'] .'.'. $val['content_field']['field_name'] .'_value', $val['table'] .'.'. $val['content_field']['field_name'] .'_value2');
-            break;
-          case 'date':
-            $string_fromto = array($val['table'] .'.'. $val['content_field']['field_name'] .'_value', $val['table'] .'.'. $val['content_field']['field_name'] .'_value2');
-            break;
-          }
-          $event_field_processed == TRUE;
-        }
-        // skip this step on second occurance of fromto date fields, if more than one exists in view
-        if (!$event_field_processed || $timestamp_fromto || $string_fromto) {
-          // cck fields append a column name to the field, others do not
-          // need a real field_name with no column name appended for cck date formatters
-          $tmp = explode('.', $name);
-          $field_name = $val['content_field']['field_name'] ? $val['content_field']['field_name'] : $tmp[1];
-          $fields[$tmp[1]] = array(
-            'type' => $type,
-            'delta' => $delta,
-            'label' => $val['name'],
-            'granularity' => is_array($val['content_field']['granularity']) ? (array) array_keys($val['content_field']['granularity']) : array('Y', 'M', 'D', 'H', 'N'),
-            'fullname' => $name,
-            'table' => $tmp[0],
-            'field' => $tmp[1],
-            'field_name' => $field_name,
-            'query_name' => str_replace('.', '_', $name),
-            'timestamp_fromto' => $timestamp_fromto,
-            'string_fromto' => $string_fromto,
-            'tz_handling' => $tz_handling,
-            'offset_field' => $offset_field,
-          );
-        }
-      }
-    }
-  }
-
-  return $fields;
-}
-
-/**
- * Calendar summary display.
- *
- * Intercept arguments before calendar and return their summary view,
- * Otherwise return calendar view.
- */
-function theme_calendar_summary_display(&$view, $type, $level, &$items, $args) {
-  if (!calendar_is_calendar_arg($view)) {
-    return theme('views_summary', $view, $type, $level, $items, $args);
-  }
-  else {
-    return theme('calendar_display', $view, $items, $type);
-  }
-}
-
-/**
- * Calendar Views plugin theme, overrides default views theme
- * to create a calendar view.
- */
-function theme_calendar_display(&$view, &$items, $type) {
-  if ($type == 'block') {
-    $view->calendar_type = 'month';
-  }
-  $mini = $view->calendar_type == 'year' || $view->build_type == 'block' ? TRUE : FALSE;
-  $links = $view->build_type == 'block' ? FALSE : TRUE;
-
-  // Bail out here to display regular views views instead of calendar.
-  // Check first for 'view' in url, then for 'calendar_display_format' variable, default to normal calendar display.
-  if ($_GET['view'] && $view->build_type == 'page') {
-  	$display = check_plain($_GET['view']);
-  }
-  else {
-  	$display_formats = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar', 'block' => 'calendar'));
-  	$display = $view->build_type == 'block' ? $display_formats['block'] : $display_formats[$view->calendar_type];
-  }
-  switch($display) {
-    case ('table') :
-      $view->table_header = _views_construct_header($view, _views_get_fields());
-      return theme('calendar_show_nav', $view, $mini, $links) . theme('calendar_view_table', $view, $items, $type);
-    case ('teasers') :
-      return theme('calendar_show_nav', $view, $mini, $links) . theme('calendar_view_teasers', $view, $items, $type);
-    case ('nodes') :
-      return theme('calendar_show_nav', $view, $mini, $links) . theme('calendar_view_nodes', $view, $items, $type);
-    case ('list') :
-      return theme('calendar_show_nav', $view, $mini, $links) . theme('calendar_view_list', $view, $items, $type);
-  }
-  $results = calendar_get_nodes($view, $items, $type);
-  $nodes = (array) $results['nodes'];
-  $params = (array) $results['params'];
-  // Weeks still aren't working right in all situations, turning them off for now.
-  $params[with_weekno] = FALSE;
-  $nodes = array_merge($nodes, (array) calendar_add_items($view, 'calendar'));
-  return theme('calendar_show_nav', $view, $mini, $links) . calendar_get_calendar($view->calendar_type, $nodes, 'calendar', '', $params);
-}
-
-/**
- * Display the nodes of a view as a list.
- */
-function theme_calendar_view_list($view, $nodes, $type) {
-  $fields = _views_get_fields();
-  $items = array();
-  foreach ($nodes as $node) {
-    $item = '';
-    foreach ($view->field as $field) {
-      if ($fields[$field['id']]['visible'] !== FALSE) {
-        if ($field['label']) {
-          $item .= "<div class='view-label ". views_css_safe('view-label-'. $field['queryname']) ."'>" . $field['label'] . "</div>";
-        }
-        $item .= "<div class='view-field ". views_css_safe('view-data-'. $field['queryname']) ."'>" . views_theme_field('views_handle_field', $field['queryname'], $fields, $field, $node, $view) . "</div>";
-      }
-    }
-    $items[] = "<div class='view-item ". views_css_safe('view-item-'. $view->name) ."'>$item</div>\n"; // l($node->title, "node/$node->nid");
-  }
-  $items = array_merge($items, (array) calendar_add_items($view, 'list'));
-  if ($items) {
-   	return theme('item_list', $items);
-  }
-}
-
-/**
- * Display the nodes of a view as a table.
- */
-function theme_calendar_view_table($view, $nodes, $type) {
-  $fields = _views_get_fields();
-  $rows = array();
-  foreach ($nodes as $node) {
-    $row = array();
-    foreach ($view->field as $field) {
-      if ($fields[$field['id']]['visible'] !== FALSE) {
-        $cell['data'] = views_theme_field('views_handle_field', $field['queryname'], $fields, $field, $node, $view);
-        $cell['class'] = "view-field ". views_css_safe('view-field-'. $field['queryname']);
-        $row[] = $cell;
-      }
-    }
-    $rows[] = $row;
-  }
-  $rows = array_merge($rows, (array) calendar_add_items($view, 'table'));
-  return theme('table', $view->table_header, $rows);
-}
-
-/**
- * Display the nodes of a view as teasers.
- */
-function theme_calendar_view_teasers($view, $nodes, $type) {
-  return views_theme('calendar_view_nodes', $view, $nodes, 'teasers');
-}
-
-/**
- * Display the nodes of a view as plain nodes.
- */
-function theme_calendar_view_nodes($view, $nodes, $type, $teasers = false, $links = true) {
-	$output = array();
-  foreach ($nodes as $n) {
-    $node = node_load($n->nid);
-    $output[] = node_view($node, $teasers, false, $links);
-  }
-  $output = array_merge($output, (array) calendar_add_items($view, $teasers ? 'teasers' : 'nodes'));
-  return implode($output);
+	include_once(CALENDAR_PATH .'/calendar_api.inc');
 }
 
 /**
@@ -921,35 +524,6 @@ function calendar_offset($field_name) {
 }
 
 /**
- *  Implementation of hook_views_arguments()
- */
-function calendar_views_arguments() {
-  $arguments = array(
-    'calendar_year' => array(
-      'name' => t('Calendar: Year'),
-      'handler' => 'calendar_handler_arg_year',
-      'help' => t('Filter by the calendar year (YYYY).'),
-    ),
-    'calendar_month' => array(
-      'name' => t('Calendar: Month'),
-      'handler' => 'calendar_handler_arg_month',
-      'help' => t("Filter by the calendar month (1-12). Place this argument after a 'Year' argument."),
-    ),
-    'calendar_day' => array(
-      'name' => t('Calendar: Day'),
-      'handler' => 'calendar_handler_arg_day',
-      'help' => t("Filter by the calendar day (1-31). Place this argument after a 'Year' and a 'Month' argument."),
-    ),
-    'calendar_week' => array(
-      'name' => t('Calendar: Week'),
-      'handler' => 'calendar_handler_arg_week',
-      'help' => t("Filter by the week number (1-52). Place this argument after a 'Year' argument and use a 'W' in front of the week number in the url."),
-    ),
-  );
-  return $arguments;
-}
-
-/**
  *  Custom views handler for the year argument.
  */
 function calendar_handler_arg_year($op, &$query, $argtype, $arg = '') {
@@ -1068,7 +642,7 @@ function calendar_filter_week(&$query, $arg) {
  *  Custom views handler for all calendar arguments.
  */
 function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_type) {
-	calendar_load_date_api();
+  calendar_load_date_api();
   switch ($op) {
   	case 'summary':
   	case 'link':
@@ -1080,7 +654,7 @@ function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_type) {
   	case 'filter':
   		// Figure out which will be the final calendar argument in this view so we know when to insert the query.
       $view = $GLOBALS['current_view'];
-      if ($argtype['type'] == calendar_last_argtype($view)) {
+      if ($argtype['type'] == calendar_is_last_arg($view)) {
   			$query->calendar_finished = TRUE;
       	calendar_build_filter($query, $view);
       }
@@ -1202,7 +776,7 @@ function calendar_build_field_query(&$query, $field) {
  *  @param object $view
  */
 function calendar_views_query_alter(&$query, &$view) {
-	if (!calendar_has_calendar_args($view) || !calendar_is_calendar_arg($view)) {
+	if (!calendar_has_calendar_args($view)) {
     return;
   }
   $view->real_url = calendar_get_url($view, $view->args);
@@ -1236,7 +810,6 @@ function calendar_views_query_alter(&$query, &$view) {
   // Either a month or a week argument could occupy the second position of the group
   // this is done so that a single view has the capability to switch between all calendar layouts
   // to make this work we must make some adjustments to the view
-
   if ($view->build_type == 'page') {
     $GLOBALS['calendar_is_calendar'] = TRUE;
 
@@ -1255,6 +828,9 @@ function calendar_views_query_alter(&$query, &$view) {
         }
         elseif ($argument['type'] == 'calendar_day' && !$view->args[$delta]) {
           $view->args[$delta] = CALENDAR_EMPTY_ARG;
+        }
+        else {
+          $view->args[$delta] = $prev_args[$delta];
         }
       }
     }
@@ -1302,7 +878,6 @@ function calendar_views_query_alter(&$query, &$view) {
   if (!$query->calendar_finished) {
   	calendar_build_filter($query, $view);
   }
-
   $view->calendar_type = $query->calendar_type;
   $view->year = $query->year;
   $view->month = $query->month;
@@ -1316,7 +891,7 @@ function calendar_views_query_alter(&$query, &$view) {
  */
 function calendar_views_pre_view(&$view, &$items) {
 	// If no part of this view has calendar elements, exit.
-	if ((!calendar_is_calendar($view) && !calendar_has_calendar_args($view)) || !calendar_is_calendar_arg($view)) {
+	if ((!calendar_is_calendar($view) && !calendar_has_calendar_args($view))) {
 		return;
 	}
 
@@ -1477,91 +1052,6 @@ function _calendar_is_valid($value, $type) {
   return true;
 }
 
-function calendar_views_default_views() {
-$view = new stdClass();
-  $view->name = t('calendar');
-  $view->description = t('Calendar view of any date field, add a date field to the view to use it.');
-  $view->access = array ();
-  $view->view_args_php = '';
-  $view->page = TRUE;
-  $view->page_title = t('Calendar');
-  $view->page_header = "";
-  $view->page_header_format = '1';
-  $view->page_footer = "";
-  $view->page_footer_format = '1';
-  $view->page_empty = "";
-  $view->page_empty_format = '1';
-  $view->page_type = 'calendar';
-  $view->url = t('calendar');
-  $view->use_pager = FALSE;
-  $view->nodes_per_page = '0';
-  $view->block = TRUE;
-  $view->block_title = t('Calendar');
-  $view->block_header = "";
-  $view->block_header_format = '1';
-  $view->block_footer = "";
-  $view->block_footer_format = '1';
-  $view->block_empty = "";
-  $view->block_empty_format = '1';
-  $view->block_type = 'calendar';
-  $view->nodes_per_block = '0';
-  $view->block_more = '1';
-  $view->block_use_page_header = FALSE;
-  $view->block_use_page_footer = FALSE;
-  $view->block_use_page_empty = FALSE;
-  $view->disabled = TRUE;
-  $view->sort = array ();
-  $view->argument = array (
-    array (
-      'type' => 'calendar_year',
-      'argdefault' => '2',
-      'title' => '%1',
-      'options' => '',
-      'wildcard' => '',
-      'wildcard_substitution' => '',
-    ),
-    array (
-      'type' => 'calendar_month',
-      'argdefault' => '2',
-      'title' => '%2',
-      'options' => '',
-      'wildcard' => '',
-      'wildcard_substitution' => '',
-    ),
-    array (
-      'type' => 'calendar_day',
-      'argdefault' => '2',
-      'title' => '%3',
-      'options' => '',
-      'wildcard' => '',
-      'wildcard_substitution' => '',
-    ),
-  );
-  $view->field = array (
-    array (
-      'tablename' => 'node',
-      'field' => 'title',
-      'label' => 'Title:',
-      'handler' => 'views_handler_field_nodelink',
-      'options' => 'link',
-    ),
-  );
-  $view->filter = array (
-    array (
-      'tablename' => 'node',
-      'field' => 'status',
-      'operator' => '=',
-      'options' => '',
-      'value' => '1',
-    ),
-  );
-  $view->exposed_filter = array (
-  );
-  $view->requires = array(node);
-  $views[$view->name] = $view;
-  return $views;
-}
-
 /**
  *  implementation of hook_block()
  */
@@ -1670,40 +1160,6 @@ function calendar_get_url($view, $args) {
 }
 
 /**
- * The positions in the view that hold calendar arguments.
- */
-function calendar_arg_positions($view) {
-  static $positions;
-  // Figure out which arguments are calendar arguments.
-  if (!is_array($positions)) $positions = array();
-  if (empty($positions[$view->name])) {
-  	foreach ($view->argument as $delta => $arg) {
-      if (in_array($arg['type'], calendar_args())) {
-        $positions[$view->name][] = $delta;
-      }
-    }
-  }
-  return (array) $positions[$view->name];
-}
-
-/**
- * Is the current argument a calendar argument.
- * Used to sort out whether or not to display the calendar at each point.
- */
-function calendar_is_calendar_arg($view) {
-  if (empty($view->args)) {
-    $delta = 0;
-  }
-  else {
-    $delta = max(array_keys($view->args));
-  }
-  if (in_array($delta, calendar_arg_positions($view))) {
-    return TRUE;
-  }
-  return FALSE;
-}
-
-/**
  * Pick up filter and sort info from url.
  */
 function calendar_url_append($view) {
@@ -1725,104 +1181,94 @@ function calendar_url_append($view) {
 }
 
 /**
- * Setup Calendar parameters.
+ * Function to return all views that use a calendar display
+ * for this build type.
  */
-function calendar_setup_form($view_name) {
-	calendar_load_date_api();
-	$view = views_load_view($view_name);
-  $form = array();
-  $time = mktime(1, 15, 0, 1, 1, date('Y', date_time()));
-  $time_options = array(
-    'G:i' => date('G:i', $time),
-    'g:ia' => date('g:ia', $time),
-    'g:iA' => date('g:iA', $time),
-    'g:i a' => date('g:i a', $time),
-    'g:i A' => date('g:i A', $time),
-    'H:i' => date('H:i', $time),
-    'h:ia' => date('h:ia', $time),
-    'h:iA' => date('h:iA', $time),
-    'h:i a' => date('h:i a', $time),
-    'h:i A' => date('h:i A', $time),
-    );
-
-  $form['calendar_time_format'] = array(
-    '#title' => t('Time format'),
-    '#default_value' => variable_get('calendar_time_format_'. $view->name, 'H:i'),
-    '#type' => 'select',
-    '#options' => $time_options,
-    '#description' => t('The format to use for the time-only date display.'),
-    );
-  $display_options = array('calendar' => t('Calendar'), 'table' => t('Table'), 'teasers' => t('Teasers'), 'nodes' => t('Full Nodes'), 'list' => t('List'));
-  $display_format = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar', 'block' => 'calendar'));
-  $form['year'] = array(
-    '#title' => t('Year display'),
-    '#default_value' => $display_format['year'],
-    '#type' => 'select',
-    '#options' => $display_options,
-  );
-  $form['month'] = array(
-    '#title' => t('Month display'),
-    '#default_value' => $display_format['month'],
-    '#type' => 'select',
-    '#options' => $display_options,
-  );
-  $form['week'] = array(
-    '#title' => t('Week display'),
-    '#default_value' => $display_format['week'],
-    '#type' => 'select',
-    '#options' => $display_options,
-  );
-  $form['day'] = array(
-    '#title' => t('Day display'),
-    '#default_value' => $display_format['day'],
-    '#type' => 'select',
-    '#options' => $display_options,
-  );
-  $form['block'] = array(
-    '#title' => t('Block display'),
-    '#default_value' => $display_format['block'],
-    '#type' => 'select',
-    '#options' => $display_options,
-  );
-  $form['calendar_empty_arg'] = array(
-    '#title' => t('Wildcard argument'),
-    '#type' => 'textfield',
-    '#default_value' => variable_get('calendar_empty_arg', 'all'),
-    '#description' => t('A character or short text string to use for empty calendar arguments. For instance, \'all\' would create the url 2007/12/all to show all days in December of 2007. Note that non-ASCII characters will not display correctly in urls.')
-    );
-  $form['view_name'] = array(
-    '#type' => 'hidden',
-    '#value' => $view->name,
-    );
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Submit'),
-    );
-  return $form;
+function calendar_views($build_type = 'page') {
+  $types = array();
+  foreach (calendar_info() as $name => $view) {
+    if ($view[$build_type]) {
+      $types[] = $name;
+    }
+  }
+  return $types;
 }
 
 /**
- * Save requested values.
+ *  Function to test whether this is a view that uses the calendar plugin theme.
  */
-function calendar_setup_form_submit($form_id, $form_values) {
-  $view_name = $form_values['view_name'];
-  $display_format = array();
-  variable_set('calendar_empty_arg', check_plain($form_values['calendar_empty_arg']));
-  foreach ($form_values as $value_name => $value) {
-  	switch ($value_name) {
-  		case 'calendar_time_format':
-        variable_set('calendar_time_format_'. $view_name,  $value);
-        break;
-  		case 'year':
-  		case 'month':
-  		case 'week':
-  		case 'day':
-  		case 'block':
-  			$display_format[$value_name] = $value;
-  			break;
-    }
+function calendar_is_calendar($view) {
+  $calendar_info = calendar_info();
+  return $calendar_info[$view->name][$view->build_type];
+}
+
+/**
+ * Function to test whether any calendar args are used in this view.
+ */
+function calendar_has_calendar_args($view, $reset = FALSE) {
+	$calendar_info = calendar_info();
+	if (count($calendar_info[$view->name]['args']) > 0) {
+	  return TRUE;
+	}
+	else {
+	  return FALSE;
+	}
+}
+
+/**
+ * The positions in the view that hold calendar arguments.
+ */
+function calendar_arg_positions($view) {
+  $calendar_info = calendar_info();
+  return array_keys($calendar_info[$view->name]['args']);
+}
+
+/**
+ * Is the current argument a calendar argument.
+ * Used to sort out whether or not to display the calendar at each point.
+ */
+function calendar_is_calendar_arg($view) {
+  if (empty($view->args)) {
+    $delta = 0;
   }
-  variable_set('calendar_display_format_'. $view_name, $display_format);
+  else {
+    $delta = max(array_keys($view->args));
+  }
+  if (in_array($delta, calendar_arg_positions($view))) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Identify the final calendar argument in this view.
+ *   Needed because we can't construct a query until we know all the calendar elements.
+ *   Used to tell when to add the filter to the query object.
+ *
+ * @param object $view
+ * @return string $argtype
+ */
+function calendar_is_last_arg($view, $reset = FALSE) {
+  foreach ($view->argument as $argument) {
+    if (in_array($argument['id'], calendar_args())) {
+      $calendar_arg = $argument['id'];
+    }
+    $max = $argument['id'];
+  }
+  return $max < $calendar_arg;
+}
+
+/**
+ * Helper function to find the display formats
+ * for each part of this view.
+ */
+function calendar_get_formats($view) {
+  return variable_get('calendar_display_format_'. $view->name, array(
+    'year' => 'calendar',
+    'month' => 'calendar',
+    'week' => 'calendar',
+    'day' => 'calendar',
+    'block' => 'calendar'));
 }
 
 /**
@@ -1852,4 +1298,81 @@ function calendar_node_stripe($view, $node, $query_name, $delta, $stripe = NULL,
   }
   $GLOBALS['calendar_stripe_labels'][$stripe] = $label;
   return $stripe;
+}
+
+/**
+ * Moved the following infrequently-used functions to separate file
+ * so the code is not parsed on every page.
+ */
+
+/**
+ *  Implementation of hook_views_style_plugins()
+ */
+function calendar_views_style_plugins() {
+  include_once(CALENDAR_PATH .'/calendar_admin.inc');
+  return _calendar_views_style_plugins();
+}
+
+/**
+ * Implementation of hook_views_default_views()
+ */
+function calendar_views_default_views() {
+  include_once(CALENDAR_PATH .'/calendar_admin.inc');
+  return _calendar_views_default_views();
+}
+
+/**
+ *  Implementation of hook_views_arguments()
+ */
+function calendar_views_arguments() {
+  include_once(CALENDAR_PATH .'/calendar_admin.inc');
+  return _calendar_views_arguments();
+}
+
+/**
+ *  Function to return all possible calendar views page display types.
+ */
+function calendar_view_types($reset = FALSE) {
+  include_once(CALENDAR_PATH .'/calendar_admin.inc');
+  return _calendar_view_types($reset);
+}
+
+/**
+ * Function to get information about all views that have calendar components.
+ */
+function calendar_info($reset = FALSE) {
+  include_once(CALENDAR_PATH .'/calendar_admin.inc');
+  return _calendar_info($reset);
+}
+
+/**
+ *  Identify all potential date/timestamp fields
+ */
+function calendar_fields($reset = FALSE) {
+  include_once(CALENDAR_PATH .'/calendar_admin.inc');
+  return _calendar_fields($reset);
+}
+
+/**
+ * Validate a view during Views administration.
+ */
+function calendar_views_validate($type, $view, $form) {
+  include_once(CALENDAR_PATH .'/calendar_admin.inc');
+  return _calendar_views_validate($type, $view, $form);
+}
+
+/**
+ * Setup Calendar parameters in the Setup Tab.
+ */
+function calendar_setup_form($view_name) {
+  include_once(CALENDAR_PATH .'/calendar_admin.inc');
+  return _calendar_setup_form($view_name);
+}
+
+/**
+ * Save Setup values.
+ */
+function calendar_setup_form_submit($form_id, $form_values) {
+  include_once(CALENDAR_PATH .'/calendar_admin.inc');
+  return _calendar_setup_form_submit($form_id, $form_values);
 }

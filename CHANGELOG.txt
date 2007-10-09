@@ -1,6 +1,9 @@
 Views Calendar 5.x
 ==================
 
+- Move administrative code to separate file so it isn't always parsed.
+- Move plugin display themes to calendar.theme.
+- Cache calendar fields() and calendar views() arrays.
 - 172073 Allow for non-calendar arguments before any calendar arguments to dynamically filter calendar.
 - Remove date fields from default view to force user to add the right field. Tired of handling support questions about unexpected date fields.
 - 171306 keep empty nodes out of ical feed.
