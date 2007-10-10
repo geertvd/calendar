@@ -955,7 +955,11 @@ function calendar_views_pre_view(&$view, &$items) {
  * calendar, so override Views to set the page title to match the View title.
  */
 function calendar_views_post_view(&$view, $items, $output) {
-  $title = theme('calendar_page_title', $view, $items, $output);
+	// If no part of this view has calendar elements, exit.
+	if ($view->build_type != 'page' || !calendar_is_calendar($view) || !calendar_has_calendar_args($view)) {
+		return;
+	}
+	$title = theme('calendar_page_title', $view, $items, $output);
   drupal_set_title($title);
 }
 
