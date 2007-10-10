@@ -1164,6 +1164,7 @@ function calendar_calendar_node($node, $type) {
       // switch our psuedo nids back to the right values
       $tmp = explode(':', $node->nid);
       $node->nid = $tmp[0];
+      $node->instance = $tmp[1];
     }
     return theme('calendar_calendar_node', $node, $type);
 

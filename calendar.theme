@@ -136,7 +136,9 @@ function theme_calendar_calendar_node($node, $type) {
 
   // Make sure the same node does not get its content altered more than
   // once if it has multiple instances in the calendar.
-  if (in_array($node->nid, (array) $set_nodes)) {
+  // Multiple day events might have the same nid, so we need to use
+  // the combination of the nid and the instance to get a unique key.
+  if (in_array($node->nid .':'. $node->instance, (array) $set_nodes)) {
     return theme($type, $node);
   }
 
@@ -171,7 +173,7 @@ function theme_calendar_calendar_node($node, $type) {
   if ($type != 'calendar_node_day' && $node->remote) {
     $node->teaser = '';
   }
-  $set_nodes[] = $node->nid;
+  $set_nodes[] = $node->nid .':'. $node->instance;
   return theme($type, $node);
 }
 
