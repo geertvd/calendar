@@ -437,7 +437,6 @@ function _calendar_views_default_views() {
   );
   $view->requires = array(node);
   $views[$view->name] = $view;
-
 if (module_exists('og')) {
   $view = new stdClass();
   $view->name = 'og_calendar';
@@ -479,6 +478,7 @@ if (module_exists('og')) {
   $view->block_use_page_header = FALSE;
   $view->block_use_page_footer = FALSE;
   $view->block_use_page_empty = FALSE;
+  $view->disabled = TRUE;
   $view->sort = array (  );
   $view->argument = array (
     array (
@@ -532,9 +532,8 @@ if (module_exists('og')) {
       'value' => '1',
     ),
   );
-  $view->exposed_filter = array (
-  );
-  $view->requires = array(node, node_data_field_date);
+  $view->exposed_filter = array ();
+  $view->requires = array(node);
   $views[$view->name] = $view;
   }
   return $views;
