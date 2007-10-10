@@ -787,7 +787,7 @@ function calendar_views_query_alter(&$query, &$view) {
   $view->real_args = $view->args;
   $view->real_url = calendar_real_url($view, $view->args);
 
-  if (!calendar_has_calendar_args($view)) {
+  if (!calendar_has_calendar_args($view) || (empty($view->args) && !calendar_is_calendar_arg($view))) {
 	  return;
   }
   calendar_load_calendar_api();
