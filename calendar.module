@@ -28,8 +28,14 @@ function calendar_menu($may_cache) {
     drupal_add_css(CALENDAR_PATH .'/calendar.css');
     define('CALENDAR_EMPTY_ARG', variable_get('calendar_empty_arg', 'all'));
     foreach (calendar_info() as $view_name => $view) {
+      $parts = explode('/', $view['url']);
+      foreach ($parts as $delta => $part) {
+        if (in_array($part, array('$arg', '$node', '$user'))) {
+          $parts[$delta] = arg($delta);
+        }
+      }
       $items[] = array(
-        'path'     => $view['url'] .'/setup',
+        'path'     => implode('/', $parts) .'/setup',
         'title'    => t('Setup'),
         'description' => t('Calendar setup.'),
         'access'   => user_access('administer views'),
@@ -1158,9 +1164,18 @@ function calendar_args() {
  */
 function calendar_real_url($view, $args) {
   // Add non-calendar arguments to the base url.
-  $parts = array($view->url);
+  $parts = explode('/', $view->url);
+  $bump = 0;
+  foreach ($parts as $delta => $part) {
+    // If one of the args is buried in the url, add it here and adjust
+    // the delta values we'll compare the calendar arg positions to.
+    if ($part == '$arg') {
+      $parts[$delta] = array_shift($args);
+      $bump++;
+    }
+  }
   foreach ($args as $delta => $arg) {
-    if (!in_array($delta, calendar_arg_positions($view)) && !empty($arg)) {
+    if (!in_array($delta + $bump, calendar_arg_positions($view)) && !empty($arg)) {
       array_push($parts, $arg);
     }
   }
@@ -1214,7 +1229,12 @@ function calendar_has_calendar_args($view, $reset = FALSE) {
  */
 function calendar_arg_positions($view) {
   $calendar_info = calendar_info();
-  return array_keys($calendar_info[$view->name]['args']);
+  if (array_key_exists($view->name, $calendar_info)) {
+    return array_keys($calendar_info[$view->name]['args']);
+  }
+  else {
+    return array();
+  }
 }
 
 /**

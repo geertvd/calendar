@@ -16,8 +16,14 @@ function calendar_ical_menu($may_cache) {
   $items = array();
   if (!$may_cache) {
     foreach (calendar_info() as $view_name => $view) {
+      $parts = explode('/', $view['url']);
+      foreach ($parts as $delta => $part) {
+        if (in_array($part, array('$arg', '$node', '$user'))) {
+          $parts[$delta] = arg($delta);
+        }
+      }
       $items[] = array(
-        'path'     => $view['url'] .'/ical',
+        'path'     => implode('/', $parts) .'/ical',
         'title'    => t('iCal'),
         'description' => t('iCal setup.'),
         'access'   => user_access('administer views'),

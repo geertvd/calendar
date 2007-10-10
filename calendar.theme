@@ -185,7 +185,7 @@ function theme_calendar_calendar_node($node, $type) {
  * @return string formatted title
  */
 function theme_calendar_arg_title($field_type, $value, $query) {
-	$view = $GLOBALS['current_view'];
+  $view = $GLOBALS['current_view'];
 	calendar_load_date_api();
 	$value = intval(check_plain($value));
 	if (empty($value)) {
