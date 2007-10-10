@@ -7,28 +7,6 @@
  */
 
 /**
- * Implementation of hook_init().
- */
-function calendar_init() {
-  // ensure we are not serving a cached page
-  if (function_exists('drupal_set_content')) {
-    // TODO this can be removed later. Added to ease transition to new schema that requires Date API.
-    // Needed because non-existant functions will cause fatal error that prevents ability to get back
-    // to module installation page.
-    if (!module_exist('date_api')) {
-      db_query("UPDATE {system} SET status = 0, throttle = 0 WHERE type = 'module' AND name = '%s'", 'calendar');
-      db_query("UPDATE {system} SET status = 0, throttle = 0 WHERE type = 'module' AND name = '%s'", 'calendar_ical');
-      // Refresh the module list to exclude the disabled modules.
-      module_list(TRUE, FALSE);
-      // Force to regenerate the stored list of hook implementations.
-      module_implements('', FALSE, TRUE);
-      cache_clear_all('*', 'cache_menu', TRUE);
-      drupal_set_message(t('Date API module is not installed. Calendar module was disabled.'));
-    }
-  }
-}
-
-/**
  * Implementation of hook_help().
  */
 function calendar_help($section) {
@@ -164,7 +142,6 @@ function calendar_view_types() {
  */
 function calendar_views($build_type = 'page', $reset = FALSE) {
   static $calendar_views;
-  views_load_cache();
   if (empty($calendar_views)) {
   	$calendar_views = array($build_type => '');
   }
@@ -363,7 +340,7 @@ function theme_calendar_display(&$view, &$items, $type) {
   foreach (module_implements('calendar_add_items') as $module) {
     $function = $module .'_calendar_add_items';
     if (function_exists($function)) {
-      $nodes = array_merge($node, (array) $function($view));
+      $nodes = array_merge($nodes, (array) $function($view));
 
     }
   }
@@ -1316,7 +1293,7 @@ $view = new stdClass();
   $view->block_empty = "";
   $view->block_empty_format = '1';
   $view->block_type = 'calendar';
-  $view->nodes_per_block = '0';
+  $view->nodes_per_block = '999';
   $view->block_more = '1';
   $view->block_use_page_header = FALSE;
   $view->block_use_page_footer = FALSE;
