@@ -1169,7 +1169,7 @@ function calendar_real_url($view, $args) {
   foreach ($parts as $delta => $part) {
     // If one of the args is buried in the url, add it here and adjust
     // the delta values we'll compare the calendar arg positions to.
-    if ($part == '$arg') {
+    if (in_array($part, array('$arg', '$node', '$user'))) {
       $parts[$delta] = array_shift($args);
       $bump++;
     }
