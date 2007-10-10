@@ -10,6 +10,7 @@
  * Reset the calendar caches.
  */
 function calendar_enable() {
+  include_once(drupal_get_path('module', 'calendar') .'/calendar.module');
   calendar_clear_all();
 }
 
@@ -18,6 +19,7 @@ function calendar_enable() {
  * Empty the calendar caches.
  */
 function calendar_disable() {
+  include_once(drupal_get_path('module', 'calendar') .'/calendar.module');
   calendar_clear_all(TRUE);
 }
 
@@ -26,6 +28,7 @@ function calendar_disable() {
  * Reset the calendar caches.
  */
 function calendar_install() {
+  include_once(drupal_get_path('module', 'calendar') .'/calendar.module');
   calendar_clear_all();
 }
 
@@ -34,5 +37,6 @@ function calendar_install() {
  * Empty the calendar caches.
  */
 function calendar_uninstall() {
+  include_once(drupal_get_path('module', 'calendar') .'/calendar.module');
   calendar_clear_all(TRUE);
 }
