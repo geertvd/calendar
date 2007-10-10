@@ -34,9 +34,15 @@ function calendar_install() {
 
 /**
  * Implementation of hook_uninstall().
- * Empty the calendar caches.
+ *
  */
 function calendar_uninstall() {
   include_once(drupal_get_path('module', 'calendar') .'/calendar.module');
+  variable_del('calendar_empty_arg');
+  foreach (array_keys(calendar_info()) as $view_name) {
+    variable_del('calendar_time_format_'. $view_name);
+    variable_del('calendar_display_format_'. $view_name);
+  }
+  // Empty the calendar caches.
   calendar_clear_all(TRUE);
 }
