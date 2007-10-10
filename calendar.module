@@ -792,10 +792,10 @@ function calendar_build_field_query(&$query, $field) {
 function calendar_views_query_alter(&$query, &$view) {
   $view->real_args = $view->args;
   $view->real_url = calendar_real_url($view, $view->args);
-
   if (!calendar_has_calendar_args($view) || (empty($view->args) && !calendar_is_calendar_arg($view))) {
 	  return;
   }
+
   calendar_load_calendar_api();
   calendar_load_date_api();
 
@@ -1185,7 +1185,14 @@ function calendar_real_url($view, $args) {
     // If one of the args is buried in the url, add it here and adjust
     // the delta values we'll compare the calendar arg positions to.
     if (in_array($part, array('$arg', '$node', '$user'))) {
-      $parts[$delta] = array_shift($args);
+      $non_cal_arg = array_shift($args);
+      // Special handling to insert OG gid into block calendar if no gid is
+      // already there.
+      if (empty($non_cal_arg) && $view->argument[0]['id'] == 'gid') {
+        $groupnode = og_get_group_context();
+        $non_cal_arg = $groupnode->nid;
+      }
+      $parts[$delta] = $non_cal_arg;
       $bump++;
     }
   }
