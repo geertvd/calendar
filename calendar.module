@@ -957,7 +957,6 @@ function calendar_views_pre_view(&$view, &$items) {
 function calendar_views_post_view(&$view, $items, $output) {
   $title = theme('calendar_page_title', $view, $items, $output);
   drupal_set_title($title);
-  return $output;
 }
 
 /**
