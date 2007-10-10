@@ -792,7 +792,7 @@ function calendar_build_field_query(&$query, $field) {
 function calendar_views_query_alter(&$query, &$view) {
   $view->real_args = $view->args;
   $view->real_url = calendar_real_url($view, $view->args);
-  if (!calendar_has_calendar_args($view) || (empty($view->args) && !calendar_is_calendar_arg($view))) {
+  if (!calendar_has_calendar_args($view) || (empty($view->args) && !calendar_is_calendar_arg($view) && $view->argument[0]['argdefault'] != 2)) {
 	  return;
   }
 
@@ -806,6 +806,14 @@ function calendar_views_query_alter(&$query, &$view) {
     $query->calendar_type = 'month';
     $view->args = explode('/', str_replace($view->url .'/', '', $_GET['mini']));
     foreach ($view->argument as $delta => $argument) {
+      // Special handling for OG gid argument.
+      // Find a default value for the gid when used in a block.
+      if ($argument['type'] == 'gid') {
+        $groupnodes = calendar_og_groups($view);
+        $view->args[$delta] = $groupnodes[0];
+        $query->ensure_table('og_ancestry');
+        $query->add_where("og_ancestry.group_nid IN (%d)", implode(',', $groupnodes));
+      }
       if ($argument['type'] == 'calendar_year') {
         if (!$view->args[$delta]) $view->args[$delta] = calendar_user_date('year');
         $query->year = $view->args[$delta];
@@ -1185,14 +1193,7 @@ function calendar_real_url($view, $args) {
     // If one of the args is buried in the url, add it here and adjust
     // the delta values we'll compare the calendar arg positions to.
     if (in_array($part, array('$arg', '$node', '$user'))) {
-      $non_cal_arg = array_shift($args);
-      // Special handling to insert OG gid into block calendar if no gid is
-      // already there.
-      if (empty($non_cal_arg) && $view->argument[0]['id'] == 'gid') {
-        $groupnode = og_get_group_context();
-        $non_cal_arg = $groupnode->nid;
-      }
-      $parts[$delta] = $non_cal_arg;
+      $parts[$delta] = array_shift($args);
       $bump++;
     }
   }
@@ -1448,4 +1449,21 @@ function calendar_clear_all($remove = FALSE) {
     calendar_fields(TRUE);
     calendar_info(TRUE);
   }
+}
+
+/**
+ * Helper function to figure out a group gid to use in blocks.
+ *
+ * @return an array of group nodes that are relevant.
+ * @todo this may need more work.
+ */
+function calendar_og_groups($view) {
+  if (!$groupnode = og_get_group_context()) {
+    global $user;
+    $groupnodes = array_keys($user->og_groups);
+  }
+  else {
+    $groupnodes = array($groupnode->nid);
+  }
+  return $groupnodes;
 }

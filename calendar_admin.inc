@@ -440,11 +440,11 @@ function _calendar_views_default_views() {
 if (module_exists('og')) {
   $view = new stdClass();
   $view->name = 'og_calendar';
-  $view->description = 'Group Calendar view of any date field, add a date field to the view to use it.';
+  $view->description = t('Group Calendar view of any date field, add a date field to the view to use it.');
   $view->access = array ();
   $view->view_args_php = '';
   $view->page = TRUE;
-  $view->page_title = 'Group Calendar';
+  $view->page_title = t('Group Calendar');
   $view->page_header = '';
   $view->page_header_format = '1';
   $view->page_footer = '';
@@ -456,7 +456,7 @@ if (module_exists('og')) {
   $view->use_pager = FALSE;
   $view->nodes_per_page = '0';
   $view->menu = TRUE;
-  $view->menu_title = 'Calendar';
+  $view->menu_title = t('Calendar');
   $view->menu_tab = TRUE;
   $view->menu_tab_weight = '0';
   $view->menu_tab_default = FALSE;
@@ -464,8 +464,8 @@ if (module_exists('og')) {
   $view->menu_tab_default_parent_type = 'tab';
   $view->menu_parent_tab_weight = '0';
   $view->menu_parent_title = '';
-  $view->block = FALSE;
-  $view->block_title = '';
+  $view->block = TRUE;
+  $view->block_title = t('Group Calendar');
   $view->block_header = '';
   $view->block_header_format = '1';
   $view->block_footer = '';
