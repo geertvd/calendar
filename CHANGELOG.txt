@@ -1,6 +1,7 @@
 Views Calendar 5.x
 ==================
 
+- 182155 Make sure multiple event nodes get a unique identifer when testing if they have already been processed.
 - Still a bit experimental, make OG calendar in a block smart enough to figure out a default gid, includes the block in the default OG calendar view.
 - 181390 Cache_clear_all was missing wildcard in hook_cron().
 - Add theme to override default Views handling of page title.
