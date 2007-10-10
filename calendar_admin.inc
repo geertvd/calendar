@@ -87,9 +87,18 @@ function _calendar_fields() {
   $cid = 'calendar_fields';
   cache_clear_all($cid, 'cache');
   $delta = 0;
+  $event_fields_processed = array();
+  views_load_cache();
   foreach (_views_get_fields() as $name => $val) {
     $timestamp_fromto = array();
     $string_fromto = array();
+    $tmp = explode('.', $name);
+    $field_name = $val['content_field']['field_name'] ? $val['content_field']['field_name'] : $tmp[1];
+
+    // We need to treat event_start and event_end as a single date, all other fields have
+    // the same field_name for both start and end dates.
+    $processed_name = strstr($field_name, 'event_') ? 'event' : $field_name;
+
     $type = '';
     // for cck fields, get the date type
     if ($val['content_field']['type'] == 'date' || $val['content_field']['type'] == 'datestamp') {
@@ -104,11 +113,11 @@ function _calendar_fields() {
       // dates with from and to dates need to handle both fields as one
       // add the from and to dates to the first one found and ignore the second
       // Handling for event fromto dates
-      if (module_exists('event') && !$event_field_processed && ($name == 'event.event_start' || $name == 'event.event_end')) {
+      if (module_exists('event') && !in_array($processed_name, $event_fields_processed) && ($name == 'event.event_start' || $name == 'event.event_end')) {
         $timestamp_fromto = array('event.event_start', 'event.event_end');
         $offset_field = 'event.timezone';
         $tz_handling = variable_get('event_timezone_display', 'site');
-        $event_field_processed = TRUE;
+        $event_fields_processed[] = $processed_name;
       }
       elseif ($val['content_field']['tz_handling']) {
         $tz_handling = $val['content_field']['tz_handling'];
@@ -118,23 +127,21 @@ function _calendar_fields() {
         $tz_handling = 'site';
       }
       // Handling for cck fromto dates
-      if (!$event_field_processed && $val['content_field']['todate']) {
+      if (!in_array($processed_name, $event_fields_processed) && $val['content_field']['todate']) {
         switch ($val['content_field']['type']) {
         case 'datestamp':
-          $timestamp_fromto = array($val['table'] .'.'. $val['content_field']['field_name'] .'_value', $val['table'] .'.'. $val['content_field']['field_name'] .'_value2');
+          $timestamp_fromto = array($val['table'] .'.'. $field_name .'_value', $val['table'] .'.'. $field_name .'_value2');
           break;
         case 'date':
-          $string_fromto = array($val['table'] .'.'. $val['content_field']['field_name'] .'_value', $val['table'] .'.'. $val['content_field']['field_name'] .'_value2');
+          $string_fromto = array($val['table'] .'.'. $field_name .'_value', $val['table'] .'.'. $field_name .'_value2');
           break;
         }
-        $event_field_processed = TRUE;
+        $event_fields_processed[] = $processed_name;
       }
       // skip this step on second occurance of fromto date fields, if more than one exists in view
-      if (!$event_field_processed || $timestamp_fromto || $string_fromto) {
+      if (!in_array($processed_name, $event_fields_processed) || $timestamp_fromto || $string_fromto) {
         // cck fields append a column name to the field, others do not
         // need a real field_name with no column name appended for cck date formatters
-        $tmp = explode('.', $name);
-        $field_name = $val['content_field']['field_name'] ? $val['content_field']['field_name'] : $tmp[1];
         $fields[$tmp[1]] = array(
           'type' => $type,
           'delta' => $delta,
