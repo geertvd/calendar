@@ -65,7 +65,7 @@ function calendar_ical_cache() {
  * Implementation of hook_cron().
  */
 function calendar_ical_cron() {
-	cache_clear_all('calendar_feeds_', calendar_ical_cache());
+	cache_clear_all('calendar_feeds_', calendar_ical_cache(), TRUE);
 }
 
 /**
