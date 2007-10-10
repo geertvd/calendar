@@ -1,6 +1,10 @@
 Views Calendar 5.x
 ==================
 
+- 181390 Cache_clear_all was missing wildcard in hook_cron().
+- Add theme to override default Views handling of page title.
+- 136968 Add default view for Organic Groups calendar that displays as tab on OG home page. Block view not yet working.
+- Several fixes needed so menu tabs and arguments work on urls with $args in them, like node/$arg/calendar.
 - Make sure plugin works even_empty, add install file that can clear cached calendar settings.
 - Move administrative code to separate file so it isn't always parsed.
 - Move plugin display themes to calendar.theme.
