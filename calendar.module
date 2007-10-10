@@ -44,6 +44,16 @@ function calendar_menu($may_cache) {
 }
 
 /**
+ * Implementation of hook_form_alter().
+ * Make sure calendar_info() and calendar_fields() get updated.
+ */
+function calendar_form_alter($form_id, &$form) {
+  if ($form_id == 'views_edit_view') {
+    $form['#submit'] = array_merge($form['#submit'], array('calendar_clear_all' => array()));
+  }
+}
+
+/**
  * Implementation of hook_views_tabs().
  */
 function calendar_views_tabs($op) {
@@ -1381,7 +1391,19 @@ function calendar_setup_form_submit($form_id, $form_values) {
   return _calendar_setup_form_submit($form_id, $form_values);
 }
 
-function calendar_clear_all() {
-  calendar_fields(TRUE);
-  calendar_info(TRUE);
+/**
+ * Empty or reset cached values.
+ *
+ * @param $remove
+ *   whether or not to completely remove the caches.
+ */
+function calendar_clear_all($remove = FALSE) {
+  if ($remove) {
+    cache_clear_all('calendar_views', 'cache');
+    cache_clear_all('calendar_fields', 'cache');
+  }
+  else {
+    calendar_fields(TRUE);
+    calendar_info(TRUE);
+  }
 }

@@ -127,7 +127,7 @@ function _calendar_fields() {
           $string_fromto = array($val['table'] .'.'. $val['content_field']['field_name'] .'_value', $val['table'] .'.'. $val['content_field']['field_name'] .'_value2');
           break;
         }
-        $event_field_processed == TRUE;
+        $event_field_processed = TRUE;
       }
       // skip this step on second occurance of fromto date fields, if more than one exists in view
       if (!$event_field_processed || $timestamp_fromto || $string_fromto) {
@@ -203,11 +203,6 @@ function _calendar_views_validate($type, $view, $form) {
     if (in_array($field['field'], $calendar_fields) && $field['handler'] == 'content_views_field_handler_group') {
       form_error($form['field'][$delta]['handler'], t('Calendar CCK Date fields must be set to \'Do not group multiple values\'.'));
     }
-  }
-
-  // Reset calendar_fields() and calendar_info().
-  if (!form_get_errors()) {
-    calendar_clear_all();
   }
 }
 
