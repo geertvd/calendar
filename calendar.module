@@ -676,7 +676,7 @@ function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_type) {
 
     case 'title':
     	// Set titles for each argument.
-      $value = intval(str_replace('W', '', $arg ? $arg : $query));
+    	$value = intval(str_replace('W', '', $arg ? $arg : $query));
       return theme('calendar_arg_title', $field_type, $value, $query);
   }
   return;
@@ -909,8 +909,7 @@ function calendar_views_pre_view(&$view, &$items) {
 	if ((!calendar_is_calendar($view) || !calendar_has_calendar_args($view))) {
 		return;
 	}
-
-	// Construct a formatted title for the view from the last calendar argument encountered.
+  // Construct a formatted title for the view from the last calendar argument encountered.
   switch ($view->calendar_type) {
     case 'year':
       $view->subtitle = theme('calendar_nav_title', 'YEAR', $view);
@@ -946,6 +945,19 @@ function calendar_views_pre_view(&$view, &$items) {
       $view->block_empty_format = 3;
     }
   }
+}
+
+/**
+ * Implementation of hook_views_post_view().
+ *
+ * Views automatically sets the page title to the value of the last argument.
+ * The calendar module has already created a proper title within the
+ * calendar, so override Views to set the page title to match the View title.
+ */
+function calendar_views_post_view(&$view, $items, $output) {
+  $title = theme('calendar_page_title', $view, $items, $output);
+  drupal_set_title($title);
+  return $output;
 }
 
 /**

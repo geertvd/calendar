@@ -176,6 +176,34 @@ function theme_calendar_calendar_node($node, $type) {
 }
 
 /**
+ * Theme the calendar page title.
+ *
+ * Views defaults to displaying the title of the last argument in the
+ * view, rather than the View title or other values. Use this theme
+ * to override that behavior.
+ *
+ * $view->build_type indicates whether this view is being rendered as a page
+ * or a block, use that to handle the title differently for each.
+ *
+ * views_get_title() $context can be:
+ *  'page' - The title that goes with the last argument in $args.
+ *  'menu' - The value in View Menu Title.
+ *
+ * or just use the values of:
+ *  $view->page_title,
+ *  $view->menu_title,
+ *  $view->block_title.
+ */
+function theme_calendar_page_title($view, $items, $output) {
+  switch ($view->build_type) {
+    case 'page':
+      return views_get_title($view, $context = 'page', $args = $view->real_args);
+    case 'block':
+      return $view->block_title;
+  }
+}
+
+/**
  * Theme the calendar title and breadcrumbs
  *   Arguments are evaluated in year, month, day or year, week order
  *   so you can track previous values in the session.
