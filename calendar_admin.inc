@@ -459,7 +459,7 @@ if (module_exists('og')) {
   $view->page_empty = '';
   $view->page_empty_format = '1';
   $view->page_type = 'calendar';
-  $view->url = 'node/$arg/calendar';
+  $view->url = 'node/$group/calendar';
   $view->use_pager = FALSE;
   $view->nodes_per_page = '0';
   $view->menu = TRUE;
