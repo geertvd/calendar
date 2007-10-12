@@ -30,7 +30,7 @@ function calendar_menu($may_cache) {
     foreach (calendar_info() as $view_name => $view) {
       $parts = explode('/', $view['url']);
       foreach ($parts as $delta => $part) {
-        if (in_array($part, array('$arg', '$node', '$user'))) {
+        if (in_array($part, array('$arg', '$node', '$user', '$group'))) {
           $parts[$delta] = arg($delta);
         }
       }
@@ -1193,7 +1193,7 @@ function calendar_real_url($view, $args) {
   foreach ($parts as $delta => $part) {
     // If one of the args is buried in the url, add it here and adjust
     // the delta values we'll compare the calendar arg positions to.
-    if (in_array($part, array('$arg', '$node', '$user'))) {
+    if (in_array($part, array('$arg', '$node', '$user', '$group'))) {
       $parts[$delta] = array_shift($args);
       $bump++;
     }

@@ -18,7 +18,7 @@ function calendar_ical_menu($may_cache) {
     foreach (calendar_info() as $view_name => $view) {
       $parts = explode('/', $view['url']);
       foreach ($parts as $delta => $part) {
-        if (in_array($part, array('$arg', '$node', '$user'))) {
+        if (in_array($part, array('$arg', '$node', '$user', '$group'))) {
           $parts[$delta] = arg($delta);
         }
       }
