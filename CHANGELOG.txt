@@ -1,6 +1,8 @@
 Views Calendar 4.7
 ==================
 
+- 182998 Use Date API handling of timezones instead of Drupal default timezone offset when computing calendar values.
+- Get rid of test for Date API since it's buggy and hopefully everyone already has done this.
 - 157593 Make sure drupal_get_form gets a form array.
 - 172073 Allow for non-calendar arguments before any calendar arguments to dynamically filter calendar.
 - Remove date fields from default view to force user to add the right field. Tired of handling support questions about unexpected date fields.
