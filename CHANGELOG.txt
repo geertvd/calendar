@@ -1,6 +1,9 @@
 Views Calendar 4.7
 ==================
 
+Version 1.6
+===========
+
 - 182998 Use Date API handling of timezones instead of Drupal default timezone offset when computing calendar values.
 - Get rid of test for Date API since it's buggy and hopefully everyone already has done this.
 - 157593 Make sure drupal_get_form gets a form array.
