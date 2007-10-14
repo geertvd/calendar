@@ -227,7 +227,9 @@ function calendar_get_nodes(&$view, &$items, $type) {
             $node->end_offset   = date_get_offset($node->event_timezone, $node->event_event_end);
             break;
           default :
-            $node->start_offset = $node->end_offset = variable_get('date_default_timezone', 0);
+            $timezone = variable_get('date_default_timezone_name', 'UTC');
+            $node->start_offset = date_offset(date_unix2array($node->calendar_start), $timezone);
+            $node->end_offset   = date_offset(date_unix2array($node->calendar_end), $timezone);
             break;
           }
         }
@@ -677,7 +679,7 @@ function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_type) {
     case 'title':
     	// Set titles for each argument.
     	$value = intval(str_replace('W', '', $arg ? $arg : $query));
-      return theme('calendar_arg_title', $field_type, $value, $query);
+    	return theme('calendar_arg_title', $field_type, $value, $query);
   }
   return;
 }
