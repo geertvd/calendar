@@ -72,7 +72,7 @@ function calendar_ical_cron() {
  * Helper function to load date_ical file.
  */
 function calendar_ical_load_date_ical() {
-	include_once(drupal_get_path('module', 'date_api') .'/date_ical.inc');
+	include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
 }
 
 /**
@@ -229,25 +229,35 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
         $filename = $feed['url'];
         $events = date_ical_import($filename);
         $new_nodes = array();
-        foreach ($events as $delta => $event) {
-          $node = new StdClass();
-          $node->nid = $event['uid'];
-          $node->title = $event['summary'];
-          $node->label = $feed['name'];
-          $node->teaser =  $event['description'];
-          $node->calendar_start = $event['start'];
-          $node->start_offset   = 0;
-          $node->calendar_end   = $event['end'];
-          $node->end_offset     = 0;
-          $node->start_time_format = gmdate(variable_get('calendar_time_format_'. $view->name, 'H:i'), $event['start']);
-          $node->end_time_format = gmdate(variable_get('calendar_time_format_'. $view->name, 'H:i'), $event['end']);
-          $node->start_format = gmdate(variable_get('date_format_short', 'm/d/Y - H:i'), $event['start']);
-          $node->end_format = gmdate(variable_get('date_format_short', 'm/d/Y - H:i'), $event['end']);
-          $node->stripe = $feed['stripe'];
-          $node->remote = TRUE;
-          $node->uid = $event['uid'] ? $event['uid'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
-          $node->url = $event['url']? $event['url'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
-          $new_nodes[$event['uid']] = $node;
+        foreach ($events as $key => $value) {
+          if (is_numeric($key)) {
+            $node = new StdClass();
+            $node->nid = $value['UID'];
+            $node->title = $value['SUMMARY'];
+            $node->label = $feed['name'];
+            $node->teaser =  $value['DESCRIPTION'];
+            $date = date_ical_date($value['DTSTART'], $value['DTSTART']['tz']);
+            $start = $date->local->timestamp;
+            $start_timezone = $date->local->timezone;
+            $start_offset = $date->local->offset;
+            $date = date_ical_date($value['DTEND'], $value['DTSTART']['tz']);
+            $end = $date->local->timestamp;
+            $node->calendar_start = $start;
+            $node->start_offset   = $start_offset;
+            $node->calendar_end   = $end;
+            $node->end_offset     = $end_offset;
+            $show_tz = ' e';
+            $node->start_time_format = date_format_date(variable_get('calendar_time_format_'. $view->name, 'H:i') .$show_tz, $start, $start_offset, $start_timezone);
+            $node->end_time_format = date_format_date(variable_get('calendar_time_format_'. $view->name, 'H:i') .$show_tz, $end, $start_offset, $start_timezone);
+            $node->start_format = date_format_date(variable_get('date_format_short', 'm/d/Y - H:i') .$show_tz, $start, $start_offset, $start_timezone);
+            $node->end_format = date_format_date(variable_get('date_format_short', 'm/d/Y - H:i') .$show_tz, $end, $start_offset, $start_timezone);
+            $node->all_day = $value['DTSTART']['all_day'];
+            $node->stripe = $feed['stripe'];
+            $node->remote = TRUE;
+            $node->uid = $value['uid'] ? $value['UID'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
+            $node->url = $value['URL'] ? $value['URL'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
+            $new_nodes[$value['UID']] = $node;
+          }
         }
         cache_set('calendar_feeds_'. $view->name .':'. $feed['url'], calendar_ical_cache(), serialize($new_nodes), $expire);
         $nodes += (array) $new_nodes;
