@@ -53,12 +53,7 @@ function calendar_ical_views_tabs($op) {
  * @return unknown
  */
 function calendar_ical_cache() {
-	if (db_table_exists('cache_calendar_ical')) {
-    return 'cache_calendar_ical';
-  }
-  else {
-    return 'cache';
-  }
+	return 'cache';
 }
 
 /**

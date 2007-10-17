@@ -71,7 +71,7 @@ function calendar_views_tabs($op) {
  */
 function calendar_load_date_api() {
   include_once(drupal_get_path('module', 'date_api') .'/date.inc');
-  include_once(DATE_TIMEZONES);
+  include_once(drupal_get_path('module', 'date_api') .'/date_timezones.inc');
 }
 
 /**
