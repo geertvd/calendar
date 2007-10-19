@@ -439,6 +439,7 @@ function theme_calendar_ical_feed($view, $items, $type) {
     node_invoke_nodeapi($node, 'ical item');
     $event['start'] = $node->calendar_start;
     $event['end'] = $node->calendar_end;
+    $event['timezone'] = 'GMT';
     $event['location'] = $node->calendar_location;
     $event['summary'] = $node->title;
     $event['description'] = $node->teaser;

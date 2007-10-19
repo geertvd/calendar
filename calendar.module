@@ -794,7 +794,6 @@ function calendar_views_query_alter(&$query, &$view) {
   if (!calendar_has_calendar_args($view) || (empty($view->args) && !calendar_is_calendar_arg($view) && $view->argument[0]['argdefault'] != 2)) {
 	  return;
   }
-
   calendar_load_calendar_api();
   calendar_load_date_api();
 
@@ -905,7 +904,6 @@ function calendar_views_query_alter(&$query, &$view) {
   $view->month = $query->month;
   $view->day = $query->day;
   $view->week = $query->week;
-
 }
 
 /**
@@ -1184,7 +1182,7 @@ function calendar_calendar_node($node, $type) {
  * Valid calendar arguments.
  */
 function calendar_args() {
-  return array('calendar_year', 'calendar_week', 'calendar_month', 'calendar_day', 'calendar_ical');
+  return array('calendar_year', 'calendar_week', 'calendar_month', 'calendar_day');
 }
 
 /**
