@@ -520,11 +520,13 @@ function _calendar_limit_nodes($nodes, $type, $year, $month, $day, $week, $offse
     } else {
       $max_date = date_gmmktime(array('mon' => 1, 'mday' => 1, 'year' => intval($year + 1), 'hours' => 23, 'minutes' => 59, 'seconds' => 59));
     }
+    $max_date -= 86400;
     break;
   case ('year'):
     $min_date = date_gmmktime(array('hours' => 0, 'minutes' => 0, 'seconds' => 0, 'mon' => 1, 'mday' => 1, 'year' => $year));
     $max_date = date_gmmktime(array('hours' => 23, 'minutes' => 59, 'seconds' => 59, 'mon' => 12, 'mday' => 31, 'year' => $year));
   }
+  echo gmdate('m/d/Y H:i', $min_date).'>'.gmdate('m/d/Y H:i', $max_date);
   return array($min_date, $max_date);
 }
 
