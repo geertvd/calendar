@@ -1165,7 +1165,12 @@ function calendar_calendar_node($node, $type) {
       $node->nid = $tmp[0];
       $node->instance = $tmp[1];
     }
-    return theme('calendar_calendar_node', $node, $type);
+    if (isset($node->calendar_node_theme)) {
+      return theme($node->calendar_node_theme, $node, $type);
+    }
+    else {
+      return theme('calendar_calendar_node', $node, $type);
+    }
 
   } else {
     // surpress display of psuedo calendars added to force display of a blank calendar

@@ -254,6 +254,7 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
             $node->remote = TRUE;
             $node->uid = $value['uid'] ? $value['UID'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
             $node->url = $value['URL'] ? $value['URL'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
+            $node->calendar_node_theme = 'calendar_ical_node';
             $new_nodes[$value['UID']] = $node;
           }
         }
@@ -449,4 +450,18 @@ function theme_calendar_ical_feed($view, $items, $type) {
   print date_ical_export($events, $description);
   module_invoke_all('exit');
   exit;
+}
+
+/**
+ * A theme for the ical nodes.
+ */
+function theme_calendar_ical_node($node, $type) {
+  // Remote nodes may come in with lengthy descriptions that won't fit
+  // in small boxes of year, month, and week calendars.
+  if ($type != 'calendar_node_day') {
+    $node->teaser = '';
+  }
+  $node->title = check_plain($node->title);
+  $node->teaser = check_markup($node->teaser, FILTER_HTML_ESCAPE);
+  return theme($type, $node);
 }
