@@ -462,6 +462,6 @@ function theme_calendar_ical_node($node, $type) {
     $node->teaser = '';
   }
   $node->title = check_plain($node->title);
-  $node->teaser = check_markup($node->teaser, FILTER_HTML_ESCAPE);
+  $node->teaser = check_markup($node->teaser);
   return theme($type, $node);
 }
