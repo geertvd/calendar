@@ -326,6 +326,8 @@ function calendar_ical_views_post_view($view, $items, $output) {
   }
   if ($feed !== NULL) {
   	$query = NULL;
+  	// Keep devel module from appending queries to ical export.
+  	$GLOBALS['devel_shutdown'] = FALSE;
     return calendar_ical_views_feed_argument('post_view', $view, 'ical', $query);
   }
 }
