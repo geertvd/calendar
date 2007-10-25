@@ -1,6 +1,8 @@
 Views Calendar 5.x
 ==================
 
+- Move cached calendar info to cache_views so it gets cleared when views_invalidate_cache() is called.
+
 Version 1.6
 ===========
 

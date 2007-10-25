@@ -31,7 +31,7 @@ function _calendar_view_types($reset = FALSE) {
  */
 function _calendar_info() {
   $cid = 'calendar_views';
-  cache_clear_all($cid, 'cache');
+  cache_clear_all($cid, 'cache_views');
   $calendar_views = array();
   $calendar_types = calendar_view_types();
   $result = db_query("SELECT vid, name FROM {view_view} ORDER BY name");
@@ -73,7 +73,7 @@ function _calendar_info() {
       }
     }
   }
-  cache_set($cid, 'cache', serialize($calendar_views));
+  cache_set($cid, 'cache_views', serialize($calendar_views));
   return $calendar_views;
 }
 
@@ -85,7 +85,7 @@ function _calendar_info() {
  */
 function _calendar_fields() {
   $cid = 'calendar_fields';
-  cache_clear_all($cid, 'cache');
+  cache_clear_all($cid, 'cache_views');
   $delta = 0;
   $event_fields_processed = array();
   views_load_cache();
@@ -160,7 +160,7 @@ function _calendar_fields() {
       }
     }
   }
-  cache_set($cid, 'cache', serialize($fields));
+  cache_set($cid, 'cache_views', serialize($fields));
   return $fields;
 }
 
