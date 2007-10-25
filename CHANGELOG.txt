@@ -2,6 +2,15 @@ Views Calendar 5.x
 ==================
 
 - Move cached calendar info to cache_views so it gets cleared when views_invalidate_cache() is called.
+- 185640 fix function and table name errors in install file.
+- Keep devel module from appending queries to ical export.
+- Calculation of max date for a month needs adjustment.
+- Fix ical export to match changes in ical parser.
+- Create a separate theme for remote nodes and make sure all remote nodes get necessary cleanup.
+- Adapt calendar to use fixed DURATION handling in ical parser.
+- Cleanup calendar ical import.
+- 183877 get rid of constant for CALENDAR_PATH and just use drupal_get_path() when needed.
+- Update of calendar ical module to use the new date ical parser.
 
 Version 1.6
 ===========
