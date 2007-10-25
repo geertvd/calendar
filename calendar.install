@@ -46,3 +46,14 @@ function calendar_uninstall() {
   // Empty the calendar caches.
   calendar_clear_all(TRUE);
 }
+
+/**
+ * Move these caches from 'cache' to 'cache_views' so they get cleared
+ * automatically whenever views_invalidate_cache() is called.
+ */
+function calendar_update_5000() {
+  $ret = array();
+  cache_clear_all('calendar_fields', 'cache');
+  cache_clear_all('calendar_views', 'cache');
+  return $ret;
+}
