@@ -326,9 +326,7 @@ function calendar_ical_views_post_view($view, $items, $output) {
   }
   if ($feed !== NULL) {
   	$query = NULL;
-  	// Keep devel module from appending queries to ical export.
-  	$GLOBALS['devel_shutdown'] = FALSE;
-    return calendar_ical_views_feed_argument('post_view', $view, 'ical', $query);
+  	return calendar_ical_views_feed_argument('post_view', $view, 'ical', $query);
   }
 }
 
@@ -339,6 +337,8 @@ function calendar_ical_views_post_view($view, $items, $output) {
  */
 function calendar_ical_views_feed_argument($op, &$view, $arg, $argtype = NULL) {
 	if ($op == 'argument' && $arg == 'ical') {
+    // Keep devel module from appending queries to ical export.
+  	$GLOBALS['devel_shutdown'] = FALSE;
     $view->page_type = 'calendar_ical';
     // reset the 'real url' to the URL without the feed argument.
     $view_args = array();
