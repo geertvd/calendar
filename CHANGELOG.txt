@@ -1,6 +1,9 @@
 Views Calendar 5.x
 ==================
 
+Version 1.7
+===========
+
 - Move cached calendar info to cache_views so it gets cleared when views_invalidate_cache() is called.
 - 185640 fix function and table name errors in install file.
 - Keep devel module from appending queries to ical export.
