@@ -466,7 +466,6 @@ function theme_calendar_node_day($node) {
   if ($node->teaser) {
     $output .= '<div class="content">'. ($node->teaser) ."</div>\n";
   }
-  $output .= '<div class="links">'. theme('links', $node->calendar_links) ."\n</div>";
   $output .= "</div>\n";
   return $output;
 }
@@ -501,7 +500,6 @@ function theme_calendar_node_week($node) {
 
   $output .= '<div class="title">'. l($node->title, "$node->url", array('title' => t('view this item'))) .'</div>'."\n";
   $output .= '<div class="times">'. $times .'</div>';
-  $output .= '<div class="links">'. theme('links', $node->calendar_links) ."\n</div>";
   $output .= '</div>' . "\n";
   return $output;
 }
@@ -542,7 +540,6 @@ function theme_calendar_node_month($node) {
   $output .= '<div class="title">'. l($node->title, "$node->url", array('title' => t('view this item'))) .'</div>'."\n";
   $output .= '<div class="times">'. $times .'</div>';
   $output .= $node->teaser;
-  $output .= '<div class="links">'. theme('links', $node->calendar_links) ."\n</div>";
   $output .= '</div>' . "\n";
 
   return $output;
