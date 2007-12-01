@@ -22,7 +22,7 @@ function calendar_menu($may_cache) {
   $items = array();
   if (!$may_cache) {
     include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.theme');
-    drupal_add_css('./'. drupal_get_path('module', 'calendar') .'/calendar.css');
+    drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
     define('CALENDAR_EMPTY_ARG', variable_get('calendar_empty_arg', 'all'));
     foreach (calendar_info() as $view_name => $view) {
       $parts = explode('/', $view['url']);
