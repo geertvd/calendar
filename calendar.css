@@ -35,6 +35,7 @@
 }
 .calendar-calendar td {
   width: 13%; /* 14% is about 1/7 of total table width */
+  min-width: 13%;
   border: 1px solid #999;
   color: #777;
   text-align: right;
