@@ -1,6 +1,7 @@
 Views Calendar 5.x
 ==================
 
+- Clean up some of the logic on when to throw out events that are outside the requested calendar range.
 - #189760 Don't prefix css path with slash.
 - #186170 Make sure calendar doesn't overlap sidebar in IE.
 
