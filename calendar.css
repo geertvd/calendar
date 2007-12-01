@@ -5,6 +5,7 @@
   border-collapse: collapse;
   border-spacing: 0;
   margin:0 auto;
+  padding:0;
   width: 100%; /* Setting at 100% causes problem in Internet Explorer. */
 }
 .calendar-calendar .month-view table {
@@ -33,12 +34,13 @@
   margin:0;
 }
 .calendar-calendar td {
-  width: 14%; /* 14% is about 1/7 of total table width */
+  width: 13%; /* 14% is about 1/7 of total table width */
   border: 1px solid #999;
   color: #777;
   text-align: right;
   vertical-align: top;
   margin: 0;
+  padding:0;
 }
 .calendar-calendar td.week {
   width:1%;
@@ -49,6 +51,12 @@
   min-height:5em;
   height:auto !important;
   height:5em;
+  padding:0;
+  margin:0;
+}
+.calendar-calendar .inner div {
+  padding:0;
+  margin:0;
 }
 .calendar-nav-wrapper {
   width:100%;

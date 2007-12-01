@@ -1,6 +1,8 @@
 Views Calendar 5.x
 ==================
 
+- #186170 Make sure calendar doesn't overlap sidebar in IE.
+
 Version 1.7
 ===========
 
