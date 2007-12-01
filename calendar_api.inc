@@ -38,6 +38,8 @@
  *  @return Themed calendar view of nodes or array of calendar rows
  */
 function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = array()) {
+  global $user;
+
 	calendar_load_date_api();
   $today = calendar_user_date();
 
@@ -52,20 +54,6 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
 
   $data  = array();
   foreach ($nodes as $nid => $node) {
-
-    $node->stripe = $params['stripe'] ? $node->$params['stripe'] : $node->nid;
-
-    $calendar = new stdClass();
-    $nodes[$node->nid] = $node;
-    $calendar->nid = $node->nid;
-
-    // $node_start and $node_end are local timestamp values
-    if ($min_date -  $node->start_offset > $node->calendar_start) {
-      $node->calendar_start = $min_date -  $node->start_offset;
-    }
-    if ($max_date -  $node->end_offset  < $node->calendar_end) {
-      $node->calendar_end = $max_date -  $node->end_offset;
-    }
 
     $node_start = date_gmmktime(array(
       'mon' => calendar_event_date('m', $node->calendar_start, $node->start_offset),
@@ -83,7 +71,26 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
       $node_end = $node_start;
     }
 
-    if ($node_start == $node_end) {
+    // If this is a node outside the requested range, skip it.
+    if ($node_end < $min_date || $node_start > $max_date) {
+      continue;
+    }
+
+    // $node_start and $node_end are local timestamp values
+    if ($min_date >= $node_start) {
+      $node->calendar_start = $min_date;
+    }
+    if ($max_date <= $node_end) {
+      $node->calendar_end = $max_date;
+    }
+
+    $node->stripe = $params['stripe'] ? $node->$params['stripe'] : $node->nid;
+
+    $calendar = new stdClass();
+    $nodes[$node->nid] = $node;
+    $calendar->nid = $node->nid;
+
+    if ($node_end - $node_start < 86400) {
       $calendar->calendar_state = 'singleday';
       $calendar->stamp = $node_start;
       $calendar->stripe = $node->stripe;
