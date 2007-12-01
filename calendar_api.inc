@@ -76,7 +76,6 @@ function calendar_get_calendar($view, $nodes, $module, $title = NULL, $params = 
       continue;
     }
 
-    // $node_start and $node_end are local timestamp values
     if ($min_date >= $node_start) {
       $node->calendar_start = $min_date;
     }

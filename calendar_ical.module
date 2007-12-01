@@ -464,7 +464,8 @@ function theme_calendar_ical_node($node, $type) {
   if ($type != 'calendar_node_day') {
     $node->teaser = '';
   }
-  $node->title = check_plain($node->title);
+  // Check plain may leave some html entities in the title.
+  $node->title = html_entity_decode(check_plain($node->title), ENT_QUOTES);
   $node->teaser = check_markup($node->teaser);
   return theme($type, $node);
 }
