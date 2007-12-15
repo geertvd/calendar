@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Danish translation of Drupal (calendar.module) $Id$\n"
 "POT-Creation-Date: 2007-12-03 20:34+0100\n"
-"PO-Revision-Date: 2007-12-09 22:44+0100\n"
+"PO-Revision-Date: 2007-12-15 12:46+0100\n"
 "Last-Translator: Morten Wulff <wulff@ratatosk.net>\n"
 "Language-Team: Danish <l10n@drupaldanmark.dk>\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,7 @@ msgstr "Kalender"
 
 #: calendar_admin.inc:176
 msgid "The Calendar View requires at least one field."
-msgstr "Kalendervisningen kræver mindst ét felt."
+msgstr "Kalenderen kræver mindst ét felt."
 
 #: calendar_admin.inc:184
 msgid "You can only set on Default Sort on one field."
@@ -34,7 +34,7 @@ msgstr "Kalender-argumenter skal sættes til 'Vis alle værdier'."
 
 #: calendar_admin.inc:205
 msgid "The Calendar requres as arguments Calendar: Year, Calendar: Month, and Calendar: Day, or Calendar: Year and Calendar: Week"
-msgstr "Kalendervisningen kræver følgende argumenter: \"Kalender: År\", \"Kalender: Måned\" og \"Kalender: Dag\" eller \"Kalender: År\" og \"Kalender: Uge\"."
+msgstr "Kalenderen kræver følgende argumenter: \"Kalender: År\", \"Kalender: Måned\" og \"Kalender: Dag\" eller \"Kalender: År\" og \"Kalender: Uge\"."
 
 #: calendar_admin.inc:211
 msgid "Calendar CCK Date fields must be set to 'Do not group multiple values'."
@@ -46,7 +46,7 @@ msgstr "Tidsformat"
 
 #: calendar_admin.inc:242
 msgid "The format to use for the time-only date display."
-msgstr "Format når kun tidspunktet vises."
+msgstr "Tidsormat når kun tidspunktet vises."
 
 #: calendar_admin.inc:244
 #: calendar.module:1124
@@ -65,7 +65,7 @@ msgstr "Komplette indholdselementer"
 #: calendar_admin.inc:244
 #: calendar.module:1121
 msgid "List"
-msgstr "Vis"
+msgstr "Liste"
 
 #: calendar_admin.inc:247
 msgid "Year display"
@@ -93,12 +93,12 @@ msgstr "Joker argument"
 
 #: calendar_admin.inc:280
 msgid "A character or short text string to use for empty calendar arguments. For instance, 'all' would create the url 2007/12/all to show all days in December of 2007. Note that non-ASCII characters will not display correctly in urls."
-msgstr "Et tegn eller en kort streng der bruges som tomt argument. F.eks. vil 'alle' resultere i URLen 2007/12/alle for at vise alle dage i december 2007. Bemærk at ikke-ASCII tegn ikke vises korrekt i URLer."
+msgstr "Et tegn eller en kort streng der bruges som tomt argument. F.eks. vil 'all' resultere i URLen 2007/12/all for at vise alle dage i december 2007. Bemærk at ikke-ASCII tegn ikke vises korrekt i URLer."
 
 #: calendar_admin.inc:288
 #: calendar_ical.module:157
 msgid "Submit"
-msgstr "Indsend"
+msgstr "Gem"
 
 #: calendar_admin.inc:342
 msgid "Calendar: Year"
