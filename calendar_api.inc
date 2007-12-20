@@ -70,10 +70,8 @@ function calendar_get_calendar($type, $nodes, $module, $title = NULL, $params = 
     $test_end = substr($node->calendar_end, 0, 10);
 
     if ($test_start == $test_end) {
-      $calendar = new StdClass();
+      $calendar = drupal_clone($node);
       $calendar->calendar_state = 'singleday';
-      $calendar->stamp = $node->calendar_start;
-      $calendar->stripe = $node->stripe;
       $calendar->date = $node->calendar_start_date;
       $calendar->formatted = date_format($node->calendar_start_date, $node->format);
       $calendar->formatted_time = date_format($node->calendar_start_date, $node->format_time);
@@ -84,7 +82,7 @@ function calendar_get_calendar($type, $nodes, $module, $title = NULL, $params = 
       $date = drupal_clone($node->calendar_start_date);
       $x = date_format($date, 'Y-m-d');
       while ($x <= substr($node->calendar_end, 0, 10)) {
-        $calendar = new StdClass();
+        $calendar = drupal_clone($node);
         if ($x == $test_end) {
           $calendar->calendar_state = 'end';
         }
@@ -94,8 +92,6 @@ function calendar_get_calendar($type, $nodes, $module, $title = NULL, $params = 
         else {
           $calendar->calendar_state = 'ongoing';
         }
-        $calendar->nid = $node->nid;
-        $calendar->stripe = $node->stripe;
         $calendar->date = $date;
         $calendar->formatted = date_format($date, $node->format);
         $calendar->formatted_time = date_format($date, $node->format_time);
