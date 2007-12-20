@@ -135,7 +135,7 @@ function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_type) {
       $view = $GLOBALS['current_view'];
       if ($argtype['type'] == calendar_is_last_arg($view)) {
   			$query->calendar_finished = TRUE;
-      	calendar_build_filter($query, $view);
+  			//calendar_build_filter($query, $view);
       }
       break;
 
@@ -145,6 +145,113 @@ function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_type) {
     	return theme('calendar_arg_title', $field_type, $value, $query);
   }
   return;
+}
+
+/**
+ *  Custom views handler for the year argument.
+ */
+function calendar_handler_arg_year($op, &$query, $argtype, $arg = '') {
+  if ($op == 'filter' && !empty($arg) && $arg != CALENDAR_EMPTY_ARG) {
+		calendar_filter_year($query, $arg);
+  }
+  return calendar_handler_arg_type($op, $query, $argtype, $arg, 'YEAR');
+}
+
+/**
+ * Callback for year filter.
+ *   Build year, month, day, min, and max into query object.
+ *
+ * @param object $query
+ * @param integer $arg
+ */
+function calendar_filter_year(&$query, $arg) {
+  $query->calendar_type = 'year';
+  $query->year = calendar_part_is_valid($arg, 'year') ? $arg : date_format(date_now(), 'Y');
+  $query->month = CALENDAR_EMPTY_ARG;
+  $query->day = CALENDAR_EMPTY_ARG;
+}
+
+/**
+ *  Custom views handler for the month argument.
+ */
+function calendar_handler_arg_month($op, &$query, $argtype, $arg = '') {
+	if ($op == 'filter' && !empty($arg) && $arg != CALENDAR_EMPTY_ARG) {
+		calendar_filter_month($query, $arg);
+	}
+	return calendar_handler_arg_type($op, $query, $argtype, $arg, 'MONTH');
+}
+
+/**
+ * Callback for month filter.
+ *   Build year, month, day, min, and max into query object.
+ *
+ * @param object $query
+ * @param integer $arg
+ */
+function calendar_filter_month(&$query, $arg) {
+  $now = date_now();
+  $query->calendar_type = 'month';
+  if (!isset($query->year)) {
+  	calendar_filter_year($query, date_format($now, 'Y'));
+  }
+  $query->month = calendar_part_is_valid($arg, 'month') ? $arg : date_format($now, 'm');
+  $query->day = CALENDAR_EMPTY_ARG;
+}
+
+/**
+ *  Custom views handler for the day argument.
+ */
+function calendar_handler_arg_day($op, &$query, $argtype, $arg = '') {
+	if ($op == 'filter' && !empty($arg) && $arg != CALENDAR_EMPTY_ARG) {
+	  calendar_filter_day($query, $arg);
+	}
+	return calendar_handler_arg_type($op, $query, $argtype, $arg, 'DAY');
+}
+
+/**
+ * Callback for day filter.
+ *   Build year, month, day, min, and max into query object.
+ *
+ * @param object $query
+ * @param integer $arg
+ */
+function calendar_filter_day(&$query, $arg) {
+  $now = date_now();
+  if (!isset($query->month)) {
+  	calendar_filter_month($query, date_format($now, 'm'));
+  }
+  $query->calendar_type = 'day';
+  $query->day = calendar_part_is_valid($arg, 'day') ? $arg : date_format($now, 'j');
+}
+
+/**
+ *  Custom views handlers for the week argument.
+ */
+function calendar_handler_arg_week($op, &$query, $argtype, $arg = '') {
+	if ($op == 'filter' && !empty($arg) && $arg != CALENDAR_EMPTY_ARG) {
+	  calendar_filter_week($query, $arg);
+	}
+	return calendar_handler_arg_type($op, $query, $argtype, $arg, 'WEEK');
+}
+
+/**
+ * Callback for week filter.
+ *   Build year, month, day, min, and max into query object.
+ *
+ * @param object $query
+ * @param integer $arg
+ */
+function calendar_filter_week(&$query, $arg) {
+  $now = date_now();
+	if (!isset($query->year)) {
+  	calendar_filter_year($query, date_format($now, 'Y'));
+  }
+  $arg = str_replace('W', '', $arg);
+	$query->calendar_type = 'week';
+	$query->week = calendar_part_is_valid($arg, 'week') ? $arg : date_format($now, 'W');
+  $range = calendar_week_range($query);
+  $query->month = date_format($range[0], 'n');
+  $query->day = date_format($range[0], 'j');
 }
 
 /**

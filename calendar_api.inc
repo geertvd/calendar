@@ -366,113 +366,6 @@ function calendar_untranslated_days() {
 }
 
 /**
- *  Custom views handler for the year argument.
- */
-function calendar_handler_arg_year($op, &$query, $argtype, $arg = '') {
-  if ($op == 'filter' && !empty($arg) && $arg != CALENDAR_EMPTY_ARG) {
-		calendar_filter_year($query, $arg);
-  }
-  return calendar_handler_arg_type($op, $query, $argtype, $arg, 'YEAR');
-}
-
-/**
- * Callback for year filter.
- *   Build year, month, day, min, and max into query object.
- *
- * @param object $query
- * @param integer $arg
- */
-function calendar_filter_year(&$query, $arg) {
-  $query->calendar_type = 'year';
-  $query->year = calendar_part_is_valid($arg, 'year') ? $arg : date_format(date_now(), 'Y');
-  $query->month = CALENDAR_EMPTY_ARG;
-  $query->day = CALENDAR_EMPTY_ARG;
-}
-
-/**
- *  Custom views handler for the month argument.
- */
-function calendar_handler_arg_month($op, &$query, $argtype, $arg = '') {
-	if ($op == 'filter' && !empty($arg) && $arg != CALENDAR_EMPTY_ARG) {
-		calendar_filter_month($query, $arg);
-	}
-	return calendar_handler_arg_type($op, $query, $argtype, $arg, 'MONTH');
-}
-
-/**
- * Callback for month filter.
- *   Build year, month, day, min, and max into query object.
- *
- * @param object $query
- * @param integer $arg
- */
-function calendar_filter_month(&$query, $arg) {
-  $now = date_now();
-  $query->calendar_type = 'month';
-  if (!isset($query->year)) {
-  	calendar_filter_year($query, date_format($now, 'Y'));
-  }
-  $query->month = calendar_part_is_valid($arg, 'month') ? $arg : date_format($now, 'm');
-  $query->day = CALENDAR_EMPTY_ARG;
-}
-
-/**
- *  Custom views handler for the day argument.
- */
-function calendar_handler_arg_day($op, &$query, $argtype, $arg = '') {
-	if ($op == 'filter' && !empty($arg) && $arg != CALENDAR_EMPTY_ARG) {
-	  calendar_filter_day($query, $arg);
-	}
-	return calendar_handler_arg_type($op, $query, $argtype, $arg, 'DAY');
-}
-
-/**
- * Callback for day filter.
- *   Build year, month, day, min, and max into query object.
- *
- * @param object $query
- * @param integer $arg
- */
-function calendar_filter_day(&$query, $arg) {
-  $now = date_now();
-  if (!isset($query->month)) {
-  	calendar_filter_month($query, date_format($now, 'm'));
-  }
-  $query->calendar_type = 'day';
-  $query->day = calendar_part_is_valid($arg, 'day') ? $arg : date_format($now, 'j');
-}
-
-/**
- *  Custom views handlers for the week argument.
- */
-function calendar_handler_arg_week($op, &$query, $argtype, $arg = '') {
-	if ($op == 'filter' && !empty($arg) && $arg != CALENDAR_EMPTY_ARG) {
-	  calendar_filter_week($query, $arg);
-	}
-	return calendar_handler_arg_type($op, $query, $argtype, $arg, 'WEEK');
-}
-
-/**
- * Callback for week filter.
- *   Build year, month, day, min, and max into query object.
- *
- * @param object $query
- * @param integer $arg
- */
-function calendar_filter_week(&$query, $arg) {
-  $now = date_now();
-	if (!isset($query->year)) {
-  	calendar_filter_year($query, date_format($now, 'Y'));
-  }
-  $arg = str_replace('W', '', $arg);
-	$query->calendar_type = 'week';
-	$query->week = calendar_part_is_valid($arg, 'week') ? $arg : date_format($now, 'W');
-  $range = calendar_week_range($query);
-  $query->month = date_format($range[0], 'n');
-  $query->day = date_format($range[0], 'j');
-}
-
-/**
  * Compile the filter query for this view.
  *
  * Create date objects for the minimum and maximum possible dates for this
@@ -490,7 +383,7 @@ function calendar_build_filter(&$query, &$view) {
   $now = date_now();
   if ($query->calendar_type == 'week' && calendar_part_is_valid($query->week, 'week')) {
     $range = calendar_week_range($query);
-    $date = date_create($range[0], date_default_timezone());
+    $date = $range[0];
   } else {
     $month = calendar_part_is_valid($query->month, 'month') ? $query->month : 1;
     $day   = calendar_part_is_valid($query->day, 'day') ? $query->day : 1;
@@ -838,6 +731,7 @@ function calendar_nav($view, $mini = FALSE) {
   if (!calendar_part_is_valid($view->year, 'year')) {
     return $view->subtitle;
   }
+
   // make the navigation into a header, with prev and next links
   // use the calendar_nav themes to mimic standard calendar navigation
   $paths = calendar_get_paths($view);
@@ -904,7 +798,7 @@ function calendar_get_paths($view) {
   }
 
   // reverse through the path, creating a $nextpath and $prevpath arrays
-  $formats = array('day' => 'j', 'month' => 'n', 'year' => 'Y', 'week' => 'W');
+  $formats = array('day' => 'j', 'month' => 'm', 'year' => 'Y', 'week' => 'W');
   for ($x = $i; $x >= 0; $x--) {
     $type = $path[$x]['type'];
     if (in_array($type, $formats) && $path[$x]['path'] != CALENDAR_EMPTY_ARG) {
@@ -946,9 +840,10 @@ function calendar_week_range($view) {
  * Compute the calendar week number for a view.
  */
 function calendar_week_number($view) {
+  $now = date_now();
   $day = !empty($view->day) && $view->day != CALENDAR_EMPTY_ARG ? $view->day : date_format($now, 'j');
   $month = !empty($view->month) && $view->month != CALENDAR_EMPTY_ARG ? $view->month : date_format($now, 'm');
   $datetime = $view->year .'-'. date_pad($month) .'-'. date_pad($day) .' 00:00:00';
   $date = date_create($datetime, date_default_timezone());
-  $week_year = calendar_week_year($date);
+  // TODO
 }
