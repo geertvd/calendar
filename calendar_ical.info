@@ -1,0 +1,6 @@
+; $Id$
+name = Calendar iCal
+description = Adds ical functionality to Calendar views.
+package = Date/Time
+dependencies = views date_api calendar
+

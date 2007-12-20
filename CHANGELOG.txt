@@ -1,0 +1,183 @@
+Views Calendar 5.x
+==================
+
+Version 1.7
+===========
+
+- Move cached calendar info to cache_views so it gets cleared when views_invalidate_cache() is called.
+- 185640 fix function and table name errors in install file.
+- Keep devel module from appending queries to ical export.
+- Calculation of max date for a month needs adjustment.
+- Fix ical export to match changes in ical parser.
+- Create a separate theme for remote nodes and make sure all remote nodes get necessary cleanup.
+- Adapt calendar to use fixed DURATION handling in ical parser.
+- Cleanup calendar ical import.
+- 183877 get rid of constant for CALENDAR_PATH and just use drupal_get_path() when needed.
+- Update of calendar ical module to use the new date ical parser.
+
+Version 1.6
+===========
+
+- 182998 Use Date API handling of timezones instead of Drupal default timezone offset when computing calendar values.
+- 182155 Make sure multiple event nodes get a unique identifer when testing if they have already been processed.
+- 181390 Cache_clear_all was missing wildcard in hook_cron().
+- Add theme to override default Views handling of page title.
+- Several fixes needed so menu tabs and arguments work on urls with $args in them, like node/$arg/calendar.
+- Make sure plugin works even_empty, add install file that can clear cached calendar settings.
+- Move administrative code to separate file so it isn't always parsed.
+- Move plugin display themes to calendar.theme.
+- Cache calendar fields() and calendar views() arrays.
+- 172073 Allow for non-calendar arguments before any calendar arguments to dynamically filter calendar.
+- Remove date fields from default view to force user to add the right field. Tired of handling support questions about unexpected date fields.
+- 171306 keep empty nodes out of ical feed.
+- 166659 and 160378 clean up handling of header and footer on empty pages.
+- 155701 and 167110 ical and setup tabs sometimes didn't show up. Needed to rework the logic of calendar_is_calendar() and calendar_views() to properly identify views that have calendar types or calendar args.
+- 159326 slight correction to indicating 'selected' day in mini calendar.
+- 134240 fourth ical argument is optional, add '=NULL' so it will always work.
+- 115144 make sure multiple day nodes don't get title and teaser created more than one time.
+- 165845 make sure empty days have empty days theme.
+- 167141 change array union to array merge to keep from losing first ical item.
+- Stop adding label after node title in the default theme. Takes up too much space, and confuses people. Anyone that wants it there can do custom themeing.
+- 171155 remove view-header from css, no longer being used.
+- 176384 test for integer before checking calendar values.
+- 175131 fix min height in IE6.
+- 178839 get rid of use of 'Start' and 'End' in default themes. They sometimes show up when they shouldn't and take up too much room anyway. Anyone who wants them can add them back into a custom theme function.
+- More cleanup of day and month themes.
+- Check_markup was applied too many times to the day view, wiping out all html.
+- Fixing the day view - view fields weren't getting added in correctly.
+- 135296 Offset for date-specific timezone was using the offset field name instead of its value, so being ignored. This will fix problems where time was showing up in the calendar adjusted to GMT timezone.
+- 160623 change event_get_offset() to date_get_offset() to match change in timezone.inc file.
+- 138825 $view->all was not getting converted back to a number in the theme.
+- 163552 fix inconsistancy between integer values and zero-padded values in date formatting,
+- 157393 make sure ical cache table isn't dropped if it was never created.
+
+Version 1.5
+===========
+
+- 146347 fix some more places where date_format_date() should be used instead of gm_date() so they are translated.
+- make sure nav titles get run through theme properly.
+- 141267 fix css attribute, should be overflow:hidden.
+- 140922 fix the way the table view array is constructed.
+- Found some debugging cruft in ical module when cache is cleared.
+- 153580 use date_format_date instead of date_gmdate to get date parts translated.
+- 149668 fix wrong permissions.
+- 147386 remove redundant adjustment for user time.
+- 121300 make sure stripe index gets incremented.
+- 122568 for multi-day fields make sure $node->teaser doesn't keep adding the same fields.
+- 141264 fix typo in style inclusion.
+- 150054 also need to fix the setup forms now that they only have a view name and not the whole view object passed to them.
+- 150054 rework the way the calendar_views() function works to improve performance.
+- 149668 make sure default views get included as calendar views.
+- Add in new hook_views_tabs() for menu tab.
+- Make sure ical module gets uninstalled if calendar is uninstalled.
+- Make sure calendar module loads before calendar_ical.
+- Clean up css.
+- Fix error in calendar_has_calendar_args() function.
+- Now that all views will work with calendar arguments, add setup items to select which view you want for each time period and make sure feed items get added to all of them.
+- Add some improvements to the way feed items are displayed in the day view by undoing ical escaping.
+- Set up cron to expire the cache, fix mistake in function applying time format to feed items.
+- Add new setup item to set display format for year, month, week, and day.
+- Make sure links to 'all' days and months get reset to current value.
+- 133018 initialize array.
+- Since I can't get the week view working completely right, I'm just going to hide it for now.
+- 132357, fix pass-by-reference typos.
+- Fix default page info in default view and push handling of empty days through theme.
+- Refactor arguments handling to be more consistent with normal argument handling and clean up ical argument problems.
+- Fix min and max date comparison for week view
+- 128517 fix error in week calculation so week doesn't always get set to 1
+- 127038 fix limit_nodes function to include last day of month
+- Adapt setup tabs to new Views handling of tabs
+- Move check for non-calendar views to top of theme instead of node-creation function,  theme_calendar_ical_feed had inconsistency in variable name, check for ical argument to keep ical feed off views that don't have it.
+- 127291 change view titles and breadcrumbs to use %1, %2, %3 dynamic titles
+- Get rid of italics in css, make sure date_api is included where needed, add more date info to ical feed.
+- 127818 Needed Date API functions to get timezone fixes working, so Date API handling is now fully incorporated into the calendar module, which means if you are using adodb to create historical dates, you can also create historical calendars.
+- 112682 Fix handling of week views by cleaning up places where system timezone adjustment was getting included.
+- Make sure webcal is replaced with http in the ical url
+
+Version 1.4
+===========
+
+NOTE Date API has been split out into a separate module to make the API available with no dependency on CCK and the Calendar module now requires the Date API. For best update results, uninstall the Calendar module before adding the updated Calendar and Date files to the site, then immediately go to the modules page and enable both the Calendar and Date API modules.
+
+- 125913 get calendar_views array properly initialized
+- 125509 fix for postgres date ranges to use exact last day of month in SQL, more clean up of week range calculations. Requires new functions just added to Date API.
+- 125483 more corrections to week calculation
+- 124910 correct site timezone for dst
+- Fix tab handling
+- 124107 translate month names
+- Keep extra ical icon from showing up in block version of the view
+- 118055, make sure view works right if only block is set up to calendar type
+- 123592 make sure arguments ahead of the calendar arguments are retained in the links
+- 121300 clean up handling of stripes to make them consistant
+- 111947, 121956, 110883, 119874, fix miscellaneous problems with week view and navigation.
+- Add headers and dow calc for all possible first day of week options
+- Use variable for view time format
+- Fix day teaser view in theme
+- Make sure legend and switch blocks aren't displayed on non-calendar pages
+- 124320 fix fatal errors in identifying include paths
+- 123944, 123377 add validation to make sure right arguments and field settings are used.
+- Check module_exists on event module adjustments in case custom module is named 'event'.
+- css cleanup
+- Better theme for full day nodes, make sure webcal protocol gets switched to http
+- Add ical import and export support
+- Get the feed stripe to show up in the legend.
+- Reconfiguring to move ical functions into separate, optional module and add hook to calendar module to insert other items into calendar.
+- 119712, 121451 fix to make transition to separate Date API easier since  non-existant functions will cause fatal error that prevents ability to get back to module installation page.
+- 120787 more places need the exposed filter choices appended to the url.
+- Make sure not to try to do anything if there are no feeds.
+- Fix a mistake in the ical file where it tries to query a non-existant table. Use the timezones.inc file instead.
+- More theme cleanup.
+
+Version 1.3
+===========
+
+- 120813 first of month dates not appearing, fixed by this patch and setting field to not use timezone conversion when there is no hours granularity.
+- 98859 add filter and arg info to links and navigation so it is retained
+- Move themes into separate file to make them easier to find
+- Add dependency on Date API and remove duplicated code from Calendar
+- Move page navigation and top links into theme and make sure exposed filters don't separate navigation and calendar.
+- Clean up themeing
+- 115144 make sure label only gets added once to title
+- 115999 initialize value to prevent wrong tables from being inserted into view
+- 99254 fix missing name in block
+- 113036 add translation for default view titles
+
+Version 1.2
+===========
+
+- 113959, 114654 empty calendar not created for non-existant days
+- Fix for back/next url
+- 113714 correct invalid foreach argument by altering method of calling views handler for non-date fields
+- 112182, 111701, 108071 - extra fields not showing up in calendar teaser
+- 99223 fix current date
+- 113125 - current view needs a link in the links listed aboved the calendar
+- Fix display of time in calendar, fix content type name in legend
+- 109336 default to current month instead of year
+- Cleanup handling of 'to' date for non-CCK date, fix links at top of calendar
+- 108957 add include path, patch by retodd, incorporate from/to cck date option from latest version of date module.
+- Incorporate from/to date capability added to cvs version of date module.
+- 108957 add include path
+- 89097 reverse sign on option delta, fix view tablename aliases
+- 114265 handle empty 'to' date values by filling with 'from' date. Fix block view of date browser, use new CCK views table alias.
+- 80592 alter default value handling to match changes in CCK, display blank value as default for to date if not required, make sure blank
+value is stored as NULL
+
+Version 1.1
+=====================
+
+- Force CCK multiple value fields to display as separate items on calendar.
+- #107489 use drupal_substr intead of substr to handle Russian characters
+- Fixing week handling requires change to week nav link
+- #104458 get rid of <nobr></nobr>
+- #104303 fix cell id for day value
+- Fix calculation of week start/end times and timezone adjustment of calendar views
+- Fix error in setting date constraints on year view
+- #99820 cast array_keys calls to arrays, reverse mistaken switch of underscore and hypen in theme function names
+- #100460 replace css underscores with hyphens
+
+
+Version 1.1-beta
+======================
+
+Initial release.
+
