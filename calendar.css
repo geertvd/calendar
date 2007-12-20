@@ -41,7 +41,7 @@
   text-align: right;
   vertical-align: top;
   margin: 0;
-  padding: 0;
+  padding:0;
 }
 .calendar-calendar td.week {
   width:1%;
@@ -52,12 +52,12 @@
   min-height:5em;
   height:auto !important;
   height:5em;
-  margin: 0;
-  padding: 0;
+  padding:0;
+  margin:0;
 }
-.calendar-calendar.inner div {
-  padding: 0;
-  margin: 0;
+.calendar-calendar .inner div {
+  padding:0;
+  margin:0;
 }
 .calendar-nav-wrapper {
   width:100%;
@@ -138,7 +138,11 @@
   background-color: #fff;
   border: solid 1px #555;
   text-align: left;
-  margin: 0.25em 0 0.5em 0.25em;
+  margin: 1%;
+  padding:0;
+  width: 96%;
+  clear:both;
+  float:right;
 }
 .calendar-calendar div.title {
   font-size:.8em;
@@ -184,34 +188,24 @@
   color: #c00;
 }
 .calendar-calendar .start {
-  clear:both;
   font-style: normal;
   color: #555;
-  margin: 2px 0 2px 0;
-  padding-left: 3px;
   font-size: 0.8em;
 }
 .calendar-calendar .end {
-  clear:both;
   font-style: normal;
   color: #555;
-  margin: 2px 0 2px 0;
-  padding-left: 3px;
   font-size: 0.8em;
 }
 .calendar-calendar .ongoing {
-  clear:both;
   font-style: normal;
   color: #555;
-  margin: 2px 0 2px 0;
-  padding-left: 9px;
   font-size: 0.8em;
 }
 .calendar-calendar .week {
   clear:both;
   font-style: normal;
   color: #555;
-  margin: 2px 0 2px 0;
   font-size: 0.8em;
 }
 .calendar-calendar .week a {

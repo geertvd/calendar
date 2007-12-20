@@ -47,7 +47,7 @@ function calendar_ical_views_tabs($op) {
  * @return unknown
  */
 function calendar_ical_cache() {
-	return 'cache';
+	return 'cache_views';
 }
 
 /**

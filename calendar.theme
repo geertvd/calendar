@@ -529,7 +529,7 @@ function theme_calendar_node_month($node) {
   // Force spaces into titles wherever possible so long unbroken title strings
   // won't screw up the calendar layout.
   $replace = array('-' => '- ', ':' => ': ', ';' => '; ', '/' => '/ ', ',' => ', ', '.' => '. ');
-  $output .= '<div class="title">'. l(strtr($node->title, $replace), $node->url, array('title' => t('view this item'))) .'</div>'."\n";
+  $output .= '<div class="title">'. l(strtr($node->title, $replace), $node->url, array('title' => t('view this item'))) .'</div>';
   $output .= '<div class="times">'. $times .'</div>';
   $output .= $node->teaser;
   $output .= '</div>' . "\n";
