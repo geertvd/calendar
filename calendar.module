@@ -23,7 +23,7 @@ function calendar_menu($may_cache) {
   if (!$may_cache) {
 
     include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.theme');
-    drupal_add_css('./'. drupal_get_path('module', 'calendar') .'/calendar.css');
+    drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
     define('CALENDAR_EMPTY_ARG', variable_get('calendar_empty_arg', 'all'));
 
     include_once(drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
