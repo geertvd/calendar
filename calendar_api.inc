@@ -383,6 +383,7 @@ function calendar_untranslated_days() {
  */
 function calendar_build_filter(&$query, &$view) {
   $now = date_now();
+
   if ($query->calendar_type == 'week' && calendar_part_is_valid($query->week, 'week')) {
     $range = calendar_week_range($query);
     $date = $range[0];
@@ -609,9 +610,12 @@ function calendar_get_nodes(&$view, &$items, $type) {
           date_modify($node->calendar_end_date, '+'. $node->event_timezone .' seconds');
         }
         else {
-          $node->calendar_start_date = date_create($node->calendar_start, date_default_timezone());
-          $node->calendar_end_date   = date_create($node->calendar_end, date_default_timezone());
+          $node->calendar_start_date = date_create("@$node->calendar_start", date_default_timezone());
+          $node->calendar_end_date   = date_create("@$node->calendar_end", date_default_timezone());
+          $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
+          $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
         }
+
         if (isset($node) && (empty($node->calendar_start_date))) {
           // if no date for the node and no date in the item
           // there is no way to display it on the calendar
