@@ -38,6 +38,7 @@
  *  @return Themed calendar view of nodes or array of calendar rows
  */
 function calendar_get_calendar($type, $nodes, $module, $title = NULL, $params = array()) {
+
   $now = date_now();
   if ($params['limit'][0]) {
     $min_date = $params['limit'][0];
@@ -232,15 +233,24 @@ function calendar_get_calendar($type, $nodes, $module, $title = NULL, $params = 
                   $x = 8;
                 }
               }
-              $cur_week = date_format($curday, 'W');
+
+              // We finished up a week, and went into the next one,
+              // so clone the date and back up to get week info.
+              $viewday = drupal_clone($curday);
+              date_modify($viewday, '-1 day');
+              $view = new StdClass();
+              $view->year = date_format($viewday, 'Y');
+              $view->month = date_format($viewday, 'n');
+              $view->day = date_format($viewday, 'j');
+              calendar_week_range($view);
 
               // print week unless this is a week view and force_week is set and this is not the forced week
-              if (!($type == 'week' && $params['force_week'] && $params['force_week'] != date_format($curday, 'W'))) {
+              if (!($type == 'week' && $params['force_week'] && $params['force_week'] != $view->week)) {
                 if ($params['with_weekno']) {
                   $week_row = array(0 =>
                     array(
                       'class' => 'week',
-                      'data' => l(date_pad($cur_week), $params['url'] .'/'. $year .'/W'. $cur_week, NULL, $params['append']),
+                      'data' => l(date_pad($view->week), $params['url'] .'/'. $view->week_year .'/W'. date_pad($view->week), NULL, $params['append']),
                     ));
                   $rows[] = array_merge($week_row, array_pad($row, 7, theme('calendar_empty_day')));
                 }
@@ -372,10 +382,6 @@ function calendar_untranslated_days() {
  * @param object $view
  */
 function calendar_build_filter(&$query, &$view) {
-  if (!isset($query->week)) {
-    $range = calendar_week_range($query);
-  	$query->week  = calendar_week_number($query);
-  }
   $now = date_now();
   if ($query->calendar_type == 'week' && calendar_part_is_valid($query->week, 'week')) {
     $range = calendar_week_range($query);
@@ -762,10 +768,10 @@ function calendar_nav($view, $mini = FALSE) {
 function calendar_get_paths($view) {
   $path = array();
 
-  $next_date = drupal_clone($view->max_date);
-  date_modify($next_date, '+1 second');
   $prev_date = drupal_clone($view->min_date);
   date_modify($prev_date, '-1 '. $view->calendar_type);
+  $next_date = drupal_clone($prev_date);
+  date_modify($next_date, '+2 '. $view->calendar_type);
 
   // build an array of the current path and its parts
   $i = 0;
@@ -797,10 +803,37 @@ function calendar_get_paths($view) {
   $formats = array('day' => 'j', 'month' => 'm', 'year' => 'Y', 'week' => 'W');
   for ($x = $i; $x >= 0; $x--) {
     $type = $path[$x]['type'];
-    if (in_array($type, $formats) && $path[$x]['path'] != CALENDAR_EMPTY_ARG) {
-      $nextpath[$x] = ($type == 'week' ? 'W' : '') . date_format($next_date, $formats[$type]);
-      $prevpath[$x] = ($type == 'week' ? 'W' : '') . date_format($prev_date, $formats[$type]);
+    if (in_array($type, array_keys($formats)) && $path[$x]['path'] != CALENDAR_EMPTY_ARG) {
+
+      // Weeks are messy, we can't use format strings to find the calendar week
+      // and the year may change along with the week.
+      if ($type == 'week') {
+        $nextview = new StdClass();
+        $nextview->year = date_format($next_date, 'Y');
+        $nextview->month = date_format($next_date, 'n');
+        $nextview->day = date_format($next_date, 'j');
+        $range = calendar_week_range($nextview);
+        $nextpath[$x] = 'W'. intval($nextview->week + 1);
+        if ($nextview->week_year != date_format($next_date, 'Y')) {
+          $next_year = $nextview->week_year;
+        }
+
+        $prevview = new StdClass();
+        $prevview->year = date_format($prev_date, 'Y');
+        $prevview->month = date_format($prev_date, 'n');
+        $prevview->day = date_format($prev_date, 'j');
+        $range = calendar_week_range($prevview);
+        $prevpath[$x] = 'W'. intval($prevview->week + 1);
+        if ($prevview->week_year != date_format($prev_date, 'Y')) {
+          $prev_year = $prevview->week_year;
+        }
+      }
+      else {
+        $nextpath[$x] = $type == 'year' && isset($next_year) ? $next_year : date_format($next_date, $formats[$type]);
+        $prevpath[$x] = $type == 'year' && isset($prev_year) ? $prev_year : date_format($prev_date, $formats[$type]);
+      }
     }
+    // Non-date path elements just get passed through.
     else {
       $nextpath[$x] = $path[$x]['path'];
       $prevpath[$x] = $path[$x]['path'];
@@ -810,36 +843,51 @@ function calendar_get_paths($view) {
 }
 
 /**
- * Get the start and end dates for a calendar week.
+ * Get the start and end dates for a calendar week,
+ * and adjust the view with the right week and week year numbers.
+ *
+ * Tracking the right calendar week number so it works no matter
+ * which is the first day of the week, and as you cross from one
+ * year to another is quite complex. There are no simple PHP
+ * functions that will accomplish this.
  */
-function calendar_week_range($view) {
+function calendar_week_range(&$view) {
+  $now = date_now();
   $year = $view->year;
-  $week = isset($view->week) ? $view->week : calendar_week_number($view);
+  $view->week_year = $year;
+  $day = !empty($view->day) && $view->day != CALENDAR_EMPTY_ARG ? $view->day : date_format($now, 'j');
+  $month = !empty($view->month) && $view->month != CALENDAR_EMPTY_ARG ? $view->month : date_format($now, 'n');
 
-  // Get timestamp for January 1 of the requested year.
-  $min_date = date_create($year .'-01-01 00:00:00', date_default_timezone());
-  // Adjust back or forward to the first day of the calendar week for the specified first day of week.
-  $dow = date_format($min_date, 'w');
-  $first_day = variable_get('date_first_day', 0);
-  $diff = -((7 - $first_day + $dow) % 7);
+  // Create an object for the first day of the week of the first
+  // calendar week of this year.
+  $first_dow = variable_get('date_first_day', 0);
+  $min_date = date_create($view->year .'-01-01 00:00:00', date_default_timezone());
+
+  $diff = -((7 - $first_dow + date_format($min_date, 'w')) % 7);
   date_modify($min_date, $diff .' days');
-  // Add the requested number of weeks to that date.
-  date_modify($min_date, '+'. intval($week - 1) .' weeks');
-  // Find the end date, which is one week later, less one second.
+
+  if (empty($view->week)) {
+    $datetime = $year .'-'. date_pad($month) .'-'. date_pad($day) .' 00:00:00';
+    $viewdate = date_create($datetime, date_default_timezone());
+    // Special case when week min date is in a prior year.
+    $adj = date_format($min_date, 'Y') < $year ? 0 : 1;
+    $week_diff = date_diff($min_date, $viewdate, 'weeks');
+    $view->week = $week_diff + $adj;
+  }
+
+  date_modify($min_date, '+'. ($view->week - 1) .' weeks');
   $max_date = drupal_clone($min_date);
   date_modify($max_date, '+1 week');
   date_modify($max_date, '-1 second');
-  return array($min_date, $max_date);
-}
 
-/**
- * Compute the calendar week number for a view.
- */
-function calendar_week_number($view) {
-  $now = date_now();
-  $day = !empty($view->day) && $view->day != CALENDAR_EMPTY_ARG ? $view->day : date_format($now, 'j');
-  $month = !empty($view->month) && $view->month != CALENDAR_EMPTY_ARG ? $view->month : date_format($now, 'm');
-  $datetime = $view->year .'-'. date_pad($month) .'-'. date_pad($day) .' 00:00:00';
-  $date = date_create($datetime, date_default_timezone());
-  // TODO
+  // Special case when crossing from one year to another, it could
+  // either be computed as the last week of the previous year or first
+  // week of the current year, so force the first week of the current year.
+  if (date_format($max_date, 'z') < 6) {
+    $view->week = 1;
+    $view->week_year = $view->year + 1;
+  }
+  $view->min_date = $min_date;
+  $view->max_date = $max_date;
+  return array($min_date, $max_date);
 }

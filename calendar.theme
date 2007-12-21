@@ -268,7 +268,7 @@ function theme_calendar_show_nav($view, $mini = FALSE, $links = FALSE) {
     $base_url = $view->real_url .'/'. $view->year;
     $month    = $view->month && $view->month != CALENDAR_EMPTY_ARG ? $view->month : date_format($now, 'm');
     $day      = $view->day && $view->day != CALENDAR_EMPTY_ARG ? $view->day : date_format($now, 'j');
-    $week     = $view->week && $view->week != CALENDAR_EMPTY_ARG ? $view->week : date_format($now, 'W');
+    $week     = $view->week && $view->week != CALENDAR_EMPTY_ARG ? $view->week : '';
 
     $append = calendar_url_append($view);
     if ($_GET['view']) {

@@ -247,8 +247,8 @@ function calendar_filter_week(&$query, $arg) {
   	calendar_filter_year($query, date_format($now, 'Y'));
   }
   $arg = str_replace('W', '', $arg);
-	$query->calendar_type = 'week';
-	$query->week = calendar_part_is_valid($arg, 'week') ? $arg : date_format($now, 'W');
+  $query->calendar_type = 'week';
+	$query->week = calendar_part_is_valid($arg, 'week') ? $arg : NULL;
   $range = calendar_week_range($query);
   $query->month = date_format($range[0], 'n');
   $query->day = date_format($range[0], 'j');
@@ -395,7 +395,7 @@ function calendar_views_query_alter(&$query, &$view) {
  *  Implementation of hook_views_pre_view()
  */
 function calendar_views_pre_view(&$view, &$items) {
-	// If no part of this view has calendar elements, exit.
+  // If no part of this view has calendar elements, exit.
 	if ((!calendar_is_calendar($view) || !calendar_has_calendar_args($view))) {
 		return;
 	}
