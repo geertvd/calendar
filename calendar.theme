@@ -207,7 +207,7 @@ function theme_calendar_arg_title($field_type, $value, $query) {
   $value = intval(check_plain($value));
   if (empty($value)) {
     if ($view->month) {
-      return date_t(date_format($view->min_date, 'F Y'));
+      return date_format_date($view->min_date, 'custom', 'F Y');
     }
     elseif ($view->year) {
      return $view->year;
@@ -219,9 +219,9 @@ function theme_calendar_arg_title($field_type, $value, $query) {
       $view->year = $value;
       return $view->year;
     case 'MONTH':
-      return date_t(date_format($view->min_date, 'F Y'));
+      return date_format_date($view->min_date, 'custom', 'F Y');
     case 'DAY':
-      return date_t(date_format($view->min_date, 'l, F j Y'));
+      return date_format_date($view->min_date, 'custom', 'l, F j Y');
     case 'WEEK':
     	return t('Week @week @year', array('@year' => $view->year, '@week' => $value));
    }
@@ -244,16 +244,16 @@ function theme_calendar_nav_title($field_type, $view) {
       // For the timestamp, use the second day of the month because gm functions sometimes return the previous month
       $date = date_create($view->year .'-'. $view->month .'-02 00:00:00', date_default_timezone());
       if ($view->build_type == 'block' || $view->calendar_type == 'year') {
-      	return l(date_t(date_format($date, 'M Y')), $view->real_url .'/'. $view->year .'/'. $view->month, array(), calendar_url_append($view));
+      	return l(date_format_date($date, 'custom', 'M Y'), $view->real_url .'/'. $view->year .'/'. $view->month, array(), calendar_url_append($view));
       }
       else {
       	return date_t(date_format($date, 'F Y'));
       }
     case 'DAY':
       $date = date_create($view->year .'-'. $view->month .'-'. $view->day .' 12:00:00', date_default_timezone());
-      return date_t(date_format($date, 'l, F j Y'));
+      return date_format_date($date, 'custom', 'l, F j Y');
     case 'WEEK':
-      return t("Week of @date", array('@date' => date_t(date_format($view->min_date, 'F j Y'))));
+      return t("Week of @date", array('@date' => date_format_date($view->min_date, 'custom', 'F j Y')));
    }
 }
 
@@ -562,7 +562,7 @@ function theme_calendar_date_box($year, $month, $day, $view, $params, $selected 
       break;
     case 'list':
       $date = date_create($year .'-'. date_pad($month) .'-'. date_pad($day), date_default_timezone());
-      $output = '<div class="day">'. l(date_t(date_format($date, 'l, F j, Y')), $url, NULL, $append) .'</div>'."\n";
+      $output = '<div class="day">'. l(date_format_date($date, 'custom', 'l, F j, Y'), $url, NULL, $append) .'</div>'."\n";
       break;
     case 'day':
      break;

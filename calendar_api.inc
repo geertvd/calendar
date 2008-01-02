@@ -94,8 +94,8 @@ function calendar_get_calendar($type, $nodes, $module, $title = NULL, $params = 
           $calendar->calendar_state = 'ongoing';
         }
         $calendar->date = $date;
-        $calendar->formatted = date_format($date, $node->format);
-        $calendar->formatted_time = date_format($date, $node->format_time);
+        $calendar->formatted = date_format_date($date, 'custom', $node->format);
+        $calendar->formatted_time = date_format_date($date, 'custom', $node->format_time);
         // Store this date and go on to next day.
         $data[date_format($date, 'Y')][date_format($date, 'm')][date_format($date, 'j')][] = $calendar;
         date_modify($date, '+1 day');
@@ -131,7 +131,7 @@ function calendar_get_calendar($type, $nodes, $module, $title = NULL, $params = 
             $content = theme('calendar_date_box', $year, $month, $day, 'table', $params, !empty($calendars));
             foreach($calendars as $calendar) {
               if(!$month_name) {
-                $month_name = date_format($calendar->date, 'M');
+                $month_name = date_format_date($calendar->date, 'custom', 'M');
                 $dow = _calendar_day_of_week($calendar->date);
               }
               $node = $nodes[$calendar->nid];
@@ -182,7 +182,7 @@ function calendar_get_calendar($type, $nodes, $module, $title = NULL, $params = 
             // get the day of week offset value for the first day of the month
             $start = $offset = _calendar_day_of_week($curday);
             // get name of month
-            $month_name = date_format($curday, 'M');
+            $month_name = date_format_date($curday, 'custom', 'M');
             $month_link = $params['url'] ? l($month_name, $params['url'] .'/'. $year .'/'. intval($month), NULL, $params['append']) : $month_name;
             // set week counter
             $week = 0;
