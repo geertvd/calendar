@@ -4,6 +4,10 @@
  * @file
  * Install File
  */
+// Updates happen in random order, whether or not the module is enabled,
+// so include critical code here just to be sure.
+include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.module');
+
 
 /**
  * Implementation of hook_requirements().
@@ -48,7 +52,6 @@ function calendar_requirements($phase) {
  * Reset the calendar caches.
  */
 function calendar_enable() {
-  include_once(drupal_get_path('module', 'calendar') .'/calendar.module');
   calendar_clear_all();
 }
 
@@ -57,7 +60,6 @@ function calendar_enable() {
  * Empty the calendar caches.
  */
 function calendar_disable() {
-  include_once(drupal_get_path('module', 'calendar') .'/calendar.module');
   calendar_clear_all(TRUE);
 }
 
@@ -66,7 +68,6 @@ function calendar_disable() {
  * Reset the calendar caches.
  */
 function calendar_install() {
-  include_once(drupal_get_path('module', 'calendar') .'/calendar.module');
   calendar_clear_all();
 }
 
@@ -75,7 +76,6 @@ function calendar_install() {
  *
  */
 function calendar_uninstall() {
-  include_once(drupal_get_path('module', 'calendar') .'/calendar.module');
   variable_del('calendar_empty_arg');
   foreach (array_keys(calendar_info()) as $view_name) {
     variable_del('calendar_time_format_'. $view_name);

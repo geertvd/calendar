@@ -26,6 +26,29 @@ function theme_calendar_view_summary(&$view, $type, $level, &$items, $args) {
  */
 function theme_calendar_view_calendar(&$view, &$items, $type) {
   include_once(drupal_get_path('module', 'calendar') .'/calendar_api.inc');
+  $calendar_fields = calendar_fields();
+  foreach ($items as $delta => $node) {
+    $item = '';
+    foreach ($view->field as $field) {
+      if ($fields[$field['id']]['visible'] !== FALSE && array_key_exists($field['field'], $calendar_fields)) {
+        // The query created from/to dates like 2007-12-31T01:30:00|2007-12-31T02:30:00,
+        // explode those values and separate them into from and to dates on the node.
+        $fromto = array_merge(
+          $calendar_fields[$field['field']]['timestamp_fromto'],
+          $calendar_fields[$field['field']]['string_fromto']);
+        $key = $field['queryname'];
+        $old = $node->$key;
+        if ($node->$key) {
+          $values = explode('|', $node->$key);
+        }
+        // Convert the table.field format in the fromto fields
+        // to the table_field format used by the Views formatters.
+        $node->{str_replace('.', '_', $fromto[0])} = $values[0];
+        $node->{str_replace('.', '_', $fromto[1])} = $values[1];
+        $items[$delta] = $node;
+      }
+    }
+  }
   if ($type == 'block' || !calendar_is_calendar_arg($view)) {
     $view->calendar_type = 'month';
   }
@@ -41,7 +64,7 @@ function theme_calendar_view_calendar(&$view, &$items, $type) {
   	$display_formats = calendar_get_formats($view);
   	$display = $view->build_type == 'block' ? $display_formats['block'] : $display_formats[$view->calendar_type];
   }
-
+$display = 'nodes';
   switch($display) {
     case ('table') :
       $view->table_header = _views_construct_header($view, _views_get_fields());
