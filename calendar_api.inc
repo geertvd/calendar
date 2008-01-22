@@ -610,8 +610,8 @@ function calendar_get_nodes(&$view, &$items, $type) {
           date_modify($node->calendar_end_date, '+'. $node->event_timezone .' seconds');
         }
         else {
-          $node->calendar_start_date = date_create("@$node->calendar_start", date_default_timezone());
-          $node->calendar_end_date   = date_create("@$node->calendar_end", date_default_timezone());
+          $node->calendar_start_date = date_make_date($node->calendar_start, date_default_timezone_name(), $field_type == 'timestamp' ? DATE_UNIX : DATE_ISO);
+          $node->calendar_end_date   = date_make_date($node->calendar_end, date_default_timezone_name(), $field_type == 'timestamp' ? DATE_UNIX : DATE_ISO);
           $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
           $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
         }
@@ -666,7 +666,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
   }
   elseif (sizeof($nodes) == 0) {
     // otherwise add a blank node for the current day
-    $nodes = array(_calendar_make_node(NULL, $view->year, $view->month, $view->day, 12, 0));
+    $nodes[] = array(_calendar_make_node(NULL, $view->year, $view->month, $view->day, 12, 0));
   }
 
   if (calendar_part_is_valid($view->year, 'year')) {
@@ -705,6 +705,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
   $params['append'] = calendar_url_append($view);
   $params['stripe'] = 'stripe';
   $params['with_weekno'] = $view->build_type == 'block' || $view->calendar_type == 'year' || $view->year < 1970 ? FALSE : TRUE;
+
   return array('nodes' => $nodes, 'params' => $params);
 }
 

@@ -64,7 +64,7 @@ function theme_calendar_view_calendar(&$view, &$items, $type) {
   	$display_formats = calendar_get_formats($view);
   	$display = $view->build_type == 'block' ? $display_formats['block'] : $display_formats[$view->calendar_type];
   }
-$display = 'nodes';
+
   switch($display) {
     case ('table') :
       $view->table_header = _views_construct_header($view, _views_get_fields());
