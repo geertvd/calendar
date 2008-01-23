@@ -130,26 +130,26 @@ function calendar_get_calendar($type, $nodes, $module, $title = NULL, $params = 
           foreach($days as $day => $calendars) {
             $content = theme('calendar_date_box', $year, $month, $day, 'table', $params, !empty($calendars));
             foreach($calendars as $calendar) {
-              if(!$month_name) {
-                $month_name = date_format_date($calendar->date, 'custom', 'M');
-                $dow = _calendar_day_of_week($calendar->date);
+              if (is_object($calendar->date)) {
+                if(!$month_name) {
+                  $month_name = date_format_date($calendar->date, 'custom', 'M');
+                  $dow = _calendar_day_of_week($calendar->date);
+                }
+                $node = $nodes[$calendar->nid];
+                $node->calendar_state = $calendar->calendar_state;
+                if($output = module_invoke($module, 'calendar_node_'. $type, $node)) {
+                  $content .= $output;
+                }
+                else {
+                  $content .= theme('calendar_node_'. $type, $node);
+                }
               }
-              $node = $nodes[$calendar->nid];
-
-              $node->calendar_state = $calendar->calendar_state;
-
-              if($output = module_invoke($module, 'calendar_node_'. $type, $node)) {
-                $content .= $output;
-              }
-              else {
-                $content .= theme('calendar_node_'. $type, $node);
-              }
+              $rows[][] = array(
+                'class' => strtolower("$month_name ". $weekdays[$dow] . ($calendar->stamp == $today ? ' today' : '')),
+                'id' => strtolower($month_name . $day),
+                'data' => $content);
+              $month_name = NULL;
             }
-            $rows[][] = array(
-              'class' => strtolower("$month_name ". $weekdays[$dow] . ($calendar->stamp == $today ? ' today' : '')),
-              'id' => strtolower($month_name . $day),
-              'data' => $content);
-            $month_name = NULL;
           }
         }
       }
@@ -429,7 +429,7 @@ function calendar_build_field_query(&$query, $field) {
     $query->ensure_table($this_field['table'], $this_field['table']);
     $tz_handling  = $this_field['tz_handling'];
     $offset_field = $this_field['offset_field'];
-    $field_type   = strstr($this_field['type'], 'string') ? 'iso' : 'int';
+    $field_type   = strstr($this_field['type'], 'string') ? DATE_ISO : DATE_UNIX;
 
     // Figure out the appropriate timezone offset to use to convert the date
     // back to local time.
@@ -666,7 +666,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
   }
   elseif (sizeof($nodes) == 0) {
     // otherwise add a blank node for the current day
-    $nodes[] = array(_calendar_make_node(NULL, $view->year, $view->month, $view->day, 12, 0));
+    $nodes = array(_calendar_make_node(NULL, $view->year, $view->month, $view->day, 12, 0));
   }
 
   if (calendar_part_is_valid($view->year, 'year')) {
