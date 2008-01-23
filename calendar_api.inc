@@ -46,7 +46,6 @@ function calendar_get_calendar($type, $nodes, $module, $title = NULL, $params = 
     $max_date = $params['limit'][1];
     $max_datetime = date_format($max_date, DATE_FORMAT_DATETIME);
   }
-
   $data  = array();
   foreach ($nodes as $nid => $node) {
 
@@ -114,7 +113,6 @@ function calendar_get_calendar($type, $nodes, $module, $title = NULL, $params = 
   }
 
   $weekdays = calendar_untranslated_days();
-
   switch ($type) {
     case 'day':
     case 'table':
@@ -144,16 +142,16 @@ function calendar_get_calendar($type, $nodes, $module, $title = NULL, $params = 
                   $content .= theme('calendar_node_'. $type, $node);
                 }
               }
-              $rows[][] = array(
-                'class' => strtolower("$month_name ". $weekdays[$dow] . ($calendar->stamp == $today ? ' today' : '')),
-                'id' => strtolower($month_name . $day),
-                'data' => $content);
-              $month_name = NULL;
             }
+            $rows[][] = array(
+              'class' => strtolower("$month_name ". $weekdays[$dow] . ($calendar->stamp == $today ? ' today' : '')),
+              'id' => strtolower($month_name . $day),
+              'data' => $content);
+            $month_name = NULL;
           }
         }
       }
-    break;
+      break;
 
     case 'week':
     case 'month':
@@ -590,12 +588,6 @@ function calendar_get_nodes(&$view, &$items, $type) {
           }
         }
 
-        // Create date objects for the start and end time of the node.
-        $dates = explode('|', $item->$field_field);
-        $node->calendar_start = $dates[0];
-        $node->calendar_end   = !empty($dates[1]) ? $dates[1] : $dates[0];
-
-
         // If we're dealing with an event node that uses event-specific timezones
         // we couldn't transform the date to the local time in the query
         // so we have a date in UTC and need to convert it to local time here.
@@ -610,8 +602,8 @@ function calendar_get_nodes(&$view, &$items, $type) {
           date_modify($node->calendar_end_date, '+'. $node->event_timezone .' seconds');
         }
         else {
-          $node->calendar_start_date = date_make_date($node->calendar_start, date_default_timezone_name(), $field_type == 'timestamp' ? DATE_UNIX : DATE_ISO);
-          $node->calendar_end_date   = date_make_date($node->calendar_end, date_default_timezone_name(), $field_type == 'timestamp' ? DATE_UNIX : DATE_ISO);
+          $node->calendar_start_date = date_make_date($node->calendar_start, date_default_timezone_name());
+          $node->calendar_end_date   = date_make_date($node->calendar_end, date_default_timezone_name());
           $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
           $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
         }

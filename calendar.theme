@@ -45,10 +45,13 @@ function theme_calendar_view_calendar(&$view, &$items, $type) {
         // to the table_field format used by the Views formatters.
         $node->{str_replace('.', '_', $fromto[0])} = $values[0];
         $node->{str_replace('.', '_', $fromto[1])} = $values[1];
+        $node->calendar_start = $values[0];
+        $node->calendar_end = !empty($values[1]) ? $values[1] : $values[0];
         $items[$delta] = $node;
       }
     }
   }
+
   if ($type == 'block' || !calendar_is_calendar_arg($view)) {
     $view->calendar_type = 'month';
   }
@@ -167,22 +170,14 @@ function theme_calendar_calendar_node($node, $type) {
     return theme($type, $node);
   }
 
-  // Display the regular teaser view for local events.
-  if ($type == 'calendar_node_day') {
-    $node = node_load($node->nid);
-    $node->teaser = node_view($node, TRUE, FALSE);
-    $node->title = '';
+  // Construct a teaser out of the provided fields.
+  if (isset($node->fields) && !isset($node->teaser)) {
+    foreach ($node->fields as $field) {
+      $node->teaser .= '<div>'. $field .'</div>';
+    }
   }
-  // For other views, construct a teaser out of the provided fields.
-  else {
-    if (isset($node->fields) && !isset($node->teaser)) {
-      foreach ($node->fields as $field) {
-        $node->teaser .= '<div>'. $field .'</div>';
-      }
-    }
-    if (!$node->url) {
-      $node->url = "node/$node->nid";
-    }
+  if (!$node->url) {
+    $node->url = "node/$node->nid";
   }
   $set_nodes[] = $node->nid .':'. $node->instance;
   return theme($type, $node);
@@ -464,13 +459,13 @@ function theme_calendar_day($op, $header, $rows) {
  */
 function theme_calendar_node_day($node) {
   if (is_object($node->calendar_start_date)) {
-    $output .= '<div class="calendar dayview">'."\n";
+    $output = '<div class="calendar dayview">'."\n";
     $output .= theme('calendar_stripe_stripe', $node);
     $output .= '<h2 class="title">'. l($node->title, "$node->url", array('title' => t('view this item'))) .'</h2>'."\n";
     $output .= '<div class="times">';
-    $output .= '<span class="start">'. date_format($node->calendar_start_date, $node->format) .'</span>'."\n";
+    $output .= '<span class="start">'. date_format($node->calendar_start_date, $node->format_time) .'</span>'."\n";
     if ($node->calendar_start != $node->calendar_end && $node->calendar_end) {
-      $output .= '<span class="end"> - '. date_format($node->calendar_end_date, $node->format) .'</span>'."\n";
+      $output .= '<span class="end"> - '. date_format($node->calendar_end_date, $node->format_time) .'</span>'."\n";
     }
     $output .= '</div>';
     if ($node->teaser) {

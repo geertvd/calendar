@@ -89,6 +89,7 @@ function _calendar_fields() {
   $delta = 0;
   $event_fields_processed = array();
   views_load_cache();
+
   foreach (_views_get_fields() as $name => $val) {
     $timestamp_fromto = array();
     $string_fromto = array();
@@ -145,23 +146,24 @@ function _calendar_fields() {
       }
       // Handling for simple timestamp fields
       else {
+        $timestamp_fromto = array($name, $name);
         $tz_handling = 'site';
         $related_fields = array();
         $timezone_field = '';
       }
       // Handling for cck fromto dates
-      if (!in_array($processed_name, $event_fields_processed) && $val['content_field']['todate']) {
+      if (!in_array($processed_name, $event_fields_processed)) {
         switch ($val['content_field']['type']) {
           case 'datestamp':
             $timestamp_fromto = array(
               $val['table'] .'.'. $field_name .'_value',
-              $val['table'] .'.'. $field_name .'_value2',
+              $val['table'] .'.'. ($val['content_field']['todate'] ? $field_name .'_value2' : $field_name .'_value'),
               );
             break;
           case 'date':
             $string_fromto = array(
               $val['table'] .'.'. $field_name .'_value',
-              $val['table'] .'.'. $field_name .'_value2',
+              $val['table'] .'.'. ($val['content_field']['todate'] ? $field_name .'_value2' : $field_name .'_value'),
               );
             break;
         }

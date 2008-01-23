@@ -223,7 +223,7 @@
   font-size: 0.8em;
 }
 .calendar-calendar div.dayview {
-  width: auto;
+  width: 98%;
 }
 .calendar-calendar div.tableview {
   width: auto;
