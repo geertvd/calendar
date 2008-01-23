@@ -728,6 +728,8 @@ function _calendar_make_node($date = NULL, $year = NULL, $month = NULL, $day = N
   $node->nid = 0;
   $node->calendar_start_date = $date;
   $node->calendar_end_date   = $date;
+  $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
+  $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
   return $node;
 }
 
