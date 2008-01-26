@@ -43,9 +43,20 @@
   margin: 0;
   padding:0;
 }
+
+/* format for the week number in the first cell */
 .calendar-calendar td.week {
   width:1%;
   }
+.calendar-calendar .week {
+  clear:both;
+  font-style: normal;
+  color: #555;
+  font-size: 0.8em;
+}
+.calendar-calendar .week a {
+  font-weight:normal;
+}
 
 /* IE6 does not support min-height, using Min-Height fast hack from http://www.dustindiaz.com/min-height-fast-hack */
 .calendar-calendar .inner {
@@ -59,16 +70,7 @@
   padding:0;
   margin:0;
 }
-.calendar-nav-wrapper {
-  width:100%;
-  clear:both;
-  position:relative;
-  }
 
-.calendar-nav-wrapper .nav-title {
-  width:48%;
-  text-align:center;
-}
 .calendar-calendar .prev {
   text-align: left;
   width:25%;
@@ -126,13 +128,6 @@
   background: #f3f3f3;
 }
 
-/*  calendar node times for the body */
-.calendar-nodeapi div {
-  color: #000;
-  padding: 0.5em 1em 0 0;
-}
-.calendar-nodeapi div label { color: #999; }
-
 /*  individual node container  */
 .calendar-calendar div.calendar {
   background-color: #fff;
@@ -168,25 +163,6 @@
   padding: 3px;
   padding-left: 5px;
 }
-.calendar-calendar div.type {
-  margin-left: 5px;
-  font-size: 0.8em;
-}
-.calendar-calendar div.type a {
-  color: #00c;
-}
-.calendar-calendar div.type a:hover {
-  color: #c00;
-}
-.calendar-calendar div.links {
-  padding-left: 3px;
-}
-.calendar-calendar div.links a {
-  color: #00c;
-}
-.calendar-calendar div.links a:hover {
-  color: #c00;
-}
 .calendar-calendar .start {
   font-style: normal;
   color: #555;
@@ -202,15 +178,6 @@
   color: #555;
   font-size: 0.8em;
 }
-.calendar-calendar .week {
-  clear:both;
-  font-style: normal;
-  color: #555;
-  font-size: 0.8em;
-}
-.calendar-calendar .week a {
-  font-weight:normal;
-}
 .calendar-calendar div.info {
   visibility: hidden;
   height: 0px;
@@ -224,15 +191,6 @@
 }
 .calendar-calendar div.dayview {
   width: 98%;
-}
-.calendar-calendar div.tableview {
-  width: auto;
-}
-.calendar-calendar div.tableview .links {
-}
-.container-inline .day input {
-  width: auto;
-  display: inline;
 }
 
 /*  multi-day calendar top stripes  */
@@ -293,26 +251,6 @@
   width: 100%;
 }
 
-#block-calendar-1 .item-list ul li a {
-  margin-top: 8px;
-}
-
-span.calendar-timeleft {
-  padding-bottom: 3px;
-  text-align: right;
-  width: auto;
-  display: block;
-}
-span.calendar-nodetype {
-  padding: 0px 0px 0px 5px;
-  display: block;
-  width: auto;
-  text-align: right;
-  float: right;
-}
-.ical-link {
-  text-align: right;
-}
 .calendar div.form-item {
   white-space: normal;
 }
@@ -365,6 +303,8 @@ table th.legend {
   font-size:1px;
   line-height:1px;
   }
+
+/* the popup date selector for jumping to a new date */
 .calendar-date-select {
   text-align:right;
   float:right;

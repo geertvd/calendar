@@ -328,20 +328,21 @@ function theme_calendar_year($view, $header, $rows) {
   $rows_out = array();
   $row = array();
   $i = 1;
-  foreach ($rows as $year => $value) {
-    foreach ($value as $month => $month_rows) {
-      $view->month = $month;
-      $month_header = array(array('data' => theme('calendar_nav_title', 'MONTH', $view), 'colspan' => 7));
-      $row[] = theme('calendar_month', 'mini', $month_header, $month_rows);
+  foreach ($rows as $month => $month_rows) {
+    $view->month = $month;
+    $month_header = array(array('data' => theme('calendar_nav_title', 'MONTH', $view), 'colspan' => 7));
+    $row[] = array(
+      'data' => theme('calendar_month', 'mini', $month_header, $month_rows),
+      'class' => 'calendar_year_month',
+      );
 
-      // Group three mini month calendars in each year row.
-      if ($i == 3) {
-        $rows_out[] = $row;
-        $row = array();
-        $i = 0;
-      }
-      $i++;
+    // Group three mini month calendars in each year row.
+    if ($i == 3) {
+      $rows_out[] = $row;
+      $row = array();
+      $i = 0;
     }
+    $i++;
   }
   $output = theme("table", $header, $rows_out);
   $output .= "</div></div>\n";
@@ -370,8 +371,13 @@ function theme_calendar_week($view, $header, $rows) {
 
 /**
  * Format a day view
+ *
+ * It's really not great to force this into a table, but the navigation
+ * is a table header and showing the header without a body is invalid html,
+ * so we force the data into a table cell.
  */
-function theme_calendar_day($view, $header, $rows) {
+function theme_calendar_day($view, $header, $data) {
+  $rows = array(array(array('data' => $data, 'colspan' => 3)));
   $output = theme("table", $header, $rows);
   return '<div class="calendar-calendar"><div class="day-view">'. $output ."</div></div>\n";
 }

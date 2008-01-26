@@ -15,17 +15,19 @@
  */
 function calendar_build_calendar($view, $items, $params) {
   // Create minimum and maximum comparison dates in DATETIME format.
-  $min_compare = date_format($view->min_date, DATE_FORMAT_DATETIME);
-  $max_compare = date_format($view->max_date, DATE_FORMAT_DATETIME);
+  $params['min_compare'] = date_format($view->min_date, DATE_FORMAT_DATETIME);
+  $params['max_compare'] = date_format($view->max_date, DATE_FORMAT_DATETIME);
 
-  // Group the items by m-d to match the template column value.
-  // Subgroup by complete date and time to make it easy to sort the days values.
+  // Remove nodes outside the selected date range. Group the items by 'm-d'
+  // to match the template column value. Subgroup by complete date and time
+  // to sort the values within a day.
   $values = array();
   foreach ($items as $item) {
-    if ($item->calendar_start >= $min_compare && $item->calendar_end <= $max_compare) {
+    if ($item->calendar_start >= $params['min_compare'] && $item->calendar_end <= $params['max_compare']) {
       $values[date_format($item->calendar_start_date, 'm-d')][date_format($item->calendar_start_date, 'Y-m-d H:i:s')][] = $item;
     }
   }
+  $items = $values;
 
   // Find the right template and pull it out of the calendar_templates table.
   $rows = array();
@@ -33,18 +35,33 @@ function calendar_build_calendar($view, $items, $params) {
   $view->template = $template;
 
   switch ($view->calendar_type) {
+    // The year view is built from the 12 templates with
+    // all the week templates in each month.
     case 'year':
-      $results = db_query("SELECT * FROM {calendar_templates} WHERE template = %d ORDER BY weekno", $template);
+      $rows = array();
+      for ($i = 1; $i <= 12; $i++) {
+        $results = db_query("SELECT * FROM {calendar_templates} WHERE template = %d AND (start LIKE '%s%' OR end LIKE '%s%') ORDER BY weekno", $template, date_pad($i) .'-', date_pad($i) .'-');
+        $min = $view->year .'-'. date_pad($i) .'-01 00:00:00';
+        $max = $view->year .'-'. date_pad($i) .'-'. date_pad(date_days_in_month($min, DATE_DATETIME)).' 23:59:59';
+        $params['min_compare'] = $min;
+        $params['max_compare'] = $max;
+        $rows[$i] = calendar_build_weeks($view, $items, $results, $params);
+      }
       break;
 
+    // The month view is built from all the week templates in the month.
     case 'month':
       $results = db_query("SELECT * FROM {calendar_templates} WHERE template = %d AND (start LIKE '%s%' OR end LIKE '%s%') ORDER BY weekno", $template, date_format($view->min_date, 'm-'), date_format($view->max_date, 'm-'));
+      $rows = calendar_build_weeks($view, $items, $results, $params, $params['min_compare'], $params['max_compare']);
       break;
 
+    // The day view needs no template.
     case 'day':
-      $results = db_query("SELECT * FROM {calendar_templates} WHERE template = %d AND end >= '%s' AND start <= '%s' ORDER BY weekno", $template, date_format($view->min_date, 'm-d'), date_format($view->max_date, 'm-d'));
+      $rows = calendar_build_day(date_pad($view->month) .'-'. date_pad($view->day), $view, $items, $params);
       break;
 
+    // The week view is built from a single week template
+    // that might span more than one year.
     case 'week':
       $min_year = date_format($view->min_date, 'Y');
       $template = calendar_year_template($min_year);
@@ -57,17 +74,28 @@ function calendar_build_calendar($view, $items, $params) {
       else {
         $results = db_query("SELECT * FROM {calendar_templates} WHERE template = %d AND end >= '%s' AND start <= '%s'", $template, date_format($view->min_date, 'm-d'), date_format($view->max_date, 'm-d'));
       }
+      $rows = calendar_build_weeks($view, $items, $results, $params);
       break;
   }
 
-  // Create table rows and a cell for each calendar day,
-  // adding in item values for that day, if any.
+  // Add the navigation in as the header.
+  $header = calendar_nav($view, $view->mini, $params['with_weekno']);
+  $output = theme_calendar_links($view, $view->type != 'block');
+  $output .= theme('calendar_'. $view->calendar_type, $view, $header, $rows);
+  return $output;
+}
 
-  $weekdays = calendar_untranslated_days();
+/**
+ * Build one or more week rows from a template.
+ */
+function calendar_build_weeks($view, $items, $results, $params) {
+  $weekdays = calendar_untranslated_days($results, $view);
   $curday = drupal_clone($view->min_date);
   $prev_month = date_format($curday, 'n');
   $today = date_now();
   while ($result = db_fetch_array($results)) {
+    // If we're displaying the week number, add it as the
+    // first cell in the week.
     if ($params['with_weekno'] && $view->calendar_type != 'day') {
       $url = $params['url'] .'/'. $view->year .'/W'. $result['weekno'];
       $rows[$result['weekno']][] = array(
@@ -76,81 +104,56 @@ function calendar_build_calendar($view, $items, $params) {
     }
     for ($i = 1; $i <= 7; $i++) {
       $key = 'col'. $i;
+      $date = $result[$key];
       $content = '';
       $selected = FALSE;
-      if (empty($result[$key])) {
+      if (empty($date)) {
         $content = theme('calendar_empty');
       }
       else {
-        $date = $view->year .'-'. $result[$key];
-        $parts = explode('-', $date);
-        $class = strtolower($weekdays[$i - 1] . (date_format($curday, 'Y-m-d') == date_format($today, 'Y-m-d') ? ' today' : '') . ($view->mini ? ' mini' : ''));
-        $inner = '';
-        if ($date .' 00:00:00' >= $min_compare && $date .' 23:59:59' <= $max_compare) {
-          if (array_key_exists($result[$key], $values)) {
-            $selected = TRUE;
-            $nodes = $values[$result[$key]];
-            ksort($nodes);
-            foreach ($nodes as $datetime) {
-              foreach ($datetime as $node) {
-                $theme = isset($node->calendar_node_theme) ? $node->calendar_node_theme : 'calendar_node_'. $view->calendar_type;
-                $inner = theme($theme, $node, $type);
-              }
-            }
-          }
-          else {
-            $inner = theme('calendar_empty');
-          }
-          $content = theme('calendar_date_box', $date, $view, $params, $selected) . $inner;
-          date_modify($curday, '+1 day');
-        }
-        elseif ($view->calendar_type != 'day') {
-          $content = theme('calendar_empty');
-        }
+        $content = calendar_build_day($date, $view, $items, $params);
+        date_modify($curday, '+1 day');
       }
-      // If this is a day view, only add the current day to the rows array,
-      // and make it span the whole table, otherwise add individual cells.
-      if ($view->calendar_type != 'day' || $selected) {
-        $rows[$result['weekno']][] = array(
-          'data' => $view->mini ? $content : '<div class="inner">'. $content .'</div>',
-          'class' => $class, 'id' => $date, 'colspan' => ($view->calendar_type != 'day' ? 1 : 7));
-      }
-    }
-    $end_of_period = FALSE;
-    switch ($view->calendar_type) {
-      case 'day':
-      case 'week':
-        $end_of_period = TRUE;
-        break;
-
-      case 'month':
-      case 'year':
-        if (date_format($curday, 'n') != $prev_month) {
-          $end_of_period = TRUE;
-        }
-        break;
-    }
-    if ($end_of_period) {
-       if ($view->calendar_type != 'day') {
-         $rows = array_merge(array(calendar_week_header($view->mini, $params['with_weekno'])), $rows);
-       }
-       if ($view->calendar_type == 'year') {
-         $month_rows[$view->year][$prev_month] = $rows;
-         $prev_month = date_format($curday, 'n');
-         $rows = array();
-       }
+      $class = strtolower($weekdays[$i - 1] . (date_format($curday, 'Y-m-d') == date_format($today, 'Y-m-d') ? ' today' : '') . ($view->mini ? ' mini' : ''));
+      $rows[$result['weekno']][] = array(
+        'data' => $view->mini ? $content : '<div class="inner">'. $content .'</div>',
+        'class' => $class, 'id' => $date);
     }
   }
+  // Merge the day names in as the first row.
+  $rows = array_merge(array(calendar_week_header($view->mini, $params['with_weekno'])), $rows);
+  return $rows;
+}
 
-  // Add the navigation in as the header,
-  // merge the day names in as the first row.
-  // Would be preferable to have a two level header, but that is not
-  // supported by the theme_table API.
-
-  $header = calendar_nav($view, $view->mini, $params['with_weekno']);
-  $output = theme_calendar_links($view, $view->type != 'block');
-  $output .= theme('calendar_'. $view->calendar_type, $view, $header, ($view->calendar_type == 'year' ? $month_rows : $rows));
-  return $output;
+/**
+ * Build the contents of a single day for the $rows results.
+ */
+function calendar_build_day($date, $view, $items, $params) {
+  $datetime = $view->year .'-'. $date;
+  $parts = explode('-', $date);
+  $inner = '';
+  $selected = FALSE;
+  if ($datetime .' 00:00:00' >= $params['min_compare'] && $datetime .' 23:59:59' <= $params['max_compare']) {
+    if (array_key_exists($date, $items)) {
+      $selected = TRUE;
+      $nodes = $items[$date];
+      ksort($nodes);
+      foreach ($nodes as $item) {
+        foreach ($item as $node) {
+          $theme = isset($node->calendar_node_theme) ? $node->calendar_node_theme : 'calendar_node_'. $view->calendar_type;
+          $inner = theme($theme, $node, $view->calendar_type);
+        }
+      }
+    }
+    else {
+      $inner = theme('calendar_empty');
+    }
+    $content = theme('calendar_date_box', $datetime, $view, $params, $selected) . $inner;
+  }
+  else {
+    $content = theme('calendar_empty');
+  }
+  return $content;
 }
 
 /**
@@ -245,8 +248,8 @@ function calendar_build_field_query(&$query, $field) {
   $view_fields[] = $field_name;
 
   // Create minimum and maximum comparison dates in DATETIME format.
-  $min_compare = date_format($query->min_date, DATE_FORMAT_DATETIME);
-  $max_compare = date_format($query->max_date, DATE_FORMAT_DATETIME);
+  $params['min_compare'] = date_format($query->min_date, DATE_FORMAT_DATETIME);
+  $params['max_compare'] = date_format($query->max_date, DATE_FORMAT_DATETIME);
 
   if (array_key_exists($field_name, $fields)) {
     $query->ensure_table($this_field['table'], $this_field['table']);
@@ -299,8 +302,8 @@ function calendar_build_field_query(&$query, $field) {
         date_sql('DATE', $this_field['timestamp_fromto'][1], $field_type, $end_offset),
         ));
       $query->fields[$field_delta] = $adjusted_field .' AS '. $this_field['query_name'];
-      $queries[] = "(SUBSTRING(". $adjusted_field .", -19) >='". $min_compare .
-        "' AND SUBSTRING(". $adjusted_field .", 1, 19) <='". $max_compare ."')";
+      $queries[] = "(SUBSTRING(". $adjusted_field .", -19) >='". $params['min_compare'] .
+        "' AND SUBSTRING(". $adjusted_field .", 1, 19) <='". $params['max_compare'] ."')";
       $event_field_processed = TRUE;
     }
     elseif ($this_field['string_fromto']) {
@@ -310,15 +313,15 @@ function calendar_build_field_query(&$query, $field) {
         date_sql('DATE', $this_field['string_fromto'][1], $field_type, $end_offset),
         ));
       $query->fields[$field_delta] = $adjusted_field .' AS '. $this_field['query_name'];
-      $queries[] = "(SUBSTRING(". $adjusted_field .", -19) >='". $min_compare .
-        "' AND SUBSTRING(". $adjusted_field .", 1, 19) <='". $max_compare ."')";
+      $queries[] = "(SUBSTRING(". $adjusted_field .", -19) >='". $params['min_compare'] .
+        "' AND SUBSTRING(". $adjusted_field .", 1, 19) <='". $params['max_compare'] ."')";
       $event_field_processed = TRUE;
     }
     // handling for single day dates
     else {
       $adjusted_field = date_sql('DATE',$this_field['fullname'], $field_type, $start_offset);
-      $queries[] = "(". $adjusted_field .">='". $min_compare .
-        "' AND ". $adjusted_field ."<='". $max_compare ."')";
+      $queries[] = "(". $adjusted_field .">='". $params['min_compare'] .
+        "' AND ". $adjusted_field ."<='". $params['max_compare'] ."')";
     }
 
     // We reconstructed the query to pull the current date out of the database
@@ -479,25 +482,6 @@ function calendar_build_nodes(&$view, &$items) {
       }
     }
   }
-
-  if (calendar_part_is_valid($view->year, 'year')) {
-    // valid year is a test that indicates if arguments were available to
-    // establish a date for the calendar a full view with an argument date
-    // will display a single month, day or week calendar page with navigation
-    // that mimics regular calendar
-
-    // trim off date values that are outside the selected range to prevent
-    // display of incomplete extra calendars
-    $min_datetime = date_format($view->min_date, DATE_FORMAT_DATETIME);
-    $max_datetime = date_format($view->max_date, DATE_FORMAT_DATETIME);
-    foreach ($nodes as $delta => $node) {
-      if (date_format($node->calendar_end_date, DATE_FORMAT_DATETIME) < $min_datetime
-      || date_format($node->calendar_start_date, DATE_FORMAT_DATETIME) > $max_datetime) {
-        unset($nodes[$delta]);
-      }
-    }
-  }
-
   return $nodes;
 }
 
@@ -631,8 +615,9 @@ function calendar_get_paths($view) {
 /**
  * Get the start and end dates for a calendar week.
  *
- * No good way to do this using PHP date functions, get the
- * calendar week info from the calendar_templates table.
+ * No good way to do this using PHP date functions which can
+ * only identify the ISO week -- get the calendar week info from the
+ * calendar_templates table.
  */
 function calendar_week_range(&$view) {
   if (isset($view->week)) {
