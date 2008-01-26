@@ -149,7 +149,7 @@ function calendar_build_calendar($view, $items, $params) {
 
   $op = $view->mini ? 'mini' : 'page';
   $header = calendar_nav($view, $view->mini, $params['with_weekno']);
-  $output = theme_calendar_links($view, $view->mini, !$view->mini);
+  $output = theme_calendar_links($view, $view->type != 'block');
   $output .= theme('calendar_'. $view->calendar_type, $op, $header, ($view->calendar_type == 'year' ? $month_rows : $rows));
   return $output;
 }

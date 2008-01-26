@@ -82,7 +82,10 @@ function calendar_year_template($year = NULL) {
     $col = date_format($date, 'w') + 1;
     // When the week does not start on Sunday, shift to the right column.
     if ($first_day != 0) {
-      $col -= ((7 - $first_day + $col) % 7);
+      $col -= $first_day;
+      if ($col - $first_day <= 0) {
+        $col += 7;
+      }
     }
     // Find the template that matches the first day of the year col for leap status.
     $template = db_result(db_query("SELECT template FROM {calendar_templates} WHERE col%s = '01-01' AND leap = %d", $col, $leap));
@@ -861,6 +864,12 @@ function calendar_og_groups($view) {
   return $groupnodes;
 }
 
+/**
+ * A selector to jump to a new date in the calendar.
+ *
+ * @param unknown_type $view
+ * @return unknown
+ */
 function calendar_date_select($view) {
   return '<div class="calendar-date-select">'. drupal_get_form('calendar_date_select_form', $view) .'</div>';
 }
@@ -879,7 +888,7 @@ function calendar_date_select_form($view) {
     );
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Jump'),
+    '#value' => t('Go'),
     );
   return $form;
 }

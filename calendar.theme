@@ -220,14 +220,14 @@ function theme_calendar_nav_title($field_type, $view) {
 }
 
 /**
- * Format the links for calendar calendars
+ * Links at the top of the calendar.
  *
  * @param links
- *   An array of links to render
+ *   TRUE/FALSE, should links be shown.
  * @param view
  *   The current view being rendered
  */
-function theme_calendar_links($view, $mini = FALSE, $links = FALSE) {
+function theme_calendar_links($view, $links = FALSE) {
   $now = date_now();
   // add links to the top of the calendar to switch from one view to another
   if ($links) {
@@ -250,7 +250,13 @@ function theme_calendar_links($view, $mini = FALSE, $links = FALSE) {
     $calendar_links[] = array('title' => t('Month'), 'href' => $view->real_url .'/'. $view->year .'/'. $view->month , 'query' => $append);
     $calendar_links[] = array('title' => t('Week'), 'href' => $view->real_url .'/'. $view->year .'/W'. $view->week, 'query' => $append);
     $calendar_links[] = array('title' => t('Day'), 'href' => $view->real_url .'/'. $view->year .'/'. $month .'/'. $day, 'query' => $append);
-    return '<div class="clear-block">'. calendar_date_select($view) .'</div>'. theme('links', $calendar_links);
+
+    // If the Date Popup module is enabled, add a popup date selector.
+    if (module_exists('date_popup')) {
+      $output = '<div class="clear-block">'. calendar_date_select($view) .'</div>';
+    }
+   $output .= theme('links', $calendar_links);
+   return $output;
   }
 }
 
@@ -313,10 +319,7 @@ function theme_calendar_stripe_stripe($node) {
 }
 
 /**
- * Format a calendar view
- *
- * @param day
- *   The day to display.
+ * Format a year view
  */
 function theme_calendar_year($op, $header, $month_rows) {
   $output = '<div class="calendar-calendar"><div class="year-view">';
@@ -333,10 +336,7 @@ function theme_calendar_year($op, $header, $month_rows) {
 }
 
 /**
- * Format a calendar view
- *
- * @param day
- *   The day to display.
+ * Format a month view
  */
 function theme_calendar_month($op, $header, $rows) {
   $attrs = array();
@@ -348,10 +348,7 @@ function theme_calendar_month($op, $header, $rows) {
 }
 
 /**
- * Format a calendar view
- *
- * @param day
- *   The day to display.
+ * Format a week view
  */
 function theme_calendar_week($op, $header, $rows) {
   $output = theme("table", $header, $rows);
@@ -359,10 +356,7 @@ function theme_calendar_week($op, $header, $rows) {
 }
 
 /**
- * Format a calendar view
- *
- * @param day
- *   The day to display.
+ * Format a day view
  */
 function theme_calendar_day($op, $header, $rows) {
   $output = theme("table", $header, $rows);
