@@ -203,15 +203,17 @@ function theme_calendar_arg_title($field_type, $value, $query) {
 /**
  * Theme the navigation bar title
  *
- * @param string $field_type - 'YEAR', 'MONTH', 'DAY', 'WEEK'
+ * @param string $type - 'YEAR', 'MONTH', 'DAY', 'WEEK'
  * @param object $view - the current view object
  * @return formatted title
  */
-function theme_calendar_nav_title($field_type, $view) {
-  $date = date_make_date($view->year .'-'. ($view->month != CALENDAR_EMPTY_ARG ? $view->month : '01') .'-01 00:00:00', 'UTC');
+function theme_calendar_nav_title($type, $view) {
+  $datetime = date_pad($view->year, 4) .'-'. date_pad($view->month != CALENDAR_EMPTY_ARG ? $view->month : '01') .'-01 00:00:00';
+  $date = date_make_date($datetime, 'UTC');
+
   if ($view->mini) {
   	// Month navigation titles are used as links in the mini view.
-    return l(date_format_date($date, 'custom', 'M Y'), $view->real_url .'/'. $view->year .'/'. $view->month, array(), calendar_url_append($view));
+  	return l(date_format_date($date, 'custom', 'M Y'), $view->real_url .'/'. $view->year .'/'. $view->month, array(), calendar_url_append($view));
   }
   else {
     // Otherwise, just show the date.
@@ -321,16 +323,27 @@ function theme_calendar_stripe_stripe($node) {
 /**
  * Format a year view
  */
-function theme_calendar_year($op, $header, $month_rows) {
+function theme_calendar_year($view, $header, $rows) {
   $output = '<div class="calendar-calendar"><div class="year-view">';
-  foreach ($month_rows as $year => $month) {
-    $output .= $year;
-    foreach ($month as $month_name => $rows) {
-      $output .= '<div class="mini">'. $month_name .'</div>';
-      $header = array_shift($rows);
-      $output .= '<div class="mini-row">'. theme('table', $header, $rows) .'</div>';
+  $rows_out = array();
+  $row = array();
+  $i = 1;
+  foreach ($rows as $year => $value) {
+    foreach ($value as $month => $month_rows) {
+      $view->month = $month;
+      $month_header = array(array('data' => theme('calendar_nav_title', 'MONTH', $view), 'colspan' => 7));
+      $row[] = theme('calendar_month', 'mini', $month_header, $month_rows);
+
+      // Group three mini month calendars in each year row.
+      if ($i == 3) {
+        $rows_out[] = $row;
+        $row = array();
+        $i = 0;
+      }
+      $i++;
     }
   }
+  $output = theme("table", $header, $rows_out);
   $output .= "</div></div>\n";
   return $output;
 }
@@ -338,9 +351,9 @@ function theme_calendar_year($op, $header, $month_rows) {
 /**
  * Format a month view
  */
-function theme_calendar_month($op, $header, $rows) {
+function theme_calendar_month($view, $header, $rows) {
   $attrs = array();
-  if ($op == 'mini') {
+  if ($view->mini == 'mini') {
     $attrs = array('class' => 'mini');
   }
   $output = theme("table", $header, $rows, $attrs);
@@ -350,7 +363,7 @@ function theme_calendar_month($op, $header, $rows) {
 /**
  * Format a week view
  */
-function theme_calendar_week($op, $header, $rows) {
+function theme_calendar_week($view, $header, $rows) {
   $output = theme("table", $header, $rows);
   return '<div class="calendar-calendar"><div class="week-view">'. $output ."</div></div>\n";
 }
@@ -358,7 +371,7 @@ function theme_calendar_week($op, $header, $rows) {
 /**
  * Format a day view
  */
-function theme_calendar_day($op, $header, $rows) {
+function theme_calendar_day($view, $header, $rows) {
   $output = theme("table", $header, $rows);
   return '<div class="calendar-calendar"><div class="day-view">'. $output ."</div></div>\n";
 }

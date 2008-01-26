@@ -65,7 +65,7 @@ function calendar_build_calendar($view, $items, $params) {
 
   $weekdays = calendar_untranslated_days();
   $curday = drupal_clone($view->min_date);
-  $prev_month = date_format($curday, 'M');
+  $prev_month = date_format($curday, 'n');
   $today = date_now();
   while ($result = db_fetch_array($results)) {
     if ($params['with_weekno'] && $view->calendar_type != 'day') {
@@ -125,7 +125,7 @@ function calendar_build_calendar($view, $items, $params) {
 
       case 'month':
       case 'year':
-        if (date_format($curday, 'M') != $prev_month) {
+        if (date_format($curday, 'n') != $prev_month) {
           $end_of_period = TRUE;
         }
         break;
@@ -136,7 +136,7 @@ function calendar_build_calendar($view, $items, $params) {
        }
        if ($view->calendar_type == 'year') {
          $month_rows[$view->year][$prev_month] = $rows;
-         $prev_month = date_format($curday, 'M');
+         $prev_month = date_format($curday, 'n');
          $rows = array();
        }
     }
@@ -147,10 +147,9 @@ function calendar_build_calendar($view, $items, $params) {
   // Would be preferable to have a two level header, but that is not
   // supported by the theme_table API.
 
-  $op = $view->mini ? 'mini' : 'page';
   $header = calendar_nav($view, $view->mini, $params['with_weekno']);
   $output = theme_calendar_links($view, $view->type != 'block');
-  $output .= theme('calendar_'. $view->calendar_type, $op, $header, ($view->calendar_type == 'year' ? $month_rows : $rows));
+  $output .= theme('calendar_'. $view->calendar_type, $view, $header, ($view->calendar_type == 'year' ? $month_rows : $rows));
   return $output;
 }
 
@@ -533,10 +532,26 @@ function calendar_nav($view, $mini = FALSE, $with_weekno = FALSE) {
   $prev_query[] = calendar_url_append($view);
   $next_query[] = calendar_url_append($view);
 
+  switch ($view->calendar_type) {
+    case 'day':
+    case 'year':
+      $colspan_prev = 1;
+      $colspan_middle = 1;
+      $colspan_next = 1;
+      break;
+    default:
+      $colspan_prev = 2;
+      $colspan_middle = 3;
+      $colspan_next = 2;
+      if ($with_weekno) {
+        $colspan_prev = 3;
+      }
+      break;
+  }
   $header = array();
-  $header[]  = array('data' => theme('calendar_nav_prev', $prev_path, $mini ? FALSE : TRUE, implode('&', $prev_query)), 'class' => 'prev', 'colspan' => $with_weekno ? 3 : 2);
-  $header[]  = array('data' => $view->subtitle, 'class' => 'heading', 'colspan' => 3);
-  $header[]  = array('data' => theme('calendar_nav_next', $next_path, $mini ? FALSE : TRUE, implode('&', $next_query)), 'class' => 'next', 'colspan' => 2);
+  $header[]  = array('data' => theme('calendar_nav_prev', $prev_path, $mini ? FALSE : TRUE, implode('&', $prev_query)), 'class' => 'prev', 'colspan' => $colspan_prev);
+  $header[]  = array('data' => $view->subtitle, 'class' => 'heading', 'colspan' => $colspan_middle);
+  $header[]  = array('data' => theme('calendar_nav_next', $next_path, $mini ? FALSE : TRUE, implode('&', $next_query)), 'class' => 'next', 'colspan' => $colspan_next);
 
   return $header;
 }
