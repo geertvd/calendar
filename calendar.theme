@@ -30,14 +30,12 @@ function theme_calendar_view_calendar(&$view, &$items, $type) {
     $view->calendar_type = 'month';
   }
   $links = $view->build_type == 'block' ? FALSE : TRUE;
-  if ($type == 'block' || $view->calendar_type == 'year') $view->mini = TRUE;
-
   $params['url'] = calendar_real_url($view, $view->args);
   $params['append'] = calendar_url_append($view);
   $params['stripe'] = 'stripe';
 
   // Set to TRUE to see week numbers in each row.
-  $params['with_weekno'] = $view->build_type == 'block' || $view->calendar_type == 'year' || $view->year < 1970 ? FALSE : TRUE;
+  $params['with_weekno'] = $view->build_type != 'block' && $view->calendar_type != 'year';
 
   return calendar_build_calendar($view, $items, $params);
 }
@@ -159,7 +157,12 @@ function theme_calendar_date_combo($node, $format, $label, $view) {
 function theme_calendar_page_title($view, $items, $output) {
   switch ($view->build_type) {
     case 'page':
-      return views_get_title($view, $context = 'page', $args = $view->real_args);
+      if ($view->calendar_type == 'year') {
+        return $view->year;
+      }
+      else {
+        return views_get_title($view, $context = 'page', $args = $view->real_args);
+      }
     case 'block':
       return $view->block_title;
   }
@@ -208,6 +211,9 @@ function theme_calendar_arg_title($field_type, $value, $query) {
  * @return formatted title
  */
 function theme_calendar_nav_title($type, $view) {
+  if ($type == 'YEAR') {
+    return $view->year;
+  }
   $datetime = date_pad($view->year, 4) .'-'. date_pad($view->month != CALENDAR_EMPTY_ARG ? $view->month : '01') .'-01 00:00:00';
   $date = date_make_date($datetime, 'UTC');
 
@@ -251,7 +257,7 @@ function theme_calendar_links($view, $links = FALSE) {
     $calendar_links[] = array('title' => t('Year'), 'href' => $view->real_url .'/'. $view->year, 'query' => $append);
     $calendar_links[] = array('title' => t('Month'), 'href' => $view->real_url .'/'. $view->year .'/'. $view->month , 'query' => $append);
     $calendar_links[] = array('title' => t('Week'), 'href' => $view->real_url .'/'. $view->year .'/W'. $view->week, 'query' => $append);
-    $calendar_links[] = array('title' => t('Day'), 'href' => $view->real_url .'/'. $view->year .'/'. $month .'/'. $day, 'query' => $append);
+    $calendar_links[] = array('title' => t('Day'), 'href' => $view->real_url .'/'. $view->year .'/'. $view->month .'/'. $view->day, 'query' => $append);
 
     // If the Date Popup module is enabled, add a popup date selector.
     if (module_exists('date_popup')) {
@@ -333,7 +339,6 @@ function theme_calendar_year($view, $header, $rows) {
     $month_header = array(array('data' => theme('calendar_nav_title', 'MONTH', $view), 'colspan' => 7));
     $row[] = array(
       'data' => theme('calendar_month', 'mini', $month_header, $month_rows),
-      'class' => 'calendar_year_month',
       );
 
     // Group three mini month calendars in each year row.
@@ -344,7 +349,7 @@ function theme_calendar_year($view, $header, $rows) {
     }
     $i++;
   }
-  $output = theme("table", $header, $rows_out);
+  $output .= theme("table", $header, $rows_out, array('class' => 'mini-row'));
   $output .= "</div></div>\n";
   return $output;
 }

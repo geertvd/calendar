@@ -1,7 +1,8 @@
 /*  calendar calendar table styles  */
-
+.calendar-calendar tr.odd, .calendar-calendar tr.even {
+  background-color:#fff;
+}
 .calendar-calendar table {
-  border: 1px solid #999;
   border-collapse: collapse;
   border-spacing: 0;
   margin:0 auto;
@@ -14,12 +15,18 @@
   margin:0;
   width:100%;
   }
-.mini .calendar-calendar .month-view table {
+
+  /* IE needs a little help to get the side by side tables to the right size */
+.calendar-calendar .year-view td {
+  width:32%;
+  padding:1px;
   border:none;
+}
+
+.calendar-calendar .year-view td table td {
+  width:13%;
   padding:0;
-  margin:1%;
-  width:98%;
-  }
+}
 
 .calendar-calendar tr {
   padding: 0;
@@ -30,7 +37,6 @@
   color: #fff;
   background: #ccc;
   text-align: center;
-  padding:3px;
   margin:0;
 }
 .calendar-calendar td {
@@ -43,6 +49,10 @@
   margin: 0;
   padding:0;
 }
+/* simplify the mini calendar by removing borders */
+.calendar-calendar .mini {
+  border:none;
+ }
 
 /* format for the week number in the first cell */
 .calendar-calendar td.week {
@@ -79,7 +89,9 @@
   text-align: right;
   width:25%;
   }
-
+.calendar-calendar .heading {
+  text-align:center;
+}
 .calendar-calendar th a {
   font-weight: bold;
   color: #fff;
@@ -95,15 +107,14 @@
 .calendar-calendar td.sat, .calendar-calendar td.sun {
   background: #eee;
 }
-.calendar-calendar td.selected {
+.calendar-calendar td.selected{
   background: #99f;
 }
 .calendar-calendar td.today {
-  background: #f99;
+  background: #fcc;
 }
 .calendar-calendar td.year, .calendar-calendar td.month {
   text-align: center;
-  border-width: 1px 0px;
 }
 
 /*  days of the week header cells */
@@ -111,46 +122,44 @@
   color: #ccc;
   background: #224;
   text-align: center;
-  border: 1px solid #999;
-  border-width: 0 1px 1px 0;
   padding:1px;
   margin:0;
-}
+ }
 
 /*  floating day number div  */
 .calendar-calendar div.day {
   float: right;
   text-align: center;
-  border: 1px solid gray;
-  border-width: 0 0 1px 1px;
   padding: 0.125em 0.25em 0 0.25em;
   margin: 0;
   background: #f3f3f3;
+  border: 1px solid gray;
+  border-width: 0 0 1px 1px;
+  clear:both;
 }
 
 /*  individual node container  */
 .calendar-calendar div.calendar {
   background-color: #fff;
-  border: solid 1px #555;
+  border: solid 1px #ddd;
   text-align: left;
-  margin: 1%;
   padding:0;
   width: 96%;
+  float:right; /* needed to keep IE from hiding the floating day number */
   clear:both;
-  float:right;
 }
+/* No floating of day view content because there is no floating day number */
+.calendar-calendar .day-view div.calendar {
+  float:none;
+  width:98%;
+  margin:1% 1% 0 1%;
+}
+
 .calendar-calendar div.title {
   font-size:.8em;
   text-align:center;
 }
-.calendar-calendar .monthview .title {
-  clear:both;
-  text-align:left;
-}
-.calendar-calendar .dayview .title {
-  clear:both;
-  text-align:left;
-}
+
 .calendar-calendar div.title a {
   color: #000;
 }
@@ -159,40 +168,9 @@
 }
 .calendar-calendar .content {
   clear:both;
-  margin: 5px;
   padding: 3px;
   padding-left: 5px;
 }
-.calendar-calendar .start {
-  font-style: normal;
-  color: #555;
-  font-size: 0.8em;
-}
-.calendar-calendar .end {
-  font-style: normal;
-  color: #555;
-  font-size: 0.8em;
-}
-.calendar-calendar .ongoing {
-  font-style: normal;
-  color: #555;
-  font-size: 0.8em;
-}
-.calendar-calendar div.info {
-  visibility: hidden;
-  height: 0px;
-  overflow:hidden;
-  padding-left: 3px;
-}
-
-/*  individual node view styles  */
-.calendar-calendar div.monthview .title {
-  font-size: 0.8em;
-}
-.calendar-calendar div.dayview {
-  width: 98%;
-}
-
 /*  multi-day calendar top stripes  */
 .calendar .stripe {
   height: 5px;
@@ -267,7 +245,6 @@ table td.mini a {
 }
 .mini-day-on {
   padding:0px;
-  background-color:#ffc
 }
 table .mini-day-on a {
   text-decoration:underline;
@@ -278,19 +255,20 @@ table .mini-day-on a {
 .mini .calendar-calendar .week {
   font-size:.7em;
   }
-div.mini-row {
+.mini-row {
   width:100%;
-  clear:left;
+  border:none;
 }
-div.mini {
-  width:33%;
-  float:left;
+.mini{
+  width:32%;
+  vertical-align:top;
   }
-div.mini table {
-  margin:1%;
-  }
-.legend {
+
+ /* formatting for the legend block */
+ .legend table {
   width:100%;
+  margin:0;
+  padding:0;
   }
 table th.legend {
   background-color:#ccc;
@@ -308,7 +286,10 @@ table th.legend {
 .calendar-date-select {
   text-align:right;
   float:right;
-  }
-.calendar-date-select div {
+}
+.calendar-date-select div, .calendar-date-select input {
+  padding:0;
+  margin:0;
   float:right;
-  }
+}
+

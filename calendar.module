@@ -437,6 +437,7 @@ function calendar_views_pre_view(&$view, &$items) {
       }
 	  }
   }
+  if ($view->build_type == 'block' || $view->calendar_type == 'year') $view->mini = TRUE;
 
   // Construct a formatted title for the view from the last calendar
   // argument encountered.

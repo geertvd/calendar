@@ -33,6 +33,7 @@ function calendar_build_calendar($view, $items, $params) {
   $rows = array();
   $template = calendar_year_template($view->year);
   $view->template = $template;
+  $curday = drupal_clone($view->min_date);
 
   switch ($view->calendar_type) {
     // The year view is built from the 12 templates with
@@ -45,14 +46,14 @@ function calendar_build_calendar($view, $items, $params) {
         $max = $view->year .'-'. date_pad($i) .'-'. date_pad(date_days_in_month($min, DATE_DATETIME)).' 23:59:59';
         $params['min_compare'] = $min;
         $params['max_compare'] = $max;
-        $rows[$i] = calendar_build_weeks($view, $items, $results, $params);
+        $rows[$i] = calendar_build_weeks($curday, $view, $items, $results, $params);
       }
       break;
 
     // The month view is built from all the week templates in the month.
     case 'month':
       $results = db_query("SELECT * FROM {calendar_templates} WHERE template = %d AND (start LIKE '%s%' OR end LIKE '%s%') ORDER BY weekno", $template, date_format($view->min_date, 'm-'), date_format($view->max_date, 'm-'));
-      $rows = calendar_build_weeks($view, $items, $results, $params, $params['min_compare'], $params['max_compare']);
+      $rows = calendar_build_weeks($curday, $view, $items, $results, $params);
       break;
 
     // The day view needs no template.
@@ -74,13 +75,13 @@ function calendar_build_calendar($view, $items, $params) {
       else {
         $results = db_query("SELECT * FROM {calendar_templates} WHERE template = %d AND end >= '%s' AND start <= '%s'", $template, date_format($view->min_date, 'm-d'), date_format($view->max_date, 'm-d'));
       }
-      $rows = calendar_build_weeks($view, $items, $results, $params);
+      $rows = calendar_build_weeks($curday, $view, $items, $results, $params);
       break;
   }
 
   // Add the navigation in as the header.
   $header = calendar_nav($view, $view->mini, $params['with_weekno']);
-  $output = theme_calendar_links($view, $view->type != 'block');
+  $output = theme_calendar_links($view, $view->build_type != 'block');
   $output .= theme('calendar_'. $view->calendar_type, $view, $header, $rows);
   return $output;
 }
@@ -88,11 +89,10 @@ function calendar_build_calendar($view, $items, $params) {
 /**
  * Build one or more week rows from a template.
  */
-function calendar_build_weeks($view, $items, $results, $params) {
+function calendar_build_weeks(&$curday, $view, $items, $results, $params) {
   $weekdays = calendar_untranslated_days($results, $view);
-  $curday = drupal_clone($view->min_date);
   $prev_month = date_format($curday, 'n');
-  $today = date_now();
+  $today = date_format(date_now(), 'Y-m-d');
   while ($result = db_fetch_array($results)) {
     // If we're displaying the week number, add it as the
     // first cell in the week.
@@ -114,7 +114,7 @@ function calendar_build_weeks($view, $items, $results, $params) {
         $content = calendar_build_day($date, $view, $items, $params);
         date_modify($curday, '+1 day');
       }
-      $class = strtolower($weekdays[$i - 1] . (date_format($curday, 'Y-m-d') == date_format($today, 'Y-m-d') ? ' today' : '') . ($view->mini ? ' mini' : ''));
+      $class = strtolower($weekdays[$i - 1] . (date_format($curday, 'Y-m-d') == $today ? ' today' : '') . ($view->mini ? ' mini' : ''));
       $rows[$result['weekno']][] = array(
         'data' => $view->mini ? $content : '<div class="inner">'. $content .'</div>',
         'class' => $class, 'id' => $date);
@@ -136,12 +136,14 @@ function calendar_build_day($date, $view, $items, $params) {
   if ($datetime .' 00:00:00' >= $params['min_compare'] && $datetime .' 23:59:59' <= $params['max_compare']) {
     if (array_key_exists($date, $items)) {
       $selected = TRUE;
-      $nodes = $items[$date];
-      ksort($nodes);
-      foreach ($nodes as $item) {
-        foreach ($item as $node) {
-          $theme = isset($node->calendar_node_theme) ? $node->calendar_node_theme : 'calendar_node_'. $view->calendar_type;
-          $inner = theme($theme, $node, $view->calendar_type);
+      if (!$view->mini) {
+        $nodes = $items[$date];
+        ksort($nodes);
+        foreach ($nodes as $item) {
+          foreach ($item as $node) {
+            $theme = isset($node->calendar_node_theme) ? $node->calendar_node_theme : 'calendar_node_'. $view->calendar_type;
+            $inner = theme($theme, $node, $view->calendar_type);
+          }
         }
       }
     }
@@ -532,10 +534,11 @@ function calendar_nav($view, $mini = FALSE, $with_weekno = FALSE) {
       }
       break;
   }
+
   $header = array();
-  $header[]  = array('data' => theme('calendar_nav_prev', $prev_path, $mini ? FALSE : TRUE, implode('&', $prev_query)), 'class' => 'prev', 'colspan' => $colspan_prev);
+  $header[]  = array('data' => theme('calendar_nav_prev', $prev_path, $view->build_type == 'block' ? FALSE : TRUE, implode('&', $prev_query)), 'class' => 'prev', 'colspan' => $colspan_prev);
   $header[]  = array('data' => $view->subtitle, 'class' => 'heading', 'colspan' => $colspan_middle);
-  $header[]  = array('data' => theme('calendar_nav_next', $next_path, $mini ? FALSE : TRUE, implode('&', $next_query)), 'class' => 'next', 'colspan' => $colspan_next);
+  $header[]  = array('data' => theme('calendar_nav_next', $next_path, $view->build_type == 'block' ? FALSE : TRUE, implode('&', $next_query)), 'class' => 'next', 'colspan' => $colspan_next);
 
   return $header;
 }
