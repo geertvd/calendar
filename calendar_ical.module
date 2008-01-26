@@ -61,7 +61,15 @@ function calendar_ical_cron() {
  * Implementation of hook_calendar_add_items().
  */
 function calendar_ical_calendar_add_items($view) {
-  return calendar_ical_add_feeds($view);
+  $feeds = calendar_ical_add_feeds($view);
+  foreach ($feeds as $feed) {
+    if (is_object($feed['calendar_start_date']) && is_object($feed['calendar_end_date'])) {
+      if (date_format($feed['calendar_start_date'], DATE_FORMAT_DATETIME) >= date_format($view->min_date, DATE_FORMAT_DATETIME) && date_format($feed['calendar_end_date']) <= date_format($view->max_date, DATE_FORMAT_DATETIME)) {
+        $items[] = $feed;
+      }
+    }
+  }
+  return $items;
 }
 
 /**
@@ -214,29 +222,19 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
         $new_nodes = array();
         foreach ($events as $key => $value) {
           if (is_numeric($key) && $value['TYPE'] == 'VEVENT') {
-            $date = date_ical_date($value['DTSTART'], $value['DTSTART']['tz']);
-            $start = $date->local->timestamp;
-            $start_timezone = $date->local->timezone;
-            $start_offset = $date->local->offset;
-            $date = date_ical_date($value['DTEND'], $value['DTEND']['tz']);
-            $end = $date->local->timestamp;
             if (empty($start)) continue;
             $node = new StdClass();
             $node->nid = $value['UID'];
             $node->title = $value['SUMMARY'];
             $node->label = $feed['name'];
             $node->teaser =  $value['DESCRIPTION'];
-            $node->calendar_start = $start;
-            $node->start_offset   = $start_offset;
-            $node->calendar_end   = $end;
-            $node->end_offset     = $date->local->offset;
+            $node->calendar_start_date = date_ical_date($value['DTSTART'], $value['DTSTART']['tz']);
+            $node->calendar_start = date_format_date($node->calendar_start_date, 'custom', DATE_FORMAT_DATETIME);
+            $node->calendar_end_date = date_ical_date($value['DTEND'], $value['DTEND']['tz']);
+            $node->calendar_end = date_format_date($node->calendar_end_date, 'custom', DATE_FORMAT_DATETIME);
             $show_tz = ' e';
-            $time_format = variable_get('calendar_time_format_'. $view->name, 'H:i');
-            $full_format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), $value['DTSTART']['granularity']) .$show_tz;
-            $node->start_time_format = $value['DTSTART']['all_day'] ? t('All day') : date_format_date($time_format, $start, $start_offset, $start_timezone);
-            $node->end_time_format = $value['DTEND']['all_day'] ? t('All day') : date_format_date($time_format, $end, $start_offset, $start_timezone);
-            $node->start_format = date_format_date($full_format, $start, $start_offset, $start_timezone);
-            $node->end_format = date_format_date($full_format, $end, $start_offset, $start_timezone);
+            $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
+            $node->format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), $value['DTSTART']['granularity']) .$show_tz;
             $node->all_day = $value['DTSTART']['all_day'];
             $node->stripe = $feed['stripe'];
             $node->remote = TRUE;

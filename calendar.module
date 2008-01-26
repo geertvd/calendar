@@ -63,6 +63,48 @@ function calendar_menu($may_cache) {
 }
 
 /**
+ * Find the calendar template that matches a given year.
+ *
+ * Get the result from the calendar_years database.
+ * Compute and insert it if missing.
+ *
+ * @param int $year
+ */
+function calendar_year_template($year = NULL) {
+  if (empty($year)) {
+    $year = date_format(date_now(), 'Y');
+  }
+  $first_day = variable_get('date_first_day', 0);
+  $template = db_result(db_query("SELECT template FROM {calendar_years} WHERE year = %d AND first_day = %d", $year, $first_day));
+  if (empty($template)) {
+    $date = date_make_date($year .'-01-01 00:00:00', 'UTC');
+    $leap = date_format($date, 'L');
+    $col = date_format($date, 'w') + 1;
+    // When the week does not start on Sunday, shift to the right column.
+    if ($first_day != 0) {
+      $col -= ((7 - $first_day + $col) % 7);
+    }
+    // Find the template that matches the first day of the year col for leap status.
+    $template = db_result(db_query("SELECT template FROM {calendar_templates} WHERE col%s = '01-01' AND leap = %d", $col, $leap));
+    // Find the number of weeks in this year's template.
+    $weeks = db_result(db_query("SELECT MAX(weekno) FROM {calendar_templates} WHERE template = %d", $template));
+    // Store the result in the calendar_years table for future use.
+    $id = intval(db_result(db_query("SELECT MAX(id) FROM {calendar_years}")));
+    db_query("INSERT INTO {calendar_years} (id, year, first_day, template, weeks) VALUES (%d, %d, %d, %d, %d)", $id + 1, $year, $first_day, $template, $weeks);
+  }
+  return $template;
+}
+
+/**
+ * Find the number of calendar weeks in this year.
+ */
+function calendar_max_weeks($year) {
+  $template = calendar_year_template($year);
+  $weeks = db_result(db_query("SELECT weeks FROM {calendar_years} WHERE template = %d", $template));
+  return $weeks;
+}
+
+/**
  * Implementation of hook_form_alter().
  * Make sure calendar_info() and calendar_fields() get updated.
  */
@@ -70,44 +112,6 @@ function calendar_form_alter($form_id, &$form) {
   if ($form_id == 'views_edit_view') {
     $form['#submit'] = array_merge($form['#submit'], array('calendar_clear_all' => array()));
   }
-}
-
-/**
- * Call hooks in other modules to add other items to a calendar view.
- *
- * @param object $view
- * @param string $type - display type, 'table', 'teasers', 'nodes', 'list', 'calendar'
- * @return array of additional items to add.
- */
-function calendar_add_items($view, $type) {
-	$new_items = array();
-  foreach (module_implements('calendar_add_items') as $module) {
-    $function = $module .'_calendar_add_items';
-    if (function_exists($function)) {
-      $feeds = $function($view);
-      // Calendar items are just added as objects, themeing will be done by the calendar api.
-      // For other types, theme the items and add them.
-      foreach ($feeds as $feed) {
-    	  if ($type == 'calendar') {
-    		  $new_items[] = $feed;
-    	  }
-    	  else {
-    		  switch ($type) {
-    			 case 'table':
-    			    $output = array('data' => array(theme('calendar_node_month', $feed)));
-    				  break;
-    			  case 'nodes':
-    			  case 'teasers':
-    			  case 'list':
-    				  $output = theme('calendar_node_day', $feed);
-    				  break;
-    		  }
-    	    if (!empty($output)) $new_items[] = $output;
-    	  }
-      }
-    }
-  }
-  return $new_items;
 }
 
 /**
@@ -264,6 +268,20 @@ function calendar_filter_week(&$query, $arg) {
  *  @param object $view
  */
 function calendar_views_query_alter(&$query, &$view) {
+
+  // Check if a new date has been selected.
+  if (isset($_POST['calendar_goto'])) {
+    $parts = explode('/', $_POST['calendar_goto']['date']);
+    $type = $_POST['calendar_type'];
+    if ($type == 'year') {
+      unset($parts[1], $parts[2]);
+    }
+    elseif ($type == 'month') {
+      unset($parts[2]);
+    }
+    drupal_goto($view->url .'/'. implode('/', $parts));
+    drupal_exit();
+  }
   $now = date_now();
   $view->real_args = $view->args;
   $view->real_url = calendar_real_url($view, $view->args);
@@ -273,7 +291,7 @@ function calendar_views_query_alter(&$query, &$view) {
 	  return;
   }
 
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_api.inc');
+  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
 
   // make sure block views default to the current month
   // and make sure day view is not selected
@@ -400,9 +418,24 @@ function calendar_views_pre_view(&$view, &$items) {
 		return;
 	}
 
-	include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_api.inc');
+	include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
 
-	// Construct a formatted title for the view from the last calendar
+  // Massage the resulting items into formatted calendar items.
+	$items = calendar_build_nodes($view, $items);
+
+	// Merge in items from other sources.
+  foreach (module_implements('calendar_add_items') as $module) {
+    $function = $module .'_calendar_add_items';
+    if (function_exists($function)) {
+      if ($feeds = $function($view)) {
+        foreach ($feeds as $feed) {
+          $items[] = $feed;
+        }
+      }
+	  }
+  }
+
+  // Construct a formatted title for the view from the last calendar
   // argument encountered.
   switch ($view->calendar_type) {
     case 'year':
@@ -453,7 +486,7 @@ function calendar_views_post_view(&$view, $items, $output) {
 	if ($view->build_type != 'page' || !calendar_is_calendar($view) || !calendar_has_calendar_args($view)) {
 		return;
 	}
-	include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_api.inc');
+	include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
   $title = theme('calendar_page_title', $view, $items, $output);
   drupal_set_title($title);
 }
@@ -826,4 +859,27 @@ function calendar_og_groups($view) {
     $groupnodes = array($groupnode->nid);
   }
   return $groupnodes;
+}
+
+function calendar_date_select($view) {
+  return '<div class="calendar-date-select">'. drupal_get_form('calendar_date_select_form', $view) .'</div>';
+}
+
+function calendar_date_select_form($view) {
+  $format = 'Y/m/d';
+  $form['calendar_goto'] = array(
+    '#type' => 'date_popup',
+    '#default_value' => date_format($view->min_date, $format),
+    '#date_timezone' => date_default_timezone_name(),
+    '#date_format' => $format,
+    );
+  $form['calendar_type'] = array(
+    '#type' => 'hidden',
+    '#value' => $view->calendar_type,
+    );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Jump'),
+    );
+  return $form;
 }

@@ -105,7 +105,7 @@
 }
 
 /*  days of the week header cells */
-.calendar-calendar td.days {
+.calendar-calendar th.days {
   color: #ccc;
   background: #224;
   text-align: center;
@@ -364,4 +364,11 @@ table th.legend {
 .calendar-empty {
   font-size:1px;
   line-height:1px;
+  }
+.calendar-date-select {
+  text-align:right;
+  float:right;
+  }
+.calendar-date-select div {
+  float:right;
   }
