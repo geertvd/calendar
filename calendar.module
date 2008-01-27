@@ -762,6 +762,30 @@ function calendar_og_groups($view) {
 }
 
 /**
+ * Get the right format to use for a Views date field.
+ *
+ * @param unknown_type $field
+ * @return unknown
+ */
+function calendar_format($views_field) {
+  $handler = explode('views_handler_field_date_', $views_field['handler']);
+  if (count($handler) == 2) {
+    if ($handler[1] != 'custom') {
+      $format = $handler[1];
+    }
+    else {
+      $format = $views_field['options'];
+    }
+  }
+  else {
+    $fields = content_fields();
+    $field = $fields[$views_field['field']];
+    $format = date_formatter_format($views_field['options'], $field);
+  }
+  return $format;
+}
+
+/**
  * A selector to jump to a new date in the calendar.
  *
  * @param unknown_type $view
@@ -794,7 +818,7 @@ function calendar_date_select_form($view) {
     );
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Change'),
+    '#value' => t('Change date'),
     );
   return $form;
 }

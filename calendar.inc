@@ -523,6 +523,7 @@ function calendar_build_nodes(&$view, &$items) {
         $node->format = $format;
         $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
         $node->url = 'node/'. $node->nid;
+        $node->datefield = NULL;
 
         if ($fields[$data['id']]['visible'] !== FALSE && array_key_exists($data['field'], $fields)) {
           // The query created from/to dates like 2007-12-31T01:30:00|2007-12-31T02:30:00,
@@ -539,6 +540,10 @@ function calendar_build_nodes(&$view, &$items) {
           // to the table_field format used by the Views formatters.
           $node->{str_replace('.', '_', $fromto[0])} = $values[0];
           $node->{str_replace('.', '_', $fromto[1])} = $values[1];
+
+          // Flag which datefield this node is using, in case
+          // there are multiple date fields in the view.
+          $node->datefield = $field['queryname'];
           $node->calendar_start = $values[0];
           $node->calendar_end = !empty($values[1]) ? $values[1] : $values[0];
           $items[$delta] = $node;
@@ -580,23 +585,16 @@ function calendar_build_nodes(&$view, &$items) {
           unset($node);
         }
         else {
-          // we can have multiple representations with the same nid, like
-          // multi-day values or different fields that refer to the same node
-          // create a unique id so it gets displayed in the calendar
-          // Add delta to key to make multiple value CCK fields display
-          // as separate items.
           if (strstr($option['type'], 'cck')) {
-            $id = $item->nid .':'. $delta .':'. $field_field;
+            $id = $item->unique_nid .':'. $delta .':'. $field_field;
           }
           else {
-            $id = $item->nid .':0:'. $field_field;
+            $id = $item->unique_nid .':0:'. $field_field;
           }
-          $node->nid = $id;
-
           if ($view->build_type == 'page' && $view->calendar_type != 'year') {
             $node->stripe = calendar_node_stripe($view, $node, $option['query_name'], $field_field);
           }
-          $nodes[$id] = $node;
+          $nodes[] = $node;
           unset($node);
         }
       }
