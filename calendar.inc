@@ -522,6 +522,7 @@ function calendar_build_nodes(&$view, &$items) {
         $node->label = $label;
         $node->format = $format;
         $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
+        $node->url = 'node/'. $node->nid;
 
         if ($fields[$data['id']]['visible'] !== FALSE && array_key_exists($data['field'], $fields)) {
           // The query created from/to dates like 2007-12-31T01:30:00|2007-12-31T02:30:00,
