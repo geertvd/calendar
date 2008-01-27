@@ -142,7 +142,7 @@ function calendar_build_day($date, $view, $items, $params) {
         foreach ($nodes as $item) {
           foreach ($item as $node) {
             $theme = isset($node->calendar_node_theme) ? $node->calendar_node_theme : 'calendar_node_'. $view->calendar_type;
-            $inner = theme($theme, $node, $view->calendar_type);
+            $inner .= theme($theme, $node, $view->calendar_type);
           }
         }
       }
@@ -354,32 +354,6 @@ function calendar_build_nodes(&$view, &$items) {
   $i = 0;
   $items_in = $items;
 
-  //include_once(drupal_get_path('module', 'calendar') .'/calendar_api.inc');
-  foreach ($items_in as $delta => $node) {
-    $item = '';
-    foreach ($view->field as $field) {
-      if ($fields[$field['id']]['visible'] !== FALSE && array_key_exists($field['field'], $fields)) {
-        // The query created from/to dates like 2007-12-31T01:30:00|2007-12-31T02:30:00,
-        // explode those values and separate them into from and to dates on the node.
-        $fromto = array_merge(
-          $fields[$field['field']]['timestamp_fromto'],
-          $fields[$field['field']]['string_fromto']);
-        $key = $field['queryname'];
-        $old = $node->$key;
-        if ($node->$key) {
-          $values = explode('|', $node->$key);
-        }
-        // Convert the table.field format in the fromto fields
-        // to the table_field format used by the Views formatters.
-        $node->{str_replace('.', '_', $fromto[0])} = $values[0];
-        $node->{str_replace('.', '_', $fromto[1])} = $values[1];
-        $node->calendar_start = $values[0];
-        $node->calendar_end = !empty($values[1]) ? $values[1] : $values[0];
-        $items[$delta] = $node;
-      }
-    }
-  }
-
   // explode out field and format info from the view
   foreach ($view->field as $delta => $data) {
     if (in_array($data['field'], $field_names)) {
@@ -426,6 +400,27 @@ function calendar_build_nodes(&$view, &$items) {
         $node->label = $label;
         $node->format = $format;
         $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
+
+        if ($fields[$data['id']]['visible'] !== FALSE && array_key_exists($data['field'], $fields)) {
+          // The query created from/to dates like 2007-12-31T01:30:00|2007-12-31T02:30:00,
+          // explode those values and separate them into from and to dates on the node.
+          $fromto = array_merge(
+            $fields[$data['field']]['timestamp_fromto'],
+            $fields[$data['field']]['string_fromto']);
+          $key = $data['queryname'];
+          $old = $node->$key;
+          if ($node->$key) {
+            $values = explode('|', $node->$key);
+          }
+          // Convert the table.field format in the fromto fields
+          // to the table_field format used by the Views formatters.
+          $node->{str_replace('.', '_', $fromto[0])} = $values[0];
+          $node->{str_replace('.', '_', $fromto[1])} = $values[1];
+          $node->calendar_start = $values[0];
+          $node->calendar_end = !empty($values[1]) ? $values[1] : $values[0];
+          $items[$delta] = $node;
+        }
+
         foreach ($view->field as $field) {
 
           // Get the themed label for the field from a Views theme.
