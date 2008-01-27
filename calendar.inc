@@ -611,7 +611,7 @@ function calendar_get_paths($view) {
 }
 
 /**
- * Get the start and end dates for a calendar week.
+ * Set the start and end dates for a calendar week.
  *
  * No good way to do this using PHP date functions which can
  * only identify the ISO week -- get the calendar week info from the

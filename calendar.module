@@ -69,6 +69,7 @@ function calendar_menu($may_cache) {
  * Compute and insert it if missing.
  *
  * @param int $year
+ * @return int the template number for this year
  */
 function calendar_year_template($year = NULL) {
   if (empty($year)) {
@@ -99,12 +100,30 @@ function calendar_year_template($year = NULL) {
 }
 
 /**
- * Find the number of calendar weeks in this year.
+ * Find the number of calendar weeks for a year.
+ *
+ * @param int $year
+ * @return int number of calendar weeks in selected year.
  */
 function calendar_max_weeks($year) {
   $template = calendar_year_template($year);
   $weeks = db_result(db_query("SELECT weeks FROM {calendar_years} WHERE template = %d", $template));
   return $weeks;
+}
+
+/**
+ * Find the calendar week number for a date.
+ *
+ * @param string $date, in the format Y-m-d
+ * @return int calendar week number.
+ */
+function calendar_date_week($date) {
+  $parts = explode('-', $date);
+  $year = $parts[0];
+  $date = date_pad($parts[1]) .'-'. date_pad($parts[2]);
+  $template = calendar_year_template($year);
+  $week = db_result(db_query("SELECT weekno FROM {calendar_templates} WHERE template = %d AND end >= '%s' AND start <= '%s'", $template, $date, $date));
+  return $week;
 }
 
 /**
@@ -280,6 +299,11 @@ function calendar_views_query_alter(&$query, &$view) {
       unset($parts[1], $parts[2]);
     }
     elseif ($type == 'month') {
+      unset($parts[2]);
+    }
+    elseif ($type == 'week') {
+      $date = implode('-', $parts);
+      $parts[1] = 'W'. calendar_date_week($date);
       unset($parts[2]);
     }
     drupal_goto($view->url .'/'. implode('/', $parts));
@@ -875,9 +899,18 @@ function calendar_date_select($view) {
   return '<div class="calendar-date-select">'. drupal_get_form('calendar_date_select_form', $view) .'</div>';
 }
 
+/**
+ * The date selector form.
+ *
+ * @param object $view
+ * @return the form element
+ *
+ * @TODO is the title desired here or does it take up too much space??
+ */
 function calendar_date_select_form($view) {
   $format = 'Y/m/d';
   $form['calendar_goto'] = array(
+    //'#title' => t('Calendar date'),
     '#type' => 'date_popup',
     '#default_value' => date_format($view->min_date, $format),
     '#date_timezone' => date_default_timezone_name(),
@@ -889,7 +922,7 @@ function calendar_date_select_form($view) {
     );
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Go'),
+    '#value' => t('Change'),
     );
   return $form;
 }

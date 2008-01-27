@@ -263,8 +263,8 @@ function theme_calendar_links($view, $links = FALSE) {
     if (module_exists('date_popup')) {
       $output = '<div class="clear-block">'. calendar_date_select($view) .'</div>';
     }
-   $output .= theme('links', $calendar_links);
-   return $output;
+    $output .= theme('links', $calendar_links);
+    return $output;
   }
 }
 

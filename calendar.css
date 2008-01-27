@@ -286,8 +286,10 @@ table th.legend {
 .calendar-date-select {
   text-align:right;
   float:right;
+  width:25%;
 }
-.calendar-date-select div, .calendar-date-select input {
+.calendar-date-select div, .calendar-date-select input, .calendar-date-select label {
+  text-align:right;
   padding:0;
   margin:0;
   float:right;
