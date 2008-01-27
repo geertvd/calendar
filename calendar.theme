@@ -206,12 +206,12 @@ function theme_calendar_arg_title($field_type, $value, $query) {
 /**
  * Theme the navigation bar title
  *
- * @param string $type - 'YEAR', 'MONTH', 'DAY', 'WEEK'
+ * @param string $type - 'year', 'month', 'day', 'week'
  * @param object $view - the current view object
  * @return formatted title
  */
 function theme_calendar_nav_title($type, $view) {
-  if ($type == 'YEAR') {
+  if ($type == 'year') {
     return $view->year;
   }
   $datetime = date_pad($view->year, 4) .'-'. date_pad($view->month != CALENDAR_EMPTY_ARG ? $view->month : '01') .'-01 00:00:00';
