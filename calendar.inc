@@ -465,137 +465,159 @@ function calendar_build_field_query(&$query, $field) {
 /**
  * Take the array of items and alter it to an array of
  * calendar nodes that the theme can handle.
+ *
+ * Iterate through each datefield in the view and each item
+ * returned by the query, and create pseudo date nodes.
+ *
+ * If there is more than one date field in the node, this will create
+ * multiple nodes, one each with the right calendar date for that
+ * field's value. If a field value has a date range that covers more than
+ * one day, separate nodes will be created for each day in the field's
+ * day range, limited to the minimum and maximum dates for the view.
+ *
+ * When we finish, we will have a distinct node for each distinct day
+ * and date field.
  */
 function calendar_build_nodes(&$view, &$items) {
   $view->nodes_per_page = 0;
   $type_names = node_get_types('names');
 
   $fields = calendar_fields();
+  foreach($fields as $field) {
+    $datefields[] = $field['query_name'];
+  }
   $field_names = (array) array_keys($fields);
   $nodes = array();
   $i = 0;
-  $items_in = $items;
 
   // explode out field and format info from the view
   foreach ($view->field as $delta => $data) {
-    if (in_array($data['field'], $field_names)) {
-      $option           = $fields[$data['field']];
-      $field_type       = strstr($option['type'], 'string') ? 'string' : 'timestamp';
-      $field_field      = $option['query_name'];
-      $field_end        = $field_field .'2';
-      $field_field_name = $option['field_name'];
-      $timestamp_fromto = $option['timestamp_fromto'];
-      $string_fromto    = $option['string_fromto'];
-      $field_id         = $delta;
-      $tz_handling      = $option['tz_handling'];
-      $label            = $data['label'];
-      $granularity      = $option['granularity'];
-      $view_fields      = _views_get_fields();
+    if ($fields[$data['id']]['visible'] !== FALSE && array_key_exists($data['field'], $fields)) {
+      if (in_array($data['field'], $field_names)) {
+        $option           = $fields[$data['field']];
+        $field_type       = strstr($option['type'], 'string') ? 'string' : 'timestamp';
+        $field_field      = $option['query_name'];
+        $field_end        = $field_field .'2';
+        $field_field_name = $option['field_name'];
+        $timestamp_fromto = $option['timestamp_fromto'];
+        $string_fromto    = $option['string_fromto'];
+        $field_id         = $delta;
+        $tz_handling      = $option['tz_handling'];
+        $label            = $data['label'];
+        $granularity      = $option['granularity'];
+        $view_fields      = _views_get_fields();
 
-      if (strstr($option['type'], 'cck')) {
-        $format = date_formatter_format($data['options'], $field);
-      }
-      else {
-        switch ($data['handler']) {
-          case 'views_handler_field_date_large':
-            $format = variable_get('date_format_long',  'l, F j, Y - H:i');
-            break;
-          case 'views_handler_field_date':
-            $format = variable_get('date_format_medium',  'D, m/d/Y - H:i');
-            break;
-          case 'views_handler_field_date_custom':
-            $format = $data['options'];
-            break;
-          case 'views_handler_field_since':
-          case 'views_handler_field_date_small':
-          default:
-            $format = variable_get('date_format_short', 'm/d/Y - H:i');
-            break;
+        if (strstr($option['type'], 'cck')) {
+          $format = date_formatter_format($data['options'], $data['field']);
         }
-      }
+        else {
+          switch ($data['handler']) {
+            case 'views_handler_field_date_large':
+              $format = variable_get('date_format_long',  'l, F j, Y - H:i');
+              break;
+            case 'views_handler_field_date':
+              $format = variable_get('date_format_medium',  'D, m/d/Y - H:i');
+              break;
+            case 'views_handler_field_date_custom':
+              $format = $data['options'];
+              break;
+            case 'views_handler_field_since':
+            case 'views_handler_field_date_small':
+            default:
+              $format = variable_get('date_format_short', 'm/d/Y - H:i');
+              break;
+          }
+        }
 
-      // Iterate through the $items array returned by the query and create
-      // date or pseudo date nodes.
-      foreach ($items as $delta => $item) {
-        $node = drupal_clone($item);
-        $node->title = $node->node_title;
-        $node->label = $label;
-        $node->format = $format;
-        $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
-        $node->url = 'node/'. $node->nid;
-        $node->datefield = NULL;
+        $fromto = array_merge(
+          $fields[$data['field']]['timestamp_fromto'],
+          $fields[$data['field']]['string_fromto']);
 
-        if ($fields[$data['id']]['visible'] !== FALSE && array_key_exists($data['field'], $fields)) {
+        foreach ($items as $delta => $item) {
           // The query created from/to dates like 2007-12-31T01:30:00|2007-12-31T02:30:00,
           // explode those values and separate them into from and to dates on the node.
-          $fromto = array_merge(
-            $fields[$data['field']]['timestamp_fromto'],
-            $fields[$data['field']]['string_fromto']);
-          $key = $data['queryname'];
-          $old = $node->$key;
-          if ($node->$key) {
-            $values = explode('|', $node->$key);
-          }
-          // Convert the table.field format in the fromto fields
-          // to the table_field format used by the Views formatters.
-          $node->{str_replace('.', '_', $fromto[0])} = $values[0];
-          $node->{str_replace('.', '_', $fromto[1])} = $values[1];
+          if ($item->$field_field) {
+            $values = explode('|', $item->$field_field);
 
-          // Flag which datefield this node is using, in case
-          // there are multiple date fields in the view.
-          $node->datefield = $field['queryname'];
-          $node->calendar_start = $values[0];
-          $node->calendar_end = !empty($values[1]) ? $values[1] : $values[0];
-          $items[$delta] = $node;
-        }
+            // Create a node for each date within the field's date range,
+            // limited to the view's date range.
+            $now = max(date_format($view->min_date, 'Y-m-d'), substr($values[0], 0, 10));
+            $to  = min(date_format($view->max_date, 'Y-m-d'), substr($values[1], 0, 10));
+            if (empty($to)) {
+              $to = $now;
+            }
+            while ($now <= $to) {
+              $node = drupal_clone($item);
+              $node->title = $node->node_title;
+              $node->label = $label;
+              $node->format = $format;
+              $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
+              $node->url = 'node/'. $node->nid;
 
-        foreach ($view->field as $field) {
+              // Convert the table.field format in the fromto fields
+              // to the table_field format used by the Views formatters.
+              $node->{str_replace('.', '_', $fromto[0])} = $values[0];
+              $node->{str_replace('.', '_', $fromto[1])} = $values[1];
 
-          // Get the themed label for the field from a Views theme.
-          if (!in_array($field['field'], $field_names) && $field['field'] != 'title') {
-            if ($view_fields[$field['id']]['visible'] !== FALSE) {
-              $node->fields[$field['queryname']] = views_theme_field('views_handle_field', $field['queryname'], $view_fields, $field, $node, $view);
+              // Flag which datefield this node is using, in case
+              // there are multiple date fields in the view.
+              $node->datefield = $field_field;
+
+              // If there are other datefields in the View, get rid
+              // of them in this pseudo node. There should only be one
+              // date in each calendar node.
+              foreach ($node as $key => $val) {
+                if ($key != $field_field && in_array($key, $datefields)) {
+                  unset($node->$key);
+                }
+              }
+
+              $node->calendar_start = $values[0];
+              $node->calendar_end = !empty($values[1]) ? $values[1] : $values[0];
+
+              // If we're dealing with an event node that uses event-specific timezones
+              // we couldn't transform the date to the local time in the query
+              // so we have a date in UTC and need to convert it to local time here.
+              if (module_exists('event')
+              && ($field_field == 'event_event_start' || $field_field == 'event_event_end')
+              && $tz_handling == 'event') {
+                $dates = explode('|', $item->$field_field);
+                $node->calendar_start_date = date_create($node->calendar_start, timezone_open('UTC'));
+                date_modify($date_start, '+'. $node->event_timezone .' seconds');
+                $node->calendar_start_date = $date_start;
+                $node->calendar_end_date = date_create($node->calendar_end, timezone_open('UTC'));
+                date_modify($node->calendar_end_date, '+'. $node->event_timezone .' seconds');
+              }
+              else {
+                $node->calendar_start_date = date_make_date($node->calendar_start, date_default_timezone_name());
+                $node->calendar_end_date   = date_make_date($node->calendar_end, date_default_timezone_name());
+                $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
+                $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
+              }
+
+              if (isset($node) && (empty($node->calendar_start_date))) {
+                // if no date for the node and no date in the item
+                // there is no way to display it on the calendar
+                unset($node);
+              }
+              else {
+                if (strstr($option['type'], 'cck')) {
+                  $id = $item->unique_nid .':'. $delta .':'. $field_field;
+                }
+                else {
+                  $id = $item->unique_nid .':0:'. $field_field;
+                }
+                if ($view->build_type == 'page' && $view->calendar_type != 'year') {
+                  $node->stripe = calendar_node_stripe($view, $node, $field_field, $field_field);
+                }
+                $nodes[$id] = $node;
+                unset($node);
+              }
+              $next = date_make_date($now, 'UTC');
+              date_modify($next, '+1 day');
+              $now = date_format($next, 'Y-m-d');
             }
           }
-        }
-
-        // If we're dealing with an event node that uses event-specific timezones
-        // we couldn't transform the date to the local time in the query
-        // so we have a date in UTC and need to convert it to local time here.
-        if (module_exists('event')
-        && ($field_field == 'event_event_start' || $field_field == 'event_event_end')
-        && $tz_handling == 'event') {
-          $dates = explode('|', $item->$field_field);
-          $node->calendar_start_date = date_create($node->calendar_start, timezone_open('UTC'));
-          date_modify($date_start, '+'. $node->event_timezone .' seconds');
-          $node->calendar_start_date = $date_start;
-          $node->calendar_end_date = date_create($node->calendar_end, timezone_open('UTC'));
-          date_modify($node->calendar_end_date, '+'. $node->event_timezone .' seconds');
-        }
-        else {
-          $node->calendar_start_date = date_make_date($node->calendar_start, date_default_timezone_name());
-          $node->calendar_end_date   = date_make_date($node->calendar_end, date_default_timezone_name());
-          $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
-          $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
-        }
-
-        if (isset($node) && (empty($node->calendar_start_date))) {
-          // if no date for the node and no date in the item
-          // there is no way to display it on the calendar
-          unset($node);
-        }
-        else {
-          if (strstr($option['type'], 'cck')) {
-            $id = $item->unique_nid .':'. $delta .':'. $field_field;
-          }
-          else {
-            $id = $item->unique_nid .':0:'. $field_field;
-          }
-          if ($view->build_type == 'page' && $view->calendar_type != 'year') {
-            $node->stripe = calendar_node_stripe($view, $node, $option['query_name'], $field_field);
-          }
-          $nodes[] = $node;
-          unset($node);
         }
       }
     }

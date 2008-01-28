@@ -25,14 +25,15 @@ function theme_calendar_view_summary(&$view, $type, $level, &$items, $args) {
  * to create a calendar view.
  */
 function theme_calendar_view_calendar(&$view, &$items, $type) {
+
   include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
   if ($type == 'block' || !calendar_is_calendar_arg($view)) {
     $view->calendar_type = 'month';
   }
   // Bail out here to display regular views views instead of calendar.
   // Check first for 'view' in url, then for 'calendar_display_format' variable, default to normal calendar display.
-  if ($_GET['view'] && $view->build_type == 'page') {
-  	$display = check_plain($_GET['view']);
+  if (isset($_GET['view']) && $view->build_type == 'page') {
+  	$display = !empty($_GET['view']) ? check_plain($_GET['view']) : 'calendar';
   }
   else {
   	$display_formats = calendar_get_formats($view);
@@ -72,10 +73,9 @@ function theme_calendar_views_field($fieldname, $fields, $field, $node, $view) {
     $item = '';
   }
   else {
-    $format = calendar_format($field);
     if (!empty($node->$fieldname)) {
       $date = date_make_date($node->$fieldname, 'UTC');
-      $item = date_format_date($date, 'custom', $format);
+      $item = date_format_date($date, 'custom', $node->format);
     }
   }
   return $item;
@@ -85,7 +85,10 @@ function theme_calendar_views_field($fieldname, $fields, $field, $node, $view) {
  * Display the nodes of a view as a list.
  */
 function theme_calendar_view_list($view, $nodes, $type) {
-  $output = '<div class="calendar-calendar">'. theme("table", calendar_nav($view), array()) .'</div>';
+  $output  = '<div class="calendar-calendar">';
+  $output .= theme_calendar_links($view, $view->build_type != 'block');
+  $output .= theme("table", calendar_nav($view), array());
+  $output .= '</div>';
 
   $fields = _views_get_fields();
   $items = array();
@@ -115,6 +118,11 @@ function theme_calendar_view_list($view, $nodes, $type) {
  * Display the nodes of a view as a table.
  */
 function theme_calendar_view_table($view, $nodes, $type) {
+  $output  = '<div class="calendar-calendar">';
+  $output .= theme_calendar_links($view, $view->build_type != 'block');
+  $output .= theme("table", calendar_nav($view), array());
+  $output .= '</div>';
+
   $fields = _views_get_fields();
   $rows = array();
   foreach ($nodes as $node) {
@@ -128,7 +136,8 @@ function theme_calendar_view_table($view, $nodes, $type) {
     }
     $rows[] = $row;
   }
-  return theme('table', $view->table_header, $rows);
+  $output .= theme('table', $view->table_header, $rows);
+  return $output;
 }
 
 /**
@@ -142,12 +151,18 @@ function theme_calendar_view_teasers($view, $nodes, $type) {
  * Display the nodes of a view as plain nodes.
  */
 function theme_calendar_view_nodes($view, $nodes, $type, $teasers = false, $links = true) {
-	$output = array();
+  $output  = '<div class="calendar-calendar">';
+  $output .= theme_calendar_links($view, $view->build_type != 'block');
+  $output .= theme("table", calendar_nav($view), array());
+  $output .= '</div>';
+
+  $output = array();
   foreach ($nodes as $n) {
     $node = node_load($n->nid);
-    $output[] = node_view($node, $teasers, false, $links);
+    $data[] = node_view($node, $teasers, false, $links);
   }
-  return implode($output);
+  $output .= implode($data);
+  return $output;
 }
 
 /**
@@ -262,16 +277,20 @@ function theme_calendar_nav_title($type, $view) {
   if ($type == 'year') {
     return $view->year;
   }
-  $datetime = date_pad($view->year, 4) .'-'. date_pad($view->month != CALENDAR_EMPTY_ARG ? $view->month : '01') .'-01 00:00:00';
-  $date = date_make_date($datetime, 'UTC');
-
   if ($view->mini) {
   	// Month navigation titles are used as links in the mini view.
-  	return l(date_format_date($date, 'custom', 'M Y'), $view->real_url .'/'. $view->year .'/'. $view->month, array(), calendar_url_append($view));
+  	return l(date_format_date($view->min_date, 'custom', 'M Y'), $view->real_url .'/'. $view->year .'/'. $view->month, array(), calendar_url_append($view));
   }
   else {
     // Otherwise, just show the date.
-    return date_format_date($date, 'custom', 'M Y');
+    switch ($view->calendar_type) {
+      case 'day':
+        return date_format_date($view->min_date, 'custom', 'l, F j Y');
+      case 'week':
+        return t('Week of @date', array('@date' => date_format($view->min_date, 'F j')));
+      default:
+        return date_format_date($view->min_date, 'custom', 'M Y');
+    }
   }
 }
 

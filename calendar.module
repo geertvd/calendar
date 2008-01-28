@@ -614,7 +614,7 @@ function calendar_get_formats($view) {
 function calendar_node_stripe($view, $node, $query_name, $delta, $stripe = NULL, $label = '') {
   $type_names = node_get_types('names');
   if (!$label) {
-    $label = $view->field[$delta]['label'] .' ('. $type_names[$node->type] .')';
+    $label = $type_names[$node->type]  .' '. $view->field[$delta]['label'];
   }
   if (!$stripe) {
     $i = 1;
@@ -759,30 +759,6 @@ function calendar_og_groups($view) {
     $groupnodes = array($groupnode->nid);
   }
   return $groupnodes;
-}
-
-/**
- * Get the right format to use for a Views date field.
- *
- * @param unknown_type $field
- * @return unknown
- */
-function calendar_format($views_field) {
-  $handler = explode('views_handler_field_date_', $views_field['handler']);
-  if (count($handler) == 2) {
-    if ($handler[1] != 'custom') {
-      $format = $handler[1];
-    }
-    else {
-      $format = $views_field['options'];
-    }
-  }
-  else {
-    $fields = content_fields();
-    $field = $fields[$views_field['field']];
-    $format = date_formatter_format($views_field['options'], $field);
-  }
-  return $format;
 }
 
 /**
