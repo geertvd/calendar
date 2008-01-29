@@ -61,10 +61,12 @@ function calendar_ical_cron() {
  * Implementation of hook_calendar_add_items().
  */
 function calendar_ical_calendar_add_items($view) {
+  include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
+  $items = array();
   $feeds = calendar_ical_add_feeds($view);
   foreach ($feeds as $feed) {
-    if (is_object($feed['calendar_start_date']) && is_object($feed['calendar_end_date'])) {
-      if (date_format($feed['calendar_start_date'], DATE_FORMAT_DATETIME) >= date_format($view->min_date, DATE_FORMAT_DATETIME) && date_format($feed['calendar_end_date']) <= date_format($view->max_date, DATE_FORMAT_DATETIME)) {
+    if (is_object($feed->calendar_start_date) && is_object($feed->calendar_end_date)) {
+      if (date_format($feed->calendar_start_date, DATE_FORMAT_DATETIME) >= date_format($view->min_date, DATE_FORMAT_DATETIME) && date_format($feed->calendar_end_date, DATE_FORMAT_DATETIME) <= date_format($view->max_date, DATE_FORMAT_DATETIME)) {
         $items[] = $feed;
       }
     }
@@ -85,6 +87,7 @@ function calendar_ical_calendar_add_types($view) {
  * @todo - control of the stripe color is not yet implemented.
  */
 function calendar_ical_setup_form($view_name) {
+  include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
 
   $form = array();
   $view = views_get_view($view_name);
@@ -215,17 +218,20 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
     }
     else {
     	$expire = intval(variable_get('calendar_ical_expire_'. $view->name, 9676800) + time());
+    	include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
+
       switch ($feed['type']) {
       case 'ical':
         $filename = $feed['url'];
-        $events = date_ical_import($filename);
         $new_nodes = array();
-        foreach ($events as $key => $value) {
-          if (is_numeric($key) && $value['TYPE'] == 'VEVENT') {
-            if (empty($start)) continue;
+        $calendars = date_ical_import($filename);
+        foreach ($calendars as $calendar) {
+          foreach ($calendar['VEVENT'] as $key => $value) {
+            if (empty($value['DTSTART'])) continue;
             $node = new StdClass();
             $node->nid = $value['UID'];
             $node->title = $value['SUMMARY'];
+            $node->node_title = $value['SUMMARY']; // This one matches the Views title.
             $node->label = $feed['name'];
             $node->teaser =  $value['DESCRIPTION'];
             $node->calendar_start_date = date_ical_date($value['DTSTART'], $value['DTSTART']['tz']);
@@ -233,8 +239,9 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
             $node->calendar_end_date = date_ical_date($value['DTEND'], $value['DTEND']['tz']);
             $node->calendar_end = date_format_date($node->calendar_end_date, 'custom', DATE_FORMAT_DATETIME);
             $show_tz = ' e';
+            $granularity = $value['DTSTART']['type'] == 'DATE' ? array('year', 'month', 'day') : array('year', 'month', 'day', 'hour', 'minute', 'second');
             $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
-            $node->format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), $value['DTSTART']['granularity']) .$show_tz;
+            $node->format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), $granularity) .$show_tz;
             $node->all_day = $value['DTSTART']['all_day'];
             $node->stripe = $feed['stripe'];
             $node->remote = TRUE;
@@ -244,7 +251,7 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
             $new_nodes[$value['UID']] = $node;
           }
         }
-        cache_set('calendar_feeds_'. $view->name .':'. $feed['url'], calendar_ical_cache(), serialize($new_nodes), $expire);
+        //cache_set('calendar_feeds_'. $view->name .':'. $feed['url'], calendar_ical_cache(), serialize($new_nodes), $expire);
         $nodes += (array) $new_nodes;
         break;
       }
@@ -443,14 +450,15 @@ function theme_calendar_ical_feed($view, $items, $type) {
 /**
  * A theme for the ical nodes.
  */
-function theme_calendar_ical_node($node, $type) {
+function theme_calendar_ical_node($node, $view) {
   // Remote nodes may come in with lengthy descriptions that won't fit
   // in small boxes of year, month, and week calendars.
-  if ($type != 'calendar_node_day') {
+  if ($view->calendar_type != 'day') {
     $node->teaser = '';
   }
   // Check plain may leave html entities in the title.
   $node->title = html_entity_decode(check_plain($node->title), ENT-QUOTES);
   $node->teaser = check_markup($node->teaser);
-  return theme($type, $node);
+  $type = 'calendar_node_'. $view->calendar_type;
+  return theme($type, $node, $view);
 }

@@ -264,7 +264,7 @@ function calendar_build_day($date, $view, $items, $params) {
         foreach ($nodes as $item) {
           foreach ($item as $node) {
             $theme = isset($node->calendar_node_theme) ? $node->calendar_node_theme : 'calendar_node_'. $view->calendar_type;
-            $inner .= theme($theme, $node, $view->calendar_type);
+            $inner .= theme($theme, $node, $view);
           }
         }
       }
@@ -486,6 +486,7 @@ function calendar_build_nodes(&$view, &$items) {
   foreach($fields as $field) {
     $datefields[] = $field['query_name'];
   }
+  $view_fields      = _views_get_fields();
   $field_names = (array) array_keys($fields);
   $nodes = array();
   $i = 0;
@@ -497,15 +498,14 @@ function calendar_build_nodes(&$view, &$items) {
         $option           = $fields[$data['field']];
         $field_type       = strstr($option['type'], 'string') ? 'string' : 'timestamp';
         $field_field      = $option['query_name'];
-        $field_end        = $field_field .'2';
-        $field_field_name = $option['field_name'];
+        //$field_end        = $field_field .'2';
+        //$field_field_name = $option['field_name'];
         $timestamp_fromto = $option['timestamp_fromto'];
         $string_fromto    = $option['string_fromto'];
-        $field_id         = $delta;
+        //$field_id         = $delta;
         $tz_handling      = $option['tz_handling'];
         $label            = $data['label'];
-        $granularity      = $option['granularity'];
-        $view_fields      = _views_get_fields();
+        //$granularity      = $option['granularity'];
 
         if (strstr($option['type'], 'cck')) {
           $format = date_formatter_format($data['options'], $data['field']);

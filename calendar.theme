@@ -65,6 +65,11 @@ function theme_calendar_view_calendar(&$view, &$items, $type) {
  * Wrapper around theme_views_field() to properly format the dates in the view.
  */
 function theme_calendar_views_field($fieldname, $fields, $field, $node, $view) {
+  if (isset($node->calendar_node_theme)) {
+    $theme = $node->calendar_node_theme;
+    return theme($theme, $node, $view);
+  }
+
   $calendar_fields = calendar_fields();
   if (!in_array($field['field'], array_keys($calendar_fields))) {
     $item = views_theme_field('views_handle_field', $fieldname, $fields, $field, $node, $view);
@@ -460,7 +465,7 @@ function theme_calendar_day($view, $header, $data) {
  * @param node
  *   The node being displayed
  */
-function theme_calendar_node_day($node) {
+function theme_calendar_node_day($node, $view) {
   if (is_object($node->calendar_start_date)) {
     $output = '<div class="calendar dayview">'."\n";
     $output .= theme('calendar_stripe_stripe', $node);
@@ -485,7 +490,7 @@ function theme_calendar_node_day($node) {
  * @param node
  *   The node being displayed
  */
-function theme_calendar_node_week($node) {
+function theme_calendar_node_week($node, $view) {
   $output .= '<div class="calendar weekview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
 
@@ -519,7 +524,7 @@ function theme_calendar_node_week($node) {
  * @param node
  *   The node being displayed
  */
-function theme_calendar_node_month($node) {
+function theme_calendar_node_month($node, $view) {
 
   $output .= '<div class="calendar monthview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
