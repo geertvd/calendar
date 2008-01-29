@@ -282,7 +282,7 @@ function theme_calendar_nav_title($type, $view) {
   }
   if ($view->mini) {
   	// Month navigation titles are used as links in the mini view.
-  	return l(date_format_date($view->min_date, 'custom', 'M Y'), $view->real_url .'/'. $view->year .'/'. $view->month, array(), calendar_url_append($view));
+  	return l(date_format_date($view->min_date, 'custom', 'M Y'), $view->url .'/'. $view->year .'/'. $view->month, array(), calendar_url_append($view));
   }
   else {
     // Otherwise, just show the date.
@@ -406,7 +406,8 @@ function theme_calendar_year($view, $header, $rows) {
   $i = 1;
   foreach ($rows as $month => $month_rows) {
     $view->month = $month;
-    $month_header = array(array('data' => theme('calendar_nav_title', 'MONTH', $view), 'colspan' => 7));
+    $view->min_date = date_make_date($view->year .'-'. date_pad($view->month) .'-01 00:00:00', date_default_timezone_name());
+    $month_header = array(array('data' => theme('calendar_nav_title', 'month', $view), 'colspan' => 7));
     $row[] = array(
       'data' => theme('calendar_month', 'mini', $month_header, $month_rows),
       );
