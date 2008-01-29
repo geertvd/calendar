@@ -31,15 +31,7 @@ function theme_calendar_view_calendar(&$view, &$items, $type) {
     $view->calendar_type = 'month';
   }
   // Bail out here to display regular views views instead of calendar.
-  // Check first for 'view' in url, then for 'calendar_display_format' variable, default to normal calendar display.
-  if (isset($_GET['view']) && $view->build_type == 'page') {
-  	$display = !empty($_GET['view']) ? check_plain($_GET['view']) : 'calendar';
-  }
-  else {
-  	$display_formats = calendar_get_formats($view);
-  	$display = $view->build_type == 'block' ? $display_formats['block'] : $display_formats[$view->calendar_type];
-  }
-  switch($display) {
+  switch($view->calendar_display) {
     case ('table') :
       $view->table_header = _views_construct_header($view, _views_get_fields());
       return theme('calendar_view_table', $view, $items, $type);
@@ -64,10 +56,10 @@ function theme_calendar_view_calendar(&$view, &$items, $type) {
 /**
  * Wrapper around theme_views_field() to properly format the dates in the view.
  */
-function theme_calendar_views_field($fieldname, $fields, $field, $node, $view) {
-  if (isset($node->calendar_node_theme)) {
-    $theme = $node->calendar_node_theme;
-    return theme($theme, $node, $view);
+function theme_calendar_views_field($fieldname, $fields, $field, $node, $view, $type) {
+  if (isset($node->calendar_field_theme)) {
+    $theme = $node->calendar_field_theme;
+    return theme($theme, $fieldname, $fields, $field, $node, $view, $type);
   }
 
   $calendar_fields = calendar_fields();
@@ -101,7 +93,7 @@ function theme_calendar_view_list($view, $nodes, $type) {
     $item = '';
     foreach ($view->field as $field) {
       if ($fields[$field['id']]['visible'] !== FALSE) {
-        $value = theme('calendar_views_field', $field['queryname'], $fields, $field, $node, $view);
+        $value = theme('calendar_views_field', $field['queryname'], $fields, $field, $node, $view, $type);
         if (!empty($value)) {
           if ($field['label']) {
             $item .= "<div class='view-label ". views_css_safe('view-label-'. $field['queryname']) ."'>". $field['label'] ."</div>";
@@ -134,7 +126,7 @@ function theme_calendar_view_table($view, $nodes, $type) {
     $row = array();
     foreach ($view->field as $field) {
       if ($fields[$field['id']]['visible'] !== FALSE) {
-        $cell['data'] = theme('calendar_views_field', $field['queryname'], $fields, $field, $node, $view);
+        $cell['data'] = theme('calendar_views_field', $field['queryname'], $fields, $field, $node, $view, $type);
         $cell['class'] = "view-field ". views_css_safe('view-field-'. $field['queryname']);
         $row[] = $cell;
       }
@@ -163,8 +155,14 @@ function theme_calendar_view_nodes($view, $nodes, $type, $teasers = false, $link
 
   $output = array();
   foreach ($nodes as $n) {
-    $node = node_load($n->nid);
-    $data[] = node_view($node, $teasers, false, $links);
+    if (isset($n->calendar_node_theme)) {
+      $theme = $n->calendar_node_theme;
+      $data[] = theme($theme, $n, $view);
+    }
+    else {
+      $node = node_load($n->nid);
+      $data[] = node_view($node, $teasers, false, $links);
+    }
   }
   $output .= implode($data);
   return $output;
@@ -177,7 +175,7 @@ function theme_calendar_date_combo($node, $format, $label, $view) {
   $date1 = date_format_date($node->calendar_start_date, 'custom', $format);
   $date2 = date_format_date($node->calendar_end_date, 'custom', $format);
 
-  $label = '<h4>'. $label .'</h4>';
+  $label = '<span class="calendar-label">'. $label .': </span>';
 
   // No date values, display nothing.
   if (empty($date1) && empty($date2)) {

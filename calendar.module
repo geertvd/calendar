@@ -315,6 +315,17 @@ function calendar_views_query_alter(&$query, &$view) {
     drupal_exit();
   }
 
+  // Identify the kind of display we're using for this view.
+  // Check first for 'view' in url to get displays set by the switch
+  // block, then for 'calendar_display_format' variable to get displays
+  // set in the setup, default to normal calendar display.
+  if (isset($_GET['view']) && $view->build_type == 'page') {
+  	$view->calendar_display = !empty($_GET['view']) ? check_plain($_GET['view']) : 'calendar';
+  }
+  else {
+  	$display_formats = calendar_get_formats($view);
+  	$view->calendar_display = $view->build_type == 'block' ? $display_formats['block'] : $display_formats[$view->calendar_type];
+  }
   include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
   include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.theme');
   return _calendar_views_query_alter($query, $view);

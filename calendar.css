@@ -295,3 +295,8 @@ table th.legend {
   float:right;
 }
 
+.calendar-label {
+  font-weight:bold;
+  display:block;
+  clear:both;
+}

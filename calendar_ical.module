@@ -10,11 +10,9 @@
  *  Implementation of hook_menu().
  */
 function calendar_ical_menu($may_cache) {
-  include_once(drupal_get_path('module', 'calendar') .'/calendar.theme');
-  drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
-
   $items = array();
   if (!$may_cache) {
+    drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
     foreach (calendar_info() as $view_name => $view) {
       $items[] = array(
         'path'     => 'admin/settings/calendar/'. $view_name .'/ical',
@@ -31,14 +29,9 @@ function calendar_ical_menu($may_cache) {
   return $items;
 }
 
-/**
- * Implementation of hook_views_tabs().
- */
-function calendar_ical_views_tabs($op) {
-  switch ($op) {
-    case 'names':
-      return array('ical');
-  }
+function calendar_ical_setup_form($view_name) {
+  include_once(drupal_get_path('module', 'calendar') .'/calendar_ical_admin.inc');
+  return _calendar_ical_setup_form($view_name);
 }
 
 /**
@@ -79,121 +72,6 @@ function calendar_ical_calendar_add_items($view) {
  */
 function calendar_ical_calendar_add_types($view) {
   return array('calendar_ical' => t('Calendar: iCal Feed'));
-}
-
-/**
- * Setup Calendar feeds.
- *
- * @todo - control of the stripe color is not yet implemented.
- */
-function calendar_ical_setup_form($view_name) {
-  include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
-
-  $form = array();
-  $view = views_get_view($view_name);
-
-  // Create an example of all the stripe colors below the form.
-  for ($i = 0; $i < 10; $i++) {
-    $node = new StdClass();
-    $node->stripe = $i;
-    $stripes[$i] = '<div style="width:20px;">'. $i .'</div>'.
-      '<div class="calendar" style="width:130px;float:left;">' .theme('calendar_stripe_stripe', $node) .'</div>';
-  }
-  $form['#suffix'] = t('<h3>Stripe options</h3>') . implode($stripes);
-
-  $period = drupal_map_assoc(array(0, 3600, 10800, 21600, 32400, 43200, 86400, 172800, 259200, 604800, 1209600, 2419200, 4838400, 9676800), 'format_interval');
-  $form['calendar_ical_expire_'. $view->name] = array(
-    '#type' => 'select', '#title' => t('Expire iCal cache'),
-    '#default_value' => variable_get('calendar_ical_expire_'. $view->name, 9676800), '#options' => $period,
-    '#description' => t('iCal feeds are cached to improve performance. Set an expiration time for cached feeds.')
-    );
-
-  $empty_feed = array(0 => array('name' => '', 'url' => '', 'type' => 'ical', 'stripe' => 0));
-  $form[$view->name] = array(
-    '#type' => 'fieldset',
-    '#title' => t('iCal Feeds'),
-    '#description' => t('Use this section to set up iCal feeds that should be displayed in this calendar. They will be shown along with any internal items that match the calendar criteria.'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#tree' => TRUE,
-    );
-
-  // One empty input form will be added after any existing items.
-  $view_feeds = array_merge((array) variable_get('calendar_feeds_'. $view->name, $empty_feed), $empty_feed);
-  foreach ($view_feeds as $delta => $feed) {
-    $form[$view->name][$delta] = array(
-      'type' => array(
-        '#title' => t('Feed type'),
-        '#type' => 'hidden',
-        '#value' => 'ical',
-      ),
-      'name' => array(
-        '#title' => t('Name'),
-        '#type' => 'textfield',
-        '#default_value' => $feed['name'],
-        '#description' => t('The name of a feed to include in this calendar.'),
-       ),
-      'url' => array(
-        '#title' => t('Url'),
-        '#type' => 'textarea',
-        '#rows' => 2,
-        '#default_value' => $feed['url'],
-        '#description' => t('The external feed url or internal file path and name. Change \'webcal://\' to \'http://\'.'),
-      ),
-      'stripe' => array(
-        '#title' => t('Stripe'),
-        '#type' => 'select',
-        '#options' => range(0, 10),
-        '#default_value' => $feed['stripe'],
-        '#description' => t('The color stripe to use for this feed (not working yet).'),
-        '#suffix' => '<hr>',
-       ),
-    );
-  }
-  $form['view_name'] = array(
-    '#type' => 'hidden',
-    '#value' => $view->name,
-    );
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Submit'),
-    );
-  return $form;
-}
-
-/**
- * Save requested values.
- */
-function calendar_ical_setup_form_submit($form_id, $form_values) {
-  $view_name = $form_values['view_name'];
-  foreach ($form_values as $value_name => $value) {
-    if ($value_name == 'calendar_ical_expire_'. $view_name) {
-      variable_set('calendar_ical_expire_'. $view_name,  $value);
-    }
-    elseif (is_array($value)) {
-      foreach ($value as $delta => $item) {
-        // Don't save empty values.
-        if (trim($item['url']) == '' || trim($item['name']) == '') {
-          unset($value[$delta]);
-        }
-        else {
-          // Replace 'webcal' protocol with http protocol.
-          $item['url'] = str_replace('webcal:', 'http:', $item['url']);
-          // Don't save invalid urls.
-          $events = date_ical_import($item['url']);
-          if (!is_array($events)) {
-            unset($value[$delta]);
-          }
-          else {
-            $value[$delta]['url'] = $item['url'];
-          }
-
-        }
-      }
-      variable_set('calendar_feeds_'. $value_name, $value);
-     }
-  }
-  cache_clear_all('calendar_feeds_'. $view->name, calendar_ical_cache(), TRUE);
 }
 
 /**
@@ -248,6 +126,7 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
             $node->uid = $value['uid'] ? $value['UID'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
             $node->url = $value['URL'] ? $value['URL'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
             $node->calendar_node_theme = 'calendar_ical_node';
+            $node->calendar_field_theme = 'calendar_ical_field';
             $new_nodes[$value['UID']] = $node;
           }
         }
@@ -448,17 +327,61 @@ function theme_calendar_ical_feed($view, $items, $type) {
 }
 
 /**
- * A theme for the ical nodes.
+ * Theme for an entire ical node.
  */
 function theme_calendar_ical_node($node, $view) {
-  // Remote nodes may come in with lengthy descriptions that won't fit
-  // in small boxes of year, month, and week calendars.
-  if ($view->calendar_type != 'day') {
-    $node->teaser = '';
-  }
   // Check plain may leave html entities in the title.
   $node->title = html_entity_decode(check_plain($node->title), ENT-QUOTES);
   $node->teaser = check_markup($node->teaser);
-  $type = 'calendar_node_'. $view->calendar_type;
-  return theme($type, $node, $view);
+
+  if ($view->calendar_display == 'calendar') {
+    // Remote nodes may come in with lengthy descriptions that won't fit
+    // in small boxes of year, month, and week calendars.
+    if ($view->calendar_type != 'day') {
+      $node->teaser = '';
+    }
+    $theme = 'calendar_node_'. $view->calendar_type;
+    return theme($theme, $node, $view);
+  }
+  else {
+    $output  = '<div class="node">';
+    $output .= '<h2>'. l($node->title, $node->url) .'</h2>';
+    $output .= '<div>'. theme_calendar_date_combo($node, $node->format, t('Dates'), $view)  .'</div>';
+    $output .= '<div class="content">'. $node->teaser .'</div>';
+    $output .= '</div>';
+    return $output;
+  }
+}
+
+/**
+ * Views field theme for an ical field.
+ *
+ * Used for table and list views.
+ *
+ * For non-calendar views that use fields, the field needs a value from the
+ * imported node that matches the kind of field in the view. Most possible
+ * Views fields make no sense here and will return nothing.
+ */
+function theme_calendar_ical_field($fieldname, $fields, $field, $node, $view, $type) {
+  // Check plain may leave html entities in the title.
+  $node->title = html_entity_decode(check_plain($node->title), ENT-QUOTES);
+  $node->teaser = check_markup($node->teaser);
+
+  $calendar_fields = calendar_fields();
+  if (in_array($field['field'], array_keys($calendar_fields))) {
+    return date_format($node->calendar_start_date, $node->format);
+  }
+  switch ($field['fullname']) {
+    case 'node.title':
+      return l($node->title, $node->url);
+
+    case 'node.teaser':
+    case 'node.body':
+      return $node->teaser;
+
+    case 'node.type':
+      return $node->label;
+  }
+  return;
+
 }
