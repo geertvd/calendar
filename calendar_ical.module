@@ -109,7 +109,6 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
             $node = new StdClass();
             $node->nid = $value['UID'];
             $node->title = $value['SUMMARY'];
-            $node->node_title = $value['SUMMARY']; // This one matches the Views title.
             $node->label = $feed['name'];
             $node->teaser =  $value['DESCRIPTION'];
             $node->calendar_start_date = date_ical_date($value['DTSTART'], $value['DTSTART']['tz']);
@@ -328,6 +327,7 @@ function theme_calendar_ical_node($node, $view) {
     return theme($theme, $node, $view);
   }
   else {
+    // Create a pseudo node view for this item.
     $output  = '<div class="node">';
     $output .= '<h2>'. l($node->title, $node->url) .'</h2>';
     $output .= '<div>'. theme_calendar_date_combo($node, $node->format, t('Dates'), $view)  .'</div>';
@@ -351,10 +351,20 @@ function theme_calendar_ical_field($fieldname, $fields, $field, $node, $view, $t
   $node->title = html_entity_decode(check_plain($node->title), ENT-QUOTES);
   $node->teaser = check_markup($node->teaser);
 
+  // Fix some common html entities that may not get decoded correctly.
+  // You can add more of them in this array.
+  $replace = array(
+    '&#039;' => "'",
+    );
+  foreach (array('title', 'teaser') as $key) {
+    $node->$key = strtr($node->$key, $replace);
+  }
+
   $calendar_fields = calendar_fields();
   if (in_array($field['field'], array_keys($calendar_fields))) {
-    return date_format($node->calendar_start_date, $node->format);
+    return theme('calendar_date_combo', $node, '', $view);
   }
+
   switch ($field['fullname']) {
     case 'node.title':
       return l($node->title, $node->url);
