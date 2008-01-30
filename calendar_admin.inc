@@ -1,4 +1,5 @@
 <?php
+// $Id$
 /**
  * @file
  * This file contains administrative functions used only when setting up
@@ -14,7 +15,7 @@
 function _calendar_view_types($reset = FALSE) {
   static $types;
   if ($reset || !isset($types)) {
-  	$types = array('calendar' => t('Calendar'));
+   $types = array('calendar' => t('Calendar'));
     foreach (module_implements('_calendar_add_types') as $module) {
       $function = $module .'_calendar_add_types';
       $types += $function($view);
@@ -214,7 +215,7 @@ function _calendar_views_validate($type, $view, $form) {
     $fields = array_filter(array_keys($view['field']), 'is_numeric');
   }
   if (!$fields) {
-    form_error($form["$type-info"][$type . '_type'], t('The Calendar View requires at least one field.'));
+    form_error($form["$type-info"][$type .'_type'], t('The Calendar View requires at least one field.'));
   }
 
   if (isset($view['field']['count'])) {
@@ -258,7 +259,7 @@ function _calendar_views_validate($type, $view, $form) {
  * Setup Calendar parameters.
  */
 function _calendar_setup_form($view_name) {
-	$view = views_load_view($view_name);
+ $view = views_load_view($view_name);
 
   $form = array();
   $time = mktime(1, 15, 0, 1, 1, date('Y', date_time()));
@@ -342,17 +343,17 @@ function _calendar_setup_form_submit($form_id, $form_values) {
   $display_format = array();
   variable_set('calendar_empty_arg', check_plain($form_values['calendar_empty_arg']));
   foreach ($form_values as $value_name => $value) {
-  	switch ($value_name) {
-  		case 'calendar_time_format':
+   switch ($value_name) {
+    case 'calendar_time_format':
         variable_set('calendar_time_format_'. $view_name,  $value);
         break;
-  		case 'year':
-  		case 'month':
-  		case 'week':
-  		case 'day':
-  		case 'block':
-  			$display_format[$value_name] = $value;
-  			break;
+    case 'year':
+    case 'month':
+    case 'week':
+    case 'day':
+    case 'block':
+     $display_format[$value_name] = $value;
+     break;
     }
   }
   variable_set('calendar_display_format_'. $view_name, $display_format);
@@ -411,7 +412,7 @@ function _calendar_views_default_views() {
   $view = new stdClass();
   $view->name = t('calendar');
   $view->description = t('Calendar view of any date field, add a date field to the view to use it.');
-  $view->access = array ();
+  $view->access = array();
   $view->view_args_php = '';
   $view->page = TRUE;
   $view->page_title = t('Calendar');
@@ -440,9 +441,9 @@ function _calendar_views_default_views() {
   $view->block_use_page_footer = FALSE;
   $view->block_use_page_empty = FALSE;
   $view->disabled = TRUE;
-  $view->sort = array ();
-  $view->argument = array (
-    array (
+  $view->sort = array();
+  $view->argument = array(
+    array(
       'type' => 'calendar_year',
       'argdefault' => '2',
       'title' => '%1',
@@ -450,7 +451,7 @@ function _calendar_views_default_views() {
       'wildcard' => '',
       'wildcard_substitution' => '',
     ),
-    array (
+    array(
       'type' => 'calendar_month',
       'argdefault' => '2',
       'title' => '%2',
@@ -458,7 +459,7 @@ function _calendar_views_default_views() {
       'wildcard' => '',
       'wildcard_substitution' => '',
     ),
-    array (
+    array(
       'type' => 'calendar_day',
       'argdefault' => '2',
       'title' => '%3',
@@ -467,8 +468,8 @@ function _calendar_views_default_views() {
       'wildcard_substitution' => '',
     ),
   );
-  $view->field = array (
-    array (
+  $view->field = array(
+    array(
       'tablename' => 'node',
       'field' => 'title',
       'label' => 'Title:',
@@ -476,8 +477,8 @@ function _calendar_views_default_views() {
       'options' => 'link',
     ),
   );
-  $view->filter = array (
-    array (
+  $view->filter = array(
+    array(
       'tablename' => 'node',
       'field' => 'status',
       'operator' => '=',
@@ -485,7 +486,7 @@ function _calendar_views_default_views() {
       'value' => '1',
     ),
   );
-  $view->exposed_filter = array (
+  $view->exposed_filter = array(
   );
   $view->requires = array(node);
   $views[$view->name] = $view;

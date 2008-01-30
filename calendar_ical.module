@@ -40,14 +40,14 @@ function calendar_ical_setup_form($view_name) {
  * @return unknown
  */
 function calendar_ical_cache() {
-	return 'cache_views';
+ return 'cache_views';
 }
 
 /**
  * Implementation of hook_cron().
  */
 function calendar_ical_cron() {
-	cache_clear_all('calendar_feeds_', calendar_ical_cache(), TRUE);
+ cache_clear_all('calendar_feeds_', calendar_ical_cache(), TRUE);
 }
 
 /**
@@ -95,8 +95,8 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
       $nodes += (array) unserialize($cached->data);
     }
     else {
-    	$expire = intval(variable_get('calendar_ical_expire_'. $view->name, 9676800) + time());
-    	include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
+     $expire = intval(variable_get('calendar_ical_expire_'. $view->name, 9676800) + time());
+     include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
 
       switch ($feed['type']) {
       case 'ical':
@@ -106,7 +106,7 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
         foreach ($calendars as $calendar) {
           foreach ($calendar['VEVENT'] as $key => $value) {
             if (empty($value['DTSTART'])) continue;
-            $node = new StdClass();
+            $node = new stdClass();
             $node->nid = $value['UID'];
             $node->title = $value['SUMMARY'];
             $node->label = $feed['name'];
@@ -118,7 +118,7 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
             $show_tz = ' e';
             $granularity = $value['DTSTART']['type'] == 'DATE' ? array('year', 'month', 'day') : array('year', 'month', 'day', 'hour', 'minute', 'second');
             $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
-            $node->format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), $granularity) .$show_tz;
+            $node->format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), $granularity) . $show_tz;
             $node->all_day = $value['DTSTART']['all_day'];
             $node->stripe = $feed['stripe'];
             $node->remote = TRUE;
@@ -172,7 +172,7 @@ function calendar_ical_views_arguments() {
  * handler for our own ical argument; mimics the feed selector
  */
 function views_handler_arg_ical($op, &$query, $argtype, $arg = '') {
-	switch($op) {
+ switch ($op) {
     case 'summary':
     case 'sort':
     case 'link':
@@ -190,14 +190,14 @@ function views_handler_arg_ical($op, &$query, $argtype, $arg = '') {
  */
 function calendar_ical_views_post_view($view, $items, $output) {
   foreach ($view->argument as $id => $argument) {
-	  if ($argument['type'] == 'calendar_ical') {
+   if ($argument['type'] == 'calendar_ical') {
       $feed = $id;
       break;
     }
   }
   if ($feed !== NULL) {
-  	$query = NULL;
-  	return calendar_ical_views_feed_argument('post_view', $view, 'ical', $query);
+   $query = NULL;
+   return calendar_ical_views_feed_argument('post_view', $view, 'ical', $query);
   }
 }
 
@@ -207,9 +207,9 @@ function calendar_ical_views_post_view($view, $items, $output) {
  * when called as a hook or when called manually from calendar_ical_views_post_view
  */
 function calendar_ical_views_feed_argument($op, &$view, $arg, $argtype = NULL) {
-	if ($op == 'argument' && $arg == 'ical') {
+ if ($op == 'argument' && $arg == 'ical') {
     // Keep devel module from appending queries to ical export.
-  	$GLOBALS['devel_shutdown'] = FALSE;
+   $GLOBALS['devel_shutdown'] = FALSE;
     $view->page_type = 'calendar_ical';
     // reset the 'real url' to the URL without the feed argument.
     $view_args = array();
@@ -249,7 +249,8 @@ function calendar_ical_post_view_make_args($view, $feed_id, $arg) {
   foreach ($view->argument as $id => $argdata) {
     if (isset($view->args[$id])) {
       $args[] = $view->args[$id];
-    } else {
+    }
+    else {
       if ($argdata['id'] == $feed_id && !in_array($arg, $args)) {
         $args[] = $arg;
       }
@@ -275,7 +276,7 @@ function calendar_ical_add_ical($url = NULL, $title = '') {
 
 function theme_ical_icon($url) {
   if ($image = theme('image', drupal_get_path('module', 'date_api') .'/images/ical16x16.gif', t('Add to calendar'), t('Add to calendar'))) {
-    return '<div style="text-align:right"><a href="'. check_url($url) .'" class="ical-icon" title="ical">'. $image. '</a></div>';
+    return '<div style="text-align:right"><a href="'. check_url($url) .'" class="ical-icon" title="ical">'. $image .'</a></div>';
   }
 }
 
