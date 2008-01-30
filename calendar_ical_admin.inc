@@ -19,10 +19,10 @@ function _calendar_ical_setup_form($view_name) {
 
   // Create an example of all the stripe colors below the form.
   for ($i = 0; $i < 10; $i++) {
-    $node = new StdClass();
+    $node = new stdClass();
     $node->stripe = $i;
     $stripes[$i] = '<div style="width:20px;">'. $i .'</div>'.
-      '<div class="calendar" style="width:130px;float:left;">' .theme('calendar_stripe_stripe', $node) .'</div>';
+      '<div class="calendar" style="width:130px;float:left;">'. theme('calendar_stripe_stripe', $node) .'</div>';
   }
   $form['#suffix'] = t('<h3>Stripe options</h3>') . implode($stripes);
 
