@@ -242,6 +242,7 @@ function calendar_build_weeks(&$curday, $view, $items, $results, $params) {
       $date = $result[$key];
       $content = '';
       $selected = FALSE;
+      $class = strtolower($weekdays[$i - 1] . (date_format($curday, 'Y-m-d') == $today ? ' today' : '') . ($view->mini ? ' mini' : ''));
       if (empty($date)) {
         $content = theme('calendar_empty');
       }
@@ -249,7 +250,6 @@ function calendar_build_weeks(&$curday, $view, $items, $results, $params) {
         $content = calendar_build_day($date, $view, $items, $params);
         date_modify($curday, '+1 day');
       }
-      $class = strtolower($weekdays[$i - 1] . (date_format($curday, 'Y-m-d') == $today ? ' today' : '') . ($view->mini ? ' mini' : ''));
       $rows[$result['weekno']][] = array(
         'data' => $view->mini ? $content : '<div class="inner">'. $content .'</div>',
         'class' => $class, 'id' => $date);
