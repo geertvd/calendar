@@ -12,9 +12,11 @@ function _calendar_views_query_alter(&$query, &$view) {
   $now = date_now();
   $view->real_args = $view->args;
   $view->real_url = calendar_real_url($view, $view->args);
+  $display_formats = calendar_get_formats($view);
 
   if ($view->build_type == 'block') {
     $query->calendar_type = 'month';
+    $view->calendar_display = $display_formats['block'];
     $view->args = explode('/', str_replace($view->url .'/', '', $_GET['mini']));
     foreach ($view->argument as $delta => $argument) {
       // Special handling for OG gid argument.
@@ -132,9 +134,9 @@ function _calendar_views_query_alter(&$query, &$view) {
   if (isset($_GET['view']) && $view->build_type == 'page') {
   	$view->calendar_display = !empty($_GET['view']) ? check_plain($_GET['view']) : 'calendar';
   }
-  else {
+  elseif ($view->build_type == 'page') {
   	$display_formats = calendar_get_formats($view);
-  	$view->calendar_display = $view->build_type == 'block' ? $display_formats['block'] : $display_formats[$view->calendar_type];
+  	$view->calendar_display = $display_formats[$view->calendar_type];
   }
 
   return;
@@ -242,7 +244,11 @@ function calendar_build_weeks(&$curday, $view, $items, $results, $params) {
       $date = $result[$key];
       $content = '';
       $selected = FALSE;
-      $class = strtolower($weekdays[$i - 1] . (date_format($curday, 'Y-m-d') == $today ? ' today' : '') . ($view->mini ? ' mini' : ''));
+      $class = strtolower($weekdays[$i - 1] .
+      (date_format($curday, 'Y-m-d') == $today ? ' today' : '') .
+      (date_format($curday, 'Y-m-d') < $today ? ' past' : '') .
+      (date_format($curday, 'Y-m-d') > $today ? ' future' : '') .
+      ($view->mini ? ' mini' : ''));
       if (empty($date)) {
         $content = theme('calendar_empty');
       }
