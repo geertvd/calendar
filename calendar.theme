@@ -598,7 +598,8 @@ function theme_calendar_date_combo($node, $label, $view) {
   // Full date format, same day, different times, don't repeat the date
   // but show both From and To times.
   elseif (date_format($node->calendar_start_date, $node->format_time) != date_format($node->calendar_end_date, $node->format_time) && $format != $node->format_time) {
-    $output = '<span class="date-display-single">'. date_format($node->calendar_start_date, $format).'</span> '.
+    $date_format = date_limit_format($format, array('year', 'month', 'day'));
+    $output = '<span class="date-display-single">'. date_format($node->calendar_start_date, $date_format).'</span> '.
       '<span class="date-display-start">'. date_format($node->calendar_start_date, $node->format_time) .'</span>'.
       '<span class="date-display-separator"> - </span>'.
       '<span class="date-display-end">'. date_format($node->calendar_end_date, $node->format_time) .'</span>';
