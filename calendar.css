@@ -104,20 +104,11 @@
 .calendar-calendar td a:hover {
   text-decoration: underline;
 }
-.calendar-calendar td.sat, .calendar-calendar td.sun {
-  background: #eee;
-}
-.calendar-calendar td.selected{
-  background: #99f;
-}
-.calendar-calendar td.today {
-  background: #fcc;
-}
 .calendar-calendar td.year, .calendar-calendar td.month {
   text-align: center;
 }
 
-/*  days of the week header cells */
+/* format days of the week header cells */
 .calendar-calendar th.days {
   color: #ccc;
   background: #224;
@@ -240,11 +231,12 @@ table td.mini, table th.mini, table.mini td.week {
 table td.mini a {
   font-weight:normal;
   }
-.mini-day-off {
+.calendar-calendar .mini-day-off {
   padding:0px;
 }
-.mini-day-on {
+.calendar-calendar .mini-day-on {
   padding:0px;
+  background-color:#ffc;
 }
 table .mini-day-on a {
   text-decoration:underline;
@@ -300,3 +292,16 @@ table th.legend {
   display:block;
   clear:both;
 }
+
+/* background colors for the calendar cells */
+.calendar-calendar td.sat, .calendar-calendar td.sun {
+  background: #eee;
+}
+.calendar-calendar td.past, .calendar-calendar td.today .mini-day-on {
+}
+.calendar-calendar td.future, .calendar-calendar td.today .mini-day-on {
+}
+.calendar-calendar td.today, .calendar-calendar td.today .mini-day-on {
+  background: #ddd;
+}
+

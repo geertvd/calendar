@@ -287,7 +287,7 @@ function _calendar_setup_form($view_name) {
     '#description' => t('The format to use for the time-only date display.'),
     );
   $form['calendar_day_header'] = array(
-    '#title' => t('Day of week names'),
+    '#title' => t('Mini day size'),
     '#default_value' => variable_get('calendar_day_header_'. $view->name, 1),
     '#type' => 'select',
     '#options' => drupal_map_assoc(range(1, 3)),
