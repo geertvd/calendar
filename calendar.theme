@@ -481,6 +481,7 @@ function theme_calendar_node_month($node, $view) {
     }
   }
   $output .= "<div class='view-item ". views_css_safe('view-item-'. $view->name) ."'>$item</div>\n";
+  $output .= "</div>\n";
   return $output;
 }
 
