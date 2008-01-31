@@ -256,7 +256,8 @@ function calendar_build_weeks(&$curday, $view, $items, $results, $params) {
     }
   }
   // Merge the day names in as the first row.
-  $rows = array_merge(array(calendar_week_header($view->mini, $params['with_weekno'])), $rows);
+  $len = variable_get('calendar_day_header_'. $view->name, 1);
+  $rows = array_merge(array(calendar_week_header($view->mini, $params['with_weekno'], $len)), $rows);
   return $rows;
 }
 
@@ -299,7 +300,7 @@ function calendar_build_day($date, $view, $items, $params) {
  * @ingroup event_support
  * @return array with weekday table header data
  */
-function calendar_week_header($mini = FALSE, $with_week = TRUE) {
+function calendar_week_header($mini = FALSE, $with_week = TRUE, $len = 1) {
   // create week header
   $untranslated_days = calendar_untranslated_days();
   $translated_days = date_week_days_ordered(date_week_days_abbr(TRUE));
@@ -308,7 +309,7 @@ function calendar_week_header($mini = FALSE, $with_week = TRUE) {
     $row[] = array('header' => TRUE, 'class' => "days week", 'data' => '&nbsp;');
   }
   foreach ($untranslated_days as $delta => $day) {
-    $label = $mini ? drupal_substr($translated_days[$delta], 0 , 1) : $translated_days[$delta];
+    $label = $mini ? drupal_substr($translated_days[$delta], 0 , $len) : $translated_days[$delta];
     $row[] = array('header' => TRUE, 'class' => "days ". $day, 'data' => $label);
   }
   return $row;

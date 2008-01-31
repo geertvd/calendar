@@ -286,6 +286,14 @@ function _calendar_setup_form($view_name) {
     '#options' => $time_options,
     '#description' => t('The format to use for the time-only date display.'),
     );
+  $form['calendar_day_header'] = array(
+    '#title' => t('Day of week names'),
+    '#default_value' => variable_get('calendar_day_header_'. $view->name, 1),
+    '#type' => 'select',
+    '#options' => drupal_map_assoc(range(1, 3)),
+    '#description' => t('The number of letters to show for mini calendar day of week names.'),
+    );
+
   $display_options = array('calendar' => t('Calendar'), 'table' => t('Table'), 'teasers' => t('Teasers'), 'nodes' => t('Full Nodes'), 'list' => t('List'));
   $display_format = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar', 'block' => 'calendar'));
   $form['year'] = array(
@@ -346,6 +354,9 @@ function _calendar_setup_form_submit($form_id, $form_values) {
    switch ($value_name) {
     case 'calendar_time_format':
         variable_set('calendar_time_format_'. $view_name,  $value);
+        break;
+    case 'calendar_day_header':
+        variable_set('calendar_day_header_'. $view_name,  $value);
         break;
     case 'year':
     case 'month':
