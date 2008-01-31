@@ -512,7 +512,7 @@ function calendar_build_nodes(&$view, &$items) {
         $field_type       = strstr($option['type'], 'string') ? 'string' : 'timestamp';
         $field_field      = $option['query_name'];
         //$field_end        = $field_field .'2';
-        //$field_field_name = $option['field_name'];
+        $field_field_name = $option['field_name'];
         $timestamp_fromto = $option['timestamp_fromto'];
         $string_fromto    = $option['string_fromto'];
         //$field_id         = $delta;
@@ -521,7 +521,7 @@ function calendar_build_nodes(&$view, &$items) {
         //$granularity      = $option['granularity'];
 
         if (strstr($option['type'], 'cck')) {
-          $format = date_formatter_format($data['options'], $data['field']);
+          $format = date_formatter_format($data['options'], $field_field_name);
         }
         else {
           switch ($data['handler']) {
