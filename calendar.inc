@@ -244,16 +244,18 @@ function calendar_build_weeks(&$curday, $view, $items, $results, $params) {
       $date = $result[$key];
       $content = '';
       $selected = FALSE;
-      $class = strtolower($weekdays[$i - 1] .
-      (date_format($curday, 'Y-m-d') == $today ? ' today' : '') .
-      (date_format($curday, 'Y-m-d') < $today ? ' past' : '') .
-      (date_format($curday, 'Y-m-d') > $today ? ' future' : '') .
-      ($view->mini ? ' mini' : ''));
-      if (empty($date)) {
+      if (empty($date) || $date < date_format($curday, 'm-d')) {
+        $class = strtolower($weekdays[$i - 1] .
+        ($view->mini ? ' mini' : ''));
         $content = theme('calendar_empty');
       }
       else {
         $content = calendar_build_day($date, $view, $items, $params);
+        $class = strtolower($weekdays[$i - 1] .
+        (date_format($curday, 'Y-m-d') == $today ? ' today' : '') .
+        (date_format($curday, 'Y-m-d') < $today ? ' past' : '') .
+        (date_format($curday, 'Y-m-d') > $today ? ' future' : '') .
+        ($view->mini ? ' mini' : ''));
         date_modify($curday, '+1 day');
       }
       $rows[$result['weekno']][] = array(
