@@ -384,8 +384,8 @@ function _calendar_views_style_plugins() {
   foreach ($types as $name => $type) {
     $plugins[$name] = array(
       'name' => $type,
-      'theme' => 'calendar_view_calendar',
-      'summary_theme' => 'calendar_view_summary',
+      'theme' => 'calendar_views_calendar',
+      'summary_theme' => 'calendar_views_summary',
       'validate' => 'calendar_views_validate',
       'needs_fields' => TRUE,
       'needs_table_header' => FALSE,

@@ -727,7 +727,6 @@ function calendar_nav($view, $mini = FALSE, $with_weekno = FALSE) {
       }
       break;
   }
-
   $header = array();
   $header[]  = array('data' => theme('calendar_nav_prev', $prev_path, $view->build_type == 'block' ? FALSE : TRUE, implode('&', $prev_query)), 'class' => 'prev', 'colspan' => $colspan_prev);
   $header[]  = array('data' => $view->subtitle, 'class' => 'heading', 'colspan' => $colspan_middle);
@@ -754,11 +753,12 @@ function calendar_get_paths($view) {
       $i++;
       $pathtype = str_replace('calendar_', '', $arg['type']);
       $path[$i] = array(
-        'path' => $view->args[$delta] != CALENDAR_EMPTY_ARG ? $view->$pathtype : CALENDAR_EMPTY_ARG,
+        'path' => $view->args[$delta] != CALENDAR_EMPTY_ARG ? $view->args[$delta] : CALENDAR_EMPTY_ARG,
         'type' => $pathtype,
         );
     }
   }
+
   // if there are other arguments after the view arguments, add them to the
   // navigation links
   while($i < sizeof($view->args)) {
