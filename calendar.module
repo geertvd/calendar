@@ -785,7 +785,7 @@ function calendar_date_select_form($view) {
   $form['calendar_goto'] = array(
     //'#title' => t('Calendar date'),
     '#type' => 'date_popup',
-    '#default_value' => date_format($view->min_date, $format),
+    '#default_value' => date_format($view->min_date, 'Y-m-d'),
     '#date_timezone' => date_default_timezone_name(),
     '#date_format' => $format,
     );
