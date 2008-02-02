@@ -457,31 +457,34 @@ function calendar_build_field_query(&$query, $field) {
     // dates with from and to times, format a single value that is made
     // up of the two local DATETIME values separated with a pipe (|).
 
-    if ($this_field['timestamp_fromto']) {
-      $adjusted_field = date_sql_concat(array(
-        date_sql('DATE', $this_field['timestamp_fromto'][0], $field_type, $start_offset),
-        "'|'",
-        date_sql('DATE', $this_field['timestamp_fromto'][1], $field_type, $end_offset),
-        ));
-      $utc_field = date_sql_concat(array($this_field['timestamp_fromto'][0], "'|'", $this_field['timestamp_fromto'][1]));
-      $queries[] = "(SUBSTRING(". $adjusted_field .", -19) >='". $params['min_compare'] .
-        "' AND SUBSTRING(". $adjusted_field .", 1, 19) <='". $params['max_compare'] ."')";
-      $event_field_processed = TRUE;
-    }
-    elseif ($this_field['string_fromto']) {
-      $adjusted_field = date_sql_concat(array(
-        date_sql('DATE', $this_field['string_fromto'][0], $field_type, $start_offset),
-        "'|'",
-        date_sql('DATE', $this_field['string_fromto'][1], $field_type, $end_offset),
-        ));
-      $utc_field = date_sql_concat(array($this_field['string_fromto'][0], "'|'", $this_field['string_fromto'][1]));
-      $queries[] = "(SUBSTRING(". $adjusted_field .", -19) >='". $params['min_compare'] .
-        "' AND SUBSTRING(". $adjusted_field .", 1, 19) <='". $params['max_compare'] ."')";
+    // This creates a very complex query, but it's the best we can do
+    // until we have dates stored in native datetime fields. Once we have
+    // native datetime fields we'll be able to use only the timezone name
+    // to have the database make the right adjustments.
+
+    if ($this_field['timestamp_fromto'] || $this_field['string_fromto']) {
+      if ($this_field['timestamp_fromto']) {
+        $utc_from = $this_field['timestamp_fromto'][0];
+        $utc_to = $this_field['timestamp_fromto'][1];
+        $adj_from = date_sql('DATE', $this_field['timestamp_fromto'][0], $field_type, $start_offset);
+        $adj_to = date_sql('DATE', $this_field['timestamp_fromto'][1], $field_type, $start_offset);
+      }
+      else {
+        $utc_from = $this_field['string_fromto'][0];
+        $utc_to = $this_field['string_fromto'][1];
+        $adj_from = date_sql('DATE', $this_field['string_fromto'][0], $field_type, $start_offset);
+        $adj_to = date_sql('DATE', $this_field['string_fromto'][1], $field_type, $start_offset);
+      }
+      $adjusted_field = date_sql_concat(array($adj_from, "'|'", $adj_to));
+      $utc_field = date_sql_concat(array($utc_from, "'|'", $utc_to));
+      $queries[] = "(". $adj_to ." >='". $params['min_compare'] .
+        "' AND ". $adj_from ." <='". $params['max_compare'] ."')";
       $event_field_processed = TRUE;
     }
     // handling for single day dates
     else {
       $adjusted_field = date_sql('DATE', $this_field['fullname'], $field_type, $start_offset);
+      $utc_field = $this_field['fullname'];
       $queries[] = "(". $adjusted_field .">='". $params['min_compare'] .
         "' AND ". $adjusted_field ."<='". $params['max_compare'] ."')";
     }
