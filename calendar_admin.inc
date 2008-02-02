@@ -287,40 +287,45 @@ function _calendar_setup_form($view_name) {
     '#description' => t('The format to use for the time-only date display.'),
     );
   $form['calendar_day_header'] = array(
-    '#title' => t('Mini day size'),
+    '#title' => t('Mini day name size'),
     '#default_value' => variable_get('calendar_day_header_'. $view->name, 1),
     '#type' => 'select',
     '#options' => drupal_map_assoc(range(1, 3)),
     '#description' => t('The number of letters to show for mini calendar day of week names.'),
     );
 
-  $display_options = array('calendar' => t('Calendar'), 'table' => t('Table'), 'teasers' => t('Teasers'), 'nodes' => t('Full Nodes'), 'list' => t('List'));
+  $display_options = array('calendar' => t('Calendar'), 'table' => t('Table'), 'teasers' => t('Teasers'), 'nodes' => t('Full Nodes'), 'list' => t('List'), '' => t('None'));
   $display_format = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar', 'block' => 'calendar'));
-  $form['year'] = array(
+  $form['display'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Display options'),
+    '#description' => t('Choose the way the calendar entries should be displayed. Selecting \'None\' will hide links to that option.'),
+    );
+  $form['display']['year'] = array(
     '#title' => t('Year display'),
     '#default_value' => $display_format['year'],
     '#type' => 'select',
     '#options' => $display_options,
   );
-  $form['month'] = array(
+  $form['display']['month'] = array(
     '#title' => t('Month display'),
     '#default_value' => $display_format['month'],
     '#type' => 'select',
     '#options' => $display_options,
   );
-  $form['week'] = array(
+  $form['display']['week'] = array(
     '#title' => t('Week display'),
     '#default_value' => $display_format['week'],
     '#type' => 'select',
     '#options' => $display_options,
   );
-  $form['day'] = array(
+  $form['display']['day'] = array(
     '#title' => t('Day display'),
     '#default_value' => $display_format['day'],
     '#type' => 'select',
     '#options' => $display_options,
   );
-  $form['block'] = array(
+  $form['display']['block'] = array(
     '#title' => t('Block display'),
     '#default_value' => $display_format['block'],
     '#type' => 'select',
