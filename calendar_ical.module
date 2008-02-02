@@ -348,6 +348,21 @@ function theme_calendar_ical_node($node, $view) {
  * Views fields make no sense here and will return nothing.
  */
 function theme_calendar_ical_field($fieldname, $fields, $field, $node, $view, $type) {
+  static $datefield;
+
+  // Find the first date field in the view to attach the ical date to.
+  // There may be more than one date field in the view and we only
+  // want to put the ical field in one place.
+  if (empty($datefield)) {
+    $calendar_fields = calendar_fields();
+    foreach ($view->field as $viewfield) {
+      if (in_array($viewfield['field'], array_keys($calendar_fields))) {
+        $datefield = $viewfield['queryname'];
+        break;
+      }
+    }
+  }
+
   // Check plain may leave html entities in the title.
   $node->title = html_entity_decode(check_plain($node->title), ENT-QUOTES);
   $node->teaser = check_markup($node->teaser);
@@ -361,8 +376,7 @@ function theme_calendar_ical_field($fieldname, $fields, $field, $node, $view, $t
     $node->$key = strtr($node->$key, $replace);
   }
 
-  $calendar_fields = calendar_fields();
-  if (in_array($field['field'], array_keys($calendar_fields))) {
+  if ($fieldname == $datefield) {
     return theme('calendar_date_combo', $node, '', $view);
   }
 
