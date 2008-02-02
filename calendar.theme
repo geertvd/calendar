@@ -48,8 +48,15 @@ function theme_calendar_view_calendar(&$view, &$items, $type) {
   $params['stripe'] = 'stripe';
 
   // Set to TRUE to see week numbers in each row.
-  $params['with_weekno'] = $view->build_type != 'block' && $view->calendar_type != 'year';
-
+  $formats = calendar_get_formats($view);
+  if (!empty($formats['week'])
+  && $view->build_type != 'block'
+  && $view->calendar_type == 'month') {
+    $params['with_weekno'] = TRUE;
+  }
+  else {
+    $params['with_weekno'] = FALSE;
+  }
   return calendar_build_calendar($view, $items, $params);
 }
 
@@ -265,12 +272,19 @@ function theme_calendar_links($view, $links = FALSE) {
     if ($_GET['view']) {
       $append .= '&view='. $_GET['view'];
     }
-
-    $calendar_links[] = array('title' => t('Year'), 'href' => $view->real_url .'/'. $view->year, 'query' => $append);
-    $calendar_links[] = array('title' => t('Month'), 'href' => $view->real_url .'/'. $view->year .'/'. $view->month , 'query' => $append);
-    $calendar_links[] = array('title' => t('Week'), 'href' => $view->real_url .'/'. $view->year .'/W'. $view->week, 'query' => $append);
-    $calendar_links[] = array('title' => t('Day'), 'href' => $view->real_url .'/'. $view->year .'/'. $view->month .'/'. $view->day, 'query' => $append);
-
+    $formats = calendar_get_formats($view);
+    if (!empty($formats['year'])) {
+      $calendar_links[] = array('title' => t('Year'), 'href' => $view->real_url .'/'. $view->year, 'query' => $append);
+    }
+    if (!empty($formats['month'])) {
+      $calendar_links[] = array('title' => t('Month'), 'href' => $view->real_url .'/'. $view->year .'/'. $view->month , 'query' => $append);
+    }
+    if (!empty($formats['week'])) {
+      $calendar_links[] = array('title' => t('Week'), 'href' => $view->real_url .'/'. $view->year .'/W'. $view->week, 'query' => $append);
+    }
+    if (!empty($formats['day'])) {
+      $calendar_links[] = array('title' => t('Day'), 'href' => $view->real_url .'/'. $view->year .'/'. $view->month .'/'. $view->day, 'query' => $append);
+    }
     // If the Date Popup module is enabled, add a popup date selector.
     if (module_exists('date_popup')) {
       $output = '<div class="clear-block">'. calendar_date_select($view) .'</div>';
