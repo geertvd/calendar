@@ -17,7 +17,7 @@ function _calendar_views_query_alter(&$query, &$view) {
   if ($view->build_type == 'block') {
     $query->calendar_type = 'month';
     $view->calendar_display = $display_formats['block'];
-    $view->args = explode('/', str_replace($view->url .'/', '', $_GET['mini']));
+    $view->args = explode('/', str_replace($view->url .'/', '', $_GET['q']));
     foreach ($view->argument as $delta => $argument) {
       // Special handling for OG gid argument.
       // Find a default value for the gid when used in a block.
@@ -707,14 +707,6 @@ function calendar_nav($view, $mini = FALSE, $with_weekno = FALSE) {
   if ($_GET['view']) {
     $prev_query[] = 'view='. $_GET['view'];
     $next_query[] = 'view='. $_GET['view'];
-  }
-  // for the mini calendar in a block, treat the url as a
-  // querystring to avoid actually changing the page
-  if ($mini && $view->calendar_type == 'month') {
-    $prev_query[] = 'mini='. $prev_path;
-    $prev_path = $_GET['q'];
-    $next_query[] = 'mini='. $next_path;
-    $next_path = $_GET['q'];
   }
   $prev_query[] = calendar_url_append($view);
   $next_query[] = calendar_url_append($view);
