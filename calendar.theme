@@ -11,7 +11,7 @@
  * Intercept arguments before calendar and return their summary view,
  * Otherwise return calendar view.
  */
-function theme_calendar_view_summary(&$view, $type, $level, &$items, $args) {
+function theme_calendar_views_summary(&$view, $type, $level, &$items, $args) {
   if (!calendar_is_calendar_arg($view)) {
     return theme('views_summary', $view, $type, $level, $items, $args);
   }
@@ -24,8 +24,7 @@ function theme_calendar_view_summary(&$view, $type, $level, &$items, $args) {
  * Calendar Views plugin theme, overrides default views theme
  * to create a calendar view.
  */
-function theme_calendar_view_calendar(&$view, &$items, $type) {
-
+function theme_calendar_views_calendar(&$view, &$items, $type) {
   include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
   if ($type == 'block' || !calendar_is_calendar_arg($view)) {
     $view->calendar_type = 'month';

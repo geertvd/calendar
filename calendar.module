@@ -289,7 +289,6 @@ function calendar_filter_week(&$query, $arg) {
  *  @param object $view
  */
 function calendar_views_query_alter(&$query, &$view) {
-
   if (!calendar_has_calendar_args($view) ||
     (empty($view->args) && !calendar_is_calendar_arg($view)
     && $view->argument[0]['argdefault'] != 2)) {
@@ -324,13 +323,17 @@ function calendar_views_query_alter(&$query, &$view) {
  *  Implementation of hook_views_pre_view()
  */
 function calendar_views_pre_view(&$view, &$items) {
+  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.theme');
+
   // If no part of this view has calendar elements, exit.
   if ((!calendar_is_calendar($view) || !calendar_has_calendar_args($view))) {
     return;
   }
+  if (!calendar_is_calendar_arg($view)) {
+    return;
+  }
 
   include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.theme');
 
   // Massage the resulting items into formatted calendar items.
   $items = calendar_build_nodes($view, $items);
