@@ -405,42 +405,23 @@ function calendar_build_field_query(&$query, $field) {
   $params['min_compare'] = date_format($min_compare, DATE_FORMAT_DATETIME);
   $params['max_compare'] = date_format($max_compare, DATE_FORMAT_DATETIME);
 
-  $min_offset = min(date_offset_get($query->min_date), date_offset_get($query->max_date));
-  $max_offset = max(date_offset_get($query->min_date), date_offset_get($query->max_date));
-  if ($min_offset < 0) {
-    $offset = min($min_offset, $max_offset);
-  }
-  if ($min_offset >= 0) {
-    $offset = max($min_offset, $max_offset);
-  }
-
   if (array_key_exists($field_name, $fields)) {
     $query->ensure_table($this_field['table'], $this_field['table']);
     $tz_handling  = $this_field['tz_handling'];
-    $offset_field = $this_field['offset_field'];
+    $timezone_field = $this_field['timezone_field'];
     $field_type   = strstr($this_field['type'], 'string') ? DATE_ISO : DATE_UNIX;
 
     // Figure out the appropriate timezone offset to use to convert the date
     // back to local time.
     switch ($tz_handling) {
-      case 'user' :
-       global $user;
-        $start_offset = $end_offset = $user->timezone;
-        break;
       case 'date' :
-        $start_offset = $end_offset = $offset_field;
+        $timezone = $timezone_field;
         break;
       case 'GMT':
-        $start_offset = $end_offset = 0;
+        $timezone = "'UTC'";
         break;
-      // Event-specific timezones can't be converted in the sql because no offset
-      // is stored in the database, so retrieve the UTC value and convert
-      // it in the node processing. For lack of any better option, we'll use
-      // the site's timezone as our comparison offset.
-      case 'event' :
-      case 'none':
       default :
-        $start_offset = $end_offset = $offset;
+        $timezone = "'". date_default_timezone_name() ."'";
         break;
     }
 
@@ -457,26 +438,16 @@ function calendar_build_field_query(&$query, $field) {
     // dates with from and to times, format a single value that is made
     // up of the two local DATETIME values separated with a pipe (|).
 
-    // This creates a very complex query, but it's the best we can do
-    // until we have dates stored in native datetime fields. Once we have
-    // native datetime fields we'll be able to use only the timezone name
-    // to have the database make the right adjustments.
-
     if ($this_field['timestamp_fromto'] || $this_field['string_fromto']) {
       if ($this_field['timestamp_fromto']) {
-        $utc_from = $this_field['timestamp_fromto'][0];
-        $utc_to = $this_field['timestamp_fromto'][1];
-        $adj_from = date_sql('DATE', $this_field['timestamp_fromto'][0], $field_type, $start_offset);
-        $adj_to = date_sql('DATE', $this_field['timestamp_fromto'][1], $field_type, $start_offset);
+        $adj_from = date_db_sql('DATE', $this_field['timestamp_fromto'][0], "'UTC'", $timezone, DATE_ISO);
+        $adj_to = date_db_sql('DATE', $this_field['timestamp_fromto'][1], "'UTC'", $timezone, DATE_ISO);
       }
       else {
-        $utc_from = $this_field['string_fromto'][0];
-        $utc_to = $this_field['string_fromto'][1];
-        $adj_from = date_sql('DATE', $this_field['string_fromto'][0], $field_type, $start_offset);
-        $adj_to = date_sql('DATE', $this_field['string_fromto'][1], $field_type, $start_offset);
+        $adj_from = date_db_sql('DATE', $this_field['string_fromto'][0], "'UTC'", $timezone, DATE_ISO);
+        $adj_to = date_db_sql('DATE', $this_field['string_fromto'][1], "'UTC'", $timezone, DATE_ISO);
       }
       $adjusted_field = date_sql_concat(array($adj_from, "'|'", $adj_to));
-      $utc_field = date_sql_concat(array($utc_from, "'|'", $utc_to));
       $queries[] = "(". $adj_to ." >='". $params['min_compare'] .
         "' AND ". $adj_from ." <='". $params['max_compare'] ."')";
       $event_field_processed = TRUE;
@@ -484,20 +455,12 @@ function calendar_build_field_query(&$query, $field) {
     // handling for single day dates
     else {
       $adjusted_field = date_sql('DATE', $this_field['fullname'], $field_type, $start_offset);
-      $utc_field = $this_field['fullname'];
+      $adjusted_field = date_db_sql('DATE', $this_field['fullname'], "'UTC'", $timezone, $field_type);
       $queries[] = "(". $adjusted_field .">='". $params['min_compare'] .
         "' AND ". $adjusted_field ."<='". $params['max_compare'] ."')";
     }
 
-    // Only date-specific timezone handling has enough info in the database
-    // to trust that the adjusted date is exactly right, for all others
-    // we need to get the UTC value and do the adjustment in PHP.
-    if ($tz_handling == 'date') {
-      $query->fields[$field_delta] = $adjusted_field .' AS '. $this_field['query_name'];
-    }
-    else {
-      $query->fields[$field_delta] = $utc_field .' AS '. $this_field['query_name'];
-    }
+    $query->fields[$field_delta] = $adjusted_field .' AS '. $this_field['query_name'];
   }
   return $queries;
 }
@@ -616,28 +579,8 @@ function calendar_build_nodes(&$view, &$items) {
 
               $node->calendar_start = $values[0];
               $node->calendar_end = !empty($values[1]) ? $values[1] : $values[0];
-
-              // If we're dealing with a node where we retrieved the UTC value
-              // we couldn't transform the date to the local time in the query
-              // we need to convert it to local time here.
-              if ($tz_handling != 'date') {
-                $node->calendar_start_date = date_create($node->calendar_start, timezone_open('UTC'));
-                $node->calendar_end_date = date_create($node->calendar_end, timezone_open('UTC'));
-                if (isset($node->event_timezone)) {
-                  $timezone = calendar_event_timezone($node->event_timezone);
-                  date_timezone_set($node->calendar_start_date, $timezone);
-                  date_timezone_set($node->calendar_end_date, $timezone);
-                }
-                elseif ($tz_handling != 'GMT') {
-                  date_timezone_set($node->calendar_start_date, date_default_timezone());
-                  date_timezone_set($node->calendar_end_date, date_default_timezone());
-                }
-              }
-              else {
-                $node->calendar_start_date = date_make_date($node->calendar_start, date_default_timezone_name());
-                $node->calendar_end_date   = date_make_date($node->calendar_end, date_default_timezone_name());
-              }
-
+              $node->calendar_start_date = date_make_date($node->calendar_start, date_default_timezone_name());
+              $node->calendar_end_date   = date_make_date($node->calendar_end, date_default_timezone_name());
               $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
               $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
 
