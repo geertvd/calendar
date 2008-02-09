@@ -134,7 +134,7 @@ function theme_calendar_view_nodes($view, $nodes, $type, $teasers = false, $link
   $output .= theme("table", calendar_nav($view), array());
   $output .= '</div>';
 
-  $output = array();
+  $data = array();
   foreach ($nodes as $n) {
     if (isset($n->calendar_node_theme)) {
       $theme = $n->calendar_node_theme;
