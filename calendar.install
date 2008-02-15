@@ -18,8 +18,6 @@ if (module_exists('views')) {
  * functions are not called.
  */
 function calendar_requirements($phase) {
-  global $db_type;
-
   $requirements = array();
   $t = get_t();
 
@@ -48,24 +46,6 @@ function calendar_requirements($phase) {
           );
       }
       break;
-  }
-  include_once(drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
-  switch ($db_type) {
-    case 'mysql':
-    case 'mysqli':
-      $link = l('MYSQL Timezone Information', 'http://dev.mysql.com/doc/refman/5.0/en/time-zone-support.html');
-      break;
-    case 'pgsql':
-      $link = l('PostgreSQL Timezone Information', 'http://www.postgresql.org/docs/8.2/interactive/datatype-datetime.html');
-      break;
-      break;
-  }
-  if (!date_sql_db_timezone_support()) {
-    $requirements['calendar_db'] = array(
-      'title' => $t('Calendar database requirements'),
-      'value' => $t('The Calendar module requires a database that has timezone support enabled, and your database does not. See !link for more information.', array('!link' => $link)),
-      'severity' => REQUIREMENT_ERROR,
-      );
   }
   return $requirements;
 }
