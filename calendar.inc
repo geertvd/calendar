@@ -696,7 +696,7 @@ function calendar_event_timezone($zid) {
  */
 function calendar_nav($view, $mini = FALSE, $with_weekno = FALSE) {
   if (!calendar_part_is_valid($view->year, 'year')) {
-    return $view->subtitle;
+    return array($view->subtitle);
   }
 
   // make the navigation into a header, with prev and next links
