@@ -1,6 +1,6 @@
 Views Calendar 5.x
 ==================
-
+- #186875 make sure navigation is always returned as an array so it doesn't break table theme.
 - Clean HTML entities out of imported iCal titles.
 - Clean up some of the logic on when to throw out events that are outside the requested calendar range.
 - #189760 Don't prefix css path with slash.

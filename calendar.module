@@ -331,7 +331,7 @@ function calendar_get_nodes(&$view, &$items, $type) {
  */
 function calendar_nav($view, $mini = FALSE) {
   if (!calendar_part_is_valid($view->year, 'year')) {
-    return $view->subtitle;
+    return array($view->subtitle);
   }
   calendar_load_date_api();
 
