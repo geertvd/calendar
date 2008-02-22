@@ -153,10 +153,10 @@ function _calendar_views_query_alter(&$query, &$view) {
 function calendar_build_calendar($view, $items, $params) {
   // Remove nodes outside the selected date range.
   $values = array();
-  foreach ($items as $item) {
+  foreach ($items as $delta => $item) {
     if (($item->calendar_start_date >= $view->min_date && $item->calendar_start_date <= $view->max_date)
      || ($item->calendar_end_date >= $view->min_date && $item->calendar_end_date <= $view->max_date)) {
-      $values[date_format($item->calendar_start_date, 'Y-m-d H:i:s') . ' ' . $item->nid] = $item;
+      $values[date_format($item->calendar_start_date, 'Y-m-d')][date_format($item->calendar_start_date, 'Y-m-d')][] = $item;
     }
   }
   $items = $values;
@@ -274,16 +274,17 @@ function calendar_build_day($curday, $view, $items, $params) {
   date_modify($nextday, '+1 day');
   $inner = '';
   $selected = FALSE;
-
-  foreach ($items as $item) {
-    if ($item->calendar_start_date >= $curday && $item->calendar_start_date < $nextday) {
-      $selected = TRUE;
-      if (!$view->mini) {
-        $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_node_'. $view->calendar_type;
-        $inner .= theme($theme, $item, $view);
+  foreach ($items as $date => $day) {
+    if ($date == date_format($curday, 'Y-m-d')) {
+      ksort($day);
+      foreach ($day as $time) {
+        foreach ($time as $item) {
+          if (!$view->mini) {
+            $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_node_'. $view->calendar_type;
+            $inner .= theme($theme, $item, $view);
+          }
+        }
       }
-    } else if ($item->calendar_end_date >= $curday && $item->calendar_end_date < $nextday) {
-      $selected = TRUE;
     }
   }
   if (empty($inner)) {
@@ -607,8 +608,10 @@ function calendar_build_nodes(&$view, &$items) {
                 }
               }
 
-              $node->calendar_start = $values[0];
-              $node->calendar_end = !empty($values[1]) ? $values[1] : $values[0];
+              $start = $now .' 00:00:00';
+              $end = $now .' 23:59:59';
+              $node->calendar_start = $values[0] < $start ? $start : $values[0];
+              $node->calendar_end = !empty($values[1]) ? ($values[1] > $end ? $end : $values[1]) : $node->calendar_start;
 
               // If we're dealing with a node where we retrieved the UTC value
               // we couldn't transform the date to the local time in the query
@@ -630,26 +633,26 @@ function calendar_build_nodes(&$view, &$items) {
                 $node->calendar_start_date = date_make_date($node->calendar_start, date_default_timezone_name());
                 $node->calendar_end_date   = date_make_date($node->calendar_end, date_default_timezone_name());
               }
-
               $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
               $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
 
-              if (isset($node) && (empty($node->calendar_start_date))) {
+              if (isset($node) && (empty($node->calendar_start))) {
                 // if no date for the node and no date in the item
                 // there is no way to display it on the calendar
                 unset($node);
               }
               else {
                 if (strstr($option['type'], 'cck')) {
-                  $id = $item->unique_nid .':'. $delta .':'. $field_field;
+                  $id = $item->nid .':'. $delta .':'. $field_field;
                 }
                 else {
-                  $id = $item->unique_nid .':0:'. $field_field;
+                  $id = $item->nid .':0:'. $field_field;
                 }
                 if ($view->build_type == 'page' && $view->calendar_type != 'year') {
                   $node->stripe = calendar_node_stripe($view, $node, $field_field, $field_field);
                 }
-                $nodes[$id] = $node;
+                $node->unique_nid = $id;
+                $nodes[] = $node;
                 unset($node);
               }
               $next = date_make_date($now, 'UTC');
