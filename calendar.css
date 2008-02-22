@@ -302,6 +302,6 @@ table th.legend {
 .calendar-calendar td.future, .calendar-calendar td.today .mini-day-on {
 }
 .calendar-calendar td.today, .calendar-calendar td.today .mini-day-on {
-  background: #ddd;
+  background: #ffcccc;
 }
 

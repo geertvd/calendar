@@ -262,9 +262,7 @@ function theme_calendar_links($view, $links = FALSE) {
     $view->month    = $view->month && $view->month != CALENDAR_EMPTY_ARG ? $view->month : date_format($now, 'm');
     $view->day      = $view->day && $view->day != CALENDAR_EMPTY_ARG ? $view->day : date_format($now, 'j');
     if (empty($view->week) || $view->week == CALENDAR_EMPTY_ARG) {
-      $template = calendar_year_template($view->year);
-      $compare = date_pad($view->month) .'-'. date_pad($view->day);
-      $view->week = db_result(db_query("SELECT weekno FROM {calendar_templates} WHERE template = %d AND start <= '%s' AND end >= '%s'", $template, $compare, $compare));
+      $view->week = calendar_date_week($view->year .'-'. date_pad($view->month) .'-'. date_pad($view->day));
     }
 
     $append = calendar_url_append($view);
