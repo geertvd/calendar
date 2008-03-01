@@ -357,8 +357,6 @@ function calendar_build_filter(&$query, &$view) {
   }
   $query->min_date = $date;
   $query->max_date = $max_date;
-  date_timezone_set($query->min_date, timezone_open('UTC'));
-  date_timezone_set($query->max_date, timezone_open('UTC'));
 
   // find all datetime fields in this view and add filters for them to the query
   $queries = array();
