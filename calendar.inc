@@ -571,7 +571,13 @@ function calendar_build_nodes(&$view, &$items) {
           // The query created from/to dates like 2007-12-31T01:30:00|2007-12-31T02:30:00,
           // explode those values and separate them into from and to dates on the node.
           if ($item->$field_field) {
-            $values = explode('|', $item->$field_field);
+            $values = explode('|',  str_replace('T', ' ', $item->$field_field));
+            if ($field_type != 'string') {
+              $date = date_create('@'. $values[0], 'UTC');
+              $values[0] = date_format($date, DATE_FORMAT_DATETIME);
+              $date = date_create('@'. $values[1], 'UTC');
+              $values[1] = date_format($date, DATE_FORMAT_DATETIME);
+            }
 
             // Create a node for each date within the field's date range,
             // limited to the view's date range.
