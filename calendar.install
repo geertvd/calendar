@@ -113,3 +113,9 @@ function calendar_update_5001() {
 
   return $ret;
 }
+
+function calendar_update_5200() {
+  $ret = array();
+  module_enable('date_timezone');
+  return $ret;
+}
