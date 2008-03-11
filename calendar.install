@@ -116,6 +116,6 @@ function calendar_update_5001() {
 
 function calendar_update_5200() {
   $ret = array();
-  module_enable('date_timezone');
+  module_enable(array('date_timezone'));
   return $ret;
 }
