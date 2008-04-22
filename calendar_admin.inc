@@ -178,7 +178,7 @@ function _calendar_fields() {
         $granularity = array('Y', 'M', 'D', 'H', 'N');
       }
 
-      // skip this step on second occurance of fromto date fields, if more than one exists in view
+      // skip this step on second occurrence of fromto date fields, if more than one exists in view
       if (!in_array($processed_name, $event_fields_processed) || $timestamp_fromto || $string_fromto) {
         // cck fields append a column name to the field, others do not
         // need a real field_name with no column name appended for cck date formatters
@@ -244,7 +244,7 @@ function _calendar_views_validate($type, $view, $form) {
   }
   // Must have Year, Month, and Day or Year and Week calendar arguments.
   if (!in_array('calendar_year', $arg_types) && ((!in_array('calendar_month', $arg_types) && !in_array('calendar_day', $arg_types) || !in_array('calendar_week', $arg_types)))) {
-    form_error($form['argument'], t('The Calendar requres as arguments Calendar: Year, Calendar: Month, and Calendar: Day, or Calendar: Year and Calendar: Week'));
+    form_error($form['argument'], t('The Calendar requires as arguments Calendar: Year, Calendar: Month, and Calendar: Day, or Calendar: Year and Calendar: Week'));
   }
   // CCK date fields cannot use grouped handler.
   $calendar_fields = array_keys(calendar_fields());
