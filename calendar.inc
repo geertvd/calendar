@@ -87,7 +87,7 @@ function _calendar_views_query_alter(&$query, &$view) {
       // Calendar_week and Calendar_month can swap positions as the second arg
       // in the url. Do some work here to make sure we know which is which and
       // swap view data to match it. The difference between a calendar_month
-      // arg and a calendar_week arg is the preceeding 'W'
+      // arg and a calendar_week arg is the preceding 'W'
       if ($argument['type'] == 'calendar_week' || $argument['type'] == 'calendar_month') {
 
         if (strstr($view->args[$delta], 'W')) {
