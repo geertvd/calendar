@@ -194,7 +194,7 @@ function calendar_build_calendar($view, $items, $params) {
 
   // Add the navigation in as the header.
   $header = calendar_nav($view, $view->mini, $params['with_weekno']);
-  $output = theme_calendar_links($view, $view->build_type != 'block');
+  $output = theme('calendar_links', $view, $view->build_type != 'block');
   $output .= theme('calendar_'. $view->calendar_type, $view, $header, $rows);
   return $output;
 }
