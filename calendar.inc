@@ -258,7 +258,7 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
 
     $rows[$week][] = array(
       'data' => $view->mini ? $content : '<div class="inner">'. $content .'</div>',
-      'class' => $class, 'id' => $date);
+      'class' => $class, 'id' => $view->name . '-' . date_format($curday, 'Y-m-d'));
 
     date_modify($curday, '+1 day');
   }
