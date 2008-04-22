@@ -64,7 +64,7 @@ function theme_calendar_views_calendar(&$view, &$items, $type) {
  */
 function theme_calendar_view_list($view, $nodes, $type) {
   $output  = '<div class="calendar-calendar">';
-  $output .= theme_calendar_links($view, $view->build_type != 'block');
+  $output .= theme('calendar_links', $view, $view->build_type != 'block');
   $output .= theme("table", calendar_nav($view), array());
   $output .= '</div>';
 
@@ -97,7 +97,7 @@ function theme_calendar_view_list($view, $nodes, $type) {
  */
 function theme_calendar_view_table($view, $nodes, $type) {
   $output  = '<div class="calendar-calendar">';
-  $output .= theme_calendar_links($view, $view->build_type != 'block');
+  $output .= theme('calendar_links', $view, $view->build_type != 'block');
   $output .= theme("table", calendar_nav($view), array());
   $output .= '</div>';
 
@@ -130,7 +130,7 @@ function theme_calendar_view_teasers($view, $nodes, $type) {
  */
 function theme_calendar_view_nodes($view, $nodes, $type, $teasers = false, $links = true) {
   $output  = '<div class="calendar-calendar">';
-  $output .= theme_calendar_links($view, $view->build_type != 'block');
+  $output .= theme('calendar_links', $view, $view->build_type != 'block');
   $output .= theme("table", calendar_nav($view), array());
   $output .= '</div>';
 

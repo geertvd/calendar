@@ -333,7 +333,7 @@ function theme_calendar_ical_node($node, $view) {
     // Create a pseudo node view for this item.
     $output  = '<div class="node">';
     $output .= '<h2>'. l($node->title, $node->url) .'</h2>';
-    $output .= '<div>'. theme_calendar_date_combo($node, $node->format, t('Dates'), $view)  .'</div>';
+    $output .= '<div>'. theme('calendar_date_combo', $node, $node->format, t('Dates'), $view)  .'</div>';
     $output .= '<div class="content">'. $node->teaser .'</div>';
     $output .= '</div>';
     return $output;
