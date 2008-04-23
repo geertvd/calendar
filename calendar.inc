@@ -276,6 +276,7 @@ function calendar_build_day($curday, $view, $items, $params) {
   $selected = FALSE;
   foreach ($items as $date => $day) {
     if ($date == date_format($curday, 'Y-m-d')) {
+      $selected = TRUE;
       ksort($day);
       foreach ($day as $time) {
         foreach ($time as $item) {
