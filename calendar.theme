@@ -86,8 +86,11 @@ function theme_calendar_view_list($view, $nodes, $type) {
     }
     $items[] = "<div class='view-item ". views_css_safe('view-item-'. $view->name) ."'>$item</div>\n"; // l($node->title, "node/$node->nid");
   }
-  if ($items) {
+  if (!empty($items)) {
    	$output .= theme('item_list', $items);
+  }
+  else {
+    $output .= views_get_textarea($view, $type, 'empty');
   }
   return $output;
 }
@@ -114,7 +117,12 @@ function theme_calendar_view_table($view, $nodes, $type) {
     }
     $rows[] = $row;
   }
-  $output .= theme('table', $view->table_header, $rows);
+  if (!empty($rows)) {
+    $output .= theme('table', $view->table_header, $rows);
+  }
+  else {
+    $output .= views_get_textarea($view, $type, 'empty');
+  }
   return $output;
 }
 
@@ -145,7 +153,12 @@ function theme_calendar_view_nodes($view, $nodes, $type, $teasers = false, $link
       $data[] = node_view($node, $teasers, false, $links);
     }
   }
-  $output .= implode($data);
+  if (!empty($data)) {
+    $output .= implode($data);
+  }
+  else {
+    $output .= views_get_textarea($view, $type, 'empty');
+  }
   return $output;
 }
 
