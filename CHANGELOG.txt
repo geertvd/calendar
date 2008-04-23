@@ -3,6 +3,7 @@ Views Calendar 6.x
 
 Version 2.0
 ==============
+- #234635 Add calendar_build_nodes() to calendar_ical export processing.
 - #243712 make sure default views are retrieved as well as db views.
 - #235434 Using timezone name instead of timezone object in several places.
 - #233513 Fix missing $selected marker.
