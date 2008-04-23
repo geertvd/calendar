@@ -1,6 +1,78 @@
 Views Calendar 5.x
 ==================
 
+Version 2.0rc2
+==============
+
+
+- #243712 make sure default views are retrieved as well as db views.
+- #235434 Using timezone name instead of timezone object in several places.
+- #233513 Fix missing $selected marker.
+- #233975 Don't bypass theme function.
+- #242686 Fix spelling errors.
+- #240297 make sure id has a value.
+
+Version 2.0rc
+=============
+- Make sure new required modules get enabled during the update.
+- Fix To time in calendar, was incorrectly picking up a :59 value.
+- Make sure min and max dates are in localtime.
+- #225459 Fix days that span multiple days.
+- #220657 Revert to using the API instead of templates for drawing the calendar.
+- #186875 make sure navigation is always returned as an array so it doesn't break table theme.
+- Remove database timezone handling by rolling back to previous version that used offsets instead. Based on problems noted in #218479 and #220663, we cannot count on database timezone handling to be available in MYSQL or work consistently with the timezone names that PHP uses in POSTGRES, so trying to do timezone conversions in the database is not going to work.
+- #219200 Make sure views is available during install.
+- #218704 Fix error in setting array variable.
+- Getting rid of offsets!! Alter query code to cast ISO and UNIX dates to native datetimes and do timezone conversion in the database. Much faster and more accurate.
+  The offset fields can now be dropped from the Date fields since we only need the timezone name to do the conversion.
+- Simplify the query a bit, but it's still very complex. We need a native datetime field so we can let the db do this the right way.
+- Make sure calendar works with an argument before the calendar.
+- The popup calendar datepicker needs a default value in the normal datetime format.
+- Add settings option to not display year, month, day, or week view and adjust links to hide any link to hidden displays.
+- Get rid of separate mini args and so mini and main calendar move together. This has been often requested and we already have too much complication in tracking various filter and non-calendar arguments in the view.
+- Make sure ical dates only get shown once in views with more than one date field.
+- Make sure 'today', 'future', and 'past' classes don't get applied to non-date cells.
+- #216365 make sure all needed files are included in the install files.
+- We can't trust the database date conversion unless we have the right offset stored in the database, so only the date-specific dates have the right values for this to work. All others must be retrieved as UTC values and converted in PHP.
+- Make sure functions are available during install.
+- #128602 add classes for 'past' and 'future' to date boxes, not using them by default, but available to css.
+- #211568 Add setup option to show first 1, 2, or 3 letters of day names in mini calendar.
+- Missing a closing div tag in the month view.
+- Get rid of deprecated function date_time().
+- Fix date format for day view.
+- Wrong field name used to select date format.
+- Set the 'today' class before incrementing the date.
+- More clean up of themes to be sure both remote and local items have a reasonable display and to provide a theme to consistantly display dates.
+- Fix title and url of mini calendar.
+- Get iCal import working again in new version.
+- Non-calendar views should now be working, so you can switch between calendar, table, list, teasers, and nodes for the display for each time period.
+- Make sure $node->url is set so the link to the node works.
+- Move more of the code to the .inc file.
+- Clean up the date selector and add a new function to detect the calendar week from a date.
+- Add a dependency on Date Timezone.
+- Fix a critical typo that keeps more than one value from showing up for a day.
+- Clean up theme code.
+- Make the new date selector dependent on the Date Popup module.
+- Rework the calendar to pull values from a template table so we can browse and navigate by calendar week. This simplifies the code and hopefully will speed up processing the calendar since the database is doing the work of constructing the calendar template instead of using PHP computations. This method is also a more accurate way of computing calendar weeks. Requires an update to populate a template table. This works because there are only 14 possible calendar templates no matter how many years you go back or forward.
+- Add in the jQuery popup selector as a method to jump to different dates.
+- Fix theme error in day view that repeated all previous items with each new item.
+- Make sure blank nodes have the right values to create blank calendar pages.
+- Standardize on use of date_format_date() to get translations done on the formatted values of date parts.
+- Clean up css for month date boxes so display in Firefox and IE looks the same.
+- Lost the node nid in some places which kept dates from showing up.
+- Have to keep views handlers in calendar.module not in calendar_api.inc so they can be discovered when needed.
+- Updating Calendar HEAD with new version of Calendar module that works with the new 5.2 Date API in Date HEAD. 
+
+Version 1.x-dev
+===============
+- Force extra spaces into titles to keep long unbroken title text from breaking calendar layout.
+- Add a min width to the calendar boxes.
+- Clean HTML entities out of imported iCal titles.
+- Clean up some of the logic on when to throw out events that are outside the requested calendar range.
+- #189760 Don't prefix css path with slash.
+- #186170 Make sure calendar doesn't overlap sidebar in IE.
+- Get rid of legacy links in theme that don't work any more.
+
 Version 1.7
 ===========
 
