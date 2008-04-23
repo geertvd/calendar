@@ -237,7 +237,7 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
   if ($params['with_weekno'] && $view->calendar_type != 'day') {
     $url = $params['url'] .'/'. $view->year .'/W'. $week;
     $rows[$week][] = array(
-      'data' => l($week, $url, NULL, $params['append']),
+      'data' => l($week, $url, array('query' => $params['append'])),
       'class' => 'week');
   }
 

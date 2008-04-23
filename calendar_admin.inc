@@ -54,8 +54,9 @@ function _calendar_info() {
       $calendar_views[$view->name] = $additions;
     }
   }
-  views_load_cache();
-  foreach (_views_get_default_views() as $view) {
+  //views_load_cache();
+  //$all_views = _views_get_default_views();
+  foreach ((array) $all_views as $view) {
     if (empty($view->disabled)) {
       $additions = array();
       $additions['vid'] = $view->vid;
@@ -74,7 +75,7 @@ function _calendar_info() {
       }
     }
   }
-  cache_set($cid, 'cache_views', serialize($calendar_views));
+  cache_set($cid, $calendar_views, 'cache_views');
   return $calendar_views;
 }
 
@@ -202,7 +203,7 @@ function _calendar_fields() {
       }
     }
   }
-  cache_set($cid, 'cache_views', serialize($fields));
+  cache_set($cid, $fields, 'cache_views');
   return $fields;
 }
 

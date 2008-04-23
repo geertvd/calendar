@@ -8,57 +8,133 @@
 /**
  * Implementation of hook_help().
  */
-function calendar_help($section) {
+function calendar_help($section, $arg) {
   switch ($section) {
     case 'admin/help#calendar':
       return t("<p>View complete documentation at !link.</p>", array('!link' => 'http://drupal.org/node/120710'));
   }
 }
 
+function calendar_init() {
+  drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
+  define('CALENDAR_EMPTY_ARG', variable_get('calendar_empty_arg', 'all'));
+  include_once(drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
+}
+
 /**
  *  Implementation of hook_menu().
  */
-function calendar_menu($may_cache) {
+function calendar_menu() {
   $items = array();
-  if (!$may_cache) {
-
-    drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
-    define('CALENDAR_EMPTY_ARG', variable_get('calendar_empty_arg', 'all'));
-
-    include_once(drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
-    $first = TRUE;
-    foreach (calendar_info() as $view_name => $view) {
-      if ($first) {
-        $items[] = array(
-          'path' => 'admin/settings/calendar',
-          'title' => t('Calendar Setup'),
-          'description' => t('Customize calendar settings options.'),
-          'access'   => user_access('administer views'),
-          'type' => MENU_NORMAL_ITEM,
-          'callback' => 'drupal_get_form',
-          'callback arguments' => array('_calendar_setup_form', $view_name),
-        );
-      }
-      $items[] = array(
-        'path' => 'admin/settings/calendar/'. $view_name,
-        'title' => $view_name,
-        'access'   => user_access('administer views'),
-        'callback' => 'drupal_get_form',
+  $first = TRUE;
+  foreach (calendar_info() as $view_name => $view) {
+    if ($first) {
+      $items['admin/settings/calendar'] = array(
+        'title' => 'Calendar Setup',
+        'description' => 'Customize calendar settings options.',
+        'access arguments'   => array('administer views'),
+        'type' => MENU_NORMAL_ITEM,
+        'page callback' => 'drupal_get_form',
         'callback arguments' => array('_calendar_setup_form', $view_name),
-        'type' => $first ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
       );
-      $items[] = array(
-        'path' => 'admin/settings/calendar/'. $view_name .'/setup',
-        'title' => t('Setup'),
-        'access'   => user_access('administer views'),
-        'callback' => 'drupal_get_form',
-        'callback arguments' => array('_calendar_setup_form', $view_name),
-        'type' => MENU_DEFAULT_LOCAL_TASK,
-      );
-      $first = FALSE;
     }
+    $items['admin/settings/calendar/'. $view_name] = array(
+      'title' => $view_name,
+      'access arguments'   => array('administer views'),
+      'page callback' => 'drupal_get_form',
+      'callback arguments' => array('_calendar_setup_form', $view_name),
+      'type' => $first ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
+    );
+    $items['admin/settings/calendar/'. $view_name .'/setup'] = array(
+      'title' => t('Setup'),
+      'access arguments'   => array('administer views'),
+      'page callback' => 'drupal_get_form',
+      'callback arguments' => array('_calendar_setup_form', $view_name),
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+    );
+    $first = FALSE;
   }
   return $items;
+}
+
+function calendar_theme() {
+  return array(
+    'calendar_arg_title' => array(
+      'file' => 'calendar.theme', 'arguments' => array('field_type', 'value', 'query'),
+      ),
+    'calendar_date_box' => array(
+      'file' => 'calendar.theme', 'arguments' => array('date', 'view', 'params', 'selected'),
+      ),
+    'calendar_date_combo' => array(
+      'file' => 'calendar.theme', 'arguments' => array('node', 'lable', 'view'),
+      ),
+    'calendar_day' => array(
+      'file' => 'calendar.theme', 'arguments' => array('view', 'header', 'data'),
+      ),
+    'calendar_empty_day' => array(
+      'file' => 'calendar.theme', 'arguments' => array(),
+      ),
+     'calendar_links' => array(
+       'file' => 'calendar.theme', 'arguments' => array('view', 'header', 'rows'),
+       ),
+     'calendar_month' => array(
+       'file' => 'calendar.theme', 'arguments' => array('view', 'header', 'rows'),
+       ),
+     'calendar_nav_next' => array(
+       'file' => 'calendar.theme', 'arguments' => array('url', 'text', 'querystring'),
+       ),
+     'calendar_nav_prev' => array(
+       'file' => 'calendar.theme', 'arguments' => array('url', 'text', 'querystring'),
+       ),
+     'calendar_nav_title' => array(
+       'file' => 'calendar.theme', 'arguments' => array('type', 'view'),
+       ),
+     'calendar_node_day' => array(
+       'file' => 'calendar.theme', 'arguments' => array('node', 'view'),
+       ),
+     'calendar_node_month' => array(
+       'file' => 'calendar.theme', 'arguments' => array('node', 'view'),
+       ),
+     'calendar_node_week' => array(
+       'file' => 'calendar.theme', 'arguments' => array('node', 'view'),
+       ),
+     'calendar_page_title' => array(
+       'file' => 'calendar.theme', 'arguments' => array('view', 'items', 'output'),
+       ),
+     'calendar_stripe_legend' => array(
+       'file' => 'calendar.theme', 'arguments' => array('stripe_labels'),
+       ),
+     'calendar_stripe_stripe' => array(
+       'file' => 'calendar.theme', 'arguments' => array('node'),
+       ),
+     'calendar_view_list' => array(
+       'file' => 'calendar.theme', 'arguments' => array('view', 'nodes', 'type'),
+       ),
+     'calendar_view_nodes' => array(
+       'file' => 'calendar.theme', 'arguments' => array('view', 'nodes', 'type'),
+       ),
+     'calendar_view_table' => array(
+       'file' => 'calendar.theme', 'arguments' => array('view', 'nodes', 'type'),
+       ),
+     'calendar_view_teasers' => array(
+       'file' => 'calendar.theme', 'arguments' => array('view', 'nodes', 'type'),
+       ),
+     'calendar_views_calendar' => array(
+       'file' => 'calendar.theme', 'arguments' => array('view', 'items', 'type'),
+       ),
+     'calendar_views_field' => array(
+       'file' => 'calendar.theme', 'arguments' => array('fieldname', 'fields', 'field', 'node', 'view', 'type'),
+       ),
+     'calendar_views_summary' => array(
+       'file' => 'calendar.theme', 'arguments' => array('view', 'type', 'items', 'args'),
+       ),
+     'calendar_week' => array(
+       'file' => 'calendar.theme', 'arguments' => array('view', 'header', 'rows'),
+       ),
+     'calendar_year' => array(
+       'file' => 'calendar.theme', 'arguments' => array('view', 'header', 'rows'),
+       ), 
+    );
 }
 
 /**
@@ -666,7 +742,7 @@ function calendar_info($reset = FALSE) {
   if (empty($calendar_views) || $reset) {
     $cid = 'calendar_views';
     if (!$reset && $cached = cache_get($cid, 'cache_views')) {
-      $calendar_views = unserialize($cached->data);
+      $calendar_views = $cached->data;
     }
     else {
      include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
@@ -684,7 +760,7 @@ function calendar_fields($reset = FALSE) {
   if (empty($fields) || $reset) {
     $cid = 'calendar_fields';
     if (!$reset && $cached = cache_get($cid, 'cache_views')) {
-      $fields = unserialize($cached->data);
+      $fields = $cached->data;
     }
     else {
       include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');

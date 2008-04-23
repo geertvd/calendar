@@ -311,7 +311,7 @@ function theme_calendar_links($view, $links = FALSE) {
  *   The url for the navigation
  */
 function theme_calendar_nav_next($url, $text = TRUE, $querystring = NULL) {
-  return '<span class="next">'. l(($text ? t('next') : '') .' »', $url, array(), (!empty($querystring) ? $querystring : NULL)) .'</span>';
+  return '<span class="next">'. l(($text ? t('next') : '') .' »', $url, array('query' => !empty($querystring) ? $querystring : NULL)) .'</span>';
 }
 
 /**
@@ -321,7 +321,7 @@ function theme_calendar_nav_next($url, $text = TRUE, $querystring = NULL) {
  *   The url for the navigation
  */
 function theme_calendar_nav_prev($url, $text = TRUE, $querystring = NULL) {
-  return '<span class="prev">'. l('« '. ($text ? t('prev') : ''), $url, array(), (!empty($querystring) ? $querystring : NULL)) .'</span>';
+  return '<span class="prev">'. l('« '. ($text ? t('prev') : ''), $url, array('query' => !empty($querystring) ? $querystring : NULL)) .'</span>';
 }
 
 /**
@@ -525,16 +525,16 @@ function theme_calendar_date_box($date, $view, $params, $selected = FALSE) {
 
   if ($view->mini) {
     if ($selected) {
-      return '<div class="mini-day-on">'. l($day, $url, NULL, $append) .'</div>';
+      return '<div class="mini-day-on">'. l($day, $url, array('query' => $append)) .'</div>';
     }
     else {
-      return '<div class="mini-day-off">'. l($day, $url, NULL, $append) .'</div>';
+      return '<div class="mini-day-off">'. l($day, $url, array('query' => $append)) .'</div>';
     }
   }
   if ($view->calendar_type != 'day') {
-    return '<div class="day">'. l($day, $url, NULL, $append) .'</div>'."\n";
+    return '<div class="day">'. l($day, $url, array('query' => $append)) .'</div>'."\n";
   }
-  $output = '<div class="day">'. l($day, $url, NULL, $append) .'</div>'."\n";
+  $output = '<div class="day">'. l($day, $url, array('query' => $append)) .'</div>'."\n";
   return $output;
 }
 

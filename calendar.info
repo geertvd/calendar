@@ -1,6 +1,9 @@
 ; $Id$
 name = Calendar
 description = Views plugin to display views containing dates as Calendars.
+dependencies[] = views
+dependencies[] = date_api
+dependencies[] = date_timezone
 package = Date/Time
-dependencies = views date_api date_timezone
+core = 6.x
 
