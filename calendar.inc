@@ -574,9 +574,9 @@ function calendar_build_nodes(&$view, &$items) {
           if ($item->$field_field) {
             $values = explode('|',  str_replace('T', ' ', $item->$field_field));
             if ($field_type != 'string') {
-              $date = date_create('@'. $values[0], 'UTC');
+              $date = date_make_date($values[0], 'UTC', DATE_UNIX);
               $values[0] = date_format($date, DATE_FORMAT_DATETIME);
-              $date = date_create('@'. $values[1], 'UTC');
+              $date = date_make_date($values[1], 'UTC', DATE_UNIX);
               $values[1] = date_format($date, DATE_FORMAT_DATETIME);
             }
 
@@ -625,7 +625,7 @@ function calendar_build_nodes(&$view, &$items) {
                 $node->calendar_start_date = date_create($node->calendar_start, timezone_open('UTC'));
                 $node->calendar_end_date = date_create($node->calendar_end, timezone_open('UTC'));
                 if (isset($node->event_timezone)) {
-                  $timezone = calendar_event_timezone($node->event_timezone);
+                  $timezone = timezone_open(calendar_event_timezone($node->event_timezone));
                   date_timezone_set($node->calendar_start_date, $timezone);
                   date_timezone_set($node->calendar_end_date, $timezone);
                 }
