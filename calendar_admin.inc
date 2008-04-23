@@ -259,7 +259,7 @@ function _calendar_views_validate($type, $view, $form) {
  * Setup Calendar parameters.
  */
 function _calendar_setup_form($view_name) {
- $view = views_load_view($view_name);
+ $view = views_get_view($view_name);
 
   $form = array();
   $time = mktime(1, 15, 0, 1, 1, date('Y', time()));
