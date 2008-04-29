@@ -90,9 +90,9 @@ function _calendar_fields() {
   cache_clear_all($cid, 'cache_views');
   $delta = 0;
   $event_fields_processed = array();
-  views_load_cache();
-
-  foreach (_views_get_fields() as $name => $val) {
+  //views_load_cache();
+  // $fields = _views_get_fields();
+  foreach ((array) $fields as $name => $val) {
     $timestamp_fromto = array();
     $string_fromto = array();
     $tmp = explode('.', $name);
@@ -276,10 +276,13 @@ function _calendar_setup_form($view_name) {
     'h:i a' => date('h:i a', $time),
     'h:i A' => date('h:i A', $time),
     );
-  $form['markup'] = array(
-    '#type' => 'markup',
-    '#value' => '<h2>'. $view->name .'</h2>',
-    );
+  if ($view->page && $view->page_title || $view->block && $view->block_title || $view->description) {
+    $title = $view->page && $view->page_title ? $view->page_title : ($view->block && $view->block_title ? $view->block_title : '');
+    $form['markup'] = array(
+      '#type' => 'markup',
+      '#value' => '<h2>'. $title . ($title && $view->description ? ': ' : '') . $view->description .'</h2>'. ($view->page && $view->url ? '<p><strong>URL:</strong> '. l($view->url, $view->url) .'</p>' : ''),
+      );
+  }  
   $form['calendar_time_format'] = array(
     '#title' => t('Time format'),
     '#default_value' => variable_get('calendar_time_format_'. $view->name, 'H:i'),
