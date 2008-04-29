@@ -293,7 +293,7 @@ function calendar_build_day($curday, $view, $items, $params) {
   if (empty($inner)) {
     $inner = theme('calendar_empty');
   }
-  $content = theme('calendar_date_box', date_format($curday, 'Y-m-d'), $view, $params, $selected) . $inner;
+  $content = theme('calendar_date_box', date_format($curday, 'Y-m-d'), $view, $items, $params, $selected) . $inner;
   return $content;
 }
 

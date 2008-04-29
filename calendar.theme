@@ -514,8 +514,18 @@ function theme_calendar_node_month($node, $view) {
  *
  * @param date
  *   The day to display in YYYY-MM-DD format.
+ * @param view
+ *   The view being displayed.
+ * @param items
+ *   The list of all items in the current view.
+ * @param params
+ *   An array of paramters.
+ * @param selected
+ *   Whether the current date has nodes.
+ * @return
+ *   A themed day.
  */
-function theme_calendar_date_box($date, $view, $params, $selected = FALSE) {
+function theme_calendar_date_box($date, $view, $items, $params, $selected = FALSE) {
   $parts = explode('-', substr($date, 0, 10));
   $year = $parts[0];
   $month = intval($parts[1]);
