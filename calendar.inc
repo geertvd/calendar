@@ -17,7 +17,9 @@ function _calendar_views_query_alter(&$query, &$view) {
   if ($view->build_type == 'block') {
     $query->calendar_type = 'month';
     $view->calendar_display = $display_formats['block'];
-    $view->args = explode('/', str_replace($view->url .'/', '', $_GET['q']));
+    if (empty($view->args)) {
+      $view->args = explode('/', str_replace($view->url .'/', '', $_GET['q']));
+    }
     foreach ($view->argument as $delta => $argument) {
       // Special handling for OG gid argument.
       // Find a default value for the gid when used in a block.
