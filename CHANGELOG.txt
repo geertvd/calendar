@@ -3,6 +3,7 @@ Views Calendar 5.x
 
 Version 2.0rc2
 ==============
+- #223601 Re-implement the 'mini' url for calendar block so it will work in Panels and ajax.
 - #243220 Add items to the calendar date box theme.
 - #243725 Add title/description/url to calendar setup form.
 - #243254 Make sure args aren't overriden if already set.
