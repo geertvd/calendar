@@ -35,21 +35,21 @@ function calendar_menu() {
         'access arguments'   => array('administer views'),
         'type' => MENU_NORMAL_ITEM,
         'page callback' => 'drupal_get_form',
-        'callback arguments' => array('_calendar_setup_form', $view_name),
+        'page arguments' => array('_calendar_setup_form', $view_name),
       );
     }
     $items['admin/settings/calendar/'. $view_name] = array(
       'title' => $view_name,
       'access arguments'   => array('administer views'),
       'page callback' => 'drupal_get_form',
-      'callback arguments' => array('_calendar_setup_form', $view_name),
+      'page arguments' => array('_calendar_setup_form', $view_name),
       'type' => $first ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
     );
     $items['admin/settings/calendar/'. $view_name .'/setup'] = array(
       'title' => t('Setup'),
       'access arguments'   => array('administer views'),
       'page callback' => 'drupal_get_form',
-      'callback arguments' => array('_calendar_setup_form', $view_name),
+      'page arguments' => array('_calendar_setup_form', $view_name),
       'type' => MENU_DEFAULT_LOCAL_TASK,
     );
     $first = FALSE;
@@ -63,7 +63,7 @@ function calendar_theme() {
       'file' => 'calendar.theme', 'arguments' => array('field_type', 'value', 'query'),
       ),
     'calendar_date_box' => array(
-      'file' => 'calendar.theme', 'arguments' => array('date', 'view', 'params', 'selected'),
+      'file' => 'calendar.theme', 'arguments' => array('date', 'view', 'items', 'params', 'selected'),
       ),
     'calendar_date_combo' => array(
       'file' => 'calendar.theme', 'arguments' => array('node', 'lable', 'view'),
