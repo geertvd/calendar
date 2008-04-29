@@ -130,7 +130,7 @@ function theme_calendar_view_table($view, $nodes, $type) {
  * Display the nodes of a view as teasers.
  */
 function theme_calendar_view_teasers($view, $nodes, $type) {
-  return views_theme('calendar_view_nodes', $view, $nodes, 'teasers');
+  return views_theme('calendar_view_nodes', $view, $nodes, 'teasers', TRUE);
 }
 
 /**
