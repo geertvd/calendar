@@ -140,7 +140,6 @@ function _calendar_views_query_alter(&$query, &$view) {
   	$display_formats = calendar_get_formats($view);
   	$view->calendar_display = $display_formats[$view->calendar_type];
   }
-
   return;
 }
 
@@ -195,7 +194,7 @@ function calendar_build_calendar($view, $items, $params) {
   }
 
   // Add the navigation in as the header.
-  $header = calendar_nav($view, $view->mini, $params['with_weekno']);
+  $header = calendar_nav($view, $params['with_weekno']);
   $output = theme('calendar_links', $view, $view->build_type != 'block');
   $output .= theme('calendar_'. $view->calendar_type, $view, $header, $rows);
   return $output;
@@ -697,7 +696,8 @@ function calendar_event_timezone($zid) {
 /**
  *  Function to construct back and next navigation from views arguments
  */
-function calendar_nav($view, $mini = FALSE, $with_weekno = FALSE) {
+function calendar_nav($view, $with_weekno = FALSE) {
+  $mini = $view->mini;
   if (!calendar_part_is_valid($view->year, 'year')) {
     return array($view->subtitle);
   }
@@ -716,7 +716,7 @@ function calendar_nav($view, $mini = FALSE, $with_weekno = FALSE) {
   }
   // for the mini calendar in a block, treat the url as a 	 
 	// querystring to avoid actually changing the page 	 
-	if ($mini && $view->calendar_type == 'month') { 	 
+	if ($mini) { 	 
 	  $prev_query[] = 'mini='. $prev_path; 	 
 	  $prev_path = $_GET['q']; 	 
 	  $next_query[] = 'mini='. $next_path; 	 
