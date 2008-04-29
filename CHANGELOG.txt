@@ -3,6 +3,7 @@ Views Calendar 5.x
 
 Version 2.0rc2
 ==============
+- #243254 Make sure args aren't overriden if already set.
 - #239501 Add missing argument for teaser display.
 - #210844 Make sure empty text displays.
 - #234635 Add calendar_build_nodes() to calendar_ical export processing.
