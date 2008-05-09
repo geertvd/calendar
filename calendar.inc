@@ -412,8 +412,8 @@ function calendar_build_field_query(&$query, $field) {
     $query->ensure_table($this_field['table'], $this_field['table']);
     $tz_handling  = $this_field['tz_handling'];
     $offset_field = $this_field['offset_field'];
-    $field_type   = strstr($this_field['type'], 'string') ? DATE_ISO : DATE_UNIX;
-
+    $field_type   = strstr($this_field['type'], 'string') ? 'iso' : 'int';
+    
     // Figure out the appropriate timezone offset to use to convert the date
     // back to local time.
     switch ($tz_handling) {
@@ -455,19 +455,22 @@ function calendar_build_field_query(&$query, $field) {
     // until we have dates stored in native datetime fields. Once we have
     // native datetime fields we'll be able to use only the timezone name
     // to have the database make the right adjustments.
-
+    
+    $date_handler = new date_sql_handler();
+    $date_handler->construct($field_type);
+  
     if ($this_field['timestamp_fromto'] || $this_field['string_fromto']) {
       if ($this_field['timestamp_fromto']) {
         $utc_from = $this_field['timestamp_fromto'][0];
         $utc_to = $this_field['timestamp_fromto'][1];
-        $adj_from = date_sql('DATE', $this_field['timestamp_fromto'][0], $field_type, $start_offset);
-        $adj_to = date_sql('DATE', $this_field['timestamp_fromto'][1], $field_type, $start_offset);
+        $adj_from = $date_handler->sql_field($this_field['timestamp_fromto'][0], $start_offset);
+        $adj_to = $date_handler->sql_field($this_field['timestamp_fromto'][1], $start_offset);
       }
       else {
         $utc_from = $this_field['string_fromto'][0];
         $utc_to = $this_field['string_fromto'][1];
-        $adj_from = date_sql('DATE', $this_field['string_fromto'][0], $field_type, $start_offset);
-        $adj_to = date_sql('DATE', $this_field['string_fromto'][1], $field_type, $start_offset);
+        $adj_from = $date_handler->sql_field($this_field['string_fromto'][0], $start_offset);
+        $adj_to = $date_handler->sql_field($this_field['string_fromto'][1], $start_offset);
       }
       $adjusted_field = date_sql_concat(array($adj_from, "'|'", $adj_to));
       $utc_field = date_sql_concat(array($utc_from, "'|'", $utc_to));
