@@ -111,28 +111,14 @@ function _calendar_fields() {
     elseif ($val['handler'] == views_handler_field_dates()) {
       $type = 'timestamp';
     }
-    // don't do anything if this is not a date field
-    if ($type) {
+    // Don't do anything if this is not a date field we can handle.
+    if ($type && $name != 'event.event_start' && $name != 'event.event_end') {
 
       // dates with from and to dates need to handle both fields as one
       // add the from and to dates to the first one found and ignore the second
 
-      // Handling for event dates
-      if (module_exists('event') && !in_array($processed_name, $event_fields_processed)
-      && ($name == 'event.event_start' || $name == 'event.event_end')) {
-        $timestamp_fromto = array('event.event_start', 'event.event_end');
-        $offset_field = 'event.timezone';
-        $tz_handling = variable_get('event_timezone_display', 'site');
-        $event_fields_processed[] = $processed_name;
-        $related_fields = array(
-          'event.event_start',
-          'event.event_end',
-          'event.timezone',
-          );
-        $timezone_field = 'event.timezone';
-      }
       // Handling for content field dates
-      elseif ($val['content_field']['tz_handling']) {
+      if ($val['content_field']['tz_handling']) {
         $tz_handling = $val['content_field']['tz_handling'];
         if ($tz_handling == 'date') {
           $offset_field = $val['table'] .'.'. $val['content_db_info']['columns']['offset']['column'];
