@@ -158,7 +158,7 @@ function calendar_build_calendar($view, $items, $params) {
   foreach ($items as $delta => $item) {
     if (($item->calendar_start_date >= $view->min_date && $item->calendar_start_date <= $view->max_date)
      || ($item->calendar_end_date >= $view->min_date && $item->calendar_end_date <= $view->max_date)) {
-      $values[date_format($item->calendar_start_date, 'Y-m-d')][date_format($item->calendar_start_date, 'Y-m-d')][] = $item;
+      $values[date_format($item->calendar_start_date, 'Y-m-d')][date_format($item->calendar_start, 'Y-m-d')][] = $item;
     }
   }
   $items = $values;
@@ -473,7 +473,7 @@ function calendar_build_nodes(&$view, &$items) {
   foreach($fields as $field) {
     $datefields[] = $field['query_name'];
   }
-  $view_fields      = _views_get_fields();
+  $view_fields      = views_fetch_fields('node', 'node');
   $field_names = (array) array_keys($fields);
   $nodes = array();
   $i = 0;
@@ -613,10 +613,10 @@ function calendar_build_nodes(&$view, &$items) {
 /**
  *  Function to construct back and next navigation from views arguments
  */
-function calendar_nav($view, $with_weekno = FALSE) {
+function calendar_nav(&$view) {
   $mini = $view->mini;
   if (!calendar_part_is_valid($view->year, 'year')) {
-    return array($view->subtitle);
+    //return array($view->subtitle);
   }
 
   // make the navigation into a header, with prev and next links
@@ -766,4 +766,139 @@ function calendar_week_range(&$view) {
     return array($min_date, $max_date);
   }
   return array();
+}
+
+/**
+ *  Identify all potential date/timestamp fields.
+ *
+ *  @return
+ *   array with fieldname, type, and table
+ */
+function _calendar_fields($base = 'node') {
+  $cid = 'calendar_fields';
+  cache_clear_all($cid, 'cache_views');
+  $delta = 0;
+  
+  $all_fields = views_fetch_fields($base, 'field');
+  $fields = array();
+  foreach ((array) $all_fields as $name => $val) {
+    $timestamp_fromto = array();
+    $string_fromto = array();
+    $tmp = explode('.', $name);
+    $field_name = $tmp[1];
+    $table_name = $tmp[0];
+    
+    $handler = views_get_handler($table_name, $field_name, 'field');
+    $type = '';
+    
+    // For cck fields, get the date type.
+    if (isset($handler->content_field)) {
+      if ($handler->content_field['type'] == 'date') {
+        $type = 'cck_string';
+      }
+      elseif ($handler->content_field['type'] == 'datestamp') {
+        $type = 'cck_timestamp';
+      }
+      elseif ($handler->content_field['type'] == 'datetime') {
+        $type = 'cck_datetime';
+      }
+    }
+    
+    // This is a core timestamp field.
+    elseif (strstr($field_name, 'timestamp') || strstr($field_name, 'updated') 
+      || strstr($field_name, 'created') || strstr($field_name, 'changed')) {
+      $type = 'timestamp';
+    }
+    
+
+    // Don't do anything if this is not a date field we can handle.
+    if (!empty($type)) {
+
+      // dates with from and to dates need to handle both fields as one
+      // add the from and to dates to the first one found and ignore the second
+      $fields[$name]['table_name'] = $table_name;
+      $fields[$name]['field_name'] = $field_name;
+      $fields[$name]['type'] = $type;
+    
+      // Handling for content field dates
+      if ($handler->content_field['tz_handling']) {
+        $tz_handling = $handler->content_field['tz_handling'];
+        if ($tz_handling == 'date') {
+          $offset_field = $table_name .'.'. $handler->content_field['columns']['offset']['column'];
+        }
+        $related_fields = array(
+          $table_name .'.'. $field_name .'_value',
+          $table_name .'.'. $field_name .'_value2',
+          $table_name .'.'. $field_name .'_timezone',
+          $table_name .'.'. $field_name .'_offset',
+          $table_name .'.'. $field_name .'_offset2',
+          );
+        $timezone_field = $table_name .'.'. $handler->content_field['columns']['timezone']['column'];
+      }
+      // Handling for simple timestamp fields
+      else {
+        $timestamp_fromto = array($name, $name);
+        $tz_handling = 'site';
+        $related_fields = array();
+        $timezone_field = '';
+      }
+      // Handling for cck fromto dates
+      switch ($handler->content_field['type']) {
+        case 'datestamp':
+          $timestamp_fromto = array(
+            $table_name .'.'. $field_name .'_value',
+            $table_name .'.'. ($handler->content_field['todate'] ? $field_name .'_value2' : $field_name .'_value'),
+            );
+          break;
+        case 'date':
+          $string_fromto = array(
+            $table_name .'.'. $field_name .'_value',
+            $table_name .'.'. ($handler->content_field['todate'] ? $field_name .'_value2' : $field_name .'_value'),
+            );
+          break;
+      }
+      
+      if (is_array($handler->content_field['granularity'])) {
+        $granularity = $handler->content_field['granularity'];
+      }
+      else {
+        $granularity = array('year', 'month', 'day', 'hour', 'minute');
+      }
+
+      // skip this step on second occurrence of fromto date fields, if more than one exists in view
+      // cck fields append a column name to the field, others do not
+      // need a real field_name with no column name appended for cck date formatters
+      switch ($type) {
+        case 'cck_string':
+          $sql_type = DATE_ISO;
+          break;
+        case 'cck_datetime':
+          $sql_type = DATE_DATETIME;
+          break;
+        default:
+          $sql_type = DATE_UNIX;
+          break;
+      }
+      $fields[$name] = array(
+        'type' => $type,
+        'sql_type' => $sql_type,
+        'delta' => $delta,
+        'label' => $val['group'] .': '. $val['title'],
+        'granularity' => $granularity,
+        'fullname' => $name,
+        'table' => $table_name,
+        'field' => $field_name,
+        'field_name' => $field_name,
+        'query_name' => str_replace('.', '_', $name),
+        'timestamp_fromto' => $timestamp_fromto,
+        'string_fromto' => $string_fromto,
+        'tz_handling' => $tz_handling,
+        'offset_field' => $offset_field,
+        'timezone_field' => $timezone_field,
+        'related_fields' => $related_fields,
+      );
+    }
+  }
+  //cache_set($cid, $fields, 'cache_views');
+  return $fields;
 }

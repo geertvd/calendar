@@ -11,7 +11,7 @@
  * Intercept arguments before calendar and return their summary view,
  * Otherwise return calendar view.
  */
-function theme_calendar_views_summary(&$view, $type, $level, &$items, $args) {
+function _theme_calendar_views_summary(&$view, $type, $level, &$items, $args) {
   if (!calendar_is_calendar_arg($view)) {
     return theme('views_summary', $view, $type, $level, $items, $args);
   }
@@ -24,7 +24,7 @@ function theme_calendar_views_summary(&$view, $type, $level, &$items, $args) {
  * Calendar Views plugin theme, overrides default views theme
  * to create a calendar view.
  */
-function theme_calendar_views_calendar(&$view, &$items, $type) {
+function _theme_calendar_views_calendar(&$view, &$items, $type) {
   include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
   if ($type == 'block' || !calendar_is_calendar_arg($view)) {
     $view->calendar_type = 'month';
@@ -32,7 +32,7 @@ function theme_calendar_views_calendar(&$view, &$items, $type) {
   // Bail out here to display regular views views instead of calendar.
   switch($view->calendar_display) {
     case ('table') :
-      $view->table_header = _views_construct_header($view, _views_get_fields());
+      $view->table_header = _views_construct_header($view, views_fetch_fields('node', 'node'));
       $out =  theme('calendar_view_table', $view, $items, $type);
       break;
     case ('teasers') :
@@ -77,7 +77,7 @@ function theme_calendar_view_list($view, $nodes, $type) {
   $output .= theme("table", calendar_nav($view), array());
   $output .= '</div>';
 
-  $fields = _views_get_fields();
+  $fields = views_fetch_fields('node', 'node');
   $items = array();
   foreach ($nodes as $node) {
     $item = '';
@@ -113,7 +113,7 @@ function theme_calendar_view_table($view, $nodes, $type) {
   $output .= theme("table", calendar_nav($view), array());
   $output .= '</div>';
 
-  $fields = _views_get_fields();
+  $fields = views_fetch_fields('node', 'node');
   $rows = array();
   foreach ($nodes as $node) {
     $row = array();
@@ -442,7 +442,7 @@ function theme_calendar_day($view, $header, $data) {
 function theme_calendar_node_day($node, $view) {
   $output = '<div class="calendar dayview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
-  $fields = _views_get_fields();
+  $fields = views_fetch_fields('node', 'node');
   $item = '';
   foreach ($view->field as $field) {
     if ($fields[$field['id']]['visible'] !== FALSE) {
@@ -475,7 +475,7 @@ function theme_calendar_node_day($node, $view) {
 function theme_calendar_node_week($node, $view) {
   $output .= '<div class="calendar weekview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
-  $fields = _views_get_fields();
+  $fields = views_fetch_fields('node', 'node');
   $item = '';
   foreach ($view->field as $field) {
     if ($fields[$field['id']]['visible'] !== FALSE) {
@@ -501,7 +501,7 @@ function theme_calendar_node_week($node, $view) {
 function theme_calendar_node_month($node, $view) {
   $output .= '<div class="calendar monthview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
-  $fields = _views_get_fields();
+  $fields = views_fetch_fields('node', 'node');
   $item = '';
   foreach ($view->field as $field) {
     if ($fields[$field['id']]['visible'] !== FALSE) {

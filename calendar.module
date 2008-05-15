@@ -17,46 +17,9 @@ function calendar_help($section, $arg) {
 
 function calendar_init() {
   drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
-  define('CALENDAR_EMPTY_ARG', variable_get('calendar_empty_arg', 'all'));
-  include_once(drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
+  include_once(drupal_get_path('module', 'calendar') .'/calendar.theme');
   drupal_add_js(drupal_get_path('module', 'calendar') .'/calendarblock.js');
   drupal_add_js('misc/progress.js');
-}
-
-/**
- *  Implementation of hook_menu().
- */
-function calendar_menu() {
-  $items = array();
-  $first = TRUE;
-  foreach (calendar_info() as $view_name => $view) {
-    if ($first) {
-      $items['admin/settings/calendar'] = array(
-        'title' => 'Calendar Setup',
-        'description' => 'Customize calendar settings options.',
-        'access arguments'   => array('administer views'),
-        'type' => MENU_NORMAL_ITEM,
-        'page callback' => 'drupal_get_form',
-        'page arguments' => array('_calendar_setup_form', $view_name),
-      );
-    }
-    $items['admin/settings/calendar/'. $view_name] = array(
-      'title' => $view_name,
-      'access arguments'   => array('administer views'),
-      'page callback' => 'drupal_get_form',
-      'page arguments' => array('_calendar_setup_form', $view_name),
-      'type' => $first ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
-    );
-    $items['admin/settings/calendar/'. $view_name .'/setup'] = array(
-      'title' => t('Setup'),
-      'access arguments'   => array('administer views'),
-      'page callback' => 'drupal_get_form',
-      'page arguments' => array('_calendar_setup_form', $view_name),
-      'type' => MENU_DEFAULT_LOCAL_TASK,
-    );
-    $first = FALSE;
-  }
-  return $items;
 }
 
 function calendar_theme() {
@@ -121,14 +84,8 @@ function calendar_theme() {
      'calendar_view_teasers' => array(
        'file' => 'calendar.theme', 'arguments' => array('view', 'nodes', 'type'),
        ),
-     'calendar_views_calendar' => array(
-       'file' => 'calendar.theme', 'arguments' => array('view', 'items', 'type'),
-       ),
      'calendar_views_field' => array(
        'file' => 'calendar.theme', 'arguments' => array('fieldname', 'fields', 'field', 'node', 'view', 'type'),
-       ),
-     'calendar_views_summary' => array(
-       'file' => 'calendar.theme', 'arguments' => array('view', 'type', 'items', 'args'),
        ),
      'calendar_week' => array(
        'file' => 'calendar.theme', 'arguments' => array('view', 'header', 'rows'),
@@ -191,7 +148,7 @@ function calendar_date_week($date) {
 
 /**
  * Implementation of hook_form_alter().
- * Make sure calendar_info() and calendar_fields() get updated.
+ * Make sure calendar_fields() gets updated.
  */
 function calendar_form_alter($form_id, &$form) {
   if ($form_id == 'views_edit_view') {
@@ -205,142 +162,6 @@ function calendar_form_alter($form_id, &$form) {
 function calendar_offset($field_name) {
   $default_offset = variable_get('date_default_timezone', 0);
   $configurable_zones = variable_get('configurable_timezones', 1);
-}
-
-/**
- *  Custom views handler for all calendar arguments.
- */
-function calendar_handler_arg_type($op, &$query, $argtype, $arg, $field_type) {
-  switch ($op) {
-    case 'summary':
-    case 'link':
-      // The query to do summaries when date ranges can include multiple days, months, and years
-      // is extremely complex and has been omitted, so summary views with these arguments just will not work.
-      // TODO add some kind of validation or warning to keep people from trying to use summary views.
-      break;
-
-    case 'filter':
-      // Figure out which will be the final calendar argument in this view so we know when to insert the query.
-      $view = $GLOBALS['current_view'];
-      if ($argtype['type'] == calendar_is_last_arg($view)) {
-        $query->calendar_finished = TRUE;
-        //calendar_build_filter($query, $view);
-      }
-      break;
-
-    case 'title':
-      // Set titles for each argument.
-      $value = intval(str_replace('W', '', $arg ? $arg : $query));
-      return theme('calendar_arg_title', $field_type, $value, $query);
-  }
-  return;
-}
-
-/**
- *  Custom views handler for the year argument.
- */
-function calendar_handler_arg_year($op, &$query, $argtype, $arg = '') {
-  if ($op == 'filter' && !empty($arg) && $arg != CALENDAR_EMPTY_ARG) {
-    calendar_filter_year($query, $arg);
-  }
-  return calendar_handler_arg_type($op, $query, $argtype, $arg, 'YEAR');
-}
-
-/**
- * Callback for year filter.
- *   Build year, month, day, min, and max into query object.
- *
- * @param object $query
- * @param integer $arg
- */
-function calendar_filter_year(&$query, $arg) {
-  $query->calendar_type = 'year';
-  $query->year = calendar_part_is_valid($arg, 'year') ? $arg : date_format(date_now(), 'Y');
-  $query->month = CALENDAR_EMPTY_ARG;
-  $query->day = CALENDAR_EMPTY_ARG;
-}
-
-/**
- *  Custom views handler for the month argument.
- */
-function calendar_handler_arg_month($op, &$query, $argtype, $arg = '') {
-  if ($op == 'filter' && !empty($arg) && $arg != CALENDAR_EMPTY_ARG) {
-    calendar_filter_month($query, $arg);
-  }
-  return calendar_handler_arg_type($op, $query, $argtype, $arg, 'MONTH');
-}
-
-/**
- * Callback for month filter.
- *   Build year, month, day, min, and max into query object.
- *
- * @param object $query
- * @param integer $arg
- */
-function calendar_filter_month(&$query, $arg) {
-  $now = date_now();
-  $query->calendar_type = 'month';
-  if (!isset($query->year)) {
-    calendar_filter_year($query, date_format($now, 'Y'));
-  }
-  $query->month = calendar_part_is_valid($arg, 'month') ? $arg : date_format($now, 'm');
-  $query->day = CALENDAR_EMPTY_ARG;
-}
-
-/**
- *  Custom views handler for the day argument.
- */
-function calendar_handler_arg_day($op, &$query, $argtype, $arg = '') {
-  if ($op == 'filter' && !empty($arg) && $arg != CALENDAR_EMPTY_ARG) {
-    calendar_filter_day($query, $arg);
-  }
-  return calendar_handler_arg_type($op, $query, $argtype, $arg, 'DAY');
-}
-
-/**
- * Callback for day filter.
- *   Build year, month, day, min, and max into query object.
- *
- * @param object $query
- * @param integer $arg
- */
-function calendar_filter_day(&$query, $arg) {
-  $now = date_now();
-  if (!isset($query->month)) {
-    calendar_filter_month($query, date_format($now, 'm'));
-  }
-  $query->calendar_type = 'day';
-  $query->day = calendar_part_is_valid($arg, 'day') ? $arg : date_format($now, 'j');
-}
-
-/**
- *  Custom views handlers for the week argument.
- */
-function calendar_handler_arg_week($op, &$query, $argtype, $arg = '') {
-  if ($op == 'filter' && !empty($arg) && $arg != CALENDAR_EMPTY_ARG) {
-    calendar_filter_week($query, $arg);
-  }
-  return calendar_handler_arg_type($op, $query, $argtype, $arg, 'WEEK');
-}
-
-/**
- * Callback for week filter.
- *   Build year, month, day, min, and max into query object.
- *
- * @param object $query
- * @param integer $arg
- */
-function calendar_filter_week(&$query, $arg) {
-  $now = date_now();
-  if (!isset($query->year)) {
-    calendar_filter_year($query, date_format($now, 'Y'));
-  }
-  $arg = str_replace('W', '', $arg);
-  $query->calendar_type = 'week';
-  $query->week = calendar_part_is_valid($arg, 'week') ? $arg : NULL;
-  $range = calendar_week_range($query);
-  $query->month = date_format($range[0], 'n');
-  $query->day = date_format($range[0], 'j');
 }
 
 /**
@@ -592,7 +413,7 @@ function calendar_url_append($view) {
  *  Function to test whether this is a view that uses the calendar plugin theme.
  */
 function calendar_is_calendar($view) {
-  $calendar_info = calendar_info();
+  //$calendar_info = calendar_info();
   return $calendar_info[$view->name][$view->build_type];
 }
 
@@ -600,7 +421,7 @@ function calendar_is_calendar($view) {
  * Function to test whether any calendar args are used in this view.
  */
 function calendar_has_calendar_args($view, $reset = FALSE) {
-  $calendar_info = calendar_info();
+  //$calendar_info = calendar_info();
   if (count($calendar_info[$view->name]['args']) > 0) {
     return TRUE;
   }
@@ -613,7 +434,7 @@ function calendar_has_calendar_args($view, $reset = FALSE) {
  * The positions in the view that hold calendar arguments.
  */
 function calendar_arg_positions($view) {
-  $calendar_info = calendar_info();
+  //$calendar_info = calendar_info();
   if (array_key_exists($view->name, $calendar_info)) {
     return array_keys($calendar_info[$view->name]['args']);
   }
@@ -658,19 +479,6 @@ function calendar_is_last_arg($view, $reset = FALSE) {
 }
 
 /**
- * Helper function to find the display formats
- * for each part of this view.
- */
-function calendar_get_formats($view) {
-  return variable_get('calendar_display_format_'. $view->name, array(
-    'year' => 'calendar',
-    'month' => 'calendar',
-    'week' => 'calendar',
-    'day' => 'calendar',
-    'block' => 'calendar'));
-}
-
-/**
  * create a stripe id from a combination of the field and content types
  * and store value for legend
  * formula tries to create a unique id for each possible combination
@@ -705,56 +513,6 @@ function calendar_node_stripe($view, $node, $query_name, $delta, $stripe = NULL,
  */
 
 /**
- *  Implementation of hook_views_style_plugins()
- */
-function calendar_views_style_plugins() {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
-  return _calendar_views_style_plugins();
-}
-
-/**
- * Implementation of hook_views_default_views()
- */
-function calendar_views_default_views() {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
-  return _calendar_views_default_views();
-}
-
-/**
- *  Implementation of hook_views_arguments()
- */
-function calendar_views_arguments() {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
-  return _calendar_views_arguments();
-}
-
-/**
- *  Function to return all possible calendar views page display types.
- */
-function calendar_view_types($reset = FALSE) {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
-  return _calendar_view_types($reset);
-}
-
-/**
- * Function to get information about all views that have calendar components.
- */
-function calendar_info($reset = FALSE) {
-  static $calendar_views;
-  if (empty($calendar_views) || $reset) {
-    $cid = 'calendar_views';
-    if (!$reset && $cached = cache_get($cid, 'cache_views')) {
-      $calendar_views = $cached->data;
-    }
-    else {
-     include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
-     $calendar_views = _calendar_info();
-    }
-  }
-  return $calendar_views;
-}
-
-/**
  *  Identify all potential date/timestamp fields
  */
 function calendar_fields($reset = FALSE) {
@@ -765,35 +523,11 @@ function calendar_fields($reset = FALSE) {
       $fields = $cached->data;
     }
     else {
-      include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
+      include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
       $fields = _calendar_fields();
     }
   }
   return $fields;
-}
-
-/**
- * Validate a view during Views administration.
- */
-function calendar_views_validate($type, $view, $form) {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
-  return _calendar_views_validate($type, $view, $form);
-}
-
-/**
- * Setup Calendar parameters in the Setup Tab.
- */
-function calendar_setup_form($view_name) {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
-  return _calendar_setup_form($view_name);
-}
-
-/**
- * Save Setup values.
- */
-function calendar_setup_form_submit($form_id, $form_values) {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
-  return _calendar_setup_form_submit($form_id, $form_values);
 }
 
 /**

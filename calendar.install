@@ -8,9 +8,6 @@
 // so include critical code here just to be sure.
 include_once('./'. drupal_get_path('module', 'date_api') .'/date_api.module');
 include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.module');
-if (module_exists('views')) {
-  include_once('./'. drupal_get_path('module', 'views') .'/views.module');
-}
 
 /**
  * Implementation of hook_requirements().
@@ -73,10 +70,12 @@ function calendar_disable() {
 function calendar_uninstall() {
   $ret = array();
   variable_del('calendar_empty_arg');
-  foreach (array_keys(calendar_info()) as $view_name) {
-    variable_del('calendar_time_format_'. $view_name);
-    variable_del('calendar_display_format_'. $view_name);
-  }
+  
+  // Can't use variable_del because we don't have a reliable
+  // way to find the old view names.
+  db_query("DELETE FROM {variable} WHERE name LIKE 'calendar_%'");
+  cache_clear_all('variables', 'cache');
+
   // Empty the calendar caches.
   calendar_clear_all(TRUE);
   return $ret;
