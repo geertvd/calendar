@@ -9,7 +9,7 @@ $view->view_php = '';
 $view->base_table = 'node';
 $view->is_cacheable = '0';
 $view->api_version = 2;
-$view->disabled = TRUE; // Edit this to true to make a default view disabled initially
+$view->disabled = FALSE; // Edit this to true to make a default view disabled initially
 $view->display = array();
   $display = new views_display;
   $display->id = 'default';
@@ -20,7 +20,7 @@ $view->display = array();
   'style_plugin' => 'calendar',
   'style_options' => array(
     'date_fields' => array(
-      '' => 0,
+      '0' => 'node.changed',
     ),
     'default_display' => 'month',
     'year' => 'calendar',
@@ -129,7 +129,6 @@ $view->display['default'] = $display;
   'path' => 'calendar',
 );
 $view->display['page'] = $display;
-
 
   $views[$view->name] = $view;
   return $views;
