@@ -3,7 +3,7 @@
 function _calendar_views_default_views() {
 $view = new view;
 $view->name = 'calendar';
-$view->description = 'calendar';
+$view->description = '';
 $view->tag = '';
 $view->view_php = '';
 $view->base_table = 'node';
@@ -22,13 +22,14 @@ $view->display = array();
     'date_fields' => array(
       '' => 0,
     ),
-    'calendar_time_format' => 'H:i',
-    'calendar_day_header' => '1',
+    'default_display' => 'month',
     'year' => 'calendar',
     'month' => 'calendar',
     'week' => 'calendar',
     'day' => 'calendar',
-    'block' => 'calendar',
+    'calendar_time_format' => 'h:i a',
+    'calendar_day_header' => '2',
+    'block_args' => '',
   ),
   'row_plugin' => 'fields',
   'row_options' => array(),
@@ -45,10 +46,10 @@ $view->display = array();
   ),
   'sorts' => array(),
   'arguments' => array(
-    'calendar_year' => array(
-      'id' => 'calendar_year',
+    'calendar_date' => array(
+      'id' => 'calendar_date',
       'table' => 'node',
-      'field' => 'calendar_year',
+      'field' => 'calendar_date',
       'default_action' => 'default',
       'style_plugin' => 'default_summary',
       'style_options' => array(
@@ -78,74 +79,7 @@ $view->display = array();
       'validate_argument_vocabulary' => array(),
       'validate_argument_type' => 'tid',
       'validate_argument_php' => '',
-    ),
-    'calendar_month' => array(
-      'id' => 'calendar_month',
-      'table' => 'node',
-      'field' => 'calendar_month',
-      'default_action' => 'default',
-      'style_plugin' => 'default_summary',
-      'style_options' => array(
-        'count' => TRUE,
-        'override' => FALSE,
-        'items_per_page' => 25,
-      ),
-      'wildcard' => 'all',
-      'wildcard_substitution' => 'All',
-      'title' => '',
-      'default_argument_type' => 'calendar',
-      'default_argument' => '',
-      'validate_type' => 'none',
-      'validate_fail' => 'not found',
-      'date_fields' => array(
-        'node.changed' => 'node.changed',
-      ),
-      'date_method' => 'OR',
-      'relationship' => 'none',
-      'default_argument_fixed' => '',
-      'default_argument_php' => '',
-      'validate_argument_node_type' => array(
-        'page' => 0,
-        'story' => 0,
-        'test' => 0,
-      ),
-      'validate_argument_vocabulary' => array(),
-      'validate_argument_type' => 'tid',
-      'validate_argument_php' => '',
-    ),
-    'calendar_day' => array(
-      'id' => 'calendar_day',
-      'table' => 'node',
-      'field' => 'calendar_day',
-      'default_action' => 'ignore',
-      'style_plugin' => 'default_summary',
-      'style_options' => array(
-        'count' => TRUE,
-        'override' => FALSE,
-        'items_per_page' => 25,
-      ),
-      'wildcard' => 'all',
-      'wildcard_substitution' => 'All',
-      'title' => '',
-      'default_argument_type' => 'fixed',
-      'default_argument' => '',
-      'validate_type' => 'none',
-      'validate_fail' => 'not found',
-      'date_fields' => array(
-        'node.changed' => 'node.changed',
-      ),
-      'date_method' => 'OR',
-      'relationship' => 'none',
-      'default_argument_fixed' => '',
-      'default_argument_php' => '',
-      'validate_argument_node_type' => array(
-        'page' => 0,
-        'story' => 0,
-        'test' => 0,
-      ),
-      'validate_argument_vocabulary' => array(),
-      'validate_argument_type' => 'tid',
-      'validate_argument_php' => '',
+      'default_argument_calendar' => 'Y-m-d',
     ),
   ),
   'filters' => array(),
@@ -195,6 +129,7 @@ $view->display['default'] = $display;
   'path' => 'calendar',
 );
 $view->display['page'] = $display;
+
 
   $views[$view->name] = $view;
   return $views;

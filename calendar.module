@@ -174,12 +174,6 @@ function calendar_offset($field_name) {
  *  @param object $view
  */
 function calendar_views_query_alter(&$query, &$view) {
-  if (!calendar_has_calendar_args($view) ||
-    (empty($view->args) && !calendar_is_calendar_arg($view)
-    && $view->argument[0]['argdefault'] != 2)) {
-    return;
-  }
-
   // Check if a new date has been selected and if so redirect.
   if (isset($_POST['calendar_goto'])) {
     $parts = explode('/', $_POST['calendar_goto']['date']);
@@ -198,16 +192,13 @@ function calendar_views_query_alter(&$query, &$view) {
     drupal_goto($view->url .'/'. implode('/', $parts));
     drupal_exit();
   }
-
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.theme');
-  return _calendar_views_query_alter($query, $view);
 }
 
 /**
  *  Implementation of hook_views_pre_view()
  */
 function calendar_views_pre_view(&$view, &$items) {
+  return;
   include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.theme');
 
   // If no part of this view has calendar elements, exit.
@@ -272,6 +263,7 @@ function calendar_views_pre_view(&$view, &$items) {
  * calendar, so override Views to set the page title to match the View title.
  */
 function calendar_views_post_view(&$view, $items, $output) {
+  return;
   // If no part of this view has calendar elements, exit.
   if ($view->build_type != 'page' || !calendar_is_calendar($view) || !calendar_has_calendar_args($view)) {
     return;
@@ -359,16 +351,66 @@ function calendar_switch_view() {
 }
 
 /**
- * Valid calendar arguments.
+ * Calendar display types
  */
-function calendar_args() {
-  return array('calendar_year', 'calendar_week', 'calendar_month', 'calendar_day');
+function calendar_display_types() {
+  return array('year' => t('Year'), 'month' => t('Month'), 'day' => t('Day'), 'week' => t('Week'));  
+}
+
+/**
+ * Parse calendar parts from the argument.
+ *
+ * Should handle the following patterns:
+ * YYYY, YYYY-MM, YYYY-M, YYYY-MM-DD, YYYY-M-D, YYYY-W99, YYYY-W9
+ */
+function calendar_arg_parts($argument) {
+  $parts = array();
+  preg_match('/(\d{4})?-?(W)?(\d{1,2})?-?(\d{1,2})?/', $argument, $matches);
+  if (!empty($matches[1])) {
+    $parts['year'] = $matches[1];
+  }
+  if (!empty($matches[3])) {
+    if (empty($matches[2])) {
+      $parts['month'] = $matches[3];
+    }
+    else {
+      $parts['week'] = $matches[3];
+    }    
+  }
+  if (!empty($matches[4])) {
+    $parts['day'] = $matches[4];
+  }
+  return $parts;
+}
+
+function calendar_arg_format($argument) {
+  $format = array();
+  $parts = calendar_arg_parts($argument);
+  foreach ($parts as $key => $part) {
+    switch ($key) {
+      case 'year':
+        $format[] = strlen($part) < 4 ? 'y' : 'Y';
+        break;
+      case 'month':
+        $format[] = strlen($part) < 2 ? 'n' : 'm';
+        break;
+      case 'day':
+        $format[] = strlen($part) < 2 ? 'j' : 'd';
+        break;
+      case 'week':
+        $format[] = '\Ww';
+        break;
+    }
+  }
+  return implode('-', $format);
 }
 
 /**
  * Figure out what the URL of the calendar view we're currently looking at is.
  */
 function calendar_real_url($view, $args) {
+  return $view->url;
+  
   // Add non-calendar arguments to the base url.
   $parts = explode('/', $view->url);
   $bump = 0;
@@ -392,7 +434,7 @@ function calendar_real_url($view, $args) {
  * Pick up filter and sort info from url.
  */
 function calendar_url_append($view) {
-  if ($view->build_type == 'page') {
+  //if ($view->build_type == 'page') {
     foreach ($_GET as $key => $val) {
       if ($key != 'q' && $key != 'view') {
         if (!is_array($val)) {
@@ -405,77 +447,8 @@ function calendar_url_append($view) {
         }
       }
     }
-  }
+  //}
   return $url;
-}
-
-/**
- *  Function to test whether this is a view that uses the calendar plugin theme.
- */
-function calendar_is_calendar($view) {
-  //$calendar_info = calendar_info();
-  return $calendar_info[$view->name][$view->build_type];
-}
-
-/**
- * Function to test whether any calendar args are used in this view.
- */
-function calendar_has_calendar_args($view, $reset = FALSE) {
-  //$calendar_info = calendar_info();
-  if (count($calendar_info[$view->name]['args']) > 0) {
-    return TRUE;
-  }
-  else {
-    return FALSE;
-  }
-}
-
-/**
- * The positions in the view that hold calendar arguments.
- */
-function calendar_arg_positions($view) {
-  //$calendar_info = calendar_info();
-  if (array_key_exists($view->name, $calendar_info)) {
-    return array_keys($calendar_info[$view->name]['args']);
-  }
-  else {
-    return array();
-  }
-}
-
-/**
- * Is the current argument a calendar argument.
- * Used to sort out whether or not to display the calendar at each point.
- */
-function calendar_is_calendar_arg($view) {
-  if (empty($view->real_args)) {
-    $delta = 0;
-  }
-  else {
-    $delta = max(array_keys($view->real_args));
-  }
-  if (in_array($delta, calendar_arg_positions($view))) {
-    return TRUE;
-  }
-  return FALSE;
-}
-
-/**
- * Identify the final calendar argument in this view.
- *   Needed because we can't construct a query until we know all the calendar elements.
- *   Used to tell when to add the filter to the query object.
- *
- * @param object $view
- * @return string $argtype
- */
-function calendar_is_last_arg($view, $reset = FALSE) {
-  foreach ($view->argument as $argument) {
-    if (in_array($argument['id'], calendar_args())) {
-      $calendar_arg = $argument['id'];
-    }
-    $max = $argument['id'];
-  }
-  return $max < $calendar_arg;
 }
 
 /**
