@@ -266,6 +266,7 @@ class views_plugin_style_calendar extends views_plugin_style {
       if (isset($argument['date_fields'])) {
         foreach ($argument['date_fields'] as $date_field) {
           $field = $calendar_fields[$date_field];
+          $fullname = "{$field['table']}.{$field['field']}";
           $handler = views_get_handler($field['table'], $field['field'], 'field');
           if ($handler) {
             $date_fields[$fullname] = $field;
@@ -331,15 +332,12 @@ class views_plugin_style_calendar extends views_plugin_style {
     foreach ($date_fields as $field => $info) {
       $options[$field] = $info['name'];
     }
-    if (empty($this->options['date_fields'])) {
-      $this->options['date_fields'] = array();
-    }
-
+    
     $form['date_fields'] = array(
       '#type' => 'checkboxes',
       '#title' => t('Date field(s)'),
       '#options' => $options,
-      '#default_value' => array_keys($options),
+      '#default_value' => drupal_map_assoc(array_keys($options)),
       '#description' => t('The date fields which will be displayed in the calendar. Date fields are selected in the Calendar: Date argument.'),
       '#attributes' => array('disabled' => TRUE),
     );
@@ -407,7 +405,7 @@ class views_plugin_style_calendar extends views_plugin_style {
   }
   
   function options_submit($form, &$form_state) {
-    $form_state['values']['options']['date_fields'] = array_filter($form_state['values']['options']['date_fields']);
+    $form_state['values']['style_options']['date_fields'] = array_keys($form_state['values']['style_options']['date_fields']);
   }
   
   function query() {
