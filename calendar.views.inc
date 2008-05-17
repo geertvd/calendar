@@ -57,12 +57,6 @@ function calendar_views_plugins() {
         'handler' => 'calendar_plugin_argument_calendar',
       ),
     ),
-    'argument validator' => array(
-      'calendar' => array(
-        'title' => t('Current date'),
-        'handler' => 'calendar_plugin_argument_validate_calendar',
-      ),
-    ),
   );
 }
 
@@ -202,18 +196,18 @@ class calendar_argument_date extends views_handler_argument_formula {
  * Default argument plugin to default to the current date.
  */
 class calendar_plugin_argument_calendar extends views_plugin_argument_default {
-  var $option_name = 'default_argument_php';
+  var $option_name = 'default_argument_calendar';
   
   function argument_form(&$form, &$form_state) {
-    $form['default_argument_calendar'] = array(
-      '#type' => 'select',
-      '#options' => array('Y-m-d' => date('Y-m-d'), 'Ymd' => date('Ymd'), 
-        'Y-m' => date('Y-m'), 'Ym' => date('Ym'), 'Y' => date('Y'), 
-        'Y-\Ww' => date('Y-\Ww'), 'Y\Ww' => date('Y\Ww')),
+    $form[$option_name] = array(
       '#title' => t('Current date format'),
-      '#default_value' => $this->get_argument(TRUE), // the true forces it raw.
-      '#process' => array('views_process_dependency'),
       '#description' => t('Select a format to use when creating a missing argument from the current date.'),
+      '#type' => 'select',
+      '#options' => array('Y-m-d' => 'YYYY-MM-DD', 'Ymd' => 'YYYYMMDD', 
+        'Y-m' => 'YYYY-MM', 'Ym' => 'YYYYMM', 'Y' => 'YYYY', 
+        'Y-\Ww' => 'YYYY-W99', 'Y\Ww' => 'YYYYW99'),
+      '#default_value' => $this->format(),
+      '#process' => array('views_process_dependency'),
       '#dependency' => array(
         'radio:options[default_action]' => array('default'),
         'radio:options[default_argument_type]' => array($this->id)
@@ -223,30 +217,12 @@ class calendar_plugin_argument_calendar extends views_plugin_argument_default {
     $this->check_access($form);
   }
   
-  function access() {
-    return TRUE;
+  function format() {
+    return !empty($this->argument->options[$this->option_name]) ? $this->argument->options[$this->option_name] : 'Y-m';
   }
-
-  function get_argument($raw = FALSE) {
-    if ($raw || empty($this->arg_format)) {
-      return parent::get_argument();
-    }
-    return date($this->arg_format, time());
-  }
-}
-
-/**
- * Validate empty date argument.
- */
-class calendar_plugin_argument_validate_calendar extends views_plugin_argument_validate {
-  var $option_name = 'validate_argument_calendar';
-
-  function access() {
-    return TRUE;
-  }
-
-  function validate_argument($argument) {
-    return (!empty($this->arg_format));
+  
+  function get_argument() {
+    return date($this->format(), time());
   }
 }
 
@@ -428,6 +404,10 @@ class views_plugin_style_calendar extends views_plugin_style {
       '#options' => array('' => t('Page'), 'mini' => t('Block')),
       '#description' => t('Page arguments will derive argument information from the page url. Block arguments will derive argument information from a query string like \'&mini=2008-05\', so it can be used independently of the page url.'),
     );
+  }
+  
+  function options_submit($form, &$form_state) {
+    $form_state['values']['options']['date_fields'] = array_filter($form_state['values']['options']['date_fields']);
   }
   
   function query() {

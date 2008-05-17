@@ -361,7 +361,8 @@ function calendar_display_types() {
  * Parse calendar parts from the argument.
  *
  * Should handle the following patterns:
- * YYYY, YYYY-MM, YYYY-M, YYYY-MM-DD, YYYY-M-D, YYYY-W99, YYYY-W9
+ * YYYY, YYYY-MM, YYYY-M, YYYY-MM-DD, YYYY-M-D, YYYY-W99, YYYY-W9,
+ * YYYYMM, YYYYMMDD, YYYYW99, YYYYW9
  */
 function calendar_arg_parts($argument) {
   $parts = array();
@@ -383,6 +384,13 @@ function calendar_arg_parts($argument) {
   return $parts;
 }
 
+/**
+ * Imput a valid format string for the current argument.
+ *
+ * Will always return a format string that uses the dash
+ * as a separator even if the current argument omits it,
+ * but that's OK for the way the Calendar module uses it.
+ */
 function calendar_arg_format($argument) {
   $format = array();
   $parts = calendar_arg_parts($argument);
