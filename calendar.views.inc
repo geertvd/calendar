@@ -24,7 +24,7 @@ function calendar_views_data() {
       'calendar_type' => 'date',
       'type' => 'calendar',
       'empty name field' => t('Undated'),
-      'arg_format' => 'Y-m-d',
+      'arg_format' => 'Y-m',
     ),
   );  
   $data['user'] = $data['node'];
@@ -48,6 +48,7 @@ function calendar_views_plugins() {
         'uses fields' => TRUE,
         'uses options' => TRUE,
         'type' => 'normal',
+        'even_empty' => TRUE,
       ),
     ),
     // Add an option to set a default value for an empty date argument.
@@ -412,7 +413,7 @@ class views_plugin_style_calendar extends views_plugin_style {
     include_once(drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
         
     $this->view->real_url = calendar_real_url($this->view, $this->view->args);
-    $style_options = $this->view->style_handler->options;
+    $style_options = $this->view->style_plugin->options;
     
     $this->view->real_args = $this->view->args;
     
@@ -457,7 +458,7 @@ class views_plugin_style_calendar extends views_plugin_style {
     // Identify the kind of display we're using for this view.
     // Check first for 'view' in url to get displays set by the switch
     // block.
-    $style_options = $this->view->style_handler->options;
+    $style_options = $this->view->style_plugin->options;
     if (isset($_GET['view'])) {
   	  $this->view->calendar_display = !empty($_GET['view']) ? check_plain($_GET['view']) : 'calendar';
     }
@@ -496,6 +497,11 @@ class views_plugin_style_calendar extends views_plugin_style {
   function render() {
     return theme($this->theme_functions(), $this->view, $this->options, array());
   }
+  
+  function render_empty() {
+    dsm('calendar'); 
+    return 'EMPTY';
+  }
 }
 
 /**
@@ -504,8 +510,8 @@ class views_plugin_style_calendar extends views_plugin_style {
 function template_preprocess_calendar_views_calendar(&$vars) {
   $view     = $vars['view'];
   $result   = $view->result;
-  $options  = $view->style_handler->options;
-  $handler  = $view->style_handler;
+  $options  = $view->style_plugin->options;
+  $handler  = $view->style_plugin;
 
   $fields   = $view->field;
   $vars['result'] = $view->result;
