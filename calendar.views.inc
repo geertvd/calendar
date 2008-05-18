@@ -497,11 +497,6 @@ class views_plugin_style_calendar extends views_plugin_style {
   function render() {
     return theme($this->theme_functions(), $this->view, $this->options, array());
   }
-  
-  function render_empty() {
-    dsm('calendar'); 
-    return 'EMPTY';
-  }
 }
 
 /**
