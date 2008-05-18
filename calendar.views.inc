@@ -42,7 +42,7 @@ function calendar_views_plugins() {
       'calendar' => array(
         'title' => t('Calendar'),
         'help' => t('Displays Views results in a multi-dimensional calendar, with back/next navigation.'),
-        'handler' => 'views_plugin_style_calendar',
+        'handler' => 'calendar_plugin_style',
         'theme' => 'calendar_views_calendar',
         'uses row plugin' => TRUE,
         'uses fields' => TRUE,
@@ -55,7 +55,7 @@ function calendar_views_plugins() {
     'argument default' => array(
       'calendar' => array(
         'title' => t('Current date'),
-        'handler' => 'calendar_plugin_argument_calendar',
+        'handler' => 'calendar_plugin_argument_default',
       ),
     ),
   );
@@ -128,20 +128,6 @@ class calendar_argument_date extends views_handler_argument_formula {
     $form_state['values']['options']['date_fields'] = array_filter($form_state['values']['options']['date_fields']);
   }
   
-  function build_sql($name, $argument) {
-    $fields = calendar_fields();
-    if ($field = $fields[$name]) {
-      // Make sure this field is added to the query.
-      $this->query->add_field($field['table'], $field['field_name']);
-      
-      $this->date_handler->date_type = $field['sql_type'];
-      $sql = $this->date_handler->sql_where_format($this->arg_format, $field['fullname'], '=', $argument);
-      $sql = str_replace('***table***', $this->table_alias, $sql);
-      return $sql;
-    }
-    return FALSE;
-  }
-  
   /**
    * Set up the query for this argument.
    *
@@ -150,44 +136,102 @@ class calendar_argument_date extends views_handler_argument_formula {
   function query() {
     include_once('./'. drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
     
-    // If this argument is in a display using the calendar style plugin,
-    // we want to skip creating the query here and do it in the style
-    // instead. Not sure how to do that since this argument seems to have
-    //  no information about what kind of display it is attached to.
-    
     $this->ensure_my_table();
-    $this->date_handler = new date_sql_handler();
-    $this->date_handler->construct($this_field['type'], date_default_timezone_name());
     
-    $tz_handling  = $this_field['tz_handling'];
-    switch ($tz_handling) {
-      case 'date' :
-        $date_handler->db_timezone = 'UTC';
-        $date_handler->local_timezone_field = $fields['tz_field'];
-        $date_handler->local_offset_field = $fields['offset_field'];
-        break;
-      // 'None' doesn't actually use UTC, but we've set the db timezone
-      // to UTC so setting the local timezone to UTC will accomplish
-      // what we want to accomplish - do no timezone conversion.
-      case 'none':
-      case 'utc':
-        $date_handler->db_timezone = 'UTC';
-        $date_handler->local_timezone = 'UTC';
-        break;
-      default :
-        $date_handler->db_timezone = 'UTC';
-        $date_handler->local_timezone = date_default_timezone_name();
-        break;
+    $this->arg_format = calendar_arg_format($this->argument);
+    $parts = calendar_arg_parts($this->argument);
+
+    foreach ($parts as $key => $part) {
+      // The last part evaluated is the one that will 'stick'
+      // as the calendar type.
+      $this->calendar_type = $key;
+      $this->$key = $part;
     }
 
-    $this->arg_format = calendar_arg_format($this->argument);
-
+    $now = date_now();
+    if ($this->calendar_type == 'week' && calendar_part_is_valid($this->week, 'week')) {
+      $range = calendar_week_range($this);
+      $min_date = $range[0];
+      $max_date = $range[1];
+    
+    } else {
+      $month = calendar_part_is_valid($this->month, 'month') ? $this->month : 1;
+      $day   = calendar_part_is_valid($this->day, 'day') ? $this->day : 1;
+      $year  = calendar_part_is_valid($this->year, 'year') ? $this->year : date_format($now, 'Y');
+      $min_date  = date_create($year .'-'. date_pad($month) .'-'. date_pad($day) .' 00:00:00', date_default_timezone());
+      $max_date = drupal_clone($min_date);
+      date_modify($max_date, '+1 '. $this->calendar_type);
+      date_modify($max_date, '-1 second');
+    }
+    
+    // Create min and max dates in both local and UTC time.
+    // We'll compare fields to the UTC date whenever possible
+    // to avoid the need to do timezone conversions. When that
+    // isn't possible (the date is not stored in UTC or needs to
+    // be converted back to a time that may be different than
+    // the local timezone) we will have to do tz conversions in
+    // the database.
+    $this->min_date = $min_date;
+    $this->min_utc = drupal_clone($min_date);
+    date_timezone_set($this->min_utc, timezone_open('UTC'));
+    $this->max_date = $max_date;
+    $this->max_utc = drupal_clone($max_date);
+    date_timezone_set($this->max_utc, timezone_open('UTC'));
+        
     // Use set_where_group() with the selected date_method 
     // of 'AND' or 'OR' to create the where clause.
+    $fields = calendar_fields();
     $this->query->set_where_group($this->options['date_method'], 'calendar_date');
     foreach ($this->options['date_fields'] as $delta => $name) {
-      if ($sql = $this->build_sql($name, $this->argument)) {
-        $this->query->add_where('calendar_date', $sql);
+      if ($field = $fields[$name]) {
+        static $date_handler = array();
+        
+        // Set up a date handler for each field, and store it in a
+        // static variable so we don't re-do the work for every field.
+        if (!array_key_exists($name, $date_handler)) {
+          $date_handler[$name] = new date_sql_handler();
+          $date_handler[$name]->construct($this_field['type'], date_default_timezone_name());
+          $tz_handling  = $field['tz_handling'];
+          switch ($tz_handling) {
+            case 'date' :
+              $date_handler[$name]->db_timezone = 'UTC';
+              $date_handler[$name]->local_timezone_field = $fields['tz_field'];
+              $date_handler[$name]->local_offset_field = $fields['offset_field'];
+              $date_handler[$name]->min_date = $this->min_date;
+              $date_handler[$name]->max_date = $this->max_date;
+              break;
+            case 'none':
+              $date_handler[$name]->db_timezone = date_default_timezone_name();
+              $date_handler[$name]->local_timezone = date_default_timezone_name();
+              $date_handler[$name]->min_date = $this->min_date;
+              $date_handler[$name]->max_date = $this->max_date;
+              break;
+            case 'utc':
+              $date_handler[$name]->db_timezone = 'UTC';
+              $date_handler[$name]->local_timezone = 'UTC';
+              $date_handler[$name]->min_date = $this->min_utc;
+              $date_handler[$name]->max_date = $this->max_utc;
+              break;
+            default :
+              $date_handler[$name]->db_timezone = 'UTC';
+              $date_handler[$name]->local_timezone = 'UTC';
+              $date_handler[$name]->min_date = $this->min_utc;
+              $date_handler[$name]->max_date = $this->max_utc;
+              break;
+          }
+        }
+        
+        // Make sure this field is added to the query.
+        $this->query->add_field($field['table'], $field['field_name']);
+        $date_handler[$name]->date_type = $field['sql_type'];
+        
+        //$sql = $this->date_handler->sql_where_format($this->arg_format, $field['fullname'], '=', $this->argument);
+        $from = $date_handler[$name]->sql_where_date('DATE', $field['fullname'], '>=', date_format($date_handler[$name]->min_date, DATE_FORMAT_DATETIME));
+        $to = $date_handler[$name]->sql_where_date('DATE', $field['fullname'], '<=', date_format($date_handler[$name]->max_date, DATE_FORMAT_DATETIME));
+        $sql = str_replace('***table***', $this->table_alias, "($from AND $to)");
+        if ($sql) {
+          $this->query->add_where('calendar_date', $sql);
+        }
       }
     }
   }
@@ -196,7 +240,7 @@ class calendar_argument_date extends views_handler_argument_formula {
 /**
  * Default argument plugin to default to the current date.
  */
-class calendar_plugin_argument_calendar extends views_plugin_argument_default {
+class calendar_plugin_argument_default extends views_plugin_argument_default {
   var $option_name = 'default_argument_calendar';
   
   function argument_form(&$form, &$form_state) {
@@ -230,7 +274,7 @@ class calendar_plugin_argument_calendar extends views_plugin_argument_default {
 /**
  * Style plugin to render each item in a calendar.
  */
-class views_plugin_style_calendar extends views_plugin_style {
+class calendar_plugin_style extends views_plugin_style {
   
   /**
    * Set default options
@@ -412,49 +456,23 @@ class views_plugin_style_calendar extends views_plugin_style {
   function query() {
     include_once(drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
         
-    $this->view->real_url = calendar_real_url($this->view, $this->view->args);
     $style_options = $this->view->style_plugin->options;
-    
-    $this->view->real_args = $this->view->args;
-    
-    // Replace real url with block url, if requested.
-    if (!empty($style_options['block_args'])) {
-      $this->view->args = explode('/', str_replace($this->view->url .'/', '', $_GET[$style_options['block_args']]));
-    }
     
     // Evaluate our argument values and figure out which 
     // calendar display we need to create.
     $i = 0;    
     foreach ($this->view->argument as $delta => $argument) {
       if ($argument['id'] == 'calendar_date') {
-        $pos = $i;
-        $parts = calendar_arg_parts($this->view->args[$pos]);
-      }
-      $i++;
-    }
-    // If there is no calendar argument, set a default value.
-    if (empty($parts)) {
-      switch ($this->options['default_display']) {
-        case 'year':
-          $parts = array('year' => date('Y'));
-          break;
-        case 'day':
-          $parts = array('year' => date('Y'), 'month' => date('m'), 'day' => date('d'));
-          break;
-        case 'week':
-          $parts = array('year' => date('Y'), 'week' => date('\Ww'));
-          break;
-        default:
-          $parts = array('year' => date('Y'), 'month' => date('m'));
+        $this->view->calendar_type = $argument['handler']->calendar_type;
+        $this->view->year = $argument['handler']->year;
+        $this->view->month = $argument['handler']->month;
+        $this->view->day = $argument['handler']->day;
+        $this->view->week = $argument['handler']->week;
+        $this->view->min_date = $argument['handler']->min_date;
+        $this->view->max_date = $argument['handler']->max_date;
       }
     }
-    foreach ($parts as $key => $part) {
-      // The last part evaluated is the one that will 'stick'
-      // as the calendar type.
-      $this->view->calendar_type = $key;
-      $this->view->$key = $part;
-    }
-    
+     
     // Identify the kind of display we're using for this view.
     // Check first for 'view' in url to get displays set by the switch
     // block.
@@ -465,24 +483,6 @@ class views_plugin_style_calendar extends views_plugin_style {
     else {
   	  $this->view->calendar_display = $style_options[$this->view->calendar_type];
     }
-        
-    $now = date_now();
-    if ($this->view->calendar_type == 'week' && calendar_part_is_valid($this->view->week, 'week')) {
-      $range = calendar_week_range($this->view);
-      $date = $range[0];
-      $max_date = $range[1];
-    
-    } else {
-      $month = calendar_part_is_valid($this->view->month, 'month') ? $this->view->month : 1;
-      $day   = calendar_part_is_valid($this->view->day, 'day') ? $this->view->day : 1;
-      $year  = calendar_part_is_valid($this->view->year, 'year') ? $this->view->year : date_format($now, 'Y');
-      $date  = date_create($year .'-'. date_pad($month) .'-'. date_pad($day) .' 00:00:00', date_default_timezone());
-      $max_date = drupal_clone($date);
-      date_modify($max_date, '+1 '. $this->view->calendar_type);
-      date_modify($max_date, '-1 second');
-    }
-    $this->view->min_date = $date;
-    $this->view->max_date = $max_date;
         
     // bring the node type into the query so we can use it in the theme
     $this->view->query->add_field('node', 'type');
@@ -504,6 +504,7 @@ class views_plugin_style_calendar extends views_plugin_style {
  */
 function template_preprocess_calendar_views_calendar(&$vars) {
   $view     = $vars['view'];
+    
   $result   = $view->result;
   $options  = $view->style_plugin->options;
   $handler  = $view->style_plugin;

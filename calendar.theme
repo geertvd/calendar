@@ -197,7 +197,7 @@ function theme_calendar_page_title($view, $items, $output) {
         return $view->year;
       }
       else {
-        return views_get_title($view, $context = 'page', $args = $view->real_args);
+        return views_get_title($view, $context = 'page', $args = $view->args);
       }
     case 'block':
       return $view->block_title;
