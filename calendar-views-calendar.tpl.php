@@ -13,9 +13,33 @@
 dsm('Display: '. $display_type .': '. $min_date .' to '. $max_date);
 
 //dsm($header);
-dsm('Formatted results');
-dsm($rows);
-dsm('Raw results');
-dsm($result);
+//dsm('Formatted results');
+//dsm($rows);
+//dsm('Raw results');
+//dsm($result);
+//dsm('Items');
+//dsm($items);
 ?>
-CALENDAR GOES HERE
+<?php print $links ?>
+<table class="<?php print $class; ?>">
+  <thead>
+    <tr>
+      <?php foreach ($header as $data): ?>
+        <th colspan="<?php print $data['colspan']; ?>" class="views-field views-field-<?php print $data['class']; ?>">
+          <?php print $data['data']; ?>
+        </th>
+      <?php endforeach ?>
+    </tr>
+  </thead>
+  <tbody>
+    <?php foreach ($rows as $row): ?>
+      <tr>
+        <?php foreach ($row as $cell): ?>
+          <td id="<?php print $cell['id']; ?> class="views-field views-field-<?php print $cell['class']; ?>">
+            <?php print $cell['data']; ?>
+          </td>
+        <?php endforeach; ?>
+      </tr>
+    <?php endforeach; ?>
+  </tbody>
+</table>
