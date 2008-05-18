@@ -48,7 +48,7 @@ function calendar_views_plugins() {
         'uses fields' => TRUE,
         'uses options' => TRUE,
         'type' => 'normal',
-        'even_empty' => TRUE,
+        'even empty' => TRUE,
       ),
     ),
     // Add an option to set a default value for an empty date argument.
@@ -190,7 +190,7 @@ class calendar_argument_date extends views_handler_argument_formula {
         // static variable so we don't re-do the work for every field.
         if (!array_key_exists($name, $date_handler)) {
           $date_handler[$name] = new date_sql_handler();
-          $date_handler[$name]->construct($this_field['type'], date_default_timezone_name());
+          $date_handler[$name]->construct($field['sql_type'], date_default_timezone_name());
           $tz_handling  = $field['tz_handling'];
           switch ($tz_handling) {
             case 'date' :
@@ -220,14 +220,10 @@ class calendar_argument_date extends views_handler_argument_formula {
               break;
           }
         }
-        
         // Make sure this field is added to the query.
-        $this->query->add_field($field['table'], $field['field_name']);
-        $date_handler[$name]->date_type = $field['sql_type'];
-        
-        //$sql = $this->date_handler->sql_where_format($this->arg_format, $field['fullname'], '=', $this->argument);
+        $this->query->add_field($field['table_name'], $field['field_name']);
         $from = $date_handler[$name]->sql_where_date('DATE', $field['fullname'], '>=', date_format($date_handler[$name]->min_date, DATE_FORMAT_DATETIME));
-        $to = $date_handler[$name]->sql_where_date('DATE', $field['fullname'], '<=', date_format($date_handler[$name]->max_date, DATE_FORMAT_DATETIME));
+        $to   = $date_handler[$name]->sql_where_date('DATE', $field['fullname'], '<=', date_format($date_handler[$name]->max_date, DATE_FORMAT_DATETIME));
         $sql = str_replace('***table***', $this->table_alias, "($from AND $to)");
         if ($sql) {
           $this->query->add_where('calendar_date', $sql);
@@ -311,8 +307,8 @@ class calendar_plugin_style extends views_plugin_style {
       if (isset($argument['date_fields'])) {
         foreach ($argument['date_fields'] as $date_field) {
           $field = $calendar_fields[$date_field];
-          $fullname = "{$field['table']}.{$field['field']}";
-          $handler = views_get_handler($field['table'], $field['field'], 'field');
+          $fullname = "{$field['table_name']}.{$field['field_name']}";
+          $handler = views_get_handler($field['table_name'], $field['field_name'], 'field');
           if ($handler) {
             $date_fields[$fullname] = $field;
             $date_fields[$fullname]['name'] = $handler->ui_name();
@@ -351,8 +347,8 @@ class calendar_plugin_style extends views_plugin_style {
     // CCK date fields cannot use grouped handler.
     //$calendar_fields = array_keys(calendar_fields());
     //foreach ($view['field'] as $delta => $field) {
-    //  if (in_array($field['field'], $calendar_fields) && $field['handler'] == 'content_views_field_handler_group') {
-        //form_error($form['field'][$delta]['handler'], t('Calendar CCK Date fields must be set to \'Do not group multiple values\'.'));
+    //  if (in_array($field['field_name'], $calendar_fields) && $field['handler'] == 'content_views_field_handler_group') {
+        //form_error($form['field_name'][$delta]['handler'], t('Calendar CCK Date fields must be set to \'Do not group multiple values\'.'));
     //  }
     //}
     return $errors;
@@ -464,6 +460,8 @@ class calendar_plugin_style extends views_plugin_style {
     foreach ($this->view->argument as $delta => $argument) {
       if ($argument['id'] == 'calendar_date') {
         $this->view->calendar_type = $argument['handler']->calendar_type;
+        $this->view->calendar_arg = $argument['handler']->argument;
+        $this->view->calendar_arg_pos = $i;
         $this->view->year = $argument['handler']->year;
         $this->view->month = $argument['handler']->month;
         $this->view->day = $argument['handler']->day;
@@ -471,6 +469,7 @@ class calendar_plugin_style extends views_plugin_style {
         $this->view->min_date = $argument['handler']->min_date;
         $this->view->max_date = $argument['handler']->max_date;
       }
+      $i++;
     }
      
     // Identify the kind of display we're using for this view.
@@ -486,7 +485,7 @@ class calendar_plugin_style extends views_plugin_style {
         
     // bring the node type into the query so we can use it in the theme
     $this->view->query->add_field('node', 'type');
-    if ($queries) $this->view->query->add_where(implode(" OR ", $queries));
+    
     parent::query();
 
   }
@@ -500,9 +499,11 @@ class calendar_plugin_style extends views_plugin_style {
 }
 
 /**
- * Display a view as a table style.
+ * Display a view as a calendar.
  */
 function template_preprocess_calendar_views_calendar(&$vars) {
+  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
+
   $view     = $vars['view'];
     
   $result   = $view->result;
@@ -510,27 +511,47 @@ function template_preprocess_calendar_views_calendar(&$vars) {
   $handler  = $view->style_plugin;
 
   $fields   = $view->field;
-  $vars['result'] = $view->result;
   
-  $query    = tablesort_get_querystring();
-  if ($query) {
-    $query = '&' . $query;
-  }
-  
-  $vars['display_type'] = $view->calendar_type;
-  $vars['min_date'] = date_format($view->min_date, 'r');
-  $vars['max_date'] = date_format($view->max_date, 'r');
-  
-  //$vars['header'] = calendar_nav($view);
-  
-  // Render each field into its appropriate column.
+  // Render each field into an output array. We have to do the rendering
+  // here because we don't apppear to have full access to the view 
+  // handlers in the theme functions.
+  $items = array();
   foreach ($result as $num => $row) {
+    $items[$num] = $row;
     foreach ($fields as $field) {
       if (!empty($field['handler']) && is_object($field['handler'])) {
         $handler = &$field['handler'];
         $field_output = $handler->theme($row);
-        $vars['rows'][$num] .= $field_output;
+        $items[$num]->$field['field'] = $field_output;
       }
     }
   }
+      
+  $vars['display_type'] = $view->calendar_type;
+  $vars['min_date'] = date_format($view->min_date, DATE_FORMAT_DATETIME);
+  $vars['max_date'] = date_format($view->max_date, DATE_FORMAT_DATETIME);
+  
+  // Massage the resulting items into formatted calendar items.
+  $vars['items'] = calendar_build_nodes($view, $items);
+
+  // Merge in items from other sources.
+  foreach (module_implements('calendar_add_items') as $module) {
+    $function = $module .'_calendar_add_items';
+    if (function_exists($function)) {
+      if ($feeds = $function($view)) {
+        foreach ($feeds as $feed) {
+          $vars['items'] = $feed;
+        }
+      }
+    }
+  }
+
+  // Construct a formatted title for the view from the calendar type.
+  $vars['view']->subtitle = theme('calendar_nav_title', $view->calendar_type, $view);
+
+  $params = array('with_weekno' => $calendar_type == 'month');
+  $vars['header'] = calendar_nav($vars['view'], $params['with_weekno']);
+  $vars['rows'] = calendar_build_calendar($vars['view'], $vars['items'], $params);
+  $vars['links'] = theme('calendar_links', $vars['view'], $view->build_type != 'block');
+  
 }

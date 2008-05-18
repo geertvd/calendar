@@ -14,7 +14,7 @@ function calendar_build_calendar($view, $items, $params) {
   foreach ($items as $delta => $item) {
     if (($item->calendar_start_date >= $view->min_date && $item->calendar_start_date <= $view->max_date)
      || ($item->calendar_end_date >= $view->min_date && $item->calendar_end_date <= $view->max_date)) {
-      $values[date_format($item->calendar_start_date, 'Y-m-d')][date_format($item->calendar_start, 'Y-m-d')][] = $item;
+      $values[date_format($item->calendar_start_date, 'Y-m-d')][date_format($item->calendar_start_date, 'Y-m-d')][] = $item;
     }
   }
   $items = $values;
@@ -49,12 +49,8 @@ function calendar_build_calendar($view, $items, $params) {
       $rows = array_merge(array(calendar_week_header($view->mini, $params['with_weekno'], $len)), $rows);
       break;
   }
-
-  // Add the navigation in as the header.
-  $header = calendar_nav($view, $params['with_weekno']);
-  $output = theme('calendar_links', $view, $view->build_type != 'block');
-  $output .= theme('calendar_'. $view->calendar_type, $view, $header, $rows);
-  return $output;
+  return $rows;
+  
 }
 
 /**
@@ -214,136 +210,127 @@ function calendar_build_nodes(&$view, &$items) {
   foreach($fields as $field) {
     $datefields[] = $field['query_name'];
   }
-  $view_fields      = views_fetch_fields('node', 'node');
+  $view_fields      = views_fetch_fields('node', 'field');
   $field_names = (array) array_keys($fields);
   $nodes = array();
   $i = 0;
 
-  // explode out field and format info from the view
-  foreach ($view->field as $delta => $data) {
-    if ($fields[$data['id']]['visible'] !== FALSE && array_key_exists($data['field'], $fields)) {
-      if (in_array($data['field'], $field_names)) {
-        $option           = $fields[$data['field']];
-        $field_type       = strstr($option['type'], 'string') ? 'string' : 'timestamp';
-        $field_field      = $option['query_name'];
-        //$field_end        = $field_field .'2';
-        $field_field_name = $option['field_name'];
-        $timestamp_fromto = $option['timestamp_fromto'];
-        $string_fromto    = $option['string_fromto'];
-        //$field_id         = $delta;
-        $tz_handling      = $option['tz_handling'];
-        $label            = $data['label'];
-        //$granularity      = $option['granularity'];
+  foreach ($view->argument['calendar_date']['date_fields'] as $name) {
+    $field = $fields[$name];
+    $view_field = $view->field[$name];
+    $option           = $fields[$data['field_name']];
+    $field_type       = strstr($option['type'], 'string') ? 'string' : 'timestamp';
+    $field_field      = $field['query_name'];
+    $field_field_name = $field['field_name'];
+    $timestamp_fromto = $field['timestamp_fromto'];
+    $string_fromto    = $field['string_fromto'];
+    $tz_handling      = $field['tz_handling'];
+    $label            = $view_field['label'];
+        
+    if (strstr($option['type'], 'cck')) {
+      $format = date_formatter_format($data['options'], $field_field_name);
+    }
+    else {
+      switch ($data['handler']) {
+        case 'views_handler_field_date_large':
+          $format = variable_get('date_format_long',  'l, F j, Y - H:i');
+          break;
+        case 'views_handler_field_date':
+          $format = variable_get('date_format_medium',  'D, m/d/Y - H:i');
+          break;
+        case 'views_handler_field_date_custom':
+          $format = $data['options'];
+          break;
+        case 'views_handler_field_since':
+        case 'views_handler_field_date_small':
+        default:
+          $format = variable_get('date_format_short', 'm/d/Y - H:i');
+          break;
+      }
+    }
 
-        if (strstr($option['type'], 'cck')) {
-          $format = date_formatter_format($data['options'], $field_field_name);
+    $fromto = array_merge($timestamp_fromto, $string_fromto);
+
+    foreach ($items as $delta => $item) {
+      // The query created from/to dates like 2007-12-31T01:30:00|2007-12-31T02:30:00,
+      // explode those values and separate them into from and to dates on the node.
+      if (isset($item->$field_field)) {
+        $values = explode('|',  str_replace('T', ' ', $item->$field_field));
+        if ($field_type != 'string') {
+          $date = date_make_date($values[0], 'UTC', DATE_UNIX);
+          $values[0] = date_format($date, DATE_FORMAT_DATETIME);
+          $date = date_make_date($values[1], 'UTC', DATE_UNIX);
+          $values[1] = date_format($date, DATE_FORMAT_DATETIME);
         }
-        else {
-          switch ($data['handler']) {
-            case 'views_handler_field_date_large':
-              $format = variable_get('date_format_long',  'l, F j, Y - H:i');
-              break;
-            case 'views_handler_field_date':
-              $format = variable_get('date_format_medium',  'D, m/d/Y - H:i');
-              break;
-            case 'views_handler_field_date_custom':
-              $format = $data['options'];
-              break;
-            case 'views_handler_field_since':
-            case 'views_handler_field_date_small':
-            default:
-              $format = variable_get('date_format_short', 'm/d/Y - H:i');
-              break;
-          }
+        // Create a node for each date within the field's date range,
+        // limited to the view's date range.
+        $now = max(date_format($view->min_date, 'Y-m-d'), substr($values[0], 0, 10));
+        $to  = min(date_format($view->max_date, 'Y-m-d'), substr($values[1], 0, 10));
+        if (empty($to)) {
+          $to = $now;
         }
+        while ($now <= $to) {
+          $node = drupal_clone($item);
+          //$node->title = $node->node_title;
+          $node->label = $label;
+          $node->format = $format;
+          $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
+          $node->url = 'node/'. $node->nid;
 
-        $fromto = array_merge(
-          $fields[$data['field']]['timestamp_fromto'],
-          $fields[$data['field']]['string_fromto']);
+          // Convert the table.field format in the fromto fields
+          // to the table_field format used by the Views formatters.
+          $node->{str_replace('.', '_', $fromto[0])} = $values[0];
+          $node->{str_replace('.', '_', $fromto[1])} = $values[1];
 
-        foreach ($items as $delta => $item) {
-          // The query created from/to dates like 2007-12-31T01:30:00|2007-12-31T02:30:00,
-          // explode those values and separate them into from and to dates on the node.
-          if ($item->$field_field) {
-            $values = explode('|',  str_replace('T', ' ', $item->$field_field));
-            if ($field_type != 'string') {
-              $date = date_make_date($values[0], 'UTC', DATE_UNIX);
-              $values[0] = date_format($date, DATE_FORMAT_DATETIME);
-              $date = date_make_date($values[1], 'UTC', DATE_UNIX);
-              $values[1] = date_format($date, DATE_FORMAT_DATETIME);
-            }
+          // Flag which datefield this node is using, in case
+          // there are multiple date fields in the view.
+          $node->datefield = $field_field;
 
-            // Create a node for each date within the field's date range,
-            // limited to the view's date range.
-            $now = max(date_format($view->min_date, 'Y-m-d'), substr($values[0], 0, 10));
-            $to  = min(date_format($view->max_date, 'Y-m-d'), substr($values[1], 0, 10));
-            if (empty($to)) {
-              $to = $now;
-            }
-            while ($now <= $to) {
-              $node = drupal_clone($item);
-              $node->title = $node->node_title;
-              $node->label = $label;
-              $node->format = $format;
-              $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
-              $node->url = 'node/'. $node->nid;
-
-              // Convert the table.field format in the fromto fields
-              // to the table_field format used by the Views formatters.
-              $node->{str_replace('.', '_', $fromto[0])} = $values[0];
-              $node->{str_replace('.', '_', $fromto[1])} = $values[1];
-
-              // Flag which datefield this node is using, in case
-              // there are multiple date fields in the view.
-              $node->datefield = $field_field;
-
-              // If there are other datefields in the View, get rid
-              // of them in this pseudo node. There should only be one
-              // date in each calendar node.
-              foreach ($node as $key => $val) {
-                if ($key != $field_field && in_array($key, $datefields)) {
-                  unset($node->$key);
-                }
-              }
-
-              $start = $now .' 00:00:00';
-              $end = $now .' 23:59:59';
-              $node->calendar_start = $values[0] < $start ? $start : $values[0];
-              $node->calendar_end = !empty($values[1]) ? ($values[1] > $end ? $end : $values[1]) : $node->calendar_start;
-
-              $node->calendar_start_date = date_create($node->calendar_start, timezone_open('UTC'));
-              $node->calendar_end_date = date_create($node->calendar_end, timezone_open('UTC'));
-              if ($tz_handling != 'utc' && $tz_handling != 'none') {
-                date_timezone_set($node->calendar_start_date, date_default_timezone());
-                date_timezone_set($node->calendar_end_date, date_default_timezone());
-              }
-              $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
-              $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
-
-              if (isset($node) && (empty($node->calendar_start))) {
-                // if no date for the node and no date in the item
-                // there is no way to display it on the calendar
-                unset($node);
-              }
-              else {
-                if (strstr($option['type'], 'cck')) {
-                  $id = $item->nid .':'. $delta .':'. $field_field;
-                }
-                else {
-                  $id = $item->nid .':0:'. $field_field;
-                }
-                if ($view->build_type == 'page' && $view->calendar_type != 'year') {
-                  $node->stripe = calendar_node_stripe($view, $node, $field_field, $field_field);
-                }
-                $node->unique_nid = $id;
-                $nodes[] = $node;
-                unset($node);
-              }
-              $next = date_make_date($now, 'UTC');
-              date_modify($next, '+1 day');
-              $now = date_format($next, 'Y-m-d');
+          // If there are other datefields in the View, get rid
+          // of them in this pseudo node. There should only be one
+          // date in each calendar node.
+          foreach ($node as $key => $val) {
+            if ($key != $field_field && in_array($key, $datefields)) {
+              unset($node->$key);
             }
           }
+
+          $start = $now .' 00:00:00';
+          $end = $now .' 23:59:59';
+          $node->calendar_start = $values[0] < $start ? $start : $values[0];
+          $node->calendar_end = !empty($values[1]) ? ($values[1] > $end ? $end : $values[1]) : $node->calendar_start;
+
+          $node->calendar_start_date = date_create($node->calendar_start, timezone_open('UTC'));
+          $node->calendar_end_date = date_create($node->calendar_end, timezone_open('UTC'));
+          if ($tz_handling != 'utc' && $tz_handling != 'none') {
+            date_timezone_set($node->calendar_start_date, date_default_timezone());
+            date_timezone_set($node->calendar_end_date, date_default_timezone());
+          }
+          $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
+          $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
+
+          if (isset($node) && (empty($node->calendar_start))) {
+            // if no date for the node and no date in the item
+            // there is no way to display it on the calendar
+            unset($node);
+          }
+          else {
+            if (strstr($option['type'], 'cck')) {
+              $id = $item->nid .':'. $delta .':'. $field_field;
+            }
+            else {
+              $id = $item->nid .':0:'. $field_field;
+            }
+            if ($view->build_type == 'page' && $view->calendar_type != 'year') {
+              $node->stripe = calendar_node_stripe($view, $node, $field_field, $field_field);
+            }
+            $node->unique_nid = $id;
+            $nodes[] = $node;
+            unset($node);
+          }
+          $next = date_make_date($now, 'UTC');
+          date_modify($next, '+1 day');
+          $now = date_format($next, 'Y-m-d');
         }
       }
     }
@@ -354,35 +341,25 @@ function calendar_build_nodes(&$view, &$items) {
 /**
  *  Function to construct back and next navigation from views arguments
  */
-function calendar_nav(&$view) {
-  $mini = $view->mini;
-  if (!calendar_part_is_valid($view->year, 'year')) {
-    //return array($view->subtitle);
+function calendar_nav(&$view, $with_weekno) {
+  $path = array();
+  $prev_date = drupal_clone($view->min_date);
+  date_modify($prev_date, '-1 '. $view->calendar_type);
+  $next_date = drupal_clone($view->min_date);
+  date_modify($next_date, '+1 '. $view->calendar_type);
+
+  $format = array('year' => 'Y', 'month' => 'Y-m', 'day' => 'Y-m-d', 'week' => 'Y\Ww');
+ 
+  $current_url = $view->get_url();
+  
+  switch ($view->calendar_type) {
+    case 'week':
+      break;
+    default:
+      $next_path = str_replace($view->calendar_arg, date_format($next_date, $format[$view->calendar_type]), $current_url);
+      $prev_path = str_replace($view->calendar_arg, date_format($prev_date, $format[$view->calendar_type]), $current_url);
   }
-
-  // make the navigation into a header, with prev and next links
-  // use the calendar_nav themes to mimic standard calendar navigation
-  $paths = calendar_get_paths($view);
-  $prev_path = implode('/', array_reverse($paths[0]));
-  $next_path = implode('/', array_reverse($paths[1]));
-
-  $prev_query = $next_query = array();
-
-  if ($_GET['view']) {
-    $prev_query[] = 'view='. $_GET['view'];
-    $next_query[] = 'view='. $_GET['view'];
-  }
-  // for the mini calendar in a block, treat the url as a 	 
-	// querystring to avoid actually changing the page 	
-	if ($mini) { 	 
-	  $prev_query[] = 'mini='. $prev_path; 	 
-	  $prev_path = $_GET['q']; 	 
-	  $next_query[] = 'mini='. $next_path; 	 
-	  $next_path = $_GET['q']; 	 
-	}
-	$prev_query[] = calendar_url_append($view);
-  $next_query[] = calendar_url_append($view);
-
+  
   switch ($view->calendar_type) {
     case 'day':
     case 'year':
@@ -400,80 +377,11 @@ function calendar_nav(&$view) {
       break;
   }
   $header = array();
-  $header[]  = array('data' => theme('calendar_nav_prev', $prev_path, $view->build_type == 'block' ? FALSE : TRUE, implode('&', $prev_query)), 'class' => 'prev', 'colspan' => $colspan_prev);
+  $header[]  = array('data' => theme('calendar_nav_prev', $prev_path, $view->build_type == 'block' ? FALSE : TRUE), 'class' => 'prev', 'colspan' => $colspan_prev);
   $header[]  = array('data' => $view->subtitle, 'class' => 'heading', 'colspan' => $colspan_middle);
-  $header[]  = array('data' => theme('calendar_nav_next', $next_path, $view->build_type == 'block' ? FALSE : TRUE, implode('&', $next_query)), 'class' => 'next', 'colspan' => $colspan_next);
+  $header[]  = array('data' => theme('calendar_nav_next', $next_path, $view->build_type == 'block' ? FALSE : TRUE), 'class' => 'next', 'colspan' => $colspan_next);
 
   return $header;
-}
-
-function calendar_get_paths($view) {
-  $path = array();
-  $prev_date = drupal_clone($view->min_date);
-  date_modify($prev_date, '-1 '. $view->calendar_type);
-  $next_date = drupal_clone($view->min_date);
-  date_modify($next_date, '+1 '. $view->calendar_type);
-
-  // build an array of the current path and its parts
-  $i = 0;
-  $path[$i]     = array(
-    'path' => $view->url,
-    'type' => 'url',
-      );
-  foreach ($view->argument as $delta => $arg) {
-    if ($view->args[$delta]) {
-      $i++;
-      $pathtype = str_replace('calendar_', '', $arg['type']);
-      $path[$i] = array(
-        'path' => $view->args[$delta] != CALENDAR_EMPTY_ARG ? $view->args[$delta] : CALENDAR_EMPTY_ARG,
-        'type' => $pathtype,
-        );
-    }
-  }
-
-  // if there are other arguments after the view arguments, add them to the
-  // navigation links
-  while($i < sizeof($view->args)) {
-    $i++;
-    $path[$i] = array(
-      'path' => $view->args[intval($i - 1)],
-      'type' => '',
-    );
-  }
-
-  // reverse through the path, creating a $nextpath and $prevpath arrays
-  $formats = array('day' => 'j', 'month' => 'm', 'year' => 'Y', 'week' => 'W');
-  for ($x = $i; $x >= 0; $x--) {
-    $type = $path[$x]['type'];
-    if (in_array($type, array_keys($formats)) && $path[$x]['path'] != CALENDAR_EMPTY_ARG) {
-      if ($type != 'week') {
-        $nextpath[$x] = $type == 'year' && isset($next_year) ? $next_year : date_format($next_date, $formats[$type]);
-        $prevpath[$x] = $type == 'year' && isset($prev_year) ? $prev_year : date_format($prev_date, $formats[$type]);
-      }
-      else {
-        if (date_format($prev_date, 'Y') < $view->year) {
-          $prev_week = calendar_max_weeks(date_format($prev_date, 'Y'));
-        }
-        else {
-          $prev_week = $view->week - 1;
-        }
-        if (date_format($next_date, 'Y') > $view->year) {
-          $next_week = 1;
-        }
-        else {
-          $next_week = $view->week + 1;
-        }
-        $nextpath[$x] = 'W'. $next_week;
-        $prevpath[$x] = 'W'. $prev_week;
-      }
-    }
-    // Non-date path elements just get passed through.
-    else {
-      $nextpath[$x] = $path[$x]['path'];
-      $prevpath[$x] = $path[$x]['path'];
-    }
-  }
-  return array($prevpath, $nextpath);
 }
 
 /**
@@ -518,7 +426,6 @@ function calendar_week_range(&$view) {
 function _calendar_fields($base = 'node') {
   $cid = 'calendar_fields';
   cache_clear_all($cid, 'cache_views');
-  $delta = 0;
   
   $all_fields = views_fetch_fields($base, 'field');
   $fields = array();
@@ -623,12 +530,10 @@ function _calendar_fields($base = 'node') {
       $fields[$name] = array(
         'type' => $type,
         'sql_type' => $sql_type,
-        'delta' => $delta,
         'label' => $val['group'] .': '. $val['title'],
         'granularity' => $granularity,
         'fullname' => $name,
-        'table' => $table_name,
-        'field' => $field_name,
+        'table_name' => $table_name,
         'field_name' => $field_name,
         'query_name' => str_replace('.', '_', $name),
         'timestamp_fromto' => $timestamp_fromto,

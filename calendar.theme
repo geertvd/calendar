@@ -6,69 +6,6 @@
  * @{
  */
 /**
- * Calendar summary display.
- *
- * Intercept arguments before calendar and return their summary view,
- * Otherwise return calendar view.
- */
-function _theme_calendar_views_summary(&$view, $type, $level, &$items, $args) {
-  if (!calendar_is_calendar_arg($view)) {
-    return theme('views_summary', $view, $type, $level, $items, $args);
-  }
-  else {
-    return theme('calendar_view_calendar', $view, $items, $type);
-  }
-}
-
-/**
- * Calendar Views plugin theme, overrides default views theme
- * to create a calendar view.
- */
-function _theme_calendar_views_calendar(&$view, &$items, $type) {
-  include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
-  if ($type == 'block' || !calendar_is_calendar_arg($view)) {
-    $view->calendar_type = 'month';
-  }
-  // Bail out here to display regular views views instead of calendar.
-  switch($view->calendar_display) {
-    case ('table') :
-      $view->table_header = _views_construct_header($view, views_fetch_fields('node', 'node'));
-      $out =  theme('calendar_view_table', $view, $items, $type);
-      break;
-    case ('teasers') :
-      $out =  theme('calendar_view_teasers', $view, $items, $type);
-      break;
-    case ('nodes') :
-      $out =  theme('calendar_view_nodes', $view, $items, $type);
-      break;
-    case ('list') :
-      $out =  theme('calendar_view_list', $view, $items, $type);
-      break;
-    default:
-      $params['url'] = calendar_real_url($view, $view->args);
-      $params['append'] = calendar_url_append($view);
-      $params['stripe'] = 'stripe';
-
-      // Set to TRUE to see week numbers in each row.
-      $formats = calendar_get_formats($view);
-      if (!empty($formats['week'])
-      && $view->build_type != 'block'
-      && $view->calendar_type == 'month') {
-        $params['with_weekno'] = TRUE;
-      }
-      else {
-        $params['with_weekno'] = FALSE;
-      }
-      $out =  calendar_build_calendar($view, $items, $params);
-  }
-  if ($_GET['view'] == 'ajax') {
-    print $out;
-    exit;
-  }
-  return $out;
-}
-
-/**
  * Display the nodes of a view as a list.
  */
 function theme_calendar_view_list($view, $nodes, $type) {
@@ -77,13 +14,13 @@ function theme_calendar_view_list($view, $nodes, $type) {
   $output .= theme("table", calendar_nav($view), array());
   $output .= '</div>';
 
-  $fields = views_fetch_fields('node', 'node');
+  $fields = views_fetch_fields('node', 'field');
   $items = array();
   foreach ($nodes as $node) {
     $item = '';
     foreach ($view->field as $field) {
       if ($fields[$field['id']]['visible'] !== FALSE) {
-        $value = theme('calendar_views_field', $field['queryname'], $fields, $field, $node, $view, $type);
+        $value = $node->$field['field'];
         if (!empty($value)) {
           if ($field['label']) {
             $item .= "<div class='view-label ". views_css_safe('view-label-'. $field['queryname']) ."'>". $field['label'] ."</div>";
@@ -113,13 +50,13 @@ function theme_calendar_view_table($view, $nodes, $type) {
   $output .= theme("table", calendar_nav($view), array());
   $output .= '</div>';
 
-  $fields = views_fetch_fields('node', 'node');
+  $fields = views_fetch_fields('node', 'field');
   $rows = array();
   foreach ($nodes as $node) {
     $row = array();
     foreach ($view->field as $field) {
       if ($fields[$field['id']]['visible'] !== FALSE) {
-        $cell['data'] = theme('calendar_views_field', $field['queryname'], $fields, $field, $node, $view, $type);
+        $cell['data'] = $value = $node->$field['field'];
         $cell['class'] = "view-field ". views_css_safe('view-field-'. $field['queryname']);
         $row[] = $cell;
       }
@@ -279,34 +216,31 @@ function theme_calendar_links($view, $links = FALSE) {
   $now = date_now();
   // add links to the top of the calendar to switch from one view to another
   if ($links) {
-    $view->real_url = calendar_real_url($view, $view->args);
-    $base_url = $view->real_url .'/'. $view->year;
-    $view->month    = $view->month && $view->month != CALENDAR_EMPTY_ARG ? $view->month : date_format($now, 'm');
-    $view->day      = $view->day && $view->day != CALENDAR_EMPTY_ARG ? $view->day : date_format($now, 'j');
-    if (empty($view->week) || $view->week == CALENDAR_EMPTY_ARG) {
+    $url = $view->get_url();
+    $arg = $view->calendar_arg;
+    
+    $view->month    = $view->month && $view->month != $view->argument['calendar_date']['wildcard'] ? $view->month : date_format($now, 'm');
+    $view->day      = $view->day && $view->day != $view->argument['calendar_date']['wildcard'] ? $view->day : date_format($now, 'j');
+    if (empty($view->week) || $view->week == $view->argument['calendar_date']['wildcard']) {
       $view->week = calendar_date_week($view->year .'-'. date_pad($view->month) .'-'. date_pad($view->day));
     }
 
-    $append = calendar_url_append($view);
-    if ($_GET['view']) {
-      $append .= '&view='. $_GET['view'];
+    $displays = $view->style_options;
+    if (!empty($displays['year'])) {
+      $calendar_links[] = array('title' => t('Year'), 'href' => str_replace($arg, $view->year, $url));
     }
-    $formats = calendar_get_formats($view);
-    if (!empty($formats['year'])) {
-      $calendar_links[] = array('title' => t('Year'), 'href' => $view->real_url .'/'. $view->year, 'query' => $append);
+    if (!empty($displays['month'])) {
+      $calendar_links[] = array('title' => t('Month'), 'href' => str_replace($arg, $view->year .'-'. $view->month, $url));
     }
-    if (!empty($formats['month'])) {
-      $calendar_links[] = array('title' => t('Month'), 'href' => $view->real_url .'/'. $view->year .'/'. $view->month , 'query' => $append);
+    if (!empty($displays['week'])) {
+      $calendar_links[] = array('title' => t('Week'), 'href' => str_replace($arg, $view->year .'-W'. $view->week, $url));
     }
-    if (!empty($formats['week'])) {
-      $calendar_links[] = array('title' => t('Week'), 'href' => $view->real_url .'/'. $view->year .'/W'. $view->week, 'query' => $append);
-    }
-    if (!empty($formats['day'])) {
-      $calendar_links[] = array('title' => t('Day'), 'href' => $view->real_url .'/'. $view->year .'/'. $view->month .'/'. $view->day, 'query' => $append);
+    if (!empty($displays['day'])) {
+      $calendar_links[] = array('title' => t('Day'), 'href' => str_replace($arg, $view->year .'-'. $view->month .'-'. $view->day, $url));
     }
     // If the Date Popup module is enabled, add a popup date selector.
     if (module_exists('date_popup')) {
-      $output = '<div class="clear-block">'. calendar_date_select($view) .'</div>';
+      //$output = '<div class="clear-block">'. calendar_date_select($view) .'</div>';
     }
     $output .= theme('links', $calendar_links);
     return $output;
@@ -442,11 +376,11 @@ function theme_calendar_day($view, $header, $data) {
 function theme_calendar_node_day($node, $view) {
   $output = '<div class="calendar dayview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
-  $fields = views_fetch_fields('node', 'node');
+  $fields = views_fetch_fields('node', 'field');
   $item = '';
   foreach ($view->field as $field) {
     if ($fields[$field['id']]['visible'] !== FALSE) {
-      $value = theme('calendar_views_field', $field['queryname'], $fields, $field, $node, $view, $type);
+      $$value = $node->$field['field'];
       if (!empty($value)) {
         if ($field['label']) {
           $item .= "<div class='view-label ". views_css_safe('view-label-'. $field['queryname']) ."'>". $field['label'] ."</div>";
@@ -475,12 +409,12 @@ function theme_calendar_node_day($node, $view) {
 function theme_calendar_node_week($node, $view) {
   $output .= '<div class="calendar weekview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
-  $fields = views_fetch_fields('node', 'node');
+  $fields = views_fetch_fields('node', 'field');
   $item = '';
   foreach ($view->field as $field) {
     if ($fields[$field['id']]['visible'] !== FALSE) {
       // Skip the label in this small box, show only the value;
-      $value = theme('calendar_views_field', $field['queryname'], $fields, $field, $node, $view, $type);
+      $value = $node->$field['field'];
       if (!empty($value)) {
         $item .= "<div class='view-field ". views_css_safe('view-data-'. $field['queryname']) ."'>";
         $item .= $value ."</div>";
@@ -501,12 +435,11 @@ function theme_calendar_node_week($node, $view) {
 function theme_calendar_node_month($node, $view) {
   $output .= '<div class="calendar monthview">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
-  $fields = views_fetch_fields('node', 'node');
+  $fields = views_fetch_fields('node', 'field');
   $item = '';
   foreach ($view->field as $field) {
     if ($fields[$field['id']]['visible'] !== FALSE) {
-      // Skip the label in this small box, show only the value;
-      $value = theme('calendar_views_field', $field['queryname'], $fields, $field, $node, $view, $type);
+      $value = $node->$field['field'];
       if (!empty($value)) {
         $item .= "<div class='view-field ". views_css_safe('view-data-'. $field['queryname']) ."'>";
         $item .= $value ."</div>";
@@ -565,31 +498,6 @@ function theme_calendar_date_box($date, $view, $items, $params, $selected = FALS
  */
 function theme_calendar_empty_day() {
   return '<div class="calendar-empty">&nbsp;</div>'."\n";
-}
-
-/**
- * Wrapper around views_theme_field() to properly format the dates in the view.
- * Use the usual views field formatting for all other fields.
- */
-function theme_calendar_views_field($fieldname, $fields, $field, $node, $view, $type) {
-  if (isset($node->calendar_field_theme)) {
-    $theme = $node->calendar_field_theme;
-    return theme($theme, $fieldname, $fields, $field, $node, $view, $type);
-  }
-
-  $calendar_fields = calendar_fields();
-  if (!in_array($field['field'], array_keys($calendar_fields))) {
-    $item = views_theme_field('views_handle_field', $fieldname, $fields, $field, $node, $view);
-  }
-  elseif ($fieldname != $node->datefield) {
-    $item = '';
-  }
-  else {
-    if (!empty($node->$fieldname)) {
-      $item = theme('calendar_date_combo', $node, $field['label'], $view);
-    }
-  }
-  return $item;
 }
 
 /**

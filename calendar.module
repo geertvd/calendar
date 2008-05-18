@@ -166,12 +166,8 @@ function calendar_offset($field_name) {
 
 /**
  *  Implementation of hook_views_query()
- *    Insert filters into the query based on the current calendar view and the selected fields
- *    Used when the actual view arguments don't provide enough info to construct the query.
- *    i.e. on a view with no arguments or one with partial arguments like year or year/month.
- *
- *  @param object $query
- *  @param object $view
+ *  
+ *  Handle the date_popup calendar goto date.
  */
 function calendar_views_query_alter(&$query, &$view) {
   // Check if a new date has been selected and if so redirect.
@@ -192,85 +188,6 @@ function calendar_views_query_alter(&$query, &$view) {
     drupal_goto($view->url .'/'. implode('/', $parts));
     drupal_exit();
   }
-}
-
-/**
- *  Implementation of hook_views_pre_view()
- */
-function calendar_views_pre_view(&$view, &$items) {
-  return;
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.theme');
-
-  // If no part of this view has calendar elements, exit.
-  if ((!calendar_is_calendar($view) || !calendar_has_calendar_args($view))) {
-    return;
-  }
-  if (!calendar_is_calendar_arg($view)) {
-    return;
-  }
-
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
-
-  // Massage the resulting items into formatted calendar items.
-  $items = calendar_build_nodes($view, $items);
-
-  // Merge in items from other sources.
-  foreach (module_implements('calendar_add_items') as $module) {
-    $function = $module .'_calendar_add_items';
-    if (function_exists($function)) {
-      if ($feeds = $function($view)) {
-        foreach ($feeds as $feed) {
-          $items[] = $feed;
-        }
-      }
-    }
-  }
-
-  if ($view->build_type == 'block' || $view->calendar_type == 'year') $view->mini = TRUE;
-
-  // Construct a formatted title for the view from the last calendar
-  // argument encountered.
-  $view->subtitle = theme('calendar_nav_title', $view->calendar_type, $view);
-
-  // If this is a view with calendar arguments but not a calendar view,
-  // add navigation to the top of the view and return.
-  if (!calendar_is_calendar($view) && calendar_has_calendar_args($view)) {
-    return theme('calendar_show_nav', $view,  $view->build_type == 'block', calendar_is_calendar($view));
-  }
-
-  // If this is a calendar plugin theme view, make sure empty results
-  // will produce blank calendar page
-  $display_format = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar', 'block' => 'calendar'));
-  if (array_key_exists($view->page_type, calendar_view_types())) {
-    if (!$items && $view->build_type == 'page' && $view->year && $display_format[$view->calendar_type] == 'calendar') {
-      $view->page_empty = check_markup($view->page_header, $view->page_header_format) . check_markup($view->page_empty, $view->page_empty_format) . theme('calendar_display', $view, array(), 'page') . check_markup($view->page_footer, $view->page_footer_format);
-      $view->page_empty_format = 3;
-    }
-  }
-  if (array_key_exists($view->block_type, calendar_view_types())) {
-    if (!$items && $view->build_type == 'block' && $view->year && $display_format[$view->calendar_type] == 'calendar') {
-      $view->block_empty = check_markup($view->block_header, $view->block_header_format) . check_markup($view->block_empty, $view->block_empty_format) . theme('calendar_display', $view, array(), 'block') . check_markup($view->block_footer, $view->block_footer_format);
-      $view->block_empty_format = 3;
-    }
-  }
-}
-
-/**
- * Implementation of hook_views_post_view().
- *
- * Views automatically sets the page title to the value of the last argument.
- * The calendar module has already created a proper title within the
- * calendar, so override Views to set the page title to match the View title.
- */
-function calendar_views_post_view(&$view, $items, $output) {
-  return;
-  // If no part of this view has calendar elements, exit.
-  if ($view->build_type != 'page' || !calendar_is_calendar($view) || !calendar_has_calendar_args($view)) {
-    return;
-  }
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
-  $title = theme('calendar_page_title', $view, $items, $output);
-  drupal_set_title($title);
 }
 
 /**
@@ -411,31 +328,6 @@ function calendar_arg_format($argument) {
     }
   }
   return implode('-', $format);
-}
-
-/**
- * Figure out what the URL of the calendar view we're currently looking at is.
- */
-function calendar_real_url($view, $args) {
-  return $view->url;
-  
-  // Add non-calendar arguments to the base url.
-  $parts = explode('/', $view->url);
-  $bump = 0;
-  foreach ($parts as $delta => $part) {
-    // If one of the args is buried in the url, add it here and adjust
-    // the delta values we'll compare the calendar arg positions to.
-    if (in_array($part, array('$arg', '$node', '$user', '$group'))) {
-      $parts[$delta] = array_shift($args);
-      $bump++;
-    }
-  }
-  foreach ($args as $delta => $arg) {
-    if (!in_array($delta + $bump, calendar_arg_positions($view)) && !empty($arg)) {
-      array_push($parts, $arg);
-    }
-  }
-  return implode('/', $parts);
 }
 
 /**
