@@ -42,26 +42,15 @@ function calendar_theme() {
     'calendar_date_combo' => $base + array(
       'arguments' => array('node', 'lable', 'view'),
       ),
-    'calendar_day' => $base + array(
-      'arguments' => array('view', 'header', 'data'),
-      ),
     'calendar_empty_day' => $base + array(
       'arguments' => array(),
       ),
+     'calendar_nav' => $base + array(
+       'template' => 'calendar-nav', 
+       'arguments' => array('view' => NULL, 'with_weeknos' => NULL)
+       ),
      'calendar_links' => $base + array(
        'arguments' => array('view', 'header', 'rows'),
-       ),
-     'calendar_month' => $base + array(
-       'arguments' => array('view', 'header', 'rows'),
-       ),
-     'calendar_nav_next' => $base + array(
-       'arguments' => array('url', 'text', 'querystring'),
-       ),
-     'calendar_nav_prev' => $base + array(
-       'arguments' => array('url', 'text', 'querystring'),
-       ),
-     'calendar_nav_title' => $base + array(
-       'arguments' => array('type', 'view'),
        ),
      'calendar_node_day' => $base + array(
        'arguments' => array('node', 'view'),
@@ -96,13 +85,7 @@ function calendar_theme() {
      'calendar_views_field' => $base + array(
        'arguments' => array('fieldname', 'fields', 'field', 'node', 'view', 'type'),
        ),
-     'calendar_week' => $base + array(
-       'arguments' => array('view', 'header', 'rows'),
-       ),
-     'calendar_year' => $base + array(
-       'arguments' => array('view', 'header', 'rows'),
-       ), 
-    );
+     );
 }
 
 /**

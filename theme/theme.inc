@@ -1,5 +1,144 @@
 <?php
 // $Id$
+
+/**
+ * Display a month view.
+ */
+function template_preprocess_calendar_month(&$vars) {
+  
+  // Add in all the $vars added by the main calendar preprocessor.
+  template_preprocess_calendar($vars);
+  
+  $rows = $vars['rows'];
+  if (sizeof($rows) > 1) {
+    $day_names = array_shift($rows);
+  }
+  else {
+    $day_names = $rows;
+    $rows = array();
+  }
+  $vars['rows'] = $rows;
+  $vars['day_names'] = $day_names;
+}
+
+/**
+ * Display a year view.
+ */
+function template_preprocess_calendar_year(&$vars) {
+  $original_vars = $vars;
+  
+  // Add in all the $vars added by the main calendar preprocessor.
+  template_preprocess_calendar($vars);
+  
+  $view = $vars['view'];
+  $rows = $vars['rows'];
+  
+  $months = array();
+  
+  foreach ($rows as $month => $month_rows) {
+    $view->month = $month;
+    $view->min_date = date_make_date($view->year .'-'. date_pad($month) .'-01 00:00:00', date_default_timezone_name());
+    $view->max_date = drupal_clone($view->min_date);
+    date_modify($view->max_date, '+1 month');
+    date_modify($view->max_date, '-1 second');
+    $month_header = array(array('data' => theme('calendar_nav_title', 'month', $view), 'colspan' => 7));
+    $months[$month] = theme('calendar_month', $view, $vars['options'], $month_rows);
+  }
+  $vars = $original_vars;
+  $var['months'] = $months;
+}
+
+/**
+ * Display a day view.
+ */
+function template_preprocess_calendar_day(&$vars) {
+  // Add in all the $vars added by the main calendar preprocessor.
+  template_preprocess_calendar($vars);
+}
+
+/**
+ * Display a week view.
+ */
+function template_preprocess_calendar_week(&$vars) {
+  // Add in all the $vars added by the main calendar preprocessor.
+  template_preprocess_calendar($vars);
+}
+
+/**
+ *  Preprocessor to construct back and next navigation from views arguments
+ */
+function template_preprocess_calendar_nav(&$vars) {
+  
+  $view = $vars['view'];
+  $with_weekno = $vars['with_weekno'];
+  $min_date = is_object($view->min_date) ? $view->min_date : date_now();
+  $max_date = is_object($view->max_date) ? $view->max_date : date_now();
+  
+  if (!is_object($view->min_date)) {
+    return;
+  }
+  $prev_date = drupal_clone($min_date);
+  date_modify($prev_date, '-1 '. $view->calendar_type);
+  $next_date = drupal_clone($min_date);
+  date_modify($next_date, '+1 '. $view->calendar_type);
+
+  $format = array('year' => 'Y', 'month' => 'Y-m', 'day' => 'Y-m-d', 'week' => 'Y\Ww');
+ 
+  switch ($view->calendar_type) {
+    case 'week':
+      break;
+    default:
+      $next_path = str_replace($view->calendar_arg, date_format($next_date, $format[$view->calendar_type]), $view->get_url());
+      $prev_path = str_replace($view->calendar_arg, date_format($prev_date, $format[$view->calendar_type]), $view->get_url());
+  }
+  $vars['next_url'] = $next_path;
+  $vars['prev_url'] = $prev_path;
+  
+  switch ($view->calendar_type) {
+    case 'day':
+    case 'year':
+      $colspan_prev = 1;
+      $colspan_middle = 1;
+      $colspan_next = 1;
+      break;
+    default:
+      $colspan_prev = 2;
+      $colspan_middle = 3;
+      $colspan_next = 2;
+      if ($with_weekno) {
+        $colspan_prev = 3;
+      }
+      break;
+  }
+  $vars['colspan_prev'] = $colspan_prev;
+  $vars['colspan_next'] = $colspan_next;
+  $vars['colspan_middle'] = $colspan_middle;
+  
+  if ($view->mini) {
+	  // Month navigation titles are used as links in the mini view.
+	  $nav_title = l(date_format_date($view->min_date, 'custom', 'M Y'), $view->url .'/'. $view->year .'/'. $view->month, array(), calendar_url_append($view));
+  }
+  else {
+    // Otherwise, just show the date.
+    switch ($view->calendar_type) {
+      case 'day':
+        $nav_title = date_format_date($view->min_date, 'custom', 'l, F j Y');
+      case 'week':
+        $nav_title = t('Week of @date', array('@date' => date_format($view->min_date, 'F j')));
+      default:
+        $nav_title = date_format_date($view->min_date, 'custom', 'M Y');
+    }
+  }
+  $vars['nav_title'] = $nav_title;
+  
+  $header = array();
+  $header[]  = array('data' => theme('calendar_nav_prev', $prev_path, $view->build_type == 'block' ? FALSE : TRUE), 'class' => 'prev', 'colspan' => $colspan_prev);
+  $header[]  = array('data' => $view->subtitle, 'class' => 'heading', 'colspan' => $colspan_middle);
+  $header[]  = array('data' => theme('calendar_nav_next', $next_path, $view->build_type == 'block' ? FALSE : TRUE), 'class' => 'next', 'colspan' => $colspan_next);
+
+  $vars['calendar_nav'] = $header;
+}
+
 /**
  * Create the calendar date box.
  */
@@ -11,6 +150,7 @@ function template_preprocess_calendar_datebox(&$vars) {
   $vars['url'] = str_replace($view->calendar_arg, substr($date, 0, 10), $view->get_url());
   $vars['link'] = l($vars['day'], $vars['url']);
   $vars['calendar_type'] = $view->calendar_type;
+  $vars['mini'] = !empty($view->mini);
   
   if ($view->mini) {
     if ($selected) {
@@ -201,97 +341,6 @@ function theme_calendar_arg_title($field_type, $value, $query) {
 }
 
 /**
- * Theme the navigation bar title
- *
- * @param string $type - 'year', 'month', 'day', 'week'
- * @param object $view - the current view object
- * @return formatted title
- */
-function theme_calendar_nav_title($type, $view) {
-  if ($type == 'year') {
-    return $view->year;
-  }
-  if ($view->mini) {
-  	// Month navigation titles are used as links in the mini view.
-  	return l(date_format_date($view->min_date, 'custom', 'M Y'), $view->url .'/'. $view->year .'/'. $view->month, array(), calendar_url_append($view));
-  }
-  else {
-    // Otherwise, just show the date.
-    switch ($view->calendar_type) {
-      case 'day':
-        return date_format_date($view->min_date, 'custom', 'l, F j Y');
-      case 'week':
-        return t('Week of @date', array('@date' => date_format($view->min_date, 'F j')));
-      default:
-        return date_format_date($view->min_date, 'custom', 'M Y');
-    }
-  }
-}
-
-/**
- * Links at the top of the calendar.
- *
- * @param links
- *   TRUE/FALSE, should links be shown.
- * @param view
- *   The current view being rendered
- */
-function theme_calendar_links($view, $links = FALSE) {
-  $now = date_now();
-  // add links to the top of the calendar to switch from one view to another
-  if ($links) {
-    $url = $view->get_url();
-    $arg = $view->calendar_arg;
-    
-    $view->month    = $view->month && $view->month != $view->argument['calendar_date']['wildcard'] ? $view->month : date_format($now, 'm');
-    $view->day      = $view->day && $view->day != $view->argument['calendar_date']['wildcard'] ? $view->day : date_format($now, 'j');
-    if (empty($view->week) || $view->week == $view->argument['calendar_date']['wildcard']) {
-      $view->week = calendar_date_week($view->year .'-'. date_pad($view->month) .'-'. date_pad($view->day));
-    }
-
-    $displays = $view->style_options;
-    if (!empty($displays['year'])) {
-      $calendar_links[] = array('title' => t('Year'), 'href' => str_replace($arg, $view->year, $url));
-    }
-    if (!empty($displays['month'])) {
-      $calendar_links[] = array('title' => t('Month'), 'href' => str_replace($arg, $view->year .'-'. $view->month, $url));
-    }
-    if (!empty($displays['week'])) {
-      $calendar_links[] = array('title' => t('Week'), 'href' => str_replace($arg, $view->year .'-W'. $view->week, $url));
-    }
-    if (!empty($displays['day'])) {
-      $calendar_links[] = array('title' => t('Day'), 'href' => str_replace($arg, $view->year .'-'. $view->month .'-'. $view->day, $url));
-    }
-    // If the Date Popup module is enabled, add a popup date selector.
-    if (module_exists('date_popup')) {
-      //$output = '<div class="clear-block">'. calendar_date_select($view) .'</div>';
-    }
-    $output .= theme('links', $calendar_links);
-    return $output;
-  }
-}
-
-/**
- * Format the 'next' navigation controls for calendar calendars
- *
- * @param link
- *   The url for the navigation
- */
-function theme_calendar_nav_next($url, $text = TRUE, $querystring = NULL) {
-  return '<span class="next">'. l(($text ? t('next') : '') .' »', $url, array('query' => !empty($querystring) ? $querystring : NULL)) .'</span>';
-}
-
-/**
- * Format the 'previous' navigation controls for calendar calendars
- *
- * @param link
- *   The url for the navigation
- */
-function theme_calendar_nav_prev($url, $text = TRUE, $querystring = NULL) {
-  return '<span class="prev">'. l('« '. ($text ? t('prev') : ''), $url, array('query' => !empty($querystring) ? $querystring : NULL)) .'</span>';
-}
-
-/**
  * Format a node stripe legend
  */
 function theme_calendar_stripe_legend($stripe_labels) {
@@ -327,68 +376,6 @@ function theme_calendar_stripe_stripe($node) {
 
   $output .= '<div class="stripe-'. $stripe_map[$node->stripe] .'" title="Key: '.$stripe_map[$node->stripe] .'"><span class="stripe">Key '.$stripe_map[$node->stripe] .'</span></div>'."\n";
   return $output;
-}
-
-/**
- * Format a year view
- */
-function theme_calendar_year($view, $header, $rows) {
-  $output = '<div class="calendar-calendar"><div class="year-view">';
-  $rows_out = array();
-  $row = array();
-  $i = 1;
-  foreach ($rows as $month => $month_rows) {
-    $view->month = $month;
-    $view->min_date = date_make_date($view->year .'-'. date_pad($view->month) .'-01 00:00:00', date_default_timezone_name());
-    $month_header = array(array('data' => theme('calendar_nav_title', 'month', $view), 'colspan' => 7));
-    $row[] = array(
-      'data' => theme('calendar_month', 'mini', $month_header, $month_rows),
-      );
-
-    // Group three mini month calendars in each year row.
-    if ($i == 3) {
-      $rows_out[] = $row;
-      $row = array();
-      $i = 0;
-    }
-    $i++;
-  }
-  $output .= theme("table", $header, $rows_out, array('class' => 'mini-row'));
-  $output .= "</div></div>\n";
-  return $output;
-}
-
-/**
- * Format a month view
- */
-function theme_calendar_month($view, $header, $rows) {
-  $attrs = array();
-  if ($view->mini == 'mini') {
-    $attrs = array('class' => 'mini');
-  }
-  $output = theme("table", $header, $rows, $attrs);
-  return '<div class="calendar-calendar"><div class="month-view">'. $output ."</div></div>\n";
-}
-
-/**
- * Format a week view
- */
-function theme_calendar_week($view, $header, $rows) {
-  $output = theme("table", $header, $rows);
-  return '<div class="calendar-calendar"><div class="week-view">'. $output ."</div></div>\n";
-}
-
-/**
- * Format a day view
- *
- * It's really not great to force this into a table, but the navigation
- * is a table header and showing the header without a body is invalid html,
- * so we force the data into a table cell.
- */
-function theme_calendar_day($view, $header, $data) {
-  $rows = array(array(array('data' => $data, 'colspan' => 3)));
-  $output = theme("table", $header, $rows);
-  return '<div class="calendar-calendar"><div class="day-view">'. $output ."</div></div>\n";
 }
 
 /**

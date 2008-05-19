@@ -50,20 +50,31 @@ function calendar_views_plugins() {
         'title' => t('Calendar'),
         'help' => t('Displays Views results in a multi-dimensional calendar, with back/next navigation.'),
         'handler' => 'calendar_plugin_style',
-        'theme' => 'calendar_calendar',
+        'theme' => 'calendar_month',
+        'file' => 'theme.inc',
         'path' => "$path/theme",
         'additional themes' => array(
-          'calendar_calendar_month' => 'style',
-          'calendar_calendar_year' => 'style',
-          'calendar_calendar_day' => 'style',
-          'calendar_calendar_week' => 'style',
-          'calendar_datebox' => '',
+          'calendar_year' => 'style',
+          'calendar_day' => 'style',
+          'calendar_week' => 'style',
           ),
         'uses row plugin' => TRUE,
         'uses fields' => TRUE,
         'uses options' => TRUE,
         'type' => 'normal',
         'even empty' => TRUE,
+      ),
+    ),
+    'row' => array(
+      'calendar' => array(
+        'title' => t('Calendar'),
+        'help' => t('Displays an individual calendar item, with all its fields.'),
+        'handler' => 'calendar_node',
+        'theme' => 'calendar_node',
+        'path' => "$path/theme",
+        'uses fields' => TRUE,
+        'uses options' => TRUE,
+        'type' => 'normal',
       ),
     ),
     // Add an option to set a default value for an empty date argument.
@@ -85,7 +96,7 @@ function calendar_views_plugins() {
  * 
  */
 class calendar_argument_date extends views_handler_argument_formula {
-  var $arg_format = 'Y-m-d';
+  var $arg_format = 'Y-m';
   
   function construct() {
     parent::construct();
@@ -94,7 +105,12 @@ class calendar_argument_date extends views_handler_argument_formula {
   
   // Update the summary values to show selected granularity.
   function admin_summary() {
-    return ' ('. implode(', ', $this->options['date_fields']) .')';
+    if (!empty($this->options['date_fields'])) {
+      return ' ('. implode(', ', $this->options['date_fields']) .')';
+    }
+    else {
+      return parent::admin_summary();
+    }
   }
     
   /**
@@ -134,8 +150,8 @@ class calendar_argument_date extends views_handler_argument_formula {
   }
     
   function options_validate($form, &$form_state) {
-    if (empty($form_state['value']['options']['date_fields'])) {
-      $form_error($form, t('You must select at least one date field for this argument.'));
+    if (empty($form_state['values']['options']['date_fields'])) {
+      form_error($form, t('You must select at least one date field for this argument.'));
     }
   }
   
@@ -255,7 +271,7 @@ class calendar_plugin_argument_default extends views_plugin_argument_default {
   var $option_name = 'default_argument_calendar';
   
   function argument_form(&$form, &$form_state) {
-    $form[$option_name] = array(
+    $form[$this->option_name] = array(
       '#title' => t('Current date format'),
       '#description' => t('Select a format to use when creating a missing argument from the current date.'),
       '#type' => 'select',
@@ -506,22 +522,33 @@ class calendar_plugin_style extends views_plugin_style {
   }
   
   /**
-   * Render the table style.
+   * Render the calendar style.
    */
   function render() {
+    // Adjust the theme to match the currently selected calendar type.
+    $this->definition['theme'] = 'calendar_'. $this->view->calendar_type;
     return theme($this->theme_functions(), $this->view, $this->options, array());
   }
 }
 
 /**
  * Display a view as a calendar.
+ * 
+ * This preprocessor does all the work needed for all types of calendar
+ * views and the template takes care of displaying links to related views.
  */
-function template_preprocess_calendar_calendar(&$vars) {
+function template_preprocess_calendar(&$vars) {
+  
   include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
-
+  
+  // Make sure we only run through this function one time.
+  if ($vars['calendar_processed']) {
+    return;
+  }
+  
   $view     = $vars['view'];
     
-  $result   = $view->result;
+  $result   = (array) $view->result;
   $options  = $view->style_plugin->options;
   $handler  = $view->style_plugin;
 
@@ -543,8 +570,8 @@ function template_preprocess_calendar_calendar(&$vars) {
   }
       
   $vars['display_type'] = $view->calendar_type;
-  $vars['min_date'] = date_format($view->min_date, DATE_FORMAT_DATETIME);
-  $vars['max_date'] = date_format($view->max_date, DATE_FORMAT_DATETIME);
+  $vars['min_date_formatted'] = date_format($view->min_date, DATE_FORMAT_DATETIME);
+  $vars['max_date_formatted'] = date_format($view->max_date, DATE_FORMAT_DATETIME);
   
   // Massage the resulting items into formatted calendar items.
   $vars['items'] = calendar_build_nodes($view, $items);
@@ -565,36 +592,53 @@ function template_preprocess_calendar_calendar(&$vars) {
   $vars['view']->subtitle = theme('calendar_nav_title', $view->calendar_type, $view);
 
   $params = array('with_weekno' => $calendar_type == 'month');
-  $vars['header'] = calendar_nav($vars['view'], $params['with_weekno']);
-  $vars['rows'] = calendar_build_calendar($vars['view'], $vars['items'], $params);
-  $vars['links'] = theme('calendar_links', $vars['view'], $view->build_type != 'block');
+  $vars['calendar_nav'] = theme('calendar_nav', $vars['view'], $params['with_weekno']);
+
+  // Create the calendar day names and rows.
+  $rows = calendar_build_calendar($vars['view'], $vars['items'], $params);
+  $vars['rows'] = $rows;
+
+  // Create the links to other displays.
+  $now = date_now();
+  $url = $view->get_url();
+  $arg = $view->calendar_arg;
+  $view->month    = $view->month && $view->month != $view->argument['calendar_date']['wildcard'] ? $view->month : date_format($now, 'm');
+  $view->day      = $view->day && $view->day != $view->argument['calendar_date']['wildcard'] ? $view->day : date_format($now, 'j');
+  if (empty($view->week) || $view->week == $view->argument['calendar_date']['wildcard']) {
+    $view->week = calendar_date_week($view->year .'-'. date_pad($view->month) .'-'. date_pad($view->day));
+  }
+  $displays = $view->style_options;
+  if (!empty($displays['year'])) {
+    $calendar_links[] = array('title' => t('Year'), 'href' => str_replace($arg, $view->year, $url));
+  }
+  if (!empty($displays['month'])) {
+    $calendar_links[] = array('title' => t('Month'), 'href' => str_replace($arg, $view->year .'-'. $view->month, $url));
+  }
+  if (!empty($displays['week'])) {
+    $calendar_links[] = array('title' => t('Week'), 'href' => str_replace($arg, $view->year .'-W'. $view->week, $url));
+  }
+  if (!empty($displays['day'])) {
+    $calendar_links[] = array('title' => t('Day'), 'href' => str_replace($arg, $view->year .'-'. $view->month .'-'. $view->day, $url));
+  }
+  $vars['calendar_links'] = $calendar_links;
+    
+  // If the Date Popup module is enabled, add a popup date selector.
+  if (module_exists('date_popup')) {
+    //$output = '<div class="clear-block">'. calendar_date_select($view) .'</div>';
+  }
+ 
+  $vars['calendar_processed'] = TRUE;
   
 }
 
-/**
- * Display a year view.
- */
-function template_preprocess_calendar_views_year(&$vars) {
-  template_preprocess_calendar_views_calendar($vars);
-}
 
 /**
- * Display a month view.
+ * The calendar row plugin
+ *
+ * No options set up at this time, 
+ * exists to provide a template for the output.
  */
-function template_preprocess_calendar_views_month(&$vars) {
-  template_preprocess_calendar_views_calendar($vars);
+class calendar_node extends views_plugin_row {
+
 }
 
-/**
- * Display a day view.
- */
-function template_preprocess_calendar_views_day(&$vars) {
-  template_preprocess_calendar_views_calendar($vars);
-}
-
-/**
- * Display a week view.
- */
-function template_preprocess_calendar_views_week(&$vars) {
-  template_preprocess_calendar_views_calendar($vars);
-}
