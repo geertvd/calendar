@@ -145,7 +145,7 @@ function calendar_build_day($curday, $view, $items, $params) {
   if (empty($inner)) {
     $inner = theme('calendar_empty');
   }
-  $content = theme('calendar_date_box', date_format($curday, 'Y-m-d'), $view, $items, $params, $selected) . $inner;
+  $content = theme('calendar_datebox', date_format($curday, 'Y-m-d'), $view, $items, $params, $selected) . $inner;
   return $content;
 }
 
@@ -350,14 +350,12 @@ function calendar_nav(&$view, $with_weekno) {
 
   $format = array('year' => 'Y', 'month' => 'Y-m', 'day' => 'Y-m-d', 'week' => 'Y\Ww');
  
-  $current_url = $view->get_url();
-  
   switch ($view->calendar_type) {
     case 'week':
       break;
     default:
-      $next_path = str_replace($view->calendar_arg, date_format($next_date, $format[$view->calendar_type]), $current_url);
-      $prev_path = str_replace($view->calendar_arg, date_format($prev_date, $format[$view->calendar_type]), $current_url);
+      $next_path = str_replace($view->calendar_arg, date_format($next_date, $format[$view->calendar_type]), $view->get_url());
+      $prev_path = str_replace($view->calendar_arg, date_format($prev_date, $format[$view->calendar_type]), $view->get_url());
   }
   
   switch ($view->calendar_type) {

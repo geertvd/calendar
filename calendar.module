@@ -17,81 +17,90 @@ function calendar_help($section, $arg) {
 
 function calendar_init() {
   drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
-  include_once(drupal_get_path('module', 'calendar') .'/calendar.theme');
+  include_once(drupal_get_path('module', 'calendar') .'/theme/theme.inc');
   drupal_add_js(drupal_get_path('module', 'calendar') .'/calendarblock.js');
   drupal_add_js('misc/progress.js');
 }
 
 function calendar_theme() {
+  $path = drupal_get_path('module', 'calendar');
+  require_once "./$path/theme/theme.inc";
+
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => "$path/theme",
+  );
   return array(
-    'calendar_arg_title' => array(
-      'file' => 'calendar.theme', 'arguments' => array('field_type', 'value', 'query'),
+    'calendar_arg_title' => $base + array(
+      'arguments' => array('field_type', 'value', 'query'),
       ),
-    'calendar_date_box' => array(
-      'file' => 'calendar.theme', 'arguments' => array('date', 'view', 'items', 'params', 'selected'),
+    'calendar_datebox' => $base + array(
+      'template' => 'calendar-datebox',
+      'arguments' => array(
+        'date' => NULL, 'view' => NULL, 'items' => NULL, 'params' => NULL, 'selected' => NULL),
       ),
-    'calendar_date_combo' => array(
-      'file' => 'calendar.theme', 'arguments' => array('node', 'lable', 'view'),
+    'calendar_date_combo' => $base + array(
+      'arguments' => array('node', 'lable', 'view'),
       ),
-    'calendar_day' => array(
-      'file' => 'calendar.theme', 'arguments' => array('view', 'header', 'data'),
+    'calendar_day' => $base + array(
+      'arguments' => array('view', 'header', 'data'),
       ),
-    'calendar_empty_day' => array(
-      'file' => 'calendar.theme', 'arguments' => array(),
+    'calendar_empty_day' => $base + array(
+      'arguments' => array(),
       ),
-     'calendar_links' => array(
-       'file' => 'calendar.theme', 'arguments' => array('view', 'header', 'rows'),
+     'calendar_links' => $base + array(
+       'arguments' => array('view', 'header', 'rows'),
        ),
-     'calendar_month' => array(
-       'file' => 'calendar.theme', 'arguments' => array('view', 'header', 'rows'),
+     'calendar_month' => $base + array(
+       'arguments' => array('view', 'header', 'rows'),
        ),
-     'calendar_nav_next' => array(
-       'file' => 'calendar.theme', 'arguments' => array('url', 'text', 'querystring'),
+     'calendar_nav_next' => $base + array(
+       'arguments' => array('url', 'text', 'querystring'),
        ),
-     'calendar_nav_prev' => array(
-       'file' => 'calendar.theme', 'arguments' => array('url', 'text', 'querystring'),
+     'calendar_nav_prev' => $base + array(
+       'arguments' => array('url', 'text', 'querystring'),
        ),
-     'calendar_nav_title' => array(
-       'file' => 'calendar.theme', 'arguments' => array('type', 'view'),
+     'calendar_nav_title' => $base + array(
+       'arguments' => array('type', 'view'),
        ),
-     'calendar_node_day' => array(
-       'file' => 'calendar.theme', 'arguments' => array('node', 'view'),
+     'calendar_node_day' => $base + array(
+       'arguments' => array('node', 'view'),
        ),
-     'calendar_node_month' => array(
-       'file' => 'calendar.theme', 'arguments' => array('node', 'view'),
+     'calendar_node_month' => $base + array(
+       'arguments' => array('node', 'view'),
        ),
-     'calendar_node_week' => array(
-       'file' => 'calendar.theme', 'arguments' => array('node', 'view'),
+     'calendar_node_week' => $base + array(
+       'arguments' => array('node', 'view'),
        ),
-     'calendar_page_title' => array(
-       'file' => 'calendar.theme', 'arguments' => array('view', 'items', 'output'),
+     'calendar_page_title' => $base + array(
+       'arguments' => array('view', 'items', 'output'),
        ),
-     'calendar_stripe_legend' => array(
-       'file' => 'calendar.theme', 'arguments' => array('stripe_labels'),
+     'calendar_stripe_legend' => $base + array(
+       'arguments' => array('stripe_labels'),
        ),
-     'calendar_stripe_stripe' => array(
-       'file' => 'calendar.theme', 'arguments' => array('node'),
+     'calendar_stripe_stripe' => $base + array(
+       'arguments' => array('node'),
        ),
-     'calendar_view_list' => array(
-       'file' => 'calendar.theme', 'arguments' => array('view', 'nodes', 'type'),
+     'calendar_view_list' => $base + array(
+       'arguments' => array('view', 'nodes', 'type'),
        ),
-     'calendar_view_nodes' => array(
-       'file' => 'calendar.theme', 'arguments' => array('view', 'nodes', 'type'),
+     'calendar_view_nodes' => $base + array(
+       'arguments' => array('view', 'nodes', 'type'),
        ),
-     'calendar_view_table' => array(
-       'file' => 'calendar.theme', 'arguments' => array('view', 'nodes', 'type'),
+     'calendar_view_table' => $base + array(
+       'arguments' => array('view', 'nodes', 'type'),
        ),
-     'calendar_view_teasers' => array(
-       'file' => 'calendar.theme', 'arguments' => array('view', 'nodes', 'type'),
+     'calendar_view_teasers' => $base + array(
+       'arguments' => array('view', 'nodes', 'type'),
        ),
-     'calendar_views_field' => array(
-       'file' => 'calendar.theme', 'arguments' => array('fieldname', 'fields', 'field', 'node', 'view', 'type'),
+     'calendar_views_field' => $base + array(
+       'arguments' => array('fieldname', 'fields', 'field', 'node', 'view', 'type'),
        ),
-     'calendar_week' => array(
-       'file' => 'calendar.theme', 'arguments' => array('view', 'header', 'rows'),
+     'calendar_week' => $base + array(
+       'arguments' => array('view', 'header', 'rows'),
        ),
-     'calendar_year' => array(
-       'file' => 'calendar.theme', 'arguments' => array('view', 'header', 'rows'),
+     'calendar_year' => $base + array(
+       'arguments' => array('view', 'header', 'rows'),
        ), 
     );
 }

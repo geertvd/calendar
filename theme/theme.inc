@@ -1,5 +1,29 @@
 <?php
 // $Id$
+/**
+ * Create the calendar date box.
+ */
+function template_preprocess_calendar_datebox(&$vars) {
+  $date = $vars['date'];
+  $view = $vars['view'];
+  
+  $vars['day'] = intval(substr($date, 8, 2));
+  $vars['url'] = str_replace($view->calendar_arg, substr($date, 0, 10), $view->get_url());
+  $vars['link'] = l($vars['day'], $vars['url']);
+  $vars['calendar_type'] = $view->calendar_type;
+  
+  if ($view->mini) {
+    if ($selected) {
+      $vars['class'] = 'mini-day-on';
+    }
+    else {
+      $vars['class'] = 'mini-day-off';
+    }
+  }
+  else {
+    $vars['class'] = 'day';
+  }
+}
 
 /**
  * @addtogroup themeable
@@ -452,45 +476,6 @@ function theme_calendar_node_month($node, $view) {
 }
 
 /**
- * Format an date's day box in a calendar
- *
- * @param date
- *   The day to display in YYYY-MM-DD format.
- * @param view
- *   The view being displayed.
- * @param items
- *   The list of all items in the current view.
- * @param params
- *   An array of paramters.
- * @param selected
- *   Whether the current date has nodes.
- * @return
- *   A themed day.
- */
-function theme_calendar_date_box($date, $view, $items, $params, $selected = FALSE) {
-  $parts = explode('-', substr($date, 0, 10));
-  $year = $parts[0];
-  $month = intval($parts[1]);
-  $day = intval($parts[2]);
-  $url = $params['url'] .'/'. $year .'/'. $month .'/'. $day;
-  $append = $params['append'];
-
-  if ($view->mini) {
-    if ($selected) {
-      return '<div class="mini-day-on">'. l($day, $url, array('query' => $append)) .'</div>';
-    }
-    else {
-      return '<div class="mini-day-off">'. l($day, $url, array('query' => $append)) .'</div>';
-    }
-  }
-  if ($view->calendar_type != 'day') {
-    return '<div class="day">'. l($day, $url, array('query' => $append)) .'</div>'."\n";
-  }
-  $output = '<div class="day">'. l($day, $url, array('query' => $append)) .'</div>'."\n";
-  return $output;
-}
-
-/**
  * Format an empty day on a calendar
  *
  * @param day
@@ -564,5 +549,6 @@ function theme_calendar_date_combo($node, $label, $view) {
   }
   return $output;
 }
+
 
 /** @} End of addtogroup themeable */

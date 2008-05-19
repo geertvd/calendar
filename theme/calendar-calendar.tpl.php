@@ -19,7 +19,9 @@ dsm('Display: '. $display_type .': '. $min_date .' to '. $max_date);
 //dsm($result);
 //dsm('Items');
 //dsm($items);
+$day_names = array_shift($rows);
 ?>
+<div class="calendar-calendar">
 <?php print $links ?>
 <table class="<?php print $class; ?>">
   <thead>
@@ -27,6 +29,13 @@ dsm('Display: '. $display_type .': '. $min_date .' to '. $max_date);
       <?php foreach ($header as $data): ?>
         <th colspan="<?php print $data['colspan']; ?>" class="views-field views-field-<?php print $data['class']; ?>">
           <?php print $data['data']; ?>
+        </th>
+      <?php endforeach ?>
+    </tr>
+    <tr>
+      <?php foreach ($day_names as $cell): ?>
+        <th id="<?php print $cell['id']; ?> class="views-field views-field-<?php print $cell['class']; ?>">
+          <?php print $cell['data']; ?>
         </th>
       <?php endforeach ?>
     </tr>
@@ -43,3 +52,4 @@ dsm('Display: '. $display_type .': '. $min_date .' to '. $max_date);
     <?php endforeach; ?>
   </tbody>
 </table>
+</div>

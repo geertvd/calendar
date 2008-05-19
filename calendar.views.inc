@@ -36,6 +36,13 @@ function calendar_views_data() {
  * Implementation of hook_views_plugins
  */
 function calendar_views_plugins() {
+  $path = drupal_get_path('module', 'calendar');
+  require_once "./$path/theme/theme.inc";
+
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => "$path/theme",
+  );
   return array(
     'module' => 'calendar', // This just tells our themes are elsewhere.
     'style' => array(
@@ -43,7 +50,15 @@ function calendar_views_plugins() {
         'title' => t('Calendar'),
         'help' => t('Displays Views results in a multi-dimensional calendar, with back/next navigation.'),
         'handler' => 'calendar_plugin_style',
-        'theme' => 'calendar_views_calendar',
+        'theme' => 'calendar_calendar',
+        'path' => "$path/theme",
+        'additional themes' => array(
+          'calendar_calendar_month' => 'style',
+          'calendar_calendar_year' => 'style',
+          'calendar_calendar_day' => 'style',
+          'calendar_calendar_week' => 'style',
+          'calendar_datebox' => '',
+          ),
         'uses row plugin' => TRUE,
         'uses fields' => TRUE,
         'uses options' => TRUE,
@@ -501,7 +516,7 @@ class calendar_plugin_style extends views_plugin_style {
 /**
  * Display a view as a calendar.
  */
-function template_preprocess_calendar_views_calendar(&$vars) {
+function template_preprocess_calendar_calendar(&$vars) {
   include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
 
   $view     = $vars['view'];
@@ -554,4 +569,32 @@ function template_preprocess_calendar_views_calendar(&$vars) {
   $vars['rows'] = calendar_build_calendar($vars['view'], $vars['items'], $params);
   $vars['links'] = theme('calendar_links', $vars['view'], $view->build_type != 'block');
   
+}
+
+/**
+ * Display a year view.
+ */
+function template_preprocess_calendar_views_year(&$vars) {
+  template_preprocess_calendar_views_calendar($vars);
+}
+
+/**
+ * Display a month view.
+ */
+function template_preprocess_calendar_views_month(&$vars) {
+  template_preprocess_calendar_views_calendar($vars);
+}
+
+/**
+ * Display a day view.
+ */
+function template_preprocess_calendar_views_day(&$vars) {
+  template_preprocess_calendar_views_calendar($vars);
+}
+
+/**
+ * Display a week view.
+ */
+function template_preprocess_calendar_views_week(&$vars) {
+  template_preprocess_calendar_views_calendar($vars);
 }
