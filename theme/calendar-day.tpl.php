@@ -25,11 +25,9 @@
   <thead>
     <?php print theme('calendar_nav', $view) ?>
     <tr>
-      <?php foreach ($day_names as $cell): ?>
-        <th id="<?php print $cell['id']; ?>" class="<?php print $cell['class']; ?>">
-          <?php print $cell['data']; ?>
-        </th>
-      <?php endforeach; ?>
+      <th id="<?php print $cell['id']; ?>" class="<?php print $cell['class']; ?>">
+        <?php print $day_names; ?>
+      </th>
     </tr>
   </thead>
   <tbody>

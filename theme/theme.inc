@@ -7,9 +7,7 @@
  * views and the template takes care of displaying links to related views.
  */
 function template_preprocess_calendar(&$vars) {
-  
   include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
-  
   
   $view     = $vars['view'];
   // Make sure we only run through this function one time.
@@ -27,31 +25,37 @@ function template_preprocess_calendar(&$vars) {
   // here because we don't apppear to have full access to the view 
   // handlers in the theme functions.
   $items = array();
+  $calendar_fields = array_keys(calendar_fields('alias'));
   foreach ($result as $num => $row) {
     $items[$num] = $row;
+    // Store the raw date values before formatting the results.
+    foreach ($row as $key => $value) {
+      if (in_array($key, $calendar_fields)) {
+        $items[$num]->calendar_fields->$key = $value;
+      }
+    }
     foreach ($fields as $field) {
       if (!empty($field['handler']) && is_object($field['handler'])) {
         $handler = &$field['handler'];
         $field_output = $handler->theme($row);
-        $items[$num]->$field['field'] = $field_output;
+        $items[$num]->{$handler->field_alias} = $field_output;
       }
     }
   }
-      
   $vars['display_type'] = $view->calendar_type;
   $vars['min_date_formatted'] = date_format($view->min_date, DATE_FORMAT_DATETIME);
   $vars['max_date_formatted'] = date_format($view->max_date, DATE_FORMAT_DATETIME);
   
   // Massage the resulting items into formatted calendar items.
-  $vars['items'] = calendar_build_nodes($view, $items);
-
+  $items = calendar_build_nodes($view, $items);
+    
   // Merge in items from other sources.
   foreach (module_implements('calendar_add_items') as $module) {
     $function = $module .'_calendar_add_items';
     if (function_exists($function)) {
       if ($feeds = $function($view)) {
         foreach ($feeds as $feed) {
-          $vars['items'] = $feed;
+          $items = $feed;
         }
       }
     }
@@ -66,7 +70,8 @@ function template_preprocess_calendar(&$vars) {
   $vars['calendar_nav'] = theme('calendar_nav', $view, $params['with_weekno']);
   
   // Create the calendar day names and rows.
-  $rows = calendar_build_calendar($view, $vars['items'], $params);
+  $rows = calendar_build_calendar($view, $items, $params);
+  $vars['items'] = $items;
   $vars['rows'] = $rows;
 
   // Create the links to other displays.
@@ -162,6 +167,7 @@ function template_preprocess_calendar_year(&$vars) {
 function template_preprocess_calendar_day(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar($vars);
+  
   $rows = $vars['rows'];
   if (sizeof($rows) > 1) {
     $day_names = array_shift($rows);
@@ -289,6 +295,54 @@ function template_preprocess_calendar_datebox(&$vars) {
   else {
     $vars['class'] = 'day';
   }
+}
+
+/**
+ * Format an calendar node for display.
+ */
+function template_preprocess_calendar_node(&$vars) {
+  $node = $vars['node'];
+  $view = $vars['view'];
+  $fields = array();
+  foreach ($view->field as $field) {
+    $fields[$field['handler']->field_alias] = $node->{$field['handler']->field_alias};
+  }
+  $vars['fields'] = $fields;
+  $vars['calendar_start'] = $node->calendar_start;
+  $vars['calendar_end'] = $node->calendar_end;
+  $vars['calendar_start_date'] = $node->calendar_start_date;
+  $vars['calendar_end_date'] = $node->calendar_end_date;
+  
+  // We added the node type to the results in the query,
+  // but it will show up as $node->node_type instead of
+  // $node->type. Rename it to match the normal way it 
+  // would show up on a node object.
+  $vars['node']->type = $vars['node']->node_type;
+}
+
+/**
+ * Format an calendar month node for display.
+ */
+function template_preprocess_calendar_month_node(&$vars) {
+  template_preprocess_calendar_node($vars);
+}
+
+/**
+ * Format an calendar day node for display.
+ */
+function template_preprocess_calendar_day_node(&$vars) {
+  template_preprocess_calendar_node($vars);
+  // Remote items may have a teaser to show.
+  if ($node->remote && $node->teaser) {
+    $fields['teaser'] = '<div class="content">'. ($node->teaser) ."</div>\n";
+  }
+}
+
+/**
+ * Format an calendar week node for display.
+ */
+function template_preprocess_calendar_week_node(&$vars) {
+  template_preprocess_calendar_node($vars);
 }
 
 /**
@@ -501,90 +555,6 @@ function theme_calendar_stripe_stripe($node) {
   }
 
   $output .= '<div class="stripe-'. $stripe_map[$node->stripe] .'" title="Key: '.$stripe_map[$node->stripe] .'"><span class="stripe">Key '.$stripe_map[$node->stripe] .'</span></div>'."\n";
-  return $output;
-}
-
-/**
- * Format an calendar node for display in an expanded calendar, like a calendar page
- *
- * @param node
- *   The node being displayed
- */
-function theme_calendar_node_day($node, $view) {
-  $output = '<div class="calendar dayview">'."\n";
-  $output .= theme('calendar_stripe_stripe', $node);
-  $fields = views_fetch_fields('node', 'field');
-  $item = '';
-  foreach ($view->field as $field) {
-    if ($fields[$field['id']]['visible'] !== FALSE) {
-      $$value = $node->$field['field'];
-      if (!empty($value)) {
-        if ($field['label']) {
-          $item .= "<div class='view-label ". views_css_safe('view-label-'. $field['queryname']) ."'>". $field['label'] ."</div>";
-        }
-        $item .= "<div class='view-field ". views_css_safe('view-data-'. $field['queryname']) ."'>";
-        $item .= $value ."</div>";
-      }
-    }
-  }
-  // Remote items may have a teaser to show.
-  if ($node->remote && $node->teaser) {
-    $item .= '<div class="content">'. ($node->teaser) ."</div>\n";
-  }
-  $output .= "<div class='view-item ". views_css_safe('view-item-'. $view->name) ."'>$item</div>\n";
-  $output .= "</div>\n";
-  return $output;
-}
-
-/**
- * Format an calendar node for display in an expanded calendar, like a calendar page
- *
- * @param node
- *   The node being displayed
- */
-
-function theme_calendar_node_week($node, $view) {
-  $output .= '<div class="calendar weekview">'."\n";
-  $output .= theme('calendar_stripe_stripe', $node);
-  $fields = views_fetch_fields('node', 'field');
-  $item = '';
-  foreach ($view->field as $field) {
-    if ($fields[$field['id']]['visible'] !== FALSE) {
-      // Skip the label in this small box, show only the value;
-      $value = $node->$field['field'];
-      if (!empty($value)) {
-        $item .= "<div class='view-field ". views_css_safe('view-data-'. $field['queryname']) ."'>";
-        $item .= $value ."</div>";
-      }
-    }
-  }
-  $output .= "<div class='view-item ". views_css_safe('view-item-'. $view->name) ."'>$item</div>\n";
-  $output .= '</div>' . "\n";
-  return $output;
-}
-
-/**
- * Format an calendar node for display in an expanded calendar, like a calendar page
- *
- * @param node
- *   The node being displayed
- */
-function theme_calendar_node_month($node, $view) {
-  $output .= '<div class="calendar monthview">'."\n";
-  $output .= theme('calendar_stripe_stripe', $node);
-  $fields = views_fetch_fields('node', 'field');
-  $item = '';
-  foreach ($view->field as $field) {
-    if ($fields[$field['id']]['visible'] !== FALSE) {
-      $value = $node->$field['field'];
-      if (!empty($value)) {
-        $item .= "<div class='view-field ". views_css_safe('view-data-'. $field['queryname']) ."'>";
-        $item .= $value ."</div>";
-      }
-    }
-  }
-  $output .= "<div class='view-item ". views_css_safe('view-item-'. $view->name) ."'>$item</div>\n";
-  $output .= "</div>\n";
   return $output;
 }
 
