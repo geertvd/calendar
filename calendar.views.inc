@@ -541,12 +541,12 @@ function template_preprocess_calendar(&$vars) {
   
   include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
   
-  // Make sure we only run through this function one time.
-  if ($vars['calendar_processed']) {
-    return;
-  }
   
   $view     = $vars['view'];
+  // Make sure we only run through this function one time.
+  if ($view->calendar_processed) {
+    return;
+  }
     
   $result   = (array) $view->result;
   $options  = $view->style_plugin->options;
@@ -589,13 +589,15 @@ function template_preprocess_calendar(&$vars) {
   }
 
   // Construct a formatted title for the view from the calendar type.
-  $vars['view']->subtitle = theme('calendar_nav_title', $view->calendar_type, $view);
+  $view->subtitle = theme('calendar_nav_title', $view->calendar_type, $view);
 
   $params = array('with_weekno' => $calendar_type == 'month');
-  $vars['calendar_nav'] = theme('calendar_nav', $vars['view'], $params['with_weekno']);
-
+  $view->mini = $view->calendar_type == 'year';
+  
+  $vars['calendar_nav'] = theme('calendar_nav', $view, $params['with_weekno']);
+  
   // Create the calendar day names and rows.
-  $rows = calendar_build_calendar($vars['view'], $vars['items'], $params);
+  $rows = calendar_build_calendar($view, $vars['items'], $params);
   $vars['rows'] = $rows;
 
   // Create the links to other displays.
@@ -627,8 +629,8 @@ function template_preprocess_calendar(&$vars) {
     //$output = '<div class="clear-block">'. calendar_date_select($view) .'</div>';
   }
  
-  $vars['calendar_processed'] = TRUE;
-  
+  $view->calendar_processed = TRUE;
+  $vars['view'] = $view;  
 }
 
 

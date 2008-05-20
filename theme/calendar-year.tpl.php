@@ -20,7 +20,7 @@ dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_for
 
 <div class="calendar-calendar"><div class="year-view">
 
-<?php if (empty($mini)) print theme('links', $calendar_links);?>
+<?php print theme('links', $calendar_links);?>
 
 <table <?php if ($mini): ?> class="mini"<? endif; ?>>
   <thead>

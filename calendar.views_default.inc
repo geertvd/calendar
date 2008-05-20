@@ -2,8 +2,8 @@
 //$Id$
 function calendar_views_default_views() {
 $view = new view;
-$view->name = 'calendar';
-$view->description = '';
+$view->name = 'dates';
+$view->description = 'Display Views results in a calendar.';
 $view->tag = '';
 $view->view_php = '';
 $view->base_table = 'node';
@@ -27,8 +27,8 @@ $view->display = array();
     'month' => 'calendar',
     'week' => 'calendar',
     'day' => 'calendar',
-    'calendar_time_format' => 'h:i a',
-    'calendar_day_header' => '2',
+    'calendar_time_format' => 'H:i',
+    'calendar_day_header' => '1',
     'block_args' => '',
   ),
   'row_plugin' => 'fields',
@@ -42,6 +42,15 @@ $view->display = array();
       'label' => 'Title',
       'relationship' => 'none',
       'link_to_node' => 1,
+    ),
+    'changed' => array(
+      'id' => 'changed',
+      'table' => 'node',
+      'field' => 'changed',
+      'label' => 'Updated date',
+      'date_format' => 'medium',
+      'custom_date_format' => '',
+      'relationship' => 'none',
     ),
   ),
   'sorts' => array(),
@@ -69,6 +78,8 @@ $view->display = array();
       ),
       'date_method' => 'OR',
       'relationship' => 'none',
+      'default_argument_user' => 0,
+      'default_argument_calendar' => 'Y-m',
       'default_argument_fixed' => '',
       'default_argument_php' => '',
       'validate_argument_node_type' => array(
@@ -76,10 +87,11 @@ $view->display = array();
         'story' => 0,
         'test' => 0,
       ),
+      'validate_argument_node_access' => 0,
+      'validate_argument_nid_type' => 'nid',
       'validate_argument_vocabulary' => array(),
       'validate_argument_type' => 'tid',
       'validate_argument_php' => '',
-      'default_argument_calendar' => 'Y-m-d',
     ),
   ),
   'filters' => array(),
@@ -126,9 +138,10 @@ $view->display['default'] = $display;
   'sorts' => array(),
   'arguments' => array(),
   'filters' => array(),
-  'path' => 'calendar',
+  'path' => 'calendar2',
 );
 $view->display['page'] = $display;
+
 
   $views[$view->name] = $view;
   return $views;

@@ -5,7 +5,7 @@
  * Display a month view.
  */
 function template_preprocess_calendar_month(&$vars) {
-  
+   
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar($vars);
   
@@ -19,16 +19,17 @@ function template_preprocess_calendar_month(&$vars) {
   }
   $vars['rows'] = $rows;
   $vars['day_names'] = $day_names;
+  $vars['mini'] = $vars['options']['mini'];
 }
 
 /**
  * Display a year view.
  */
 function template_preprocess_calendar_year(&$vars) {
-  $original_vars = $vars;
-  
+   
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar($vars);
+  $original_vars = $vars;
   
   $view = $vars['view'];
   $rows = $vars['rows'];
@@ -37,15 +38,16 @@ function template_preprocess_calendar_year(&$vars) {
   
   foreach ($rows as $month => $month_rows) {
     $view->month = $month;
+    $vars['options']['mini'] = TRUE;
     $view->min_date = date_make_date($view->year .'-'. date_pad($month) .'-01 00:00:00', date_default_timezone_name());
     $view->max_date = drupal_clone($view->min_date);
     date_modify($view->max_date, '+1 month');
     date_modify($view->max_date, '-1 second');
-    $month_header = array(array('data' => theme('calendar_nav_title', 'month', $view), 'colspan' => 7));
-    $months[$month] = theme('calendar_month', $view, $vars['options'], $month_rows);
+    $month_header = array(array('data' => theme('calendar_nav_title', $view, FALSE), 'colspan' => 7));
+    $months[$month] = theme('calendar_month', $view, $vars['options'], $month_header + $month_rows);
   }
   $vars = $original_vars;
-  $var['months'] = $months;
+  $vars['months'] = $months;
 }
 
 /**
@@ -74,9 +76,6 @@ function template_preprocess_calendar_nav(&$vars) {
   $min_date = is_object($view->min_date) ? $view->min_date : date_now();
   $max_date = is_object($view->max_date) ? $view->max_date : date_now();
   
-  if (!is_object($view->min_date)) {
-    return;
-  }
   $prev_date = drupal_clone($min_date);
   date_modify($prev_date, '-1 '. $view->calendar_type);
   $next_date = drupal_clone($min_date);
@@ -114,6 +113,13 @@ function template_preprocess_calendar_nav(&$vars) {
   $vars['colspan_next'] = $colspan_next;
   $vars['colspan_middle'] = $colspan_middle;
   
+  $header = array();
+  $header[]  = array('data' => theme('calendar_nav_prev', $prev_path, $view->build_type == 'block' ? FALSE : TRUE), 'class' => 'prev', 'colspan' => $colspan_prev);
+  $header[]  = array('data' => $view->subtitle, 'class' => 'heading', 'colspan' => $colspan_middle);
+  $header[]  = array('data' => theme('calendar_nav_next', $next_path, $view->build_type == 'block' ? FALSE : TRUE), 'class' => 'next', 'colspan' => $colspan_next);
+
+  $vars['calendar_nav'] = $header;
+  
   if ($view->mini) {
 	  // Month navigation titles are used as links in the mini view.
 	  $nav_title = l(date_format_date($view->min_date, 'custom', 'M Y'), $view->url .'/'. $view->year .'/'. $view->month, array(), calendar_url_append($view));
@@ -130,13 +136,6 @@ function template_preprocess_calendar_nav(&$vars) {
     }
   }
   $vars['nav_title'] = $nav_title;
-  
-  $header = array();
-  $header[]  = array('data' => theme('calendar_nav_prev', $prev_path, $view->build_type == 'block' ? FALSE : TRUE), 'class' => 'prev', 'colspan' => $colspan_prev);
-  $header[]  = array('data' => $view->subtitle, 'class' => 'heading', 'colspan' => $colspan_middle);
-  $header[]  = array('data' => theme('calendar_nav_next', $next_path, $view->build_type == 'block' ? FALSE : TRUE), 'class' => 'next', 'colspan' => $colspan_next);
-
-  $vars['calendar_nav'] = $header;
 }
 
 /**
@@ -150,7 +149,7 @@ function template_preprocess_calendar_datebox(&$vars) {
   $vars['url'] = str_replace($view->calendar_arg, substr($date, 0, 10), $view->get_url());
   $vars['link'] = l($vars['day'], $vars['url']);
   $vars['calendar_type'] = $view->calendar_type;
-  $vars['mini'] = !empty($view->mini);
+  $vars['mini'] = $view->mini;
   
   if ($view->mini) {
     if ($selected) {
