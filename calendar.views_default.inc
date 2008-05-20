@@ -129,7 +129,7 @@ $view->display['default'] = $display;
   'sorts' => array(),
   'arguments' => array(),
   'filters' => array(),
-  'path' => 'calendar2',
+  'path' => 'calendar',
 );
 $view->display['page'] = $display;
   $display = new views_display;
