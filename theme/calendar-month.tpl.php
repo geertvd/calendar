@@ -34,7 +34,7 @@
     </tr>
   </thead>
   <tbody>
-    <?php foreach ($rows as $row): ?>
+    <?php foreach ((array) $rows as $row): ?>
       <tr>
         <?php foreach ($row as $cell): ?>
           <td id="<?php print $cell['id']; ?>" class="<?php print $cell['class']; ?>">

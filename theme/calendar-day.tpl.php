@@ -2,12 +2,12 @@
 // $Id$
 /**
  * @file
- * Template to display a view as a calendar month.
+ * Template to display a view as a calendar day.
  * 
- * @see template_preprocess_calendar_month.
+ * @see template_preprocess_calendar_day.
  *
- * $day_names: An array of the day of week names for the table header.
- * $rows: An array of data for each day of the week.
+ * $day_names: The day of week info for the table header.
+ * $rows: An array of data for this day.
  * $view: The view.
  * $calendar_links: Array of formatted links to other calendar displays - year, month, week, day.
  * $display_type: year, month, day, or week.
@@ -33,7 +33,7 @@
     </tr>
   </thead>
   <tbody>
-    <?php foreach ($rows as $row): ?>
+    <?php foreach ((array) $rows as $row): ?>
       <tr>
         <?php foreach ($row as $cell): ?>
           <td id="<?php print $cell['id']; ?>" class="<?php print $cell['class']; ?>">

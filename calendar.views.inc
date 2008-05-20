@@ -166,7 +166,8 @@ class calendar_argument_date extends views_handler_argument_formula {
    */
   function query() {
     include_once('./'. drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
-    
+    include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
+  
     $this->ensure_my_table();
     
     $this->arg_format = calendar_arg_format($this->argument);

@@ -162,6 +162,16 @@ function template_preprocess_calendar_year(&$vars) {
 function template_preprocess_calendar_day(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar($vars);
+  $rows = $vars['rows'];
+  if (sizeof($rows) > 1) {
+    $day_names = array_shift($rows);
+  }
+  else {
+    $day_names = $rows;
+    $rows = array();
+  }
+  $vars['rows'] = $rows;
+  $vars['day_names'] = $day_names;
 }
 
 /**
@@ -170,6 +180,16 @@ function template_preprocess_calendar_day(&$vars) {
 function template_preprocess_calendar_week(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar($vars);
+  $rows = $vars['rows'];
+  if (sizeof($rows) > 1) {
+    $day_names = array_shift($rows);
+  }
+  else {
+    $day_names = $rows;
+    $rows = array();
+  }
+  $vars['rows'] = $rows;
+  $vars['day_names'] = $day_names;
 }
 
 /**
@@ -187,15 +207,18 @@ function template_preprocess_calendar_nav(&$vars) {
     date_modify($prev_date, '-1 '. $view->calendar_type);
     $next_date = drupal_clone($min_date);
     date_modify($next_date, '+1 '. $view->calendar_type);
-    $format = array('year' => 'Y', 'month' => 'Y-m', 'day' => 'Y-m-d', 'week' => 'Y\Ww');
+    $format = array('year' => 'Y', 'month' => 'Y-m', 'day' => 'Y-m-d');
     switch ($view->calendar_type) {
       case 'week':
+        $next_week = calendar_date_week(date_format($next_date, 'Y-m-d'));
+        $prev_week = calendar_date_week(date_format($prev_date, 'Y-m-d'));
+        $next_path = str_replace($view->calendar_arg, date_format($next_date, 'Y-\W') . $next_week, $view->get_url());
+        $prev_path = str_replace($view->calendar_arg, date_format($prev_date, 'Y-\W') . $prev_week, $view->get_url());
         break;
       default:
         $next_path = str_replace($view->calendar_arg, date_format($next_date, $format[$view->calendar_type]), $view->get_url());
         $prev_path = str_replace($view->calendar_arg, date_format($prev_date, $format[$view->calendar_type]), $view->get_url());
     }
-    
     switch ($view->calendar_type) {
       case 'day':
       case 'year':

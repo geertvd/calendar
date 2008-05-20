@@ -2,9 +2,9 @@
 // $Id$
 /**
  * @file
- * Template to display a view as a calendar month.
+ * Template to display a view as a calendar year.
  * 
- * @see template_preprocess_calendar_month.
+ * @see template_preprocess_calendar_year.
  *
  * $view: The view.
  * $calendar_links: Array of formatted links to other calendar displays - year, month, week, day.
