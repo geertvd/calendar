@@ -42,8 +42,11 @@
   <div class="calendar weekview">
     <?php print theme('calendar_stripe_stripe', $node); ?>
     <?php foreach ($fields as $field): ?>
-      <div class='view-field "view-data-<?php print $class ?>">
-        <?php print $field ?>
+      <div id="<?php print $field['id']; ?>" class="view-field view-data-<?php print $field['id'] ?>">
+        <?php if ($field['label']): ?>
+          <div class="view-label-<?php print $field['id'] ?>"><?php print $field['label'] ?></div>
+        <?php endif; ?>  
+        <?php print $field['data']; ?>
       </div>  
     <?php endforeach; ?>
   </div>    

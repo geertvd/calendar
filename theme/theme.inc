@@ -305,7 +305,11 @@ function template_preprocess_calendar_node(&$vars) {
   $view = $vars['view'];
   $fields = array();
   foreach ($view->field as $field) {
-    $fields[$field['handler']->field_alias] = $node->{$field['handler']->field_alias};
+    $fields[$field['handler']->field_alias] = array(
+      'id' => views_css_safe($field_alias),
+      'label' => $field['label'],
+      'data' => $node->{$field['handler']->field_alias},
+      );
   }
   $vars['fields'] = $fields;
   $vars['calendar_start'] = $node->calendar_start;

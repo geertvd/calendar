@@ -24,13 +24,13 @@
 <table <?php if ($mini): ?> class="mini"<? endif; ?>>
   <thead>
     <?php print theme('calendar_nav', $view) ?>
-    <tr>
-      <th id="<?php print $cell['id']; ?>" class="<?php print $cell['class']; ?>">
-        <?php print $day_names; ?>
-      </th>
-    </tr>
   </thead>
   <tbody>
+    <tr>
+      <td colspan="3">
+        <?php print $day_names; ?>
+      </td>
+    </tr>
     <?php foreach ((array) $rows as $row): ?>
       <tr>
         <?php foreach ($row as $cell): ?>

@@ -29,7 +29,7 @@
 <tr>
   <?php if (!empty($colspan_prev)) : ?>
     <th colspan="<?php print $colspan_prev; ?>" class="prev">
-      <span class="next"> <?php print l(!$mini ? t('prev') : '' .' »', $prev_url); ?></span>
+      <span class="next"> <?php print l($mini ? '«' : t('« prev'), $prev_url); ?></span>
     </th>
   <?php endif; ?>
   <th colspan="<?php print $colspan_middle; ?>" class="heading">
@@ -37,7 +37,7 @@
   </th>
   <?php if (!empty($colspan_next)) : ?>
     <th colspan="<?php print $colspan_next; ?>" class="next">
-      <span class="next"> <?php print l(!$mini ? t('next') : '' .' »', $next_url); ?></span>
+      <span class="next"> <?php print l($mini ? '»' : t('next »'), $next_url); ?></span>
     </th>
   <?php endif; ?>  
 </tr>
