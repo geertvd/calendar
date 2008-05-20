@@ -6,15 +6,16 @@
  * 
  * @see template_preprocess_calendar_month.
  *
- * - $view: The view.
- * - $links: Array of formatted links to other calendar displays, i.e. day, year.
- * - $day_names: An array of the day of week names for the table header.
- * - $rows: An array of data for each day of the week.
- * - $calendar_nav: Formatted back/next navigation links.
- *     @see calendar-nav.tpl.php.
+ * $day_names: An array of the day of week names for the table header.
+ * $rows: An array of data for each day of the week.
+ * $view: The view.
+ * $calendar_links: Array of formatted links to other calendar displays - year, month, week, day.
+ * $display_type: year, month, day, or week.
+ * $min_date_formatted: The minimum date for this calendar in the format YYYY-MM-DD HH:MM:SS.
+ * $max_date_formatted: The maximum date for this calendar in the format YYYY-MM-DD HH:MM:SS.
  * 
  */
-dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_formatted);
+//dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_formatted);
 ?>
 
 <div class="calendar-calendar"><div class="month-view">
@@ -23,10 +24,10 @@ dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_for
 
 <table <?php if ($mini): ?> class="mini"<? endif; ?>>
   <thead>
-    <?php print $calendar_nav ?>
+    <?php print theme('calendar_nav', $view) ?>
     <tr>
       <?php foreach ($day_names as $cell): ?>
-        <th id="<?php print $cell['id']; ?>" class="views-field <?php print $cell['class']; ?>">
+        <th id="<?php print $cell['id']; ?>" class="<?php print $cell['class']; ?>">
           <?php print $cell['data']; ?>
         </th>
       <?php endforeach; ?>
@@ -36,7 +37,7 @@ dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_for
     <?php foreach ($rows as $row): ?>
       <tr>
         <?php foreach ($row as $cell): ?>
-          <td id="<?php print $cell['id']; ?>" class="views-field <?php print $cell['class']; ?>">
+          <td id="<?php print $cell['id']; ?>" class="<?php print $cell['class']; ?>">
             <?php print $cell['data']; ?>
           </td>
         <?php endforeach; ?>
