@@ -58,23 +58,11 @@ function calendar_views_plugins() {
           'calendar_day' => 'style',
           'calendar_week' => 'style',
           ),
-        'uses row plugin' => TRUE,
+        'uses row plugin' => FALSE,
         'uses fields' => TRUE,
         'uses options' => TRUE,
         'type' => 'normal',
         'even empty' => TRUE,
-      ),
-    ),
-    'row' => array(
-      'calendar' => array(
-        'title' => t('Calendar'),
-        'help' => t('Displays an individual calendar item, with all its fields.'),
-        'handler' => 'calendar_node',
-        'theme' => 'calendar_node',
-        'path' => "$path/theme",
-        'uses fields' => TRUE,
-        'uses options' => TRUE,
-        'type' => 'normal',
       ),
     ),
     // Add an option to set a default value for an empty date argument.
@@ -539,14 +527,3 @@ class calendar_plugin_style extends views_plugin_style {
     return theme($this->theme_functions(), $this->view, $this->options, array());
   }
 }
-
-/**
- * The calendar row plugin
- *
- * No options set up at this time, 
- * exists to provide a template for the output.
- */
-class calendar_node extends views_plugin_row {
-
-}
-
