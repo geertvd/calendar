@@ -2,7 +2,7 @@
 //$Id$
 function calendar_views_default_views() {
 $view = new view;
-$view->name = 'dates';
+$view->name = 'calendar';
 $view->description = 'Display Views results in a calendar.';
 $view->tag = '';
 $view->view_php = '';
