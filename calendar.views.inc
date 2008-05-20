@@ -526,7 +526,15 @@ class calendar_plugin_style extends views_plugin_style {
    * Render the calendar style.
    */
   function render() {
+    
+    // TODO is this the best way to identify if we need the mini calendar?
+    
+    if ($this->view->display_handler->definition['handler'] == 'views_plugin_display_block') {
+      $this->view->mini = TRUE;
+    }
+    
     // Adjust the theme to match the currently selected calendar type.
+    
     $this->definition['theme'] = 'calendar_'. $this->view->calendar_type;
     return theme($this->theme_functions(), $this->view, $this->options, array());
   }

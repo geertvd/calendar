@@ -65,7 +65,7 @@ function template_preprocess_calendar(&$vars) {
   $view->subtitle = theme('calendar_nav_title', $view->calendar_type, $view);
 
   $params = array('with_weekno' => $calendar_type == 'month');
-  $view->mini = $view->calendar_type == 'year';
+  $view->mini = isset($view->mini) ? $view->mini : $view->calendar_type == 'year';
   
   $vars['calendar_nav'] = theme('calendar_nav', $view, $params['with_weekno']);
   

@@ -23,10 +23,10 @@ $view->display = array();
       '0' => 'node.changed',
     ),
     'default_display' => 'month',
-    'year' => 'calendar',
+    'year' => '',
     'month' => 'calendar',
-    'week' => 'calendar',
-    'day' => 'calendar',
+    'week' => '',
+    'day' => '',
     'calendar_time_format' => 'H:i',
     'calendar_day_header' => '1',
     'block_args' => '',
@@ -42,15 +42,6 @@ $view->display = array();
       'label' => 'Title',
       'relationship' => 'none',
       'link_to_node' => 1,
-    ),
-    'changed' => array(
-      'id' => 'changed',
-      'table' => 'node',
-      'field' => 'changed',
-      'label' => 'Updated date',
-      'date_format' => 'medium',
-      'custom_date_format' => '',
-      'relationship' => 'none',
     ),
   ),
   'sorts' => array(),
@@ -141,7 +132,48 @@ $view->display['default'] = $display;
   'path' => 'calendar2',
 );
 $view->display['page'] = $display;
-
+  $display = new views_display;
+  $display->id = 'block';
+  $display->display_title = 'Block';
+  $display->display_plugin = 'block';
+  $display->position = '3';
+  $display->display_options = array(
+  'defaults' => array(
+    'access' => TRUE,
+    'title' => TRUE,
+    'header' => TRUE,
+    'header_format' => TRUE,
+    'header_empty' => TRUE,
+    'footer' => TRUE,
+    'footer_format' => TRUE,
+    'footer_empty' => TRUE,
+    'empty' => TRUE,
+    'empty_format' => TRUE,
+    'use_ajax' => TRUE,
+    'items_per_page' => TRUE,
+    'offset' => TRUE,
+    'use_pager' => TRUE,
+    'pager_element' => TRUE,
+    'use_more' => TRUE,
+    'distinct' => TRUE,
+    'link_display' => TRUE,
+    'style_plugin' => TRUE,
+    'style_options' => TRUE,
+    'row_plugin' => TRUE,
+    'row_options' => TRUE,
+    'relationships' => TRUE,
+    'fields' => TRUE,
+    'sorts' => TRUE,
+    'arguments' => TRUE,
+    'filters' => TRUE,
+  ),
+  'relationships' => array(),
+  'fields' => array(),
+  'sorts' => array(),
+  'arguments' => array(),
+  'filters' => array(),
+);
+$view->display['block'] = $display;
 
   $views[$view->name] = $view;
   return $views;
