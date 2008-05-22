@@ -423,7 +423,7 @@ class calendar_plugin_display_block extends views_plugin_display_block {
    */
   function init(&$view, &$display) {
     parent::init($view, $display);
-    $this->view->mini = TRUE;
+    //$this->view->mini = TRUE;
   }
 
   function get_style_type() { return 'calendar'; }
