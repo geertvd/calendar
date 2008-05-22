@@ -14,30 +14,24 @@
  *   Urls for the previous and next calendar pages. The links are 
  *   composed in the template to make it easier to change the text,
  *   add images, etc.
- * $colspan_prev
- * $colspan_next
- *   The colspan needed for the prev and next navigation url, 
- *   if empty, there is no navigation link.
- * $colspan_middle
- *   The colspan needed for the navigation title.
  * $mini
  *   Whether or not this is a mini calendar.
  * $view
  *   The view object for this calendar.
  */
 ?>
-<tr>
+<div class="calendar-nav clear-block">
   <?php if (!empty($colspan_prev)) : ?>
-    <th colspan="<?php print $colspan_prev; ?>" class="prev">
+    <div class="prev">
       <span class="next"> <?php print l($mini ? '«' : t('« prev'), $prev_url); ?></span>
-    </th>
+    </div>
   <?php endif; ?>
-  <th colspan="<?php print $colspan_middle; ?>" class="heading">
-    <?php print $nav_title ?>
-  </th>
+  <div class="heading">
+    <h3><?php print $nav_title ?></h3>
+  </div>
   <?php if (!empty($colspan_next)) : ?>
-    <th colspan="<?php print $colspan_next; ?>" class="next">
+    <div class="next">
       <span class="next"> <?php print l($mini ? '»' : t('next »'), $next_url); ?></span>
-    </th>
+    </div>
   <?php endif; ?>  
-</tr>
+</div>

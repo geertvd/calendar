@@ -9,7 +9,6 @@
  * $day_names: The day of week info for the table header.
  * $rows: An array of data for this day.
  * $view: The view.
- * $calendar_links: Array of formatted links to other calendar displays - year, month, week, day.
  * $display_type: year, month, day, or week.
  * $min_date_formatted: The minimum date for this calendar in the format YYYY-MM-DD HH:MM:SS.
  * $max_date_formatted: The maximum date for this calendar in the format YYYY-MM-DD HH:MM:SS.
@@ -18,19 +17,15 @@
 ?>
 
 <div class="calendar-calendar"><div class="day-view">
-
-<?php if (empty($mini)) print theme('links', $calendar_links);?>
-
 <table <?php if ($mini): ?> class="mini"<? endif; ?>>
   <thead>
-    <?php print theme('calendar_nav', $view) ?>
+    <tr>
+      <th colspan="3">
+        <?php print $day_names; ?>
+      </th>
+    </tr>
   </thead>
   <tbody>
-    <tr>
-      <td colspan="3">
-        <?php print $day_names; ?>
-      </td>
-    </tr>
     <?php foreach ((array) $rows as $row): ?>
       <tr>
         <?php foreach ($row as $cell): ?>

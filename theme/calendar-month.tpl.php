@@ -17,14 +17,9 @@
  */
 //dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_formatted);
 ?>
-
 <div class="calendar-calendar"><div class="month-view">
-
-<?php if (empty($mini)) print theme('links', $calendar_links);?>
-
 <table <?php if ($mini): ?> class="mini"<? endif; ?>>
   <thead>
-    <?php print theme('calendar_nav', $view) ?>
     <tr>
       <?php foreach ($day_names as $cell): ?>
         <th id="<?php print $cell['id']; ?>" class="<?php print $cell['class']; ?>">

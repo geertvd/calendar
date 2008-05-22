@@ -3,9 +3,36 @@
 /**
  * @file
  * 
- * Creates a generic Views date argument that can be used with any style,
- * and a Calendar plugin style that uses that argument to render the results
- * in a year/month/day/week calendar, with back/next navigation links.
+ * Creates calendar displays of Views results.
+ * 
+ * The Calendar argument has an option to select one or more Views date 
+ * fields to filter on, automatically adds them to the view, and then 
+ * filters the view by the value of the selected field(s). This argument
+ * can be used on any view, not just calendar views. 
+ * 
+ * Unlike previous versions of the Calendar module, there is just a single
+ * argument instead of year, month, and day arguments. The argument
+ * value will be YYYY-MM-DD for a day, YYYY-MM for a month, YYYY for a
+ * year, and YYYY-W99 for a week. There is a default option to set the 
+ * argument to the current date when the argument is empty.
+ * 
+ * A calendar display creates calendar navigation and links to 
+ * multiple displays for the year, month, day, or week views. The actual
+ * displays are created by attaching calendar views that use whatever
+ * styles are desired for those pages. The calendar display requires the 
+ * calendar argument to do its work and uses its own style plugin 
+ * and template.
+ * 
+ * Calendar views are attachments to create the year, month, day,
+ * and week displays. They can be set to use any style, either a
+ * calendar style or any other Views style, like teasers or lists.
+ * They must be attached to the main calendar page or to a calendar
+ * block.
+ * 
+ * A calendar block will create a calendar block for the
+ * view results. This block requires the calendar argument to do
+ * its work, and uses one of the year, month, day, or week calendar 
+ * view attachments created above.
  * 
  */
 views_include_handlers();
@@ -15,6 +42,8 @@ views_include_handlers();
  */
 function calendar_views_data() {
   $data = array();
+  
+  // The calendar argument.
   $data['node']['calendar_date'] = array(
     'group' => t('Calendar'),
     'title' => t('Date'),
@@ -45,16 +74,67 @@ function calendar_views_plugins() {
   );
   return array(
     'module' => 'calendar', // This just tells our themes are elsewhere.
-    'style' => array(
-      'calendar' => array(
+    'display' => array(
+      // Main calendar display plugin.
+      'calendar' => $base + array(
         'title' => t('Calendar'),
-        'help' => t('Displays Views results in a multi-dimensional calendar, with back/next navigation.'),
+        'help' => t('This is the main calendar page. Requires a Calendar argument. Add calendar views for the year, month, day, and week displays and attach them to this page.'),
+        'handler' => 'calendar_plugin_display_page',
+        'theme' => 'views_view',
+        'uses hook menu' => TRUE,
+        'use ajax' => TRUE,
+        'use pager' => FALSE,
+        'accept attachments' => TRUE,
+        'admin' => t('Calendar navigation'),
+        'help topic' => 'display-calendar',
+      ),
+      // Calendar block display plugin.
+      'calendar_block' => $base + array(
+        'title' => t('Calendar block'),
+        'help' => t('Display the view as a calendar block. Requires a Calendar argument. Add a calendar view for a year, month, day, or week display and attach it to this block.'),
+        'handler' => 'calendar_plugin_display_block',
+        'theme' => 'views_view',
+        'uses hook block' => TRUE,
+        'use ajax' => TRUE,
+        'use pager' => FALSE,
+        'use more' => TRUE,
+        'accept attachments' => TRUE,
+        'admin' => t('Calendar block'),
+        'help topic' => 'display-calendar',
+      ),
+      // Display plugin for calendar displays.
+      'calendar_view' => $base + array(
+        'title' => t('Calendar view'),
+        'help' => t('This is a Year/Month/Day/Week view to attach to a calendar page or block. '),
+        'handler' => 'calendar_plugin_display_attachment',
+        'theme' => 'views_view',
+        'use ajax' => TRUE,
+        'use pager' => TRUE,
+        'help topic' => 'display-calendar',
+      ),
+    ),
+    'style' => array(
+      // Style plugin for the navigation.
+      'calendar' => $base + array(
+        'title' => t('Calendar'),
+        'help' => t('Creates back/next navigation and calendar links.'),
         'handler' => 'calendar_plugin_style',
-        'theme' => 'calendar_month',
-        'file' => 'theme.inc',
-        'path' => "$path/theme",
+        'theme' => 'calendar_main',
+        'uses row plugin' => FALSE,
+        'uses fields' => TRUE,
+        'uses options' => TRUE,
+        'type' => 'calendar', // Only used on calendar page or block displays.
+        'even empty' => TRUE,
+      ),
+      // Style plugin for the attachments.
+      'calendar_view' => $base + array(
+        'title' => t('Calendar view'),
+        'help' => t('Displays a calendar year, month, day, or week.'),
+        'handler' => 'calendar_view_plugin_style',
+        'theme' => 'calendar_month', // Templates are swapped in and out by the handler.
         'additional themes' => array(
           'calendar_year' => 'style',
+          'calendar_month' => 'style',
           'calendar_day' => 'style',
           'calendar_week' => 'style',
           ),
@@ -67,7 +147,7 @@ function calendar_views_plugins() {
     ),
     // Add an option to set a default value for an empty date argument.
     'argument default' => array(
-      'calendar' => array(
+      'calendar' => $base + array(
         'title' => t('Current date'),
         'handler' => 'calendar_plugin_argument_default',
       ),
@@ -81,7 +161,6 @@ function calendar_views_plugins() {
  * @param $arg_format
  *   The format string to use on the current time when 
  *   creating a default date argument.
- * 
  */
 class calendar_argument_date extends views_handler_argument_formula {
   var $arg_format = 'Y-m';
@@ -89,6 +168,15 @@ class calendar_argument_date extends views_handler_argument_formula {
   function construct() {
     parent::construct();
     $this->arg_format = $this->definition['arg_format'];
+  }
+  
+  /**
+   * Init will be called after construct, when the plugin is attached to a
+   * view and a display.
+   */
+  function init(&$view, &$display) {
+    parent::init($view, $display);
+    $this->view->calendar_type = calendar_current_type($view);
   }
   
   // Update the summary values to show selected granularity.
@@ -288,7 +376,186 @@ class calendar_plugin_argument_default extends views_plugin_argument_default {
 }
 
 /**
- * Style plugin to render each item in a calendar.
+ * The plugin that handles a full calendar page.
+ * 
+ * The only style option that will be available is the calendar
+ * style, which creates the navigation and links to other calendar
+ * displays. All options for paging, row plugins, etc. are
+ * deferred to the attachments.
+ */
+class calendar_plugin_display_page extends views_plugin_display_page {
+  
+  function get_style_type() { return 'calendar'; }
+  
+  function defaultable_sections($section = NULL) {
+    if (in_array($section, array('style_plugin', 'row_options', 'row_plugin', 'items_per_page'))) {
+      return FALSE;
+    }
+    return parent::defaultable_sections($section);
+  }
+
+  function options(&$display) {
+    parent::options($display);
+    $display->display_options['displays'] = array();
+    $display->display_options['style_plugin'] = 'calendar';
+    $display->display_options['items_per_page'] = 0;
+    $display->display_options['row_plugin'] = '';
+    $display->display_options['defaults']['style_plugin'] = FALSE;
+    //$display->display_options['defaults']['style_options'] = FALSE;
+    $display->display_options['defaults']['row_plugin'] = FALSE;
+    $display->display_options['defaults']['row_options'] = FALSE;
+  } 
+}
+
+/**
+ * The plugin that handles a calendar block.
+ * 
+ * The only style option that will be available is the calendar
+ * style, which creates the navigation and links to other calendar
+ * displays. All options for paging, row plugins, etc. are
+ * deferred to the attachments.
+ */
+class calendar_plugin_display_block extends views_plugin_display_block {
+
+  /**
+   * Init will be called after construct, when the plugin is attached to a
+   * view and a display.
+   */
+  function init(&$view, &$display) {
+    parent::init($view, $display);
+    $this->view->mini = TRUE;
+  }
+
+  function get_style_type() { return 'calendar'; }
+  
+  function defaultable_sections($section = NULL) {
+    if (in_array($section, array('style_plugin', 'row_options', 'row_plugin', 'items_per_page'))) {
+      return FALSE;
+    }
+    return parent::defaultable_sections($section);
+  }
+
+  function options(&$display) {
+    parent::options($display);
+    $display->display_options['displays'] = array();
+    $display->display_options['style_plugin'] = 'calendar';
+    $display->display_options['items_per_page'] = 0;
+    $display->display_options['row_plugin'] = '';
+    $display->display_options['defaults']['style_plugin'] = FALSE;
+    //$display->display_options['defaults']['style_options'] = FALSE;
+    $display->display_options['defaults']['row_plugin'] = FALSE;
+    $display->display_options['defaults']['row_options'] = FALSE;
+  } 
+
+  /**
+   * Render the block style.
+   */
+  function render() {
+    // Adjust the theme to match the currently selected calendar type.
+    return theme($this->theme_functions(), $this->view, $this->options, array());
+  }
+}
+
+/**
+ * The plugin that handles calendar attachment displays.
+ * 
+ * Adding year/month/day/week pages as attachments makes it
+ * possible to use any style type, so they could be tables,
+ * lists, teasers, or nodes as well as traditional calendar
+ * pages.
+ * 
+ * Force 'inherit_arguments' to TRUE, and 'attachment_position' 
+ * to 'after', and don't display those options in the UI.
+ * 
+ * Allows paging (regular attachments do not), and adds an option 
+ * to choose what type of display this represents.
+ */
+class calendar_plugin_display_attachment extends views_plugin_display_attachment {
+
+  function calendar_types($type = 'month') {
+    $types = calendar_display_types();
+    return $types[$type];
+  }
+
+  function options(&$display) {
+    parent::options($display);
+    $display->display_options['inherit_argments'] = TRUE;
+    $display->display_options['attachment_position'] = 'after';
+    $display->display_options['calendar_type'] = 'month';
+  }  
+
+  /**
+   * Provide the form for setting options.
+   */
+  function options_form(&$form, &$form_state) {
+    parent::options_form($form, $form_state);
+
+    switch ($form_state['section']) {
+      case 'calendar_type':
+        $form['#title'] .= t('Display type');
+        $form['calendar_type'] = array(
+          '#type' => 'radios',
+          '#title' => t('Display'),
+          '#options' => calendar_display_types(),
+          '#description' => t('What type of display should this represent on the parent calendar to which it is attached?'),
+          '#default_value' => $this->get_option('calendar_type'),
+        );
+        break;
+    }
+  }
+
+  /**
+   * Store the option.
+   */
+  function options_submit($form, &$form_state) {
+    parent::options_submit($form, $form_state);
+    switch ($form_state['section']) {
+      case 'calendar_type':
+        $this->set_option($form_state['section'], $form_state['values'][$form_state['section']]);
+        break;
+    }
+  }
+    
+  /**
+   * Provide the summary for attachment options in the views UI.
+   *
+   * This output is returned as an array.
+   */
+  function options_summary(&$categories, &$options) {
+    parent::options_summary($categories, $options);
+
+    $options['calendar_type'] = array(
+      'category' => 'attachment',
+      'title' => t('Calendar type'),
+      'value' => $this->calendar_types($this->get_option('calendar_type')),
+    );
+    unset($options['attachment_position'], $options['inherit_arguments']);
+  }
+    
+  function defaultable_sections($section = NULL) {
+    if (in_array($section, array('inherit_argments', 'attachment_position',))) {
+      return FALSE;
+    }
+    return parent::defaultable_sections($section);
+  }
+  
+  /**
+   * Only render this attachment if it is the right one.
+   * 
+   * TODO Is there a way to not init this attachment at all, and if so,
+   * will that save processing cycles?
+   */
+  function render() {
+    if ($this->get_option('calendar_type') == calendar_current_type($this->view)) {
+      return theme($this->theme_functions(), $this->view);
+    } 
+  }
+}
+
+/**
+ * Style plugin to create the calendar navigation and links.
+ * 
+ * Used by the main calendar page and calendar block displays.
  */
 class calendar_plugin_style extends views_plugin_style {
   
@@ -296,24 +563,26 @@ class calendar_plugin_style extends views_plugin_style {
    * Set default options
    */
   function options(&$options) {
-    $options['calendar_time_format'] = 'H:i';
     $options['calendar_day_header'] = 1;
-    $options['date_fields'] = array();
-    $options['block_args'] = '';
     $options['default_display'] = 'month';
-    foreach (calendar_display_types() as $display => $name) {
-      $options[$display] = 'calendar';
-    }
   }
 
-  function display_type_options() {
-    return array(
-      'calendar' => t('Calendar'), 
-      'table' => t('Table'), 
-      'teasers' => t('Teasers'), 
-      'nodes' => t('Full Nodes'), 
-      'list' => t('List'), 
-      '' => t('None'));
+  function display_types($calendar_type = NULL, $option_type = 'names') {
+    $ids = array();
+    $names = array();
+    foreach (calendar_display_types() as $name => $type) {
+      foreach ($this->view->display as $id => $display) {
+        if ($display->display_plugin == 'calendar_view' 
+        && $display->display_options['calendar_type'] == $name) {
+          $ids[$name] = $id;
+          $names[$name] = $display->display_title;
+        }
+      }
+    }
+    if ($calendar_type) {
+      return $$option_type[$calendar_type];
+    }
+    return $$option_type;
   }
   
   /**
@@ -388,21 +657,32 @@ class calendar_plugin_style extends views_plugin_style {
       return;
     }
 
-    $options = array();
+    $items = array();
     $date_fields = $this->date_fields();
     foreach ($date_fields as $field => $info) {
-      $options[$field] = $info['name'];
+      $items[] = $info['name'];
     }
-    
-    $form['date_fields'] = array(
-      '#type' => 'checkboxes',
-      '#title' => t('Date field(s)'),
-      '#options' => $options,
-      '#default_value' => drupal_map_assoc(array_keys($options)),
-      '#description' => t('The date fields which will be displayed in the calendar. Date fields are selected in the Calendar: Date argument.'),
-      '#attributes' => array('disabled' => TRUE),
+    $form['fields'] = array(
+      '#value' => '<div class="form-item">'.
+        '<strong>'. t('Date Fields') .'</strong><br />'. 
+        theme('item_list', $items) .
+        t('<div class="description">'. t('The date fields which will be used to filter the calendar. Change Date fields in the Calendar: Date argument.') .'</div>') .
+        '</div>',
     );
-    
+    $view_displays = $this->display_types();
+    $view_ids = $this->display_types(NULL, 'ids');
+    $items = array();
+    foreach (calendar_display_types() as $name => $value) {
+      $title = isset($view_displays[$name]) ? $view_displays[$name] : t('None');
+      $items[] = t('@calendar_type view: @name', array('@calendar_type' => $value, '@name' => $title));
+    }
+    $form['displays'] = array(
+      '#value' => '<div class="form-item">'.
+      '<strong>'. t('Displays') .'</strong><br />'. 
+      theme('item_list', $items) .
+      '<div class="description">'. t('The display that will be used for each type of calendar. Change these values by adding, removing, or editing the Calendar view attachments in this view.') .'</div>'.
+      '</div>',
+    );
     $form['default_display'] = array(
       '#title' => t('Default display'),
       '#description' => t('The display that users will see if no arguments have been selected.'),
@@ -410,45 +690,6 @@ class calendar_plugin_style extends views_plugin_style {
       '#type' => 'select',
       '#options' => calendar_display_types(),
     );
-    $form['year'] = array(
-      '#title' => t('Year display'),
-      '#default_value' => $this->options['year'],
-      '#type' => 'select',
-      '#options' => $this->display_type_options(),
-    );
-    $form['month'] = array(
-      '#title' => t('Month display'),
-      '#default_value' => $this->options['month'],
-      '#type' => 'select',
-      '#options' => $this->display_type_options(),
-    );
-    $form['week'] = array(
-      '#title' => t('Week display'),
-      '#default_value' => $this->options['week'],
-      '#type' => 'select',
-      '#options' => $this->display_type_options(),
-    );
-    $form['day'] = array(
-      '#title' => t('Day display'),
-      '#default_value' => $this->options['day'],
-      '#type' => 'select',
-      '#options' => $this->display_type_options(),
-    );
-    $time = mktime(1, 15, 0, 1, 1, date('Y', time()));
-    $time_options = array(
-      'G:i' => date('G:i', $time),     'g:ia' => date('g:ia', $time),
-      'g:iA' => date('g:iA', $time),   'g:i a' => date('g:i a', $time),
-      'g:i A' => date('g:i A', $time), 'H:i' => date('H:i', $time),
-      'h:ia' => date('h:ia', $time),   'h:iA' => date('h:iA', $time),
-      'h:i a' => date('h:i a', $time), 'h:i A' => date('h:i A', $time),
-      );
-    $form['calendar_time_format'] = array(
-      '#title' => t('Time format'),
-      '#default_value' => $this->options['calendar_time_format'],
-      '#type' => 'select',
-      '#options' => $time_options,
-      '#description' => t('The format to use for the time-only date display.'),
-      );
     $form['calendar_day_header'] = array(
       '#title' => t('Mini day name size'),
       '#default_value' => $this->options['calendar_day_header'],
@@ -456,20 +697,10 @@ class calendar_plugin_style extends views_plugin_style {
       '#options' => drupal_map_assoc(range(1, 3)),
       '#description' => t('The number of letters to show for day of week names in the mini calendar.'),
       );
-    $form['block_args'] = array(
-      '#title' => t('Argument type'),
-      '#default_value' => $this->options['block_args'],
-      '#type' => 'select',
-      '#options' => array('' => t('Page'), 'mini' => t('Block')),
-      '#description' => t('Page arguments will derive argument information from the page url. Block arguments will derive argument information from a query string like \'&mini=2008-05\', so it can be used independently of the page url.'),
-    );
-  }
-  
-  function options_submit($form, &$form_state) {
-    $form_state['values']['style_options']['date_fields'] = array_keys($form_state['values']['style_options']['date_fields']);
   }
   
   function query() {
+    
     include_once(drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
         
     $style_options = $this->view->style_plugin->options;
@@ -493,37 +724,45 @@ class calendar_plugin_style extends views_plugin_style {
     }
      
     // Identify the kind of display we're using for this view.
-    // Check first for 'view' in url to get displays set by the switch
-    // block.
     $style_options = $this->view->style_plugin->options;
-    if (isset($_GET['view'])) {
-  	  $this->view->calendar_display = !empty($_GET['view']) ? check_plain($_GET['view']) : 'calendar';
-    }
-    else {
-  	  $this->view->calendar_display = $style_options[$this->view->calendar_type];
-    }
+    $this->view->calendar_display = $style_options[$this->view->calendar_type];
+    
+    // Create an array of all the valid calendar types for this view.
+    $this->view->calendar_types = $this->display_types();
         
     // bring the node type into the query so we can use it in the theme
     $this->view->query->add_field('node', 'type');
-    
+      
     parent::query();
-
   }
   
   /**
-   * Render the calendar style.
+   * Render the calendar navigation style.
    */
   function render() {
-    
-    // TODO is this the best way to identify if we need the mini calendar?
-    
-    if ($this->view->display_handler->definition['handler'] == 'views_plugin_display_block') {
-      $this->view->mini = TRUE;
-    }
-    
-    // Adjust the theme to match the currently selected calendar type.
-    
+    return theme($this->theme_functions(), $this->view, $this->options, array());
+  }
+}
+
+/**
+ * Style plugin to render the year, month, week, or day calendar view.
+ */
+class calendar_view_plugin_style extends calendar_plugin_style {
+  /**
+   * Init will be called after construct, when the plugin is attached to a
+   * view and a display. Assign the right theme as early as we know
+   * the type of this view.
+   */
+  function init(&$view, &$display) {
+    parent::init($view, $display);
     $this->definition['theme'] = 'calendar_'. $this->view->calendar_type;
+  }
+  
+  /**
+   * Render the calendar attachment style.
+   */
+  function render() {
+    // Adjust the theme to match the currently selected calendar type.
     return theme($this->theme_functions(), $this->view, $this->options, array());
   }
 }

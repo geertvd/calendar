@@ -9,6 +9,7 @@
  * @return themed table
  */
 function calendar_build_calendar($view, $items, $params) {
+    
   // Remove nodes outside the selected date range.
   $values = array();
   foreach ($items as $delta => $item) {
@@ -201,8 +202,10 @@ function calendar_untranslated_days() {
  * and date field.
  */
 function calendar_build_nodes(&$view, &$items) {
-  global $user;
-
+  if (empty($view->min_date) || empty($view->max_date)) {
+    return $items;
+  }
+  
   $view->nodes_per_page = 0;
   $type_names = node_get_types('names');
 

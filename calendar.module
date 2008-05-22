@@ -52,38 +52,17 @@ function calendar_theme() {
       'arguments' => array(
         'date' => NULL, 'view' => NULL, 'items' => NULL, 'params' => NULL, 'selected' => NULL),
       ),
-    'calendar_arg_title' => $base + array(
-      'arguments' => array('field_type', 'value', 'query'),
-      ),
     'calendar_date_combo' => $base + array(
       'arguments' => array('node', 'lable', 'view'),
       ),
     'calendar_empty_day' => $base + array(
       'arguments' => array(),
       ),
-     'calendar_links' => $base + array(
-       'arguments' => array('view', 'header', 'rows'),
-       ),
-     'calendar_page_title' => $base + array(
-       'arguments' => array('view', 'items', 'output'),
-       ),
      'calendar_stripe_legend' => $base + array(
        'arguments' => array('stripe_labels'),
        ),
      'calendar_stripe_stripe' => $base + array(
        'arguments' => array('node'),
-       ),
-     'calendar_view_list' => $base + array(
-       'arguments' => array('view', 'nodes', 'type'),
-       ),
-     'calendar_view_nodes' => $base + array(
-       'arguments' => array('view', 'nodes', 'type'),
-       ),
-     'calendar_view_table' => $base + array(
-       'arguments' => array('view', 'nodes', 'type'),
-       ),
-     'calendar_view_teasers' => $base + array(
-       'arguments' => array('view', 'nodes', 'type'),
        ),
      );
 }
@@ -264,6 +243,27 @@ function calendar_switch_view() {
  */
 function calendar_display_types() {
   return array('year' => t('Year'), 'month' => t('Month'), 'day' => t('Day'), 'week' => t('Week'));  
+}
+
+/**
+ * Figure out which type of display to use, 
+ * based on the current argument.
+ *
+ * @return year, month, day, or week.
+ */
+function calendar_current_type($view) {
+  if (!is_object($view) || !is_array($view->argument)) {
+    return FALSE;
+  }
+  $i = 0;
+  foreach ($view->argument as $argument) {
+    if ($argument['id'] == 'calendar_date') {
+      $parts = array_keys(calendar_arg_parts($view->args[$i]));
+      break;
+    }
+    $i++;
+  }
+  return array_pop($parts);
 }
 
 /**

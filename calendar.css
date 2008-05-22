@@ -81,16 +81,24 @@
   margin:0;
 }
 
-.calendar-calendar .prev {
+.calendar-calendar .calendar-nav {
+  width:100%;
+  display:relative;
+}
+.calendar-calendar .calendar-nav div.prev {
   text-align: left;
-  width:25%;
-  }
-.calendar-calendar .next {
+  width:24%;
+  float:left;
+}
+.calendar-calendar .calendar-nav div.next {
   text-align: right;
-  width:25%;
-  }
-.calendar-calendar .heading {
+  width:24%;
+  float:right;
+}
+.calendar-calendar .calendar-nav div.heading {
   text-align:center;
+  width:50%;
+  float:left;
 }
 .calendar-calendar th a {
   font-weight: bold;

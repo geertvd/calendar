@@ -7,7 +7,6 @@
  * @see template_preprocess_calendar_year.
  *
  * $view: The view.
- * $calendar_links: Array of formatted links to other calendar displays - year, month, week, day.
  * $months: An array with a formatted month calendar for each month of the year.
  * $display_type: year, month, day, or week.
  * $min_date_formatted: The minimum date for this calendar in the format YYYY-MM-DD HH:MM:SS.
@@ -18,13 +17,7 @@
 ?>
 
 <div class="calendar-calendar"><div class="year-view">
-
-<?php print theme('links', $calendar_links);?>
-
 <table <?php if ($mini): ?> class="mini"<? endif; ?>>
-  <thead>
-    <?php print theme('calendar_nav', $view) ?>
-  </thead>
   <tbody>
     <tr><td><?php print $months[1] ?></td><td><?php print $months[2] ?></td><td><?php print $months[3] ?></td></tr>  
     <tr><td><?php print $months[4] ?></td><td><?php print $months[5] ?></td><td><?php print $months[6] ?></td></tr>  
