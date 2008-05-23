@@ -479,6 +479,7 @@ class calendar_plugin_display_block extends views_plugin_display_block {
     $view->default_display = $display->display_options['default_display'];
     if ($display_id == 'calendar_block') {
       $view->mini = TRUE;
+      $view->block = TRUE;
     }
   }
   
@@ -525,6 +526,7 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
     // See if we're attaching to a block rather than a page.
     if ($display_id == 'calendar_block') {
       $this->view->mini = TRUE;
+      $this->view->block = TRUE;
     }
     parent::attach_to($display_id);
   }

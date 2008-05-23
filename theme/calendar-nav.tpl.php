@@ -14,8 +14,8 @@
  *   Urls for the previous and next calendar pages. The links are 
  *   composed in the template to make it easier to change the text,
  *   add images, etc.
- * $mini
- *   Whether or not this is a mini calendar.
+ * $mini: Whether or not this is a mini calendar.
+ * $block: Whether or not this calendar is in a block.
  * $view
  *   The view object for this calendar.
  * 

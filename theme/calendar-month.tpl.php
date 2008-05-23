@@ -11,6 +11,7 @@
  * $view: The view.
  * $calendar_links: Array of formatted links to other calendar displays - year, month, week, day.
  * $display_type: year, month, day, or week.
+ * $block: Whether or not this calendar is in a block.
  * $min_date_formatted: The minimum date for this calendar in the format YYYY-MM-DD HH:MM:SS.
  * $max_date_formatted: The maximum date for this calendar in the format YYYY-MM-DD HH:MM:SS.
  * 

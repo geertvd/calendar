@@ -18,6 +18,6 @@
 ?>
 
 <div class="calendar-calendar">
-  <?php if (empty($mini)) print theme('links', $calendar_links);?>
+  <?php if (empty($block)) print theme('links', $calendar_links);?>
   <?php print theme('calendar_nav', $view) ?>
 </div>

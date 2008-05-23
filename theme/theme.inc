@@ -28,6 +28,7 @@ function template_preprocess_calendar_main(&$vars) {
   // Create the links to other displays.
   $now = date_now();
   $url = $view->get_url();
+  $view->url = $url;
   $arg = $view->calendar_arg;
   $view->month    = $view->month && $view->month != $view->argument['calendar_date']['wildcard'] ? $view->month : date_format($now, 'm');
   $view->day      = $view->day && $view->day != $view->argument['calendar_date']['wildcard'] ? $view->day : date_format($now, 'j');
@@ -58,6 +59,7 @@ function template_preprocess_calendar_main(&$vars) {
   
   $vars['view'] = $view;  
   $vars['mini'] = $view->mini;
+  $vars['block'] = $view->block;
 }
 
 /**
@@ -134,6 +136,8 @@ function template_preprocess_calendar(&$vars) {
   
   $view->calendar_processed = TRUE;
   $vars['view'] = $view;  
+  $vars['mini'] = $view->mini;
+  $vars['block'] = $view->block;
 }
 
 /**
@@ -297,6 +301,7 @@ function template_preprocess_calendar_nav(&$vars) {
   }
   $vars['nav_title'] = $nav_title;
   $vars['mini'] = $view->mini;
+  $vars['block'] = $view->block;
 }
 
 /**
