@@ -209,7 +209,6 @@ function calendar_build_nodes(&$view, &$items) {
   if (empty($view->min_date) || empty($view->max_date)) {
     return $items;
   }
-  
   $view->nodes_per_page = 0;
   $type_names = node_get_types('names');
 
@@ -233,7 +232,8 @@ function calendar_build_nodes(&$view, &$items) {
     $fromto       = $field['fromto'];
     $tz_handling  = $field['tz_handling'];
     $label        = $view_field['label'];
-    
+    $tz_alias     = str_replace('.', '_', $field['timezone_field']);
+        
     $db_tz = 'UTC';
     $local_tz = date_default_timezone_name();
     switch ($field['tz_handling']) {
@@ -275,7 +275,11 @@ function calendar_build_nodes(&$view, &$items) {
         // the correct timezone.
         $values[0] = $item->calendar_fields->$fromto[0];
         $values[1] = $item->calendar_fields->$fromto[1];
-        $to_zone = $local_tz == 'date' ? $item->calendar_fields->timezone : $local_tz;
+        
+        $to_zone = $local_tz;
+        if ($tz_handling == 'date' && !empty($item->$tz_alias)) {
+          $to_zone = $item->$tz_alias;
+        }
         $date = date_make_date($values[0], $db_tz, $field['sql_type']);
         if ($db_tz != $to_zone) {
           date_timezone_set($date, timezone_open($to_zone));
@@ -286,6 +290,7 @@ function calendar_build_nodes(&$view, &$items) {
           date_timezone_set($date, timezone_open($to_zone));
         }
         $values[1] = date_format($date, DATE_FORMAT_DATETIME);
+        
         // Create a node for each date within the field's date range,
         // limited to the view's date range.
         $now = max(date_format($view->min_date, 'Y-m-d'), substr($values[0], 0, 10));
@@ -448,17 +453,18 @@ function _calendar_fields($base = 'node') {
       // Handling for content field dates
       if ($handler->content_field['tz_handling']) {
         $tz_handling = $handler->content_field['tz_handling'];
+        $db_info = content_database_info($handler->content_field);
         if ($tz_handling == 'date') {
-          $offset_field = $table_name .'.'. $handler->content_field['columns']['offset']['column'];
+          $offset_field = $table_name .'.'. $db_info['columns']['offset']['column'];
         }
         $related_fields = array(
-          $table_name .'.'. $field_name .'_value',
-          $table_name .'.'. $field_name .'_value2',
-          $table_name .'.'. $field_name .'_timezone',
-          $table_name .'.'. $field_name .'_offset',
-          $table_name .'.'. $field_name .'_offset2',
+          $table_name .'.'. $field_name,
+          $table_name .'.'. $db_info['columns']['value2']['column'],
+          $table_name .'.'. $db_info['columns']['timezone']['column'],
+          //$table_name .'.'. $db_info['columns']['offset']['column'],
+          //$table_name .'.'. $db_info['columns']['offset2']['column'],
           );
-        $timezone_field = $table_name .'.'. $handler->content_field['columns']['timezone']['column'];
+        $timezone_field = $table_name .'.'. $db_info['columns']['timezone']['column'];
       }
       // Handling for simple timestamp fields
       else {
@@ -472,9 +478,10 @@ function _calendar_fields($base = 'node') {
         case 'date':
         case 'datetime':
         case 'datestamp':
+          $db_info = content_database_info($handler->content_field);
           $fromto = array(
-            $table_name .'_'. $field_name .'_value',
-            $table_name .'_'. ($handler->content_field['todate'] ? $field_name .'_value2' : $field_name .'_value'),
+            $table_name .'_'. $db_info['columns']['value']['column'],
+            $table_name .'_'. ($handler->content_field['todate'] ? $db_info['columns']['value2']['column'] : $db_info['columns']['value']['column']),
             );
           break;
       }

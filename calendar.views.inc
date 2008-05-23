@@ -296,8 +296,8 @@ class calendar_argument_date extends views_handler_argument_formula {
           switch ($tz_handling) {
             case 'date' :
               $date_handler[$name]->db_timezone = 'UTC';
-              $date_handler[$name]->local_timezone_field = $fields['tz_field'];
-              $date_handler[$name]->local_offset_field = $fields['offset_field'];
+              $date_handler[$name]->local_timezone_field = $field['timezone_field'];
+              $date_handler[$name]->local_offset_field = $field['offset_field'];
               $date_handler[$name]->min_date = $this->min_date;
               $date_handler[$name]->max_date = $this->max_date;
               break;
@@ -321,8 +321,15 @@ class calendar_argument_date extends views_handler_argument_formula {
               break;
           }
         }
+        
         // Make sure this field is added to the query.
         $this->query->add_field($field['table_name'], $field['field_name']);
+        foreach ($field['related_fields'] as $related) {
+          $bits = explode('.', $related);
+          if ($bits[1] != $field['field_name']) {
+            $this->query->add_field($field['table_name'], $bits[1]);
+          }
+        }
         $from = $date_handler[$name]->sql_where_date('DATE', $field['fullname'], '>=', date_format($date_handler[$name]->min_date, DATE_FORMAT_DATETIME));
         $to   = $date_handler[$name]->sql_where_date('DATE', $field['fullname'], '<=', date_format($date_handler[$name]->max_date, DATE_FORMAT_DATETIME));
         $sql = str_replace('***table***', $this->table_alias, "($from AND $to)");
