@@ -132,6 +132,7 @@ $view->display['default'] = $display;
   'items_per_page' => 0,
   'row_plugin' => '',
   'path' => 'calendar',
+  'default_display' => 'month',
 );
 $view->display['calendar'] = $display;
   $display = new views_display;
@@ -402,10 +403,10 @@ $view->display['calendar_view_3'] = $display;
     'use_more' => TRUE,
     'distinct' => TRUE,
     'link_display' => TRUE,
-    'style_plugin' => TRUE,
-    'style_options' => TRUE,
-    'row_plugin' => TRUE,
-    'row_options' => TRUE,
+    'style_plugin' => FALSE,
+    'style_options' => FALSE,
+    'row_plugin' => FALSE,
+    'row_options' => FALSE,
     'relationships' => TRUE,
     'fields' => TRUE,
     'sorts' => TRUE,
@@ -417,8 +418,18 @@ $view->display['calendar_view_3'] = $display;
   'sorts' => array(),
   'arguments' => array(),
   'filters' => array(),
+  'style_plugin' => 'calendar',
+  'style_options' => array(
+    'calendar_day_header' => '1',
+  ),
+  'row_plugin' => 'node',
+  'row_options' => array(
+    'teaser' => 1,
+    'links' => 1,
+  ),
 );
 $view->display['calendar_block'] = $display;
+
 
   $views[$view->name] = $view;
   return $views;
