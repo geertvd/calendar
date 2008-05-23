@@ -5,8 +5,9 @@
  */
 function template_preprocess_calendar_main(&$vars) {
   include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
- 
+
   $view     = $vars['view'];
+
   $result   = (array) $view->result;
   $options  = $view->style_plugin->options;
   $handler  = $view->style_plugin;
@@ -15,11 +16,12 @@ function template_preprocess_calendar_main(&$vars) {
   $vars['min_date_formatted'] = date_format($view->min_date, DATE_FORMAT_DATETIME);
   $vars['max_date_formatted'] = date_format($view->max_date, DATE_FORMAT_DATETIME);
   
-  // Construct a formatted title for the view from the calendar type.
-  $view->subtitle = theme('calendar_nav_title', $view->calendar_type, $view);
 
   $params = array('with_weekno' => $calendar_type == 'month');
   $view->mini = isset($view->mini) ? $view->mini : $view->calendar_type == 'year';
+
+  // Construct a formatted title for the view from the calendar type.
+  $view->subtitle = theme('calendar_title', $view->calendar_type, $view);
   
   $vars['calendar_nav'] = theme('calendar_nav', $view, $params['with_weekno']);
   
@@ -55,6 +57,7 @@ function template_preprocess_calendar_main(&$vars) {
   }
   
   $vars['view'] = $view;  
+  $vars['mini'] = $view->mini;
 }
 
 /**
@@ -119,7 +122,7 @@ function template_preprocess_calendar(&$vars) {
   }
 
   // Construct a formatted title for the view from the calendar type.
-  $view->subtitle = theme('calendar_nav_title', $view->calendar_type, $view);
+  $view->subtitle = theme('calendar_title', $view->calendar_type, $view);
 
   $params = array('with_weekno' => $calendar_type == 'month');
   $view->mini = isset($view->mini) ? $view->mini : $view->calendar_type == 'year';
@@ -158,6 +161,16 @@ function template_preprocess_calendar_month(&$vars) {
 }
 
 /**
+ * Display a mini month view.
+ */
+function template_preprocess_calendar_mini(&$vars) {
+  // Add in all the $vars added by the main calendar preprocessor.
+  template_preprocess_calendar_month($vars);
+  $vars['show_title'] = $view->show_title;
+  
+}
+
+/**
  * Display a year view.
  */
 function template_preprocess_calendar_year(&$vars) {
@@ -175,12 +188,12 @@ function template_preprocess_calendar_year(&$vars) {
     $view->mini = TRUE;
     $view->hide_nav = TRUE;
     $view->with_weekno = FALSE;
+    $view->show_title = TRUE;
     $view->min_date = date_make_date($view->year .'-'. date_pad($month) .'-01 00:00:00', date_default_timezone_name());
     $view->max_date = drupal_clone($view->min_date);
-    
     date_modify($view->max_date, '+1 month');
     date_modify($view->max_date, '-1 second');
-    $months[$month] = theme('calendar_month', $view, $vars['options'], $month_rows);
+    $months[$month] = theme('calendar_mini', $view, $vars['options'], $month_rows);
   }
   $vars['months'] = $months;
 }
@@ -280,21 +293,10 @@ function template_preprocess_calendar_nav(&$vars) {
   }
   else {
     // Otherwise, just show the date.
-    switch ($view->calendar_type) {
-      case 'day':
-        $nav_title = date_format_date($view->min_date, 'custom', 'l, F j Y');
-        break;
-      case 'week':
-        $nav_title = t('Week of @date', array('@date' => date_format($view->min_date, 'F j')));
-        break;
-      case 'year':
-        $nav_title = date_format_date($view->min_date, 'custom', 'Y');
-        break;
-      default:
-        $nav_title = date_format_date($view->min_date, 'custom', 'M Y');
-    }
+    $nav_title = theme('calendar_title', $view->calendar_type, $view);
   }
   $vars['nav_title'] = $nav_title;
+  $vars['mini'] = $view->mini;
 }
 
 /**
@@ -421,6 +423,22 @@ function theme_calendar_stripe_stripe($node) {
  */
 function theme_calendar_empty_day() {
   return '<div class="calendar-empty">&nbsp;</div>'."\n";
+}
+
+/**
+ * Theme the calendar title
+ */
+function theme_calendar_title($calendar_type, $view) {
+  switch ($calendar_type) {
+    case 'year':
+      return $view->year;
+    case 'month':
+      return date_format_date($view->min_date, 'custom', 'F');
+    case 'day':
+      return date_format_date($view->min_date, 'custom', 'l, F j Y');
+    case 'week':
+    	return t('Week of @date', array('@date' => date_format($view->min_date, 'F j')));
+  }
 }
 
 /**

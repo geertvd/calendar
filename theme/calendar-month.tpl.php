@@ -18,7 +18,7 @@
 //dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_formatted);
 ?>
 <div class="calendar-calendar"><div class="month-view">
-<table <?php if ($mini): ?> class="mini"<? endif; ?>>
+<table>
   <thead>
     <tr>
       <?php foreach ($day_names as $cell): ?>

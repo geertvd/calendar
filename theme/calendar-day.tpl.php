@@ -9,7 +9,6 @@
  * $day_names: The day of week info for the table header.
  * $rows: An array of data for this day.
  * $view: The view.
- * $display_type: year, month, day, or week.
  * $min_date_formatted: The minimum date for this calendar in the format YYYY-MM-DD HH:MM:SS.
  * $max_date_formatted: The maximum date for this calendar in the format YYYY-MM-DD HH:MM:SS.
  */
@@ -17,7 +16,7 @@
 ?>
 
 <div class="calendar-calendar"><div class="day-view">
-<table <?php if ($mini): ?> class="mini"<? endif; ?>>
+<table>
   <thead>
     <tr>
       <th colspan="3">

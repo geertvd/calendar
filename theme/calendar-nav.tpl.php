@@ -18,20 +18,25 @@
  *   Whether or not this is a mini calendar.
  * $view
  *   The view object for this calendar.
+ * 
+ * The &nbsp; in the prev and next divs is to be sure they are never
+ * completely empty, needed in some browsers to prop the header open
+ * so the title stays centered.
+ * 
  */
 ?>
 <div class="calendar-nav clear-block">
-  <?php if (!empty($colspan_prev)) : ?>
-    <div class="prev">
+  <div class="prev">
+    <?php if (!empty($prev_url)) : ?>
       <span class="next"> <?php print l($mini ? '«' : t('« prev'), $prev_url); ?></span>
-    </div>
-  <?php endif; ?>
+    <?php endif; ?>
+  &nbsp;</div>
   <div class="heading">
     <h3><?php print $nav_title ?></h3>
   </div>
-  <?php if (!empty($colspan_next)) : ?>
-    <div class="next">
+  <div class="next">&nbsp;
+    <?php if (!empty($next_url)) : ?>
       <span class="next"> <?php print l($mini ? '»' : t('next »'), $next_url); ?></span>
-    </div>
-  <?php endif; ?>  
+    <?php endif; ?>  
+  </div>
 </div>

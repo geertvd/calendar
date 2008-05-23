@@ -52,6 +52,9 @@ function calendar_theme() {
       'arguments' => array(
         'date' => NULL, 'view' => NULL, 'items' => NULL, 'params' => NULL, 'selected' => NULL),
       ),
+    'calendar_title' => $base + array(
+      'arguments' => array('calendar_type' => NULL, 'view' => NULL),
+      ),
     'calendar_date_combo' => $base + array(
       'arguments' => array('node', 'lable', 'view'),
       ),
@@ -253,6 +256,9 @@ function calendar_display_types() {
  */
 function calendar_current_type($view) {
   if (!is_object($view) || !is_array($view->argument)) {
+    if (!empty($view->default_display)) {
+      return $view->default_display;
+    }
     return FALSE;
   }
   $i = 0;

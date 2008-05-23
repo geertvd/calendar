@@ -78,7 +78,7 @@ function calendar_views_plugins() {
       // Main calendar display plugin.
       'calendar' => $base + array(
         'title' => t('Calendar'),
-        'help' => t('This is the main calendar page. Requires a Calendar argument. Add calendar views for the year, month, day, and week displays and attach them to this page.'),
+        'help' => t('This is the main calendar page. Add calendar views for the year, month, day, and week displays and attach them to this page.'),
         'handler' => 'calendar_plugin_display_page',
         'theme' => 'views_view',
         'uses hook menu' => TRUE,
@@ -91,7 +91,7 @@ function calendar_views_plugins() {
       // Calendar block display plugin.
       'calendar_block' => $base + array(
         'title' => t('Calendar block'),
-        'help' => t('Display the view as a calendar block. Requires a Calendar argument. Add a calendar view for a year, month, day, or week display and attach it to this block.'),
+        'help' => t('Display the view as a calendar block. Add a calendar view for a year, month, day, or week display and attach it to this block.'),
         'handler' => 'calendar_plugin_display_block',
         'theme' => 'views_view',
         'uses hook block' => TRUE,
@@ -110,6 +110,7 @@ function calendar_views_plugins() {
         'theme' => 'views_view',
         'use ajax' => TRUE,
         'use pager' => TRUE,
+        'admin' => t('Calendar page'),
         'help topic' => 'display-calendar',
       ),
     ),
@@ -135,6 +136,7 @@ function calendar_views_plugins() {
         'additional themes' => array(
           'calendar_year' => 'style',
           'calendar_month' => 'style',
+          'calendar_mini' => 'style',
           'calendar_day' => 'style',
           'calendar_week' => 'style',
           ),
@@ -168,15 +170,6 @@ class calendar_argument_date extends views_handler_argument_formula {
   function construct() {
     parent::construct();
     $this->arg_format = $this->definition['arg_format'];
-  }
-  
-  /**
-   * Init will be called after construct, when the plugin is attached to a
-   * view and a display.
-   */
-  function init(&$view, &$display) {
-    parent::init($view, $display);
-    $this->view->calendar_type = calendar_current_type($view);
   }
   
   // Update the summary values to show selected granularity.
@@ -384,6 +377,18 @@ class calendar_plugin_argument_default extends views_plugin_argument_default {
  * deferred to the attachments.
  */
 class calendar_plugin_display_page extends views_plugin_display_page {
+  /**
+   * Init will be called after construct, when the plugin is attached to a
+   * view and a display. 
+   */
+  function init(&$view, &$display) {
+    parent::init($view, $display);
+    if (!$calendar_type = calendar_current_type($view)) {
+      $calendar_type = $display->display_options['default_display'];
+    }
+    $view->calendar_type = $calendar_type;
+    $view->default_display = $display->display_options['default_display'];
+  }
   
   function get_style_type() { return 'calendar'; }
   
@@ -404,7 +409,51 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     //$display->display_options['defaults']['style_options'] = FALSE;
     $display->display_options['defaults']['row_plugin'] = FALSE;
     $display->display_options['defaults']['row_options'] = FALSE;
+    $display->display_options['default_display'] = 'month';
   } 
+
+  function options_form(&$form, &$form_state) {
+    parent::options_form($form, $form_state);
+    switch ($form_state['section']) {
+      case 'default_display':
+        $form['#title'] .= t('Default display');
+        $form['default_display'] = array(
+          '#type' => 'radios',
+          '#title' => t('Default display'),
+          '#description' => t('The display that users will see if no arguments have been selected.'),
+          '#default_value' => $this->get_option('default_display'),
+          '#options' => calendar_display_types(),
+        );
+        break;
+    }
+  }
+
+  /**
+   * Store the option.
+   */
+  function options_submit($form, &$form_state) {
+    parent::options_submit($form, $form_state);
+    switch ($form_state['section']) {
+      case 'default_display':
+        $this->set_option($form_state['section'], $form_state['values'][$form_state['section']]);
+        break;
+    }
+  }
+    
+  /**
+   * Provide the summary for attachment options in the views UI.
+   *
+   * This output is returned as an array.
+   */
+  function options_summary(&$categories, &$options) {
+    parent::options_summary($categories, $options);
+    $display_types = calendar_display_types();    
+    $options['default_display'] = array(
+      'category' => 'page',
+      'title' => t('Default display'),
+      'value' => $display_types[$this->get_option('default_display')],
+    );
+  }
 }
 
 /**
@@ -416,16 +465,22 @@ class calendar_plugin_display_page extends views_plugin_display_page {
  * deferred to the attachments.
  */
 class calendar_plugin_display_block extends views_plugin_display_block {
-
   /**
    * Init will be called after construct, when the plugin is attached to a
-   * view and a display.
+   * view and a display. 
    */
   function init(&$view, &$display) {
     parent::init($view, $display);
-    //$this->view->mini = TRUE;
+    if (!$calendar_type = calendar_current_type($view)) {
+      $calendar_type = $display->display_options['default_display'];
+    }
+    $view->calendar_type = $calendar_type;
+    $view->default_display = $display->display_options['default_display'];
+    if ($display_id == 'calendar_block') {
+      $view->mini = TRUE;
+    }
   }
-
+  
   function get_style_type() { return 'calendar'; }
   
   function defaultable_sections($section = NULL) {
@@ -446,14 +501,6 @@ class calendar_plugin_display_block extends views_plugin_display_block {
     $display->display_options['defaults']['row_plugin'] = FALSE;
     $display->display_options['defaults']['row_options'] = FALSE;
   } 
-
-  /**
-   * Render the block style.
-   */
-  function render() {
-    // Adjust the theme to match the currently selected calendar type.
-    return theme($this->theme_functions(), $this->view, $this->options, array());
-  }
 }
 
 /**
@@ -472,6 +519,14 @@ class calendar_plugin_display_block extends views_plugin_display_block {
  */
 class calendar_plugin_display_attachment extends views_plugin_display_attachment {
 
+  function attach_to($display_id) {
+    // See if we're attaching to a block rather than a page.
+    if ($display_id == 'calendar_block') {
+      $this->view->mini = TRUE;
+    }
+    parent::attach_to($display_id);
+  }
+  
   function calendar_types($type = 'month') {
     $types = calendar_display_types();
     return $types[$type];
@@ -683,13 +738,6 @@ class calendar_plugin_style extends views_plugin_style {
       '<div class="description">'. t('The display that will be used for each type of calendar. Change these values by adding, removing, or editing the Calendar view attachments in this view.') .'</div>'.
       '</div>',
     );
-    $form['default_display'] = array(
-      '#title' => t('Default display'),
-      '#description' => t('The display that users will see if no arguments have been selected.'),
-      '#default_value' => $this->options['default_display'],
-      '#type' => 'select',
-      '#options' => calendar_display_types(),
-    );
     $form['calendar_day_header'] = array(
       '#title' => t('Mini day name size'),
       '#default_value' => $this->options['calendar_day_header'],
@@ -749,20 +797,11 @@ class calendar_plugin_style extends views_plugin_style {
  */
 class calendar_view_plugin_style extends calendar_plugin_style {
   /**
-   * Init will be called after construct, when the plugin is attached to a
-   * view and a display. Assign the right theme as early as we know
-   * the type of this view.
-   */
-  function init(&$view, &$display) {
-    parent::init($view, $display);
-    $this->definition['theme'] = 'calendar_'. $this->view->calendar_type;
-  }
-  
-  /**
    * Render the calendar attachment style.
    */
   function render() {
     // Adjust the theme to match the currently selected calendar type.
+    $this->definition['theme'] = 'calendar_'. $this->view->calendar_type;
     return theme($this->theme_functions(), $this->view, $this->options, array());
   }
 }

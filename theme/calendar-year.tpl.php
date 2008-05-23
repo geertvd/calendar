@@ -8,7 +8,6 @@
  *
  * $view: The view.
  * $months: An array with a formatted month calendar for each month of the year.
- * $display_type: year, month, day, or week.
  * $min_date_formatted: The minimum date for this calendar in the format YYYY-MM-DD HH:MM:SS.
  * $max_date_formatted: The maximum date for this calendar in the format YYYY-MM-DD HH:MM:SS.
  * 
