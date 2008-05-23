@@ -16,7 +16,6 @@ function template_preprocess_calendar_main(&$vars) {
   $vars['min_date_formatted'] = date_format($view->min_date, DATE_FORMAT_DATETIME);
   $vars['max_date_formatted'] = date_format($view->max_date, DATE_FORMAT_DATETIME);
   
-
   $params = array('with_weekno' => $calendar_type == 'month');
   $view->mini = isset($view->mini) ? $view->mini : $view->calendar_type == 'year';
 

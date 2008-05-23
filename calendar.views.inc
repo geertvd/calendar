@@ -406,9 +406,10 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     $display->display_options['items_per_page'] = 0;
     $display->display_options['row_plugin'] = '';
     $display->display_options['defaults']['style_plugin'] = FALSE;
-    //$display->display_options['defaults']['style_options'] = FALSE;
+    $display->display_options['defaults']['style_options'] = FALSE;
     $display->display_options['defaults']['row_plugin'] = FALSE;
     $display->display_options['defaults']['row_options'] = FALSE;
+    $display->display_options['defaults']['items_per_page'] = FALSE;
     $display->display_options['default_display'] = 'month';
   } 
 
@@ -497,7 +498,8 @@ class calendar_plugin_display_block extends views_plugin_display_block {
     $display->display_options['items_per_page'] = 0;
     $display->display_options['row_plugin'] = '';
     $display->display_options['defaults']['style_plugin'] = FALSE;
-    //$display->display_options['defaults']['style_options'] = FALSE;
+    $display->display_options['defaults']['style_options'] = FALSE;
+    $display->display_options['defaults']['items_per_page'] = FALSE;
     $display->display_options['defaults']['row_plugin'] = FALSE;
     $display->display_options['defaults']['row_options'] = FALSE;
   } 
@@ -618,7 +620,6 @@ class calendar_plugin_style extends views_plugin_style {
    * Set default options
    */
   function options(&$options) {
-    $options['calendar_day_header'] = 1;
     $options['default_display'] = 'month';
   }
 
@@ -738,15 +739,20 @@ class calendar_plugin_style extends views_plugin_style {
       '<div class="description">'. t('The display that will be used for each type of calendar. Change these values by adding, removing, or editing the Calendar view attachments in this view.') .'</div>'.
       '</div>',
     );
-    $form['calendar_day_header'] = array(
-      '#title' => t('Mini day name size'),
-      '#default_value' => $this->options['calendar_day_header'],
+    
+    $form['default_display'] = array(
+      '#title' => t('Default display'),
+      '#description' => t('The display that users will see if no arguments have been selected.'),
+      '#default_value' => $this->options['default_display'],
       '#type' => 'select',
-      '#options' => drupal_map_assoc(range(1, 3)),
-      '#description' => t('The number of letters to show for day of week names in the mini calendar.'),
-      );
+      '#options' => calendar_display_types(),
+    );
   }
   
+  function options_submit($form, &$form_state) {
+    $form_state['values']['style_options']['date_fields'] = array_keys($form_state['values']['style_options']['default_display']);
+  }
+
   function query() {
     
     include_once(drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
@@ -796,6 +802,45 @@ class calendar_plugin_style extends views_plugin_style {
  * Style plugin to render the year, month, week, or day calendar view.
  */
 class calendar_view_plugin_style extends calendar_plugin_style {
+  
+  /**
+   * Init will be called after construct, when the plugin is attached to a
+   * view and a display. 
+   */
+  function init(&$view, &$display) {
+    parent::init($view, $display);
+    $view->mini_name_size = $this->view->style_plugin->options['mini_name_size'];
+    $view->full_name_size = $this->view->style_plugin->options['full_name_size'];
+  }
+  
+  /**
+   * Set default options
+   */
+  function options(&$options) {
+    $options['mini_name_size'] = 1;
+    $options['full_name_size'] = 3;
+  }
+
+  /**
+   * Style options.
+   */
+  function options_form(&$form, &$form_state) {
+    $form['mini_name_size'] = array(
+      '#title' => t('Mini calendar day of week names'),
+      '#default_value' => $this->options['mini_name_size'],
+      '#type' => 'radios',
+      '#options' => array(1 => t('First letter of name'), 2 => t('First two letters of name'), 3 => t('Abbreviated name'), 99 => t('Full name')),
+      '#description' => t('The way day of week names should be displayed in a mini calendar.'),
+      );
+    $form['full_name_size'] = array(
+      '#title' => t('Large calendar day of week names'),
+      '#default_value' => $this->options['full_name_size'],
+      '#type' => 'radios',
+      '#options' => array(1 => t('First letter of name'), 2 => t('First two letters of name'), 3 => t('Abbreviated name'), 99 => t('Full name')),
+      '#description' => t('The way day of week names should be displayed in a full sized calendar.'),
+      );
+  }
+ 
   /**
    * Render the calendar attachment style.
    */
