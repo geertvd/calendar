@@ -185,8 +185,9 @@ $view->display['calendar'] = $display;
   'calendar_type' => 'year',
   'style_plugin' => 'calendar_view',
   'style_options' => array(
-    'default_display' => 'month',
-    'calendar_day_header' => '1',
+    'mini_name_size' => '1',
+    'full_name_size' => '1',
+    'date_fields' => NULL,
   ),
   'row_plugin' => 'node',
   'row_options' => array(
@@ -246,8 +247,9 @@ $view->display['calendar_view'] = $display;
   'calendar_type' => 'month',
   'style_plugin' => 'calendar_view',
   'style_options' => array(
-    'default_display' => 'month',
-    'calendar_day_header' => '1',
+    'mini_name_size' => '1',
+    'full_name_size' => '99',
+    'date_fields' => NULL,
   ),
   'row_plugin' => 'node',
   'row_options' => array(
@@ -368,8 +370,9 @@ $view->display['calendar_view_2'] = $display;
   'calendar_type' => 'week',
   'style_plugin' => 'calendar_view',
   'style_options' => array(
-    'default_display' => 'month',
-    'calendar_day_header' => '1',
+    'mini_name_size' => '1',
+    'full_name_size' => '99',
+    'date_fields' => NULL,
   ),
   'row_plugin' => 'node',
   'row_options' => array(
@@ -420,7 +423,8 @@ $view->display['calendar_view_3'] = $display;
   'filters' => array(),
   'style_plugin' => 'calendar',
   'style_options' => array(
-    'calendar_day_header' => '1',
+    'default_display' => 'month',
+    'date_fields' => NULL,
   ),
   'row_plugin' => 'node',
   'row_options' => array(
@@ -429,7 +433,6 @@ $view->display['calendar_view_3'] = $display;
   ),
 );
 $view->display['calendar_block'] = $display;
-
 
   $views[$view->name] = $view;
   return $views;
