@@ -414,7 +414,6 @@ function calendar_clear_all($remove = FALSE) {
   }
   else {
     calendar_fields('name', TRUE);
-    calendar_info(TRUE);
   }
 }
 
