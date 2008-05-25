@@ -11,25 +11,6 @@ function calendar_ical_init() {
   include_once(drupal_get_path('module', 'calendar') .'/calendar.module');
 }
 
-/**
- *  Implementation of hook_menu().
- */
-function calendar_ical_menu() {
-  $items = array();
-  foreach (calendar_info() as $view_name => $view) {
-    $items['admin/settings/calendar/'. $view_name .'/ical'] = array(
-      'title'    => t('iCal'),
-      'description' => t('iCal setup.'),
-      'access arguments'   => array('administer views'),
-      'callback' => 'drupal_get_form',
-      'callback arguments' => array('calendar_ical_setup_form', $view_name),
-      'type' => MENU_LOCAL_TASK,
-      'weight' => 6,
-    );
-  }
-  return $items;
-}
-
 function calendar_ical_theme() {
   return array(
     'calendar_ical_feed' => array(
