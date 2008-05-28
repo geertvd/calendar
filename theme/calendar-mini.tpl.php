@@ -25,7 +25,7 @@
     <?php if ($view->show_title): ?>
     <tr>
       <th colspan="7">
-        <?php print theme('calendar_nav', $view); ?>
+        <?php print theme('date_navigation', $view); ?>
       </th>
     </tr>
    <?php endif; ?> 
