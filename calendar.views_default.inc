@@ -41,10 +41,10 @@ $view->display = array();
   ),
   'sorts' => array(),
   'arguments' => array(
-    'calendar_date' => array(
-      'id' => 'calendar_date',
+    'date_argument' => array(
+      'id' => 'date_argument',
       'table' => 'node',
-      'field' => 'calendar_date',
+      'field' => 'date_argument',
       'default_action' => 'default',
       'style_plugin' => 'default_summary',
       'style_options' => array(
@@ -55,17 +55,17 @@ $view->display = array();
       'wildcard' => 'all',
       'wildcard_substitution' => 'All',
       'title' => '',
-      'default_argument_type' => 'calendar',
+      'default_argument_type' => 'date',
       'default_argument' => '',
       'validate_type' => 'none',
       'validate_fail' => 'not found',
       'date_fields' => array(
-        'node.changed' => 'node.changed',
+        'node_data_field_stamp.field_stamp_value' => 'node_data_field_stamp.field_stamp_value',
       ),
       'date_method' => 'OR',
+      'granularity' => 'month',
       'relationship' => 'none',
       'default_argument_user' => 0,
-      'default_argument_calendar' => 'Y-m',
       'default_argument_fixed' => '',
       'default_argument_php' => '',
       'validate_argument_node_type' => array(
@@ -194,6 +194,7 @@ $view->display['calendar'] = $display;
     'teaser' => 1,
     'links' => 1,
   ),
+  'date_type' => 'year',
 );
 $view->display['calendar_view'] = $display;
   $display = new views_display;
@@ -256,6 +257,7 @@ $view->display['calendar_view'] = $display;
     'teaser' => 1,
     'links' => 1,
   ),
+  'date_type' => 'month',
 );
 $view->display['calendar_view_1'] = $display;
   $display = new views_display;
@@ -317,6 +319,7 @@ $view->display['calendar_view_1'] = $display;
   'offset' => 0,
   'use_pager' => '1',
   'pager_element' => 0,
+  'date_type' => 'day',
 );
 $view->display['calendar_view_2'] = $display;
   $display = new views_display;
@@ -379,6 +382,7 @@ $view->display['calendar_view_2'] = $display;
     'teaser' => 1,
     'links' => 1,
   ),
+  'date_type' => 'week',
 );
 $view->display['calendar_view_3'] = $display;
   $display = new views_display;
@@ -433,6 +437,7 @@ $view->display['calendar_view_3'] = $display;
   ),
 );
 $view->display['calendar_block'] = $display;
+
 
   $views[$view->name] = $view;
   return $views;

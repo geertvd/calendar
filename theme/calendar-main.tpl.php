@@ -19,5 +19,5 @@
 
 <div class="calendar-calendar">
   <?php if (empty($block)) print theme('links', $calendar_links);?>
-  <?php print theme('calendar_nav', $view) ?>
+  <?php print theme('date_navigation', $view) ?>
 </div>

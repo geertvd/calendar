@@ -26,7 +26,7 @@ function calendar_build_calendar($view, $items, $params) {
   date_timezone_set($curday, timezone_open(date_default_timezone_name()));
   date_time_set($curday, 0, 0, 0);
 
-  switch ($view->calendar_type) {
+  switch ($view->date_type) {
     case 'year':
       $rows = array();
       for ($i = 1; $i <= 12; $i++) {
@@ -79,7 +79,7 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
   $weekdays = calendar_untranslated_days($results, $view);
   $today = date_format(date_now(date_default_timezone_name()), 'Y-m-d');
   $month = date_format($curday, 'n');
-  $week = calendar_date_week(date_format($curday, 'Y-m-d'));
+  $week = date_week(date_format($curday, 'Y-m-d'));
 
   $first_day = variable_get('date_first_day', 0);
 
@@ -89,7 +89,7 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
 
   // If we're displaying the week number, add it as the
   // first cell in the week.
-  if ($view->with_weekno && $view->calendar_type != 'day') {
+  if ($view->with_weekno && $view->date_type != 'day') {
     $url = $view->get_url() .'/'. $view->year .'-W'. $week;
     $rows[$week][] = array(
       'data' => l($week, $url, array('query' => $params['append'])),
@@ -136,7 +136,7 @@ function calendar_build_day($curday, $view, $items, $params) {
       foreach ($day as $hour) {
         foreach ($hour as $item) {
           if (!$view->mini) {
-            $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->calendar_type .'_node';
+            $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_type .'_node';
             $inner .= theme($theme, $item, $view);
           }
         }
@@ -212,7 +212,7 @@ function calendar_build_nodes(&$view, &$items) {
   $view->nodes_per_page = 0;
   $type_names = node_get_types('names');
 
-  $fields = calendar_fields();
+  $fields = date_api_fields();
   foreach($fields as $field) {
     $datefields[] = $field['query_name'];
   }
@@ -221,7 +221,7 @@ function calendar_build_nodes(&$view, &$items) {
   $nodes = array();
   $i = 0;
 
-  foreach ($view->argument['calendar_date']['date_fields'] as $name) {
+  foreach ($view->argument['date_argument']['date_fields'] as $name) {
     $field = $fields[$name];
     $view_field = $view->field[$name];
     
@@ -349,7 +349,7 @@ function calendar_build_nodes(&$view, &$items) {
             else {
               $id = $item->nid .':0:'. $alias;
             }
-            if ($view->build_type == 'page' && $view->calendar_type != 'year') {
+            if ($view->build_type == 'page' && $view->date_type != 'year') {
               $node->stripe = calendar_node_stripe($view, $node, $alias, $alias);
             }
             $node->unique_nid = $id;

@@ -320,10 +320,10 @@ function theme_calendar_ical_node($node, $view) {
   if ($view->calendar_display == 'calendar') {
     // Remote nodes may come in with lengthy descriptions that won't fit
     // in small boxes of year, month, and week calendars.
-    if ($view->calendar_type != 'day') {
+    if ($view->date_type != 'day') {
       $node->teaser = '';
     }
-    $theme = 'calendar_node_'. $view->calendar_type;
+    $theme = 'calendar_node_'. $view->date_type;
     return theme($theme, $node, $view);
   }
   else {
