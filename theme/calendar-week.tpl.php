@@ -21,7 +21,7 @@
   <thead>
     <tr>
       <?php foreach ($day_names as $cell): ?>
-        <th id="<?php print $cell['id']; ?>" class="<?php print $cell['class']; ?>">
+        <th class="<?php print $cell['class']; ?>">
           <?php print $cell['data']; ?>
         </th>
       <?php endforeach; ?>

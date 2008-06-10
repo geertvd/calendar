@@ -9,7 +9,6 @@
  * @return themed table
  */
 function calendar_build_calendar($view, $items, $params) {
-    
   // Remove nodes outside the selected date range.
   $values = array();
   foreach ($items as $delta => $item) {
@@ -26,7 +25,7 @@ function calendar_build_calendar($view, $items, $params) {
   date_timezone_set($curday, timezone_open(date_default_timezone_name()));
   date_time_set($curday, 0, 0, 0);
 
-  switch ($view->date_type) {
+  switch ($view->granularity) {
     case 'year':
       $rows = array();
       for ($i = 1; $i <= 12; $i++) {
@@ -46,8 +45,7 @@ function calendar_build_calendar($view, $items, $params) {
       $rows = calendar_build_week($curday, $view, $items, $params);
 
       // Merge the day names in as the first row.
-      $len = $view->mini ? $view->mini_name_size : $view->full_name_size;
-      $rows = array_merge(array(calendar_week_header($view->mini, $view->with_weekno, $len)), $rows);
+      $rows = array_merge(array(calendar_week_header($view)), $rows);
       break;
   }
   return $rows;
@@ -67,8 +65,7 @@ function calendar_build_month(&$curday, $view, $items, $params) {
   } while (date_format($curday, 'n') == $month && $curday <= $view->max_date);
 
   // Merge the day names in as the first row.
-  $len = $view->mini ? $view->mini_name_size : $view->full_name_size;
-  $rows = array_merge(array(calendar_week_header($view->mini, $params['with_weekno'], $len)), $rows);
+  $rows = array_merge(array(calendar_week_header($view)), $rows);
   return $rows;
 }
 
@@ -76,7 +73,7 @@ function calendar_build_month(&$curday, $view, $items, $params) {
  * Build one week row.
  */
 function calendar_build_week(&$curday, $view, $items, $params, $check_month = FALSE) {
-  $weekdays = calendar_untranslated_days($results, $view);
+  $weekdays = calendar_untranslated_days($items, $view);
   $today = date_format(date_now(date_default_timezone_name()), 'Y-m-d');
   $month = date_format($curday, 'n');
   $week = date_week(date_format($curday, 'Y-m-d'));
@@ -89,7 +86,7 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
 
   // If we're displaying the week number, add it as the
   // first cell in the week.
-  if ($view->with_weekno && $view->date_type != 'day') {
+  if (!empty($view->with_weekno) && $view->granularity != 'day') {
     $url = $view->get_url() .'/'. $view->year .'-W'. $week;
     $rows[$week][] = array(
       'data' => l($week, $url, array('query' => $params['append'])),
@@ -136,7 +133,7 @@ function calendar_build_day($curday, $view, $items, $params) {
       foreach ($day as $hour) {
         foreach ($hour as $item) {
           if (!$view->mini) {
-            $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_type .'_node';
+            $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->granularity .'_node';
             $inner .= theme($theme, $item, $view);
           }
         }
@@ -156,7 +153,10 @@ function calendar_build_day($curday, $view, $items, $params) {
  * @ingroup event_support
  * @return array with weekday table header data
  */
-function calendar_week_header($mini = FALSE, $with_week = TRUE, $len = 1) {
+function calendar_week_header($view) {
+  $len = isset($view->name_size) ? $view->name_size : (!empty($view->mini) ? 1 : 3);
+  $with_week = !empty($view->with_weekno);
+  
   // create week header
   $untranslated_days = calendar_untranslated_days();
   if ($len == 99) {
@@ -213,25 +213,22 @@ function calendar_build_nodes(&$view, &$items) {
   $type_names = node_get_types('names');
 
   $fields = date_api_fields();
-  foreach($fields as $field) {
+  foreach($fields['name'] as $field) {
     $datefields[] = $field['query_name'];
   }
-  $view_fields      = views_fetch_fields('node', 'field');
+  $view_fields      = date_api_views_fetch_fields('node', 'field');
   $field_names = (array) array_keys($fields);
   $nodes = array();
   $i = 0;
 
   foreach ($view->argument['date_argument']['date_fields'] as $name) {
-    $field = $fields[$name];
-    $view_field = $view->field[$name];
-    
-    $option       = $fields[$data['field_name']];
-    $field_type   = strstr($option['type'], 'string') ? 'string' : 'timestamp';
+    $field = $fields['name'][$name];
+    $field_type   = strstr($field['type'], 'string') ? 'string' : 'timestamp';
     $alias        = $field['query_name'];
     $field_name   = $field['field_name'];
     $fromto       = $field['fromto'];
     $tz_handling  = $field['tz_handling'];
-    $label        = $view_field['label'];
+    $label        = isset($view->field[$name]) ? $view->field[$name]['label'] : $field['field_name'];
     $tz_alias     = str_replace('.', '_', $field['timezone_field']);
         
     $db_tz = 'UTC';
@@ -245,7 +242,7 @@ function calendar_build_nodes(&$view, &$items) {
         break;
     }
     
-    if (strstr($option['type'], 'cck')) {
+    if (strstr($field['type'], 'cck')) {
       $format = date_formatter_format($data['options'], $field_name);
     }
     elseif (!empty($view->field[$name]['date_format'])) {
@@ -343,13 +340,13 @@ function calendar_build_nodes(&$view, &$items) {
             unset($node);
           }
           else {
-            if (strstr($option['type'], 'cck')) {
+            if (strstr($field['type'], 'cck')) {
               $id = $item->nid .':'. $delta .':'. $alias;
             }
             else {
               $id = $item->nid .':0:'. $alias;
             }
-            if ($view->build_type == 'page' && $view->date_type != 'year') {
+            if ($view->build_type == 'page' && $view->granularity != 'year') {
               $node->stripe = calendar_node_stripe($view, $node, $alias, $alias);
             }
             $node->unique_nid = $id;
@@ -409,7 +406,7 @@ function _calendar_fields($base = 'node') {
   $cid = 'calendar_fields';
   cache_clear_all($cid, 'cache_views');
   
-  $all_fields = views_fetch_fields($base, 'field');
+  $all_fields = date_api_views_fetch_fields($base, 'field');
   $fields = array();
   foreach ((array) $all_fields as $name => $val) {
     $fromto = array();

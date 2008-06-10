@@ -201,7 +201,7 @@ function calendar_display_types() {
  * @return year, month, day, or week.
  */
 function calendar_current_type($view) {
-  if (!is_object($view) || !is_array($view->argument)) {
+  if (!is_object($view) || !isset($view->argument) || !is_array($view->argument)) {
     if (!empty($view->default_display)) {
       return $view->default_display;
     }
@@ -274,8 +274,11 @@ function calendar_node_stripe($view, $node, $query_name, $delta, $stripe = NULL,
  *
  * @param $remove
  *   whether or not to completely remove the caches.
+ * 
+ * TODO quit using this, not needed in new version.
  */
 function calendar_clear_all($remove = FALSE) {
+  return;
   if ($remove) {
     cache_clear_all('calendar_views', 'cache_views');
     cache_clear_all('calendar_fields', 'cache_views');

@@ -12,16 +12,16 @@ function template_preprocess_calendar_main(&$vars) {
   $options  = $view->style_plugin->options;
   $handler  = $view->style_plugin;
 
-  $vars['display_type'] = $view->date_type;
+  $vars['display_type'] = $view->granularity;
   $vars['min_date_formatted'] = date_format($view->min_date, DATE_FORMAT_DATETIME);
   $vars['max_date_formatted'] = date_format($view->max_date, DATE_FORMAT_DATETIME);
   
 
-  $params = array('with_weekno' => $date_type == 'month');
-  $view->mini = isset($view->mini) ? $view->mini : $view->date_type == 'year';
+  $params = array('with_weekno' => $view->granularity == 'month');
+  $view->mini = isset($view->mini) ? $view->mini : $view->granularity == 'year';
 
   // Construct a formatted title for the view from the calendar type.
-  $view->subtitle = theme('calendar_title', $view->date_type, $view);
+  $view->subtitle = theme('calendar_title', $view->granularity, $view);
   
   // Create the links to other displays.
   $now = date_now();
@@ -33,8 +33,8 @@ function template_preprocess_calendar_main(&$vars) {
   if (empty($view->week) || $view->week == $view->argument['date_argument']['wildcard']) {
     $view->week = date_week($view->year .'-'. date_pad($view->month) .'-'. date_pad($view->day));
   }
-  $displays = $view->date_types;
-  
+  $displays = $view->display_types;
+    
   $calendar_links = array();
   if (!empty($displays['year'])) {
     $calendar_links[] = array('title' => t('Year'), 'href' => str_replace($arg, $view->year, $url));
@@ -56,8 +56,8 @@ function template_preprocess_calendar_main(&$vars) {
   }
   
   $vars['view'] = $view;  
-  $vars['mini'] = $view->mini;
-  $vars['block'] = $view->block;
+  $vars['mini'] = !empty($view->mini);
+  $vars['block'] = !empty($view->block);
 }
 
 /**
@@ -71,7 +71,7 @@ function template_preprocess_calendar(&$vars) {
   
   $view     = $vars['view'];
   // Make sure we only run through this function one time.
-  if ($view->calendar_processed) {
+  if (!empty($view->calendar_processed)) {
     return;
   }
     
@@ -102,7 +102,7 @@ function template_preprocess_calendar(&$vars) {
       }
     }
   }
-  $vars['display_type'] = $view->date_type;
+  $vars['display_type'] = $view->granularity;
   $vars['min_date_formatted'] = date_format($view->min_date, DATE_FORMAT_DATETIME);
   $vars['max_date_formatted'] = date_format($view->max_date, DATE_FORMAT_DATETIME);
   
@@ -122,10 +122,10 @@ function template_preprocess_calendar(&$vars) {
   }
 
   // Construct a formatted title for the view from the calendar type.
-  $view->subtitle = theme('calendar_title', $view->date_type, $view);
+  $view->subtitle = theme('calendar_title', $view->granularity, $view);
 
-  $params = array('with_weekno' => $date_type == 'month');
-  $view->mini = isset($view->mini) ? $view->mini : $view->date_type == 'year';
+  $params = array('with_weekno' => $view->granularity == 'month');
+  $view->mini = isset($view->mini) ? $view->mini : $view->granularity == 'year';
   
   // Create the calendar day names and rows.
   $rows = calendar_build_calendar($view, $items, $params);
@@ -134,8 +134,8 @@ function template_preprocess_calendar(&$vars) {
   
   $view->calendar_processed = TRUE;
   $vars['view'] = $view;  
-  $vars['mini'] = $view->mini;
-  $vars['block'] = $view->block;
+  $vars['mini'] = !empty($view->mini);
+  $vars['block'] = !empty($view->block);
 }
 
 /**
@@ -157,7 +157,7 @@ function template_preprocess_calendar_month(&$vars) {
   $vars['rows'] = $rows;
   $vars['day_names'] = $day_names;
   
-  $vars['display_type'] = $view->date_type;
+  $vars['display_type'] = $view->granularity;
   $vars['min_date_formatted'] = date_format($view->min_date, DATE_FORMAT_DATETIME);
   $vars['max_date_formatted'] = date_format($view->max_date, DATE_FORMAT_DATETIME);
 }
@@ -168,8 +168,8 @@ function template_preprocess_calendar_month(&$vars) {
 function template_preprocess_calendar_mini(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar_month($vars);
+  $view = $vars['view'];
   $vars['show_title'] = $view->show_title;
-  
 }
 
 /**
@@ -186,7 +186,7 @@ function template_preprocess_calendar_year(&$vars) {
   $months = array();
   foreach ($rows as $month => $month_rows) {
     $view->month = $month;
-    $view->date_type = 'month';
+    $view->granularity = 'month';
     $view->mini = TRUE;
     $view->hide_nav = TRUE;
     $view->with_weekno = FALSE;
@@ -249,11 +249,11 @@ function template_preprocess_calendar_datebox(&$vars) {
   $vars['day'] = intval(substr($date, 8, 2));
   $vars['url'] = str_replace($view->date_arg, substr($date, 0, 10), $view->get_url());
   $vars['link'] = l($vars['day'], $vars['url']);
-  $vars['date_type'] = $view->date_type;
+  $vars['granularity'] = $view->granularity;
   $vars['mini'] = $view->mini;
   
   if ($view->mini) {
-    if ($selected) {
+    if (!empty($vars['selected'])) {
       $vars['class'] = 'mini-day-on';
     }
     else {
@@ -368,8 +368,8 @@ function theme_calendar_empty_day() {
 /**
  * Theme the calendar title
  */
-function theme_calendar_title($date_type, $view) {
-  switch ($date_type) {
+function theme_calendar_title($granularity, $view) {
+  switch ($granularity) {
     case 'year':
       return $view->year;
     case 'month':
@@ -395,7 +395,7 @@ function theme_calendar_date_combo($node, $label, $view) {
   switch ($view->calendar_display) {
     // Some of the calendar views need a smaller date format.
     case 'calendar':
-      switch ($view->date_type) {
+      switch ($view->granularity) {
         case 'year':
           // We don't display individual dates in the calendar year view.
           return;
