@@ -252,8 +252,11 @@ function calendar_url_append($view) {
  */
 function calendar_node_stripe($view, $node, $query_name, $delta, $stripe = NULL, $label = '') {
   $type_names = node_get_types('names');
+  if (!isset($type_names[$node->type])) {
+    return;
+  }
   if (!$label) {
-    $label = $type_names[$node->type]  .' '. $view->field[$delta]['label'];
+    $label = $type_names[$node->type] .' '. (array_key_exists($delta, $view->field) ? $view->field[$delta]['label'] : '');
   }
   if (!$stripe) {
     $i = 1;

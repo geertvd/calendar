@@ -85,7 +85,8 @@ function template_preprocess_calendar(&$vars) {
   // here because we don't apppear to have full access to the view 
   // handlers in the theme functions.
   $items = array();
-  $calendar_fields = array_keys(date_api_fields('alias'));
+  $calendar_fields = date_api_fields();
+  $calendar_fields = array_keys($calendar_fields['alias']);
   foreach ($result as $num => $row) {
     $items[$num] = $row;
     // Store the raw date values before formatting the results.
@@ -102,6 +103,7 @@ function template_preprocess_calendar(&$vars) {
       }
     }
   }
+  
   $vars['display_type'] = $view->granularity;
   $vars['min_date_formatted'] = date_format($view->min_date, DATE_FORMAT_DATETIME);
   $vars['max_date_formatted'] = date_format($view->max_date, DATE_FORMAT_DATETIME);
@@ -273,10 +275,11 @@ function template_preprocess_calendar_node(&$vars) {
   $view = $vars['view'];
   $fields = array();
   foreach ($view->field as $field) {
-    $fields[$field['handler']->field_alias] = array(
+    $field_alias = $field['handler']->field_alias;
+    $fields[$field_alias] = array(
       'id' => views_css_safe($field_alias),
       'label' => $field['label'],
-      'data' => $node->{$field['handler']->field_alias},
+      'data' => $node->$field_alias,
       );
   }
   $vars['fields'] = $fields;
@@ -304,8 +307,9 @@ function template_preprocess_calendar_month_node(&$vars) {
  */
 function template_preprocess_calendar_day_node(&$vars) {
   template_preprocess_calendar_node($vars);
+  $node = $vars['node'];
   // Remote items may have a teaser to show.
-  if ($node->remote && $node->teaser) {
+  if (!empty($node->remote) && !empty($node->teaser)) {
     $fields['teaser'] = '<div class="content">'. ($node->teaser) ."</div>\n";
   }
 }
@@ -351,8 +355,7 @@ function theme_calendar_stripe_stripe($node) {
     $stripe_map[$node->stripe] = $stripe;
   }
 
-  $output .= '<div class="stripe-'. $stripe_map[$node->stripe] .'" title="Key: '.$stripe_map[$node->stripe] .'"><span class="stripe">Key '.$stripe_map[$node->stripe] .'</span></div>'."\n";
-  return $output;
+  return '<div class="stripe-'. $stripe_map[$node->stripe] .'" title="Key: '.$stripe_map[$node->stripe] .'"><span class="stripe">Key '.$stripe_map[$node->stripe] .'</span></div>'."\n";
 }
 
 /**

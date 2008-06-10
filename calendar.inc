@@ -230,7 +230,7 @@ function calendar_build_nodes(&$view, &$items) {
     $tz_handling  = $field['tz_handling'];
     $label        = isset($view->field[$name]) ? $view->field[$name]['label'] : $field['field_name'];
     $tz_alias     = str_replace('.', '_', $field['timezone_field']);
-        
+    
     $db_tz = 'UTC';
     $local_tz = date_default_timezone_name();
     switch ($field['tz_handling']) {
@@ -265,7 +265,7 @@ function calendar_build_nodes(&$view, &$items) {
     else {
       $format = variable_get('date_format_short', 'm/d/Y - H:i');
     }
-
+    
     foreach ($items as $delta => $item) {
       if (isset($item->calendar_fields->$alias)) {
         // Create from and to date values for each item, adjusted to
@@ -297,12 +297,20 @@ function calendar_build_nodes(&$view, &$items) {
         }
         while ($now <= $to) {
           $node = drupal_clone($item);
-          //$node->title = $node->node_title;
+          
+          // Make sure the pseudo node has the same properties a
+          // regular node would have.
+          if (isset($node->node_title) && !isset($node->title)) {
+            $node->title = $node->node_title;
+          }
+          if (isset($node->node_type) && !isset($node->type)) {
+            $node->type = $node->node_type;
+          }
+
           $node->label = $label;
           $node->format = $format;
           $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
           $node->url = 'node/'. $node->nid;
-
           $node->$fromto[0] = $values[0];
           $node->$fromto[1] = $values[1];
 
@@ -346,9 +354,7 @@ function calendar_build_nodes(&$view, &$items) {
             else {
               $id = $item->nid .':0:'. $alias;
             }
-            if ($view->build_type == 'page' && $view->granularity != 'year') {
-              $node->stripe = calendar_node_stripe($view, $node, $alias, $alias);
-            }
+            $node->stripe = calendar_node_stripe($view, $node, $alias, $alias);
             $node->unique_nid = $id;
             $nodes[] = $node;
             unset($node);
