@@ -142,49 +142,16 @@ function calendar_block($op = 'list', $delta = 0) {
   switch ($op) {
     case 'list' :
       $blocks[0]['info'] = t('Calendar Legend.');
-      $blocks[1]['info'] = t('Switch Calendar.');
       return $blocks;
       break;
     case 'view' :
       switch ($delta) {
       case 0:
         $block['subject'] = t('Calendar Legend');
-        $block['content'] = $GLOBALS['calendar_stripe_labels'] ? '<div class="calendar legend">'. theme('calendar_stripe_legend', $GLOBALS['calendar_stripe_labels']) .'</div>' : '';
+        $block['content'] = !empty($GLOBALS['calendar_stripe_labels']) ? '<div class="calendar legend">'. theme('calendar_stripe_legend', $GLOBALS['calendar_stripe_labels']) .'</div>' : '';
         return $block;
-      case 1:
-        $block['subject'] = t('Switch Calendar');
-        $block['content'] = $GLOBALS['calendar_is_calendar'] ? drupal_get_form('calendar_switch_view') : '';
-        return $block;
-      }
+    }
   }
-}
-
-/**
- * A block with a drop-down list that allows the user to switch between
- * views of the current period
- */
-function calendar_switch_view() {
-
-  $options[''] = t('Calendar');
-  $options['list'] = t('List');
-  $options['teasers'] = t('Teasers');
-  $options['nodes'] = t('Nodes');
-  $options['table'] = t('Table');
-
-  $form = array(
-    '#method' => 'GET',
-    'view' => array(
-      '#type' => 'select',
-      '#default_value' => $_GET['view'],
-      '#options' => $options,
-      ),
-    'q' => array(
-      '#type' => 'hidden',
-      '#value' => $_GET['q'],
-      ),
-    'submit' => array('#type' => 'submit', '#value' => t('Switch')),
-    );
-  return $form;
 }
 
 /**

@@ -345,7 +345,7 @@ function theme_calendar_stripe_legend($stripe_labels) {
 function theme_calendar_stripe_stripe($node) {
   static $stripe, $stripe_map;
 
-  if(!$stripe_map[$node->stripe]) {
+  if(empty($stripe_map[$node->stripe])) {
     if($stripe >= 10) {
       $stripe = 1;
     }

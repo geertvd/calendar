@@ -309,7 +309,7 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
    * Only render this attachment if it is the right one.
    */
   function render() {
-    if ($this->definition['handler'] == 'calendar_plugin_'. $this->view->granularity) {
+    if (!empty($this->view->block) || $this->definition['handler'] == 'calendar_plugin_'. $this->view->granularity) {
       return theme($this->theme_functions(), $this->view);
     } 
   }
@@ -578,6 +578,8 @@ class calendar_view_plugin_style extends calendar_plugin_style {
    * Render the calendar attachment style.
    */
   function render() {
+    dsm('MINI');
+    
     // Adjust the theme to match the currently selected calendar type.
     $this->definition['theme'] = 'calendar_'. $this->options['display_type'];
     $this->view->hide_admin_links = TRUE;
