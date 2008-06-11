@@ -487,10 +487,6 @@ class calendar_plugin_style extends views_plugin_style {
     );
   }
   
-  function options_submit($form, &$form_state) {
-    $form_state['values']['style_options']['date_fields'] = array_keys($form_state['values']['style_options']['default_display']);
-  }
-
   function query() {
     
     include_once(drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
@@ -544,6 +540,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
   function init(&$view, &$display) {
     parent::init($view, $display);
     $view->name_size = $this->options['name_size'];
+    $view->with_weekno = $this->options['with_weekno'];
   }
   
   /**
@@ -552,6 +549,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
   function options(&$options) {
     $options['name_size'] = 3;
     $options['display_type'] = 'month';
+    $options['with_weekno'] = 0;
   }
 
   /**
@@ -571,6 +569,13 @@ class calendar_view_plugin_style extends calendar_plugin_style {
       '#type' => 'radios',
       '#options' => array(1 => t('First letter of name'), 2 => t('First two letters of name'), 3 => t('Abbreviated name'), 99 => t('Full name')),
       '#description' => t('The way day of week names should be displayed in a calendar.'),
+      );
+    $form['with_weekno'] = array(
+      '#title' => t('Show week numbers'),
+      '#default_value' => $this->options['with_weekno'],
+      '#type' => 'radios',
+      '#options' => array(0 => t('No'), 1 => t('Yes')),
+      '#description' => t('Whether or not to show week numbers in the left column of calendar weeks and months.'),
       );
   }
   

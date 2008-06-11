@@ -17,7 +17,6 @@ function template_preprocess_calendar_main(&$vars) {
   $vars['max_date_formatted'] = date_format($view->max_date, DATE_FORMAT_DATETIME);
   
 
-  $params = array('with_weekno' => $view->granularity == 'month');
   $view->mini = isset($view->mini) ? $view->mini : $view->granularity == 'year';
 
   // Construct a formatted title for the view from the calendar type.
@@ -125,12 +124,10 @@ function template_preprocess_calendar(&$vars) {
 
   // Construct a formatted title for the view from the calendar type.
   $view->subtitle = theme('calendar_title', $view->granularity, $view);
-
-  $params = array('with_weekno' => $view->granularity == 'month');
   $view->mini = isset($view->mini) ? $view->mini : $view->granularity == 'year';
   
   // Create the calendar day names and rows.
-  $rows = calendar_build_calendar($view, $items, $params);
+  $rows = calendar_build_calendar($view, $items);
   $vars['items'] = $items;
   $vars['rows'] = $rows;
   
