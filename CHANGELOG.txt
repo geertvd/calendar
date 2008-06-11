@@ -7,7 +7,7 @@ TODO:
  - Still need to get iCal working.
 
 
-Version 2.0 beta1
+Version 2.0 beta2
 =================
 - Fix handling of CCK dates in date argument.
 - Move option to show/hide week numbers to a style setting.
