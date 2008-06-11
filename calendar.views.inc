@@ -578,8 +578,6 @@ class calendar_view_plugin_style extends calendar_plugin_style {
    * Render the calendar attachment style.
    */
   function render() {
-    dsm('MINI');
-    
     // Adjust the theme to match the currently selected calendar type.
     $this->definition['theme'] = 'calendar_'. $this->options['display_type'];
     $this->view->hide_admin_links = TRUE;
