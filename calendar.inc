@@ -243,7 +243,8 @@ function calendar_build_nodes(&$view, &$items) {
     }
     
     if (strstr($field['type'], 'cck')) {
-      $format = date_formatter_format($data['options'], $field_name);
+      $cck_field_name = str_replace(array('_value2', '_value'), '', $field_name);
+      $format = date_formatter_format(isset($data['options']) ? $data['options'] : 'default', $cck_field_name);
     }
     elseif (!empty($view->field[$name]['date_format'])) {
       $format = $view->field[$name]['date_format'];

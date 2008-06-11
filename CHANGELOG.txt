@@ -1,8 +1,26 @@
 Views Calendar 6.x
 ==================
+TODO:
+ - Still need to get iCal working.
+ - Need good documentation of how the new system works.
 
-Version 2.0
-==============
+Version 2.0 beta1
+=================
+- Fix handling of CCK dates in date argument.
+- Move option to show/hide week numbers to a style setting.
+- Get block view working again, remove switch calendar block because it doesn't work in this new system.
+- Get the generic date argument handler pulled completely out of the Calendar module and into the Date API in a way that it can be used for any Views date field in any view.
+- Rework the calendar handling to use the Date API argument in calendar displays and  navigation. 
+- Keep the calendar displays out of the UI and instead create a default calendar view that has everything set up correctly to reduce confusion and clutter in the UI and to make it easier to create a calendar.
+- Make sure month names show in year view.
+- #262078 Remove deprecated function calendar_info().
+- Cleanup handling of dates with timezone names in the database.
+- Pass a variable to the templates to tell if this calendar is in a block or not, and use that to determine if the links are needed.
+- Get the settings working for controlling the size of the day of week names, adding an option to display the full names.
+- Add a separate template for the mini calendar. 
+
+Version 2.0 beta
+================
 - #210844 Make sure empty text displays.
 - #234635 Add calendar_build_nodes() to calendar_ical export processing.
 - #243712 make sure default views are retrieved as well as db views.
