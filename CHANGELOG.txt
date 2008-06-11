@@ -1,8 +1,11 @@
 Views Calendar 6.x
 ==================
+
+See documentation at http://drupal.org/node/262064.
+
 TODO:
  - Still need to get iCal working.
- - Need good documentation of how the new system works.
+
 
 Version 2.0 beta1
 =================
