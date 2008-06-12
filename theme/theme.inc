@@ -27,9 +27,9 @@ function template_preprocess_calendar_main(&$vars) {
   $url = $view->get_url();
   $view->url = $url;
   $arg = $view->date_arg;
-  $view->month    = $view->month && $view->month != $view->argument['date_argument']['wildcard'] ? $view->month : date_format($now, 'm');
-  $view->day      = $view->day && $view->day != $view->argument['date_argument']['wildcard'] ? $view->day : date_format($now, 'j');
-  if (empty($view->week) || $view->week == $view->argument['date_argument']['wildcard']) {
+  $view->month    = $view->month && $view->month != $view->argument['date_argument']->options['wildcard'] ? $view->month : date_format($now, 'm');
+  $view->day      = $view->day && $view->day != $view->argument['date_argument']->options['wildcard'] ? $view->day : date_format($now, 'j');
+  if (empty($view->week) || $view->week == $view->argument['date_argument']->options['wildcard']) {
     $view->week = date_week($view->year .'-'. date_pad($view->month) .'-'. date_pad($view->day));
   }
   $displays = $view->display_types;
@@ -95,10 +95,9 @@ function template_preprocess_calendar(&$vars) {
       }
     }
     foreach ($fields as $field) {
-      if (!empty($field['handler']) && is_object($field['handler'])) {
-        $handler = &$field['handler'];
-        $field_output = $handler->theme($row);
-        $items[$num]->{$handler->field_alias} = $field_output;
+      if (!empty($field) && is_object($field)) {
+        $field_output = $field->theme($row);
+        $items[$num]->{$field->field_alias} = $field_output;
       }
     }
   }
@@ -272,10 +271,10 @@ function template_preprocess_calendar_node(&$vars) {
   $view = $vars['view'];
   $fields = array();
   foreach ($view->field as $field) {
-    $field_alias = $field['handler']->field_alias;
+    $field_alias = $field->field_alias;
     $fields[$field_alias] = array(
       'id' => views_css_safe($field_alias),
-      'label' => $field['label'],
+      'label' => $field->options['label'],
       'data' => $node->$field_alias,
       );
   }

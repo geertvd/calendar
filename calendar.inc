@@ -220,8 +220,7 @@ function calendar_build_nodes(&$view, &$items) {
   $field_names = (array) array_keys($fields);
   $nodes = array();
   $i = 0;
-
-  foreach ($view->argument['date_argument']['date_fields'] as $name) {
+  foreach ($view->argument['date_argument']->options['date_fields'] as $name) {
     $field = $fields['name'][$name];
     $field_type   = strstr($field['type'], 'string') ? 'string' : 'timestamp';
     $alias        = $field['query_name'];

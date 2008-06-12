@@ -438,8 +438,8 @@ class calendar_plugin_style extends views_plugin_style {
     // CCK date fields cannot use grouped handler.
     //$calendar_fields = array_keys(date_api_fields());
     //foreach ($view['field'] as $delta => $field) {
-    //  if (in_array($field['field_name'], $calendar_fields) && $field['handler'] == 'content_views_field_handler_group') {
-        //form_error($form['field_name'][$delta]['handler'], t('Calendar CCK Date fields must be set to \'Do not group multiple values\'.'));
+    //  if (in_array($field['field_name'], $calendar_fields) && $field['id'] == 'content_views_field_handler_group') {
+        //form_error($form['field_name'][$delta], t('Calendar CCK Date fields must be set to \'Do not group multiple values\'.'));
     //  }
     //}
     return $errors;
@@ -496,17 +496,17 @@ class calendar_plugin_style extends views_plugin_style {
     // Evaluate our argument values and figure out which 
     // calendar display we need to create.
     $i = 0;   
-    foreach ($this->view->argument as $delta => $argument) {
-      if ($argument['id'] == 'date_argument') {
-        $this->view->granularity = !empty($argument['handler']->granularity) ? $argument['handler']->granularity : $argument['handler']->options['granularity'];
-        $this->view->date_arg = !empty($this->view->args) ? $this->view->args[$argument['handler']->position] : '';
+    foreach ($this->view->argument as $id => $argument) {
+      if ($id == 'date_argument') {
+        $this->view->granularity = !empty($argument->granularity) ? $argument->granularity : $argument->options['granularity'];
+        $this->view->date_arg = !empty($this->view->args) ? $this->view->args[$argument->position] : '';
         $this->view->date_arg_pos = $i;
-        $this->view->year = isset($argument['handler']->year) ? $argument['handler']->year : NULL;
-        $this->view->month = isset($argument['handler']->month) ? $argument['handler']->month: NULL;
-        $this->view->day = isset($argument['handler']->day) ? $argument['handler']->day : NULL;
-        $this->view->week = isset($argument['handler']->week) ? $argument['handler']->week : NULL;
-        $this->view->min_date = $argument['handler']->min_date;
-        $this->view->max_date = $argument['handler']->max_date;
+        $this->view->year = isset($argument->year) ? $argument->year : NULL;
+        $this->view->month = isset($argument->month) ? $argument->month: NULL;
+        $this->view->day = isset($argument->day) ? $argument->day : NULL;
+        $this->view->week = isset($argument->week) ? $argument->week : NULL;
+        $this->view->min_date = $argument->min_date;
+        $this->view->max_date = $argument->max_date;
       }
       $i++;
     }
