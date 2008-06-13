@@ -159,7 +159,7 @@ $handler->override_option('displays', array(
   'default' => 0,
   'calendar' => 0,
 ));
-$handler = $view->new_display('ical', 'iCal', 'ical_1');
+$handler = $view->new_display('ical', 'iCal feed', 'ical_1');
 $handler->override_option('style_plugin', 'ical');
 $handler->override_option('style_options', array(
   'mission_description' => FALSE,

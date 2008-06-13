@@ -5,6 +5,7 @@ See documentation at http://drupal.org/node/262064.
 
 Version 2.0 dev
 =================
+- Update README.txt.
 - Add rrule to template. 
 - Remove options from navigation, not really needed.
 - Add in functions to get iCal export working.

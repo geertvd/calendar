@@ -347,9 +347,10 @@ function template_preprocess_calendar_view_ical(&$vars) {
   
   $events = array();
   foreach ($items as $node) {
-    $event = array();
     // Allow modules to affect item fields
     node_invoke_nodeapi($node, 'ical item');
+
+    $event = array();
     $event['summary'] = strip_tags($node->{$view->summary_field});
     $event['start'] = $node->calendar_start_date;
     $event['end'] = $node->calendar_end_date;
@@ -359,7 +360,7 @@ function template_preprocess_calendar_view_ical(&$vars) {
     $event['url'] = !empty($node->url) ? $node->url : (is_numeric($node->nid) ? url("node/$node->nid", array('absolute' => TRUE)) : $node->nid);
     $events[$event['uid']] = $event;
   }
-  $vars['calname'] = $headertitle . ($title ? ' | '. $title : '');
+  $vars['calname'] = variable_get('site_name', '') . (!empty($view->title) ? ' | '. $view->title : '');
   $vars['events'] = $events;
   template_preprocess_date_vcalendar($vars);
   

@@ -102,7 +102,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
     }
 
     $url = url($this->view->get_url(NULL, $path), $url_options);
-    if ($display->has_path()) {
+    if (!$display->has_path()) {
       if (empty($this->preview)) {
         calendar_ical_add_feed($url, $title);
       }
