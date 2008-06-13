@@ -5,14 +5,11 @@
  * @file
  * Adds ical functionality to Calendar.
  */
-
-function calendar_ical_init() {
-  drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
-  include_once(drupal_get_path('module', 'calendar') .'/calendar.module');
-}
-
 function calendar_ical_theme() {
   return array(
+    'calendar_ical_icon' => array(
+      'arguments' => array('url'),
+      ),
     'calendar_ical_feed' => array(
       'arguments' => array('view', 'items', 'type'),
       ),
@@ -23,11 +20,6 @@ function calendar_ical_theme() {
       'arguments' => array('node', 'view'),
       ),
     );
-}
-
-function calendar_ical_setup_form($view_name) {
-  include_once(drupal_get_path('module', 'calendar') .'/calendar_ical_admin.inc');
-  return _calendar_ical_setup_form($view_name);
 }
 
 /**
@@ -136,69 +128,6 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
 }
 
 /**
- * Provide views plugins for the feed types we support.
- */
-function calendar_ical_views_style_plugins() {
-  return array(
-    'calendar_ical' => array(
-      'name' => t('Calendar: iCal Feed'),
-      'theme' => 'calendar_ical_feed',
-      'needs_table_header' => TRUE,
-      'needs_fields' => TRUE,
-      'even_empty' => TRUE,
-    ),
-  );
-}
-
-/**
- * While we support the global selector, some might want to allow
- * ONLY ical feeds so we support a stingy selector too
- */
-function calendar_ical_views_arguments() {
-  $arguments = array(
-    'calendar_ical' => array(
-      'name' => t('Calendar: iCal Feed'),
-      'handler' => 'views_handler_arg_ical',
-      'help' => t('Add this as the last argument to a calendar view to provide an iCal feed of the view.'),
-    ),
-  );
-  return $arguments;
-}
-
-/**
- * handler for our own ical argument; mimics the feed selector
- */
-function views_handler_arg_ical($op, &$query, $argtype, $arg = '') {
- switch ($op) {
-    case 'summary':
-    case 'sort':
-    case 'link':
-    case 'title':
-      break;
-    case 'filter':
-      // This is a clone of the default selector, but it just invokes ours
-      // rather than calling all of them.
-      calendar_ical_views_feed_argument('argument', $GLOBALS['current_view'], $arg, $argtype);
-  }
-}
-
-/**
- * post view for our own op -- mimics the feed selector
- */
-function calendar_ical_views_post_view($view, $items, $output) {
-  foreach ($view->argument as $id => $argument) {
-   if ($argument['type'] == 'calendar_ical') {
-      $feed = $id;
-      break;
-    }
-  }
-  if ($feed !== NULL) {
-   $query = NULL;
-   return calendar_ical_views_feed_argument('post_view', $view, 'ical', $query);
-  }
-}
-
-/**
  * feed argument hook that will convert us to ical or display an icon.
  * the 4th argument isn't part of the hook, but we use it to differentiate
  * when called as a hook or when called manually from calendar_ical_views_post_view
@@ -235,34 +164,9 @@ function calendar_ical_views_feed_argument($op, &$view, $arg, $argtype = NULL) {
   }
 }
 
-/**
- * helper function -- this function builds a URL for a given feed.
- * It defaults to the built in feed selector, but the 3rd arg can
- * be used to set it up for custom selectors too.
- */
-function calendar_ical_post_view_make_args($view, $feed_id, $arg) {
-  // assemble the URL
-  $args = array();
-  foreach ($view->argument as $id => $argdata) {
-    if (isset($view->args[$id])) {
-      $args[] = $view->args[$id];
-    }
-    else {
-      if ($argdata['id'] == $feed_id && !in_array($arg, $args)) {
-        $args[] = $arg;
-      }
-      else if ($argdata['argdefault'] != 1 && !in_array($arg, $args)) {
-        $args[] = $arg;
-      }
-    }
-  }
-
-  return $args;
-}
-
-function calendar_ical_add_ical($url = NULL, $title = '') {
+function calendar_ical_add_feed($url = NULL, $title = '') {
   if (!is_null($url)) {
-    $stored_feed_links[$url] = theme('ical_icon', $url);
+    $stored_feed_links[$url] = theme('calendar_ical_icon', $url);
     drupal_add_link(array('rel' => 'alternate',
                           'type' => 'application/calendar',
                           'title' => $title,
@@ -271,12 +175,11 @@ function calendar_ical_add_ical($url = NULL, $title = '') {
   return $stored_feed_links;
 }
 
-function theme_ical_icon($url) {
+function theme_calendar_ical_icon($url) {
   if ($image = theme('image', drupal_get_path('module', 'date_api') .'/images/ical16x16.gif', t('Add to calendar'), t('Add to calendar'))) {
     return '<div style="text-align:right"><a href="'. check_url($url) .'" class="ical-icon" title="ical">'. $image .'</a></div>';
   }
 }
-
 
 /**
  * plugin that actually displays an ical feed

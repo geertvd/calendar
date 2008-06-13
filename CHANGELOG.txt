@@ -6,6 +6,10 @@ See documentation at http://drupal.org/node/262064.
 TODO:
  - Still need to get iCal working.
 
+Version 2.0 dev
+=================
+
+- #269349 Correct calendar handlers to match Views commit 120575, which changed the way handlers are structured.
 
 Version 2.0 beta2
 =================

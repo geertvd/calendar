@@ -265,7 +265,6 @@ function calendar_build_nodes(&$view, &$items) {
     else {
       $format = variable_get('date_format_short', 'm/d/Y - H:i');
     }
-    
     foreach ($items as $delta => $item) {
       if (isset($item->calendar_fields->$alias)) {
         // Create from and to date values for each item, adjusted to
@@ -310,10 +309,10 @@ function calendar_build_nodes(&$view, &$items) {
           $node->label = $label;
           $node->format = $format;
           $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
-          $node->url = 'node/'. $node->nid;
+          //$node->url = 'node/'. $node->nid;
           $node->$fromto[0] = $values[0];
           $node->$fromto[1] = $values[1];
-
+          
           // Flag which datefield this node is using, in case
           // there are multiple date fields in the view.
           $node->datefield = $alias;
