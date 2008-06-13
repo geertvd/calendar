@@ -16,14 +16,17 @@ function calendar_ical_views_plugins() {
     'module' => 'calendar_ical', // This just tells our themes are elsewhere.
     'display' => array(
       'ical' => $base + array(
-        'title' => t('iCal'),
+        'title' => t('iCal feed'),
         'help' => t('Display the view as an iCal feed.'),
         'handler' => 'calendar_plugin_display_ical',
         'uses hook menu' => TRUE,
+        'theme' => 'views_view',
+        'no ui' => TRUE,
+        'no remove' => TRUE,
         'use ajax' => FALSE,
         'use pager' => FALSE,
         'accept attachments' => FALSE,
-        'admin' => t('iCal'),
+        'admin' => t('iCal feed'),
         'help topic' => 'display-ical',
       ),
     ),

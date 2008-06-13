@@ -451,6 +451,10 @@ function _calendar_fields($base = 'node') {
       $fields[$name]['table_name'] = $table_name;
       $fields[$name]['field_name'] = $field_name;
       $fields[$name]['type'] = $type;
+
+      $related_fields = array();
+      $timezone_field = '';
+      $rrule_field = '';
       
       // Handling for content field dates
       if ($handler->content_field['tz_handling']) {
@@ -468,12 +472,13 @@ function _calendar_fields($base = 'node') {
           );
         $timezone_field = $table_name .'.'. $db_info['columns']['timezone']['column'];
       }
+      if (!empty($db_info['columns']['rrule'])) {
+        $rrule_field = $table_name .'.'. $db_info['columns']['rrule']['column'];
+      }
       // Handling for simple timestamp fields
       else {
         $fromto = array($alias, $alias);
         $tz_handling = 'site';
-        $related_fields = array();
-        $timezone_field = '';
       }
       // Handling for cck fromto dates
       switch ($handler->content_field['type']) {
@@ -522,6 +527,7 @@ function _calendar_fields($base = 'node') {
         'tz_handling' => $tz_handling,
         'offset_field' => $offset_field,
         'timezone_field' => $timezone_field,
+        'rrule_field' => $rrule_field,
         'related_fields' => $related_fields,
       );
       $fields['alias'][$alias] = $fields['name'][$name];

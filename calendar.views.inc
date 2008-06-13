@@ -79,19 +79,19 @@ function calendar_views_plugins() {
       // Display plugins for calendar displays.
       'calendar_year' => $base + array(
         'title' => t('Year view'),
-        'help' => t('This view can use any style, fields, and formatting you choose.'),
+        'help' => t('This view can use any style you choose.'),
         'handler' => 'calendar_plugin_year',
         'theme' => 'views_view',
         'no ui' => TRUE,
         'no remove' => TRUE,
         'use ajax' => TRUE,
         'use pager' => TRUE,
-        'admin' => t('Calendar year view'),
+        'admin' => t('Calendar page year'),
         'help topic' => 'display-calendar',
       ),
       'calendar_month' => $base + array(
         'title' => t('Month view'),
-        'help' => t('This view can use any style, fields, and formatting you choose.'),
+        'help' => t('This view can use any style you choose.'),
         'handler' => 'calendar_plugin_month',
         'theme' => 'views_view',
         'no ui' => TRUE,
@@ -103,7 +103,7 @@ function calendar_views_plugins() {
       ),
       'calendar_day' => $base + array(
         'title' => t('Day view'),
-        'help' => t('This view can use any style, fields, and formatting you choose.'),
+        'help' => t('This view can use any style you choose.'),
         'handler' => 'calendar_plugin_day',
         'theme' => 'views_view',
         'no ui' => TRUE,
@@ -115,7 +115,7 @@ function calendar_views_plugins() {
       ),
       'calendar_week' => $base + array(
         'title' => t('Week view'),
-        'help' => t('This view can use any style, fields, and formatting you choose.'),
+        'help' => t('This view can use any style you choose.'),
         'handler' => 'calendar_plugin_week',
         'theme' => 'views_view',
         'no ui' => TRUE,
@@ -127,7 +127,7 @@ function calendar_views_plugins() {
       ),
       'calendar_block_view' => $base + array(
         'title' => t('Block view'),
-        'help' => t('This view can use any style, fields, and formatting you choose.'),
+        'help' => t('This view can use any style you choose.'),
         'handler' => 'calendar_plugin_block',
         'theme' => 'views_view',
         'no ui' => TRUE,
@@ -147,7 +147,7 @@ function calendar_views_plugins() {
         'theme' => 'calendar_main',
         'uses row plugin' => FALSE,
         'uses fields' => TRUE,
-        'uses options' => TRUE,
+        'uses options' => FALSE,
         'type' => 'calendar', // Only used on calendar page or block displays.
         'even empty' => TRUE,
       ),
@@ -445,48 +445,6 @@ class calendar_plugin_style extends views_plugin_style {
     return $errors;
   }
 
-  /**
-   * Style options.
-   */
-  function options_form(&$form, &$form_state) {
-    $arguments = $this->display->handler->get_option('arguments');
-    if (!in_array('date_argument', array_keys($arguments))) {
-      $form['error_markup'] = array(
-        '#value' => t('You need to add a Date: argument before you can configure your calendar settings'),
-        '#prefix' => '<div class="error form-item description">',
-        '#suffix' => '</div>',
-      );
-      return;
-    }
-
-    $items = array();
-    $date_fields = $this->date_fields();
-    foreach ($date_fields as $field => $info) {
-      $items[] = $info['name'];
-    }
-    $form['fields'] = array(
-      '#value' => '<div class="form-item">'.
-        '<strong>'. t('Date Fields') .'</strong><br />'. 
-        theme('item_list', $items) .
-        t('<div class="description">'. t('The date fields which will be used to filter the calendar. Change Date fields in the Calendar: Date argument.') .'</div>') .
-        '</div>',
-    );
-    $view_displays = $this->display_types();
-    $view_ids = $this->display_types(NULL, 'ids');
-    $items = array();
-    foreach (calendar_display_types() as $name => $value) {
-      $title = isset($view_displays[$name]) ? $view_displays[$name] : t('None');
-      $items[] = t('@granularity: @name', array('@granularity' => $value, '@name' => $title));
-    }
-    $form['displays'] = array(
-      '#value' => '<div class="form-item">'.
-      '<strong>'. t('Displays') .'</strong><br />'. 
-      theme('item_list', $items) .
-      '<div class="description">'. t('The display that will be used for each type of calendar. Change these values by changing the attachment option for each view.') .'</div>'.
-      '</div>',
-    );
-  }
-  
   function query() {
     
     include_once(drupal_get_path('module', 'date_api') .'/date_api_sql.inc');

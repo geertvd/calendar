@@ -12,11 +12,13 @@
  *   $event['summary'] - the name of the event.
  *   $event['start'] - the formatted start date of the event.
  *   $event['end'] - the formatted end date of the event.
+ *   $event['rrule'] - the RRULE of the event, if any.
  *   $event['timezone'] - the formatted timezone name of the event, if any.
  *   $event['url'] - the url for the event.
  *   $event['location'] - the name of the event location.
  *   $event['description'] - a description of the event.
  */
+
 ?>
 BEGIN:VCALENDAR
 VERSION:2.0
@@ -31,6 +33,9 @@ DTSTAMP;TZID=<?php print $site_timezone ?>;VALUE=DATE-TIME:<?php print $current_
 DTSTART;<?php print $event['timezone'] ?>VALUE=DATE-TIME:<?php print $event['start'] ?> 
 <?php if (!empty($event['end'])): ?>
 DTEND;<?php print $event['timezone'] ?>VALUE=DATE-TIME:<?php print $event['end'] ?> 
+<?php endif; ?>
+<?php if (!empty($event['rrule'])) : ?>
+RRULE;<?php print $event['rrule'] ?>
 <?php endif; ?>
 <?php if (!empty($event['url'])): ?>
 URL;VALUE=URI:<?php print $event['url'] ?> 
