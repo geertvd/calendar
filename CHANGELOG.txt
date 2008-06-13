@@ -5,7 +5,8 @@ See documentation at http://drupal.org/node/262064.
 
 Version 2.0 dev
 =================
-
+- Add rrule to template. 
+- Remove options from navigation, not really needed.
 - Add in functions to get iCal export working.
 - Get rid of calendar_clear_all() function that is not needed any more now that Views 2 has its own method for tracking settings. Also clean up related install and update code.
 - #269349 Correct calendar handlers to match Views commit 120575, which changed the way handlers are structured.
