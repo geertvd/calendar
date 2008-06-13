@@ -4,11 +4,6 @@
  * @file
  * Install File
  */
-// Updates happen in random order, whether or not the module is enabled,
-// so include critical code here just to be sure.
-include_once('./'. drupal_get_path('module', 'date_api') .'/date_api.module');
-include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.module');
-
 /**
  * Implementation of hook_requirements().
  * Added to be sure the Date API version matches this code so invalid
@@ -52,7 +47,6 @@ function calendar_requirements($phase) {
  * Reset the calendar caches.
  */
 function calendar_enable() {
-  calendar_clear_all();
 }
 
 /**
@@ -60,7 +54,6 @@ function calendar_enable() {
  * Empty the calendar caches.
  */
 function calendar_disable() {
-  calendar_clear_all(TRUE);
 }
 
 /**
@@ -69,15 +62,6 @@ function calendar_disable() {
  */
 function calendar_uninstall() {
   $ret = array();
-  variable_del('calendar_empty_arg');
-  
-  // Can't use variable_del because we don't have a reliable
-  // way to find the old view names.
-  db_query("DELETE FROM {variable} WHERE name LIKE 'calendar_%'");
-  cache_clear_all('variables', 'cache');
-
-  // Empty the calendar caches.
-  calendar_clear_all(TRUE);
   return $ret;
 }
 
@@ -86,7 +70,8 @@ function calendar_uninstall() {
  */
 function calendar_install() {
   $ret = array();
-
+  module_enable(array('date_api'));
+  module_enable(array('date_timezone'));
   // Make sure this module loads after date_api.
   db_query("UPDATE {system} SET weight = 1 WHERE name = 'calendar'");
   return $ret;
@@ -117,4 +102,15 @@ function calendar_update_5200() {
   $ret = array();
   module_enable(array('date_timezone'));
   return $ret;
+}
+
+// No longer tracking views info in variables now that
+// Views 2 has settings we can use.
+function calendar_update_6000() {
+  variable_del('calendar_empty_arg');
+  
+  // Can't use variable_del because we don't have a reliable
+  // way to find the old view names.
+  db_query("DELETE FROM {variable} WHERE name LIKE 'calendar_%'");
+  cache_clear_all('variables', 'cache');
 }

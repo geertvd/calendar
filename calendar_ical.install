@@ -1,10 +1,5 @@
 <?php
 // $Id$
-// Updates happen in random order, whether or not the module is enabled,
-// so include critical code here just to be sure.
-include_once('./'. drupal_get_path('module', 'date_api') .'/date_api.module');
-include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.module');
-
 /**
  * Implementation of hook_install().
  */

@@ -67,16 +67,6 @@ function calendar_theme() {
 }
 
 /**
- * Implementation of hook_form_alter().
- * Make sure calendar_fields() gets updated.
- */
-function calendar_form_alter($form_id, &$form) {
-  if ($form_id == 'views_edit_view') {
-    $form['#submit'] = array_merge($form['#submit'], array('calendar_clear_all' => array()));
-  }
-}
-
-/**
  *  TODO need to identify type of timezone handling needed for each date field
  */
 function calendar_offset($field_name) {
@@ -237,25 +227,6 @@ function calendar_node_stripe($view, $node, $query_name, $delta, $stripe = NULL,
   }
   $GLOBALS['calendar_stripe_labels'][$stripe] = $label;
   return $stripe;
-}
-
-/**
- * Empty or reset cached values.
- *
- * @param $remove
- *   whether or not to completely remove the caches.
- * 
- * TODO quit using this, not needed in new version.
- */
-function calendar_clear_all($remove = FALSE) {
-  return;
-  if ($remove) {
-    cache_clear_all('calendar_views', 'cache_views');
-    cache_clear_all('calendar_fields', 'cache_views');
-  }
-  else {
-    calendar_fields('name', TRUE);
-  }
 }
 
 /**
