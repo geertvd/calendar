@@ -66,33 +66,25 @@ $handler->override_option('arguments', array(
     'default_argument_fixed' => '',
     'default_argument_php' => '',
     'validate_argument_node_type' => array(
+      'book' => 0,
+      'event' => 0,
+      'event2' => 0,
+      'fisherman' => 0,
+      'groups' => 0,
       'page' => 0,
+      'picture' => 0,
+      'result' => 0,
       'story' => 0,
+      'team' => 0,
+      'test' => 0,
     ),
     'validate_argument_node_access' => 0,
     'validate_argument_nid_type' => 'nid',
     'validate_argument_vocabulary' => array(
+      '234' => 0,
     ),
     'validate_argument_type' => 'tid',
     'validate_argument_php' => '',
-  ),
-));
-$handler->override_option('filters', array(
-  'type' => array(
-    'operator' => 'in',
-    'value' => array(
-      'event' => 'event',
-    ),
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'type',
-    'table' => 'node',
-    'field' => 'type',
-    'relationship' => 'none',
   ),
 ));
 $handler->override_option('access', array(
@@ -202,6 +194,7 @@ $handler->override_option('displays', array(
   'default' => 0,
   'calendar_block' => 0,
 ));
+
   $views[$view->name] = $view;
   return $views;
 }
