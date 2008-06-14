@@ -16,7 +16,7 @@
 ?>
 
 <div class="calendar-calendar"><div class="year-view">
-<table <?php if ($mini): ?> class="mini"<? endif; ?>>
+<table <?php if ($mini): ?> class="mini"<?php endif; ?>>
   <tbody>
     <tr><td><?php print $months[1] ?></td><td><?php print $months[2] ?></td><td><?php print $months[3] ?></td></tr>  
     <tr><td><?php print $months[4] ?></td><td><?php print $months[5] ?></td><td><?php print $months[6] ?></td></tr>  

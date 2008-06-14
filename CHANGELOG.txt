@@ -5,6 +5,11 @@ See documentation at http://drupal.org/node/262064.
 
 Version 2.0 dev
 =================
+- #270078 Fix typo in calendar-year.tpl.php.
+- #270303 Make sure iCal part of default view only gets added in if iCal is enabled.
+
+Version 2.0 beta3
+=================
 - Update README.txt.
 - Add rrule to template. 
 - Remove options from navigation, not really needed.
