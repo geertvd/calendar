@@ -159,6 +159,8 @@ $handler->override_option('displays', array(
   'default' => 0,
   'calendar' => 0,
 ));
+
+if (module_exists('calendar_ical')) {
 $handler = $view->new_display('ical', 'iCal feed', 'ical_1');
 $handler->override_option('style_plugin', 'ical');
 $handler->override_option('style_options', array(
@@ -184,6 +186,8 @@ $handler->override_option('displays', array(
   'default' => 0,
   'calendar_block' => 0,
 ));
+
+}
 
   $views[$view->name] = $view;
   return $views;
