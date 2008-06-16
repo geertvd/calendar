@@ -5,6 +5,8 @@ See documentation at http://drupal.org/node/262064.
 
 Version 2.0 dev
 =================
+
+- #270818 Fix datebox theme that still defined old deprecated variable 'params'.
 - #270078 Fix typo in calendar-year.tpl.php.
 - #270303 Make sure iCal part of default view only gets added in if iCal is enabled.
 

@@ -251,7 +251,7 @@ function template_preprocess_calendar_datebox(&$vars) {
   $vars['link'] = l($vars['day'], $vars['url']);
   $vars['granularity'] = $view->granularity;
   $vars['mini'] = $view->mini;
-  
+    
   if ($view->mini) {
     if (!empty($vars['selected'])) {
       $vars['class'] = 'mini-day-on';

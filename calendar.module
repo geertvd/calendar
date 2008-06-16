@@ -46,7 +46,7 @@ function calendar_theme() {
     'calendar_datebox' => $base + array(
       'template' => 'calendar-datebox',
       'arguments' => array(
-        'date' => NULL, 'view' => NULL, 'items' => NULL, 'params' => NULL, 'selected' => NULL),
+        'date' => NULL, 'view' => NULL, 'items' => NULL, 'selected' => NULL),
       ),
     'calendar_title' => $base + array(
       'arguments' => array('date_type' => NULL, 'view' => NULL),
