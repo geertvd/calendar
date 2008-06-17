@@ -107,10 +107,12 @@ function calendar_update_5200() {
 // No longer tracking views info in variables now that
 // Views 2 has settings we can use.
 function calendar_update_6000() {
+  $ret = array();
   variable_del('calendar_empty_arg');
   
   // Can't use variable_del because we don't have a reliable
   // way to find the old view names.
   db_query("DELETE FROM {variable} WHERE name LIKE 'calendar_%'");
   cache_clear_all('variables', 'cache');
+  return $ret;
 }
