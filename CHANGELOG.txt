@@ -3,6 +3,7 @@ Views Calendar 5.x
 
 Version 2.0 dev
 ===============
+- #243172 Theme('calendar_empty') should be theme('calendar_empty_day'), patch by JohnAlbin.
 - Clean up install file included files and include file paths, and auto-enable date_timezone and date_php4.
 - Switch calendar_date_week() to date_week() and calendar_week_range() to date_week_range().
 - Make sure mini calendar works correctly for non-calendar views, like lists.
