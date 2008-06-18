@@ -225,7 +225,7 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
   $weekdays = calendar_untranslated_days($results, $view);
   $today = date_format(date_now(date_default_timezone_name()), 'Y-m-d');
   $month = date_format($curday, 'n');
-  $week = calendar_date_week(date_format($curday, 'Y-m-d'));
+  $week = date_week(date_format($curday, 'Y-m-d'));
 
   $first_day = variable_get('date_first_day', 0);
 
@@ -345,7 +345,7 @@ function calendar_build_filter(&$query, &$view) {
   $now = date_now();
 
   if ($query->calendar_type == 'week' && calendar_part_is_valid($query->week, 'week')) {
-    $range = calendar_week_range($query);
+    $range = date_week_range($query->year, $query->week);
     $date = $range[0];
     $max_date = $range[1];
   } else {
@@ -484,14 +484,11 @@ function calendar_build_nodes(&$view, &$items) {
         $option           = $fields[$data['field']];
         $field_type       = strstr($option['type'], 'string') ? 'string' : 'timestamp';
         $field_field      = $option['query_name'];
-        //$field_end        = $field_field .'2';
         $field_field_name = $option['field_name'];
         $timestamp_fromto = $option['timestamp_fromto'];
         $string_fromto    = $option['string_fromto'];
-        //$field_id         = $delta;
         $tz_handling      = $option['tz_handling'];
         $label            = $data['label'];
-        //$granularity      = $option['granularity'];
 
         if (strstr($option['type'], 'cck')) {
           $format = date_formatter_format($data['options'], $field_field_name);
@@ -515,9 +512,7 @@ function calendar_build_nodes(&$view, &$items) {
           }
         }
 
-        $fromto = array_merge(
-          $fields[$data['field']]['timestamp_fromto'],
-          $fields[$data['field']]['string_fromto']);
+        $fromto = array_merge($timestamp_fromto, $string_fromto);
 
         foreach ($items as $delta => $item) {
           // The query created from/to dates like 2007-12-31T01:30:00|2007-12-31T02:30:00,
@@ -732,37 +727,4 @@ function calendar_get_paths($view) {
     }
   }
   return array($prevpath, $nextpath);
-}
-
-/**
- * Set the start and end dates for a calendar week.
- */
-function calendar_week_range(&$view) {
-  if (isset($view->week)) {
-    $min_date = date_make_date($view->year .'-01-01 00:00:00', date_default_timezone_name());
-    date_timezone_set($min_date, date_default_timezone());
-
-    // move to the right week
-    date_modify($min_date, '+' . strval(7*($view->week-1)) . ' days');
-
-    // move backwards to the first day of the week
-    $first_day = variable_get('date_first_day', 0);
-    $day_wday = date_format($min_date, 'w');
-    date_modify($min_date, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
-
-    // move forwards to the last day of the week
-    $max_date = drupal_clone($min_date);
-    date_modify($max_date, '+7 days');
-
-    if (date_format($min_date, 'Y') != $view->year) {
-      $min_date = date_make_date($view->year .'-01-01 00:00:00', date_default_timezone());
-    }
-
-    date_timezone_set($min_date, timezone_open('UTC'));
-    date_timezone_set($max_date, timezone_open('UTC'));
-    $view->min_date = $min_date;
-    $view->max_date = $max_date;
-    return array($min_date, $max_date);
-  }
-  return array();
 }
