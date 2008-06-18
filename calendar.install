@@ -48,6 +48,11 @@ function calendar_install() {
     module_enable(array('date_php4'));
   }
   module_enable(array('date_timezone'));
+  $ret = array();
+
+  // Make sure this module loads after date_api.
+  db_query("UPDATE {system} SET weight = 1 WHERE name = 'calendar'");
+  return $ret;
 }
 
 /**
@@ -87,17 +92,6 @@ function calendar_uninstall() {
   // Empty the calendar caches.
   cache_clear_all('calendar_views', 'cache_views');
   cache_clear_all('calendar_fields', 'cache_views');
-  return $ret;
-}
-
-/**
- * Implementation of hook_install().
- */
-function calendar_install() {
-  $ret = array();
-
-  // Make sure this module loads after date_api.
-  db_query("UPDATE {system} SET weight = 1 WHERE name = 'calendar'");
   return $ret;
 }
 
