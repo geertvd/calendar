@@ -47,6 +47,11 @@ function calendar_requirements($phase) {
  * Reset the calendar caches.
  */
 function calendar_enable() {
+  module_enable(array('date_api'));
+  if (version_compare(PHP_VERSION, '5.2', '<') && !module_exists('date_php4')) {
+    module_enable(array('date_php4'));
+  }
+  module_enable(array('date_timezone'));
 }
 
 /**
@@ -71,6 +76,9 @@ function calendar_uninstall() {
 function calendar_install() {
   $ret = array();
   module_enable(array('date_api'));
+  if (version_compare(PHP_VERSION, '5.2', '<') && !module_exists('date_php4')) {
+    module_enable(array('date_php4'));
+  }
   module_enable(array('date_timezone'));
   // Make sure this module loads after date_api.
   db_query("UPDATE {system} SET weight = 1 WHERE name = 'calendar'");

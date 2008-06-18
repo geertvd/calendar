@@ -4,7 +4,7 @@
  * Display a calendar navigation and links
  */
 function template_preprocess_calendar_main(&$vars) {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
+  include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
 
   $view     = $vars['view'];
 
@@ -66,7 +66,7 @@ function template_preprocess_calendar_main(&$vars) {
  * views and the template takes care of displaying links to related views.
  */
 function template_preprocess_calendar(&$vars) {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
+  include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
   
   $view     = $vars['view'];
   // Make sure we only run through this function one time.
