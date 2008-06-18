@@ -97,7 +97,7 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
     if ($check_month && ($curday < $view->min_date || $curday > $view->max_date || date_format($curday, 'n') != $month)) {
       $class = strtolower($weekdays[$i] .
       ($view->mini ? ' mini' : ''));
-      $content = theme('calendar_empty');
+      $content = theme('calendar_empty_day');
     }
     else {
       $content = calendar_build_day($curday, $view, $items);
@@ -141,7 +141,7 @@ function calendar_build_day($curday, $view, $items) {
     }
   }
   if (empty($inner)) {
-    $inner = theme('calendar_empty');
+    $inner = theme('calendar_empty_day');
   }
   $content = theme('calendar_datebox', date_format($curday, 'Y-m-d'), $view, $items, $selected) . $inner;
   return $content;
