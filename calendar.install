@@ -4,14 +4,6 @@
  * @file
  * Install File
  */
-// Updates happen in random order, whether or not the module is enabled,
-// so include critical code here just to be sure.
-include_once('./'. drupal_get_path('module', 'date_api') .'/date_api.module');
-include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.module');
-if (module_exists('views')) {
-  include_once('./'. drupal_get_path('module', 'views') .'/views.module');
-}
-
 /**
  * Implementation of hook_requirements().
  * Added to be sure the Date API version matches this code so invalid
@@ -50,12 +42,26 @@ function calendar_requirements($phase) {
   return $requirements;
 }
 
+function calendar_install() {
+  module_enable(array('date_api'));
+  if (version_compare(PHP_VERSION, '5.2', '<') && !module_exists('date_php4')) {
+    module_enable(array('date_php4'));
+  }
+  module_enable(array('date_timezone'));
+}
+
 /**
  * Implementation of hook_enable().
  * Reset the calendar caches.
  */
 function calendar_enable() {
-  calendar_clear_all();
+  module_enable(array('date_api'));
+  if (version_compare(PHP_VERSION, '5.2', '<') && !module_exists('date_php4')) {
+    module_enable(array('date_php4'));
+  }
+  module_enable(array('date_timezone'));
+  cache_clear_all('calendar_views', 'cache_views');
+  cache_clear_all('calendar_fields', 'cache_views');
 }
 
 /**
@@ -63,7 +69,8 @@ function calendar_enable() {
  * Empty the calendar caches.
  */
 function calendar_disable() {
-  calendar_clear_all(TRUE);
+  cache_clear_all('calendar_views', 'cache_views');
+  cache_clear_all('calendar_fields', 'cache_views');
 }
 
 /**
@@ -78,7 +85,8 @@ function calendar_uninstall() {
     variable_del('calendar_display_format_'. $view_name);
   }
   // Empty the calendar caches.
-  calendar_clear_all(TRUE);
+  cache_clear_all('calendar_views', 'cache_views');
+  cache_clear_all('calendar_fields', 'cache_views');
   return $ret;
 }
 
