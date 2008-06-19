@@ -499,7 +499,6 @@ function theme_calendar_node_week($node, $view) {
  *   The node being displayed
  */
 function theme_calendar_node_month($node, $view) {
-  dsm($node);
   $output .= '<div class="calendar monthview" id="'. $node->date_id .'">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
   $fields = _views_get_fields();
