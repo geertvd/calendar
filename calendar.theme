@@ -440,7 +440,7 @@ function theme_calendar_day($view, $header, $data) {
  *   The node being displayed
  */
 function theme_calendar_node_day($node, $view) {
-  $output = '<div class="calendar dayview">'."\n";
+  $output = '<div class="calendar dayview" id="'. $node->date_id .'">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
   $fields = _views_get_fields();
   $item = '';
@@ -473,7 +473,7 @@ function theme_calendar_node_day($node, $view) {
  */
 
 function theme_calendar_node_week($node, $view) {
-  $output .= '<div class="calendar weekview">'."\n";
+  $output .= '<div class="calendar weekview" id="'. $node->date_id .'">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
   $fields = _views_get_fields();
   $item = '';
@@ -499,7 +499,8 @@ function theme_calendar_node_week($node, $view) {
  *   The node being displayed
  */
 function theme_calendar_node_month($node, $view) {
-  $output .= '<div class="calendar monthview">'."\n";
+  dsm($node);
+  $output .= '<div class="calendar monthview" id="'. $node->date_id .'">'."\n";
   $output .= theme('calendar_stripe_stripe', $node);
   $fields = _views_get_fields();
   $item = '';

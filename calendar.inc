@@ -580,15 +580,15 @@ function calendar_build_nodes(&$view, &$items) {
               }
               else {
                 if (strstr($option['type'], 'cck')) {
-                  $id = $item->nid .':'. $delta .':'. $field_field;
+                  $id = 'calendar-'. $item->nid .'-'. $field_field_name .'-'. $delta;
                 }
                 else {
-                  $id = $item->nid .':0:'. $field_field;
+                  $id = 'calendar-'. $item->nid .'-'. $field_field_name .'-0';
                 }
                 if ($view->build_type == 'page' && $view->calendar_type != 'year') {
                   $node->stripe = calendar_node_stripe($view, $node, $field_field, $field_field);
                 }
-                $node->unique_nid = $id;
+                $node->date_id = $id;
                 $nodes[] = $node;
                 unset($node);
               }
