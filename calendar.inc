@@ -229,7 +229,6 @@ function calendar_build_nodes(&$view, &$items) {
     $tz_handling  = $field['tz_handling'];
     $label        = isset($view->field[$name]) ? $view->field[$name]['label'] : $field['field_name'];
     $tz_alias     = str_replace('.', '_', $field['timezone_field']);
-    
     $db_tz = 'UTC';
     $local_tz = date_default_timezone_name();
     switch ($field['tz_handling']) {
@@ -347,14 +346,14 @@ function calendar_build_nodes(&$view, &$items) {
             unset($node);
           }
           else {
-            if (strstr($field['type'], 'cck')) {
-              $id = $item->nid .':'. $delta .':'. $alias;
+            if (strstr($option['type'], 'cck')) {
+              $id = 'calendar-'. $item->nid .'-'. $field_name .'-'. $delta;
             }
             else {
-              $id = $item->nid .':0:'. $alias;
+              $id = 'calendar-'. $item->nid .'-'. $field_name .'-0';
             }
             $node->stripe = calendar_node_stripe($view, $node, $alias, $alias);
-            $node->unique_nid = $id;
+            $node->date_id = $id;
             $nodes[] = $node;
             unset($node);
           }

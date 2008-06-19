@@ -14,6 +14,8 @@
  * $block: Whether or not this calendar is in a block.
  * $min_date_formatted: The minimum date for this calendar in the format YYYY-MM-DD HH:MM:SS.
  * $max_date_formatted: The maximum date for this calendar in the format YYYY-MM-DD HH:MM:SS.
+ * $date_id: a css id that is unique for this date, 
+ *   it is in the form: calendar-nid-field_name-delta
  * 
  */
 //dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_formatted);
