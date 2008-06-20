@@ -264,7 +264,7 @@ function calendar_build_nodes(&$view, &$items) {
     else {
       $format = variable_get('date_format_short', 'm/d/Y - H:i');
     }
-    foreach ($items as $delta => $item) {
+    foreach ($items as $pos => $item) {
       if (isset($item->calendar_fields->$alias)) {
         // Create from and to date values for each item, adjusted to
         // the correct timezone.
@@ -346,12 +346,8 @@ function calendar_build_nodes(&$view, &$items) {
             unset($node);
           }
           else {
-            if (strstr($option['type'], 'cck')) {
-              $id = 'calendar-'. $item->nid .'-'. $field_name .'-'. $delta;
-            }
-            else {
-              $id = 'calendar-'. $item->nid .'-'. $field_name .'-0';
-            }
+            $delta = !empty($field['delta_field']) ? $field['delta_field'] : 0;
+            $id = 'calendar:'. $item->nid .':'. $field_name .':'. $delta .':'. $pos;
             $node->stripe = calendar_node_stripe($view, $node, $alias, $alias);
             $node->date_id = $id;
             $nodes[] = $node;
@@ -453,6 +449,7 @@ function _calendar_fields($base = 'node') {
 
       $related_fields = array();
       $timezone_field = '';
+      $delta_field = '';
       $rrule_field = '';
       
       // Handling for content field dates
@@ -461,15 +458,26 @@ function _calendar_fields($base = 'node') {
         $db_info = content_database_info($handler->content_field);
         if ($tz_handling == 'date') {
           $offset_field = $table_name .'.'. $db_info['columns']['offset']['column'];
-        }
-        $related_fields = array(
-          $table_name .'.'. $field_name,
-          $table_name .'.'. $db_info['columns']['value2']['column'],
-          $table_name .'.'. $db_info['columns']['timezone']['column'],
-          //$table_name .'.'. $db_info['columns']['offset']['column'],
-          //$table_name .'.'. $db_info['columns']['offset2']['column'],
+          $timezone_field = $table_name .'.'. $db_info['columns']['timezone']['column'];
+          $related_fields = array(
+            $table_name .'.'. $field_name,
+            $table_name .'.'. $db_info['columns']['value2']['column'],
+            $table_name .'.'. $db_info['columns']['timezone']['column'],
+            $table_name .'.'. $db_info['columns']['offset']['column'],
+            $table_name .'.'. $db_info['columns']['offset2']['column'],
           );
-        $timezone_field = $table_name .'.'. $db_info['columns']['timezone']['column'];
+        }
+        else {
+          $related_fields = array(
+            $table_name .'.'. $field_name,
+            $table_name .'.'. $db_info['columns']['value2']['column'],
+          );
+        }
+      }
+      // Get the delta value into the query.
+      if (!empty($handler->content_field['multiple'])) {
+        array_push($related_fields, "$table_name.delta");
+        $delta_field = 'delta';
       }
       if (!empty($db_info['columns']['rrule'])) {
         $rrule_field = $table_name .'.'. $db_info['columns']['rrule']['column'];
@@ -526,6 +534,7 @@ function _calendar_fields($base = 'node') {
         'tz_handling' => $tz_handling,
         'offset_field' => $offset_field,
         'timezone_field' => $timezone_field,
+        'delta_field' => $delta_field,
         'rrule_field' => $rrule_field,
         'related_fields' => $related_fields,
       );
