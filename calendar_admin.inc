@@ -113,31 +113,43 @@ function _calendar_fields() {
     // Don't do anything if this is not a date field we can handle.
     if ($type && $name != 'event.event_start' && $name != 'event.event_end') {
 
+      $timestamp_fromto = array($name, $name);
+      $tz_handling = 'site';
+      $related_fields = array();
+      $timezone_field = '';
+      $delta_field = '';
+
       // dates with from and to dates need to handle both fields as one
       // add the from and to dates to the first one found and ignore the second
 
       // Handling for content field dates
       if ($val['content_field']['tz_handling']) {
+        
         $tz_handling = $val['content_field']['tz_handling'];
         if ($tz_handling == 'date') {
           $offset_field = $val['table'] .'.'. $val['content_db_info']['columns']['offset']['column'];
+          $timezone_field = $val['table'] .'.'. $field_name .'_timezone';
+          $related_fields = array(
+            $val['table'] .'.'. $field_name .'_value',
+            $val['table'] .'.'. $field_name .'_value2',
+            $val['table'] .'.'. $field_name .'_timezone',
+            $val['table'] .'.'. $field_name .'_offset',
+            $val['table'] .'.'. $field_name .'_offset2',
+            );
         }
-        $related_fields = array(
-          $val['table'] .'.'. $field_name .'_value',
-          $val['table'] .'.'. $field_name .'_value2',
-          $val['table'] .'.'. $field_name .'_timezone',
-          $val['table'] .'.'. $field_name .'_offset',
-          $val['table'] .'.'. $field_name .'_offset2',
-          );
-        $timezone_field = $val['table'] .'.'. $field_name .'_timezone';
+        else {
+          $related_fields = array(
+            $val['table'] .'.'. $field_name .'_value',
+            $val['table'] .'.'. $field_name .'_value2',
+          );          
+        }
       }
-      // Handling for simple timestamp fields
-      else {
-        $timestamp_fromto = array($name, $name);
-        $tz_handling = 'site';
-        $related_fields = array();
-        $timezone_field = '';
+      // Get the delta value into the query.
+      if (!empty($val['content_field']['multiple'])) {
+        array_push($related_fields, "$table_name.delta");
+        $delta_field = 'delta';
       }
+      
       // Handling for cck fromto dates
       if (!in_array($processed_name, $event_fields_processed)) {
         switch ($val['content_field']['type']) {
@@ -183,6 +195,7 @@ function _calendar_fields() {
           'tz_handling' => $tz_handling,
           'offset_field' => $offset_field,
           'timezone_field' => $timezone_field,
+          'delta_field' => $delta_field,
           'related_fields' => $related_fields,
         );
       }

@@ -514,7 +514,7 @@ function calendar_build_nodes(&$view, &$items) {
 
         $fromto = array_merge($timestamp_fromto, $string_fromto);
 
-        foreach ($items as $delta => $item) {
+        foreach ($items as $pos => $item) {
           // The query created from/to dates like 2007-12-31T01:30:00|2007-12-31T02:30:00,
           // explode those values and separate them into from and to dates on the node.
           if ($item->$field_field) {
@@ -579,16 +579,12 @@ function calendar_build_nodes(&$view, &$items) {
                 unset($node);
               }
               else {
-                if (strstr($option['type'], 'cck')) {
-                  $id = 'calendar-'. $item->nid .'-'. $field_field_name .'-'. $delta;
-                }
-                else {
-                  $id = 'calendar-'. $item->nid .'-'. $field_field_name .'-0';
-                }
+                $delta = !empty($field['delta_field']) ? $field['delta_field'] : 0;
+                $id = 'calendar:'. $item->nid .':'. $field_field_name .':'. $delta .':'. $pos;
+                $node->date_id = $id;
                 if ($view->build_type == 'page' && $view->calendar_type != 'year') {
                   $node->stripe = calendar_node_stripe($view, $node, $field_field, $field_field);
                 }
-                $node->date_id = $id;
                 $nodes[] = $node;
                 unset($node);
               }
