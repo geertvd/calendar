@@ -39,7 +39,7 @@
  */ 
 ?>
 <div class="view-item view-item-<?php print $view->name ?>">
-  <div class="calendar weekview" id="<?php print $node->date_id >">
+  <div class="calendar weekview" id="<?php print $node->date_id ?>">
     <?php print theme('calendar_stripe_stripe', $node); ?>
     <?php foreach ($fields as $field): ?>
       <div id="<?php print $field['id']; ?>" class="view-field view-data-<?php print $field['id'] ?>">
