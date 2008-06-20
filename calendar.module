@@ -1,0 +1,285 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Adds calendar filtering and displays to Views.
+ */
+/**
+ * Implementation of hook_help().
+ */
+function calendar_help($section, $arg) {
+  switch ($section) {
+    case 'admin/help#calendar':
+      return t("<p>View complete documentation at !link.</p>", array('!link' => 'http://drupal.org/node/120710'));
+  }
+}
+
+function calendar_init() {
+  drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
+  include_once(drupal_get_path('module', 'calendar') .'/theme/theme.inc');
+  drupal_add_js(drupal_get_path('module', 'calendar') .'/calendarblock.js');
+  drupal_add_js('misc/progress.js');
+}
+
+function calendar_theme() {
+  $path = drupal_get_path('module', 'calendar');
+  require_once "./$path/theme/theme.inc";
+
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => "$path/theme",
+  );
+  return array(
+    'calendar_day_node' => $base + array(
+       'template' => 'calendar-day-node',
+       'arguments' => array('node' => NULL, 'view' => NULL),
+       ),
+     'calendar_month_node' => $base + array(
+       'template' => 'calendar-month-node',
+       'arguments' => array('node' => NULL, 'view' => NULL),
+       ),
+     'calendar_week_node' => $base + array(
+       'template' => 'calendar-week-node',
+       'arguments' => array('node' => NULL, 'view' => NULL),
+       ),
+    'calendar_datebox' => $base + array(
+      'template' => 'calendar-datebox',
+      'arguments' => array(
+        'date' => NULL, 'view' => NULL, 'items' => NULL, 'selected' => NULL),
+      ),
+    'calendar_title' => $base + array(
+      'arguments' => array('date_type' => NULL, 'view' => NULL),
+      ),
+    'calendar_date_combo' => $base + array(
+      'arguments' => array('node', 'lable', 'view'),
+      ),
+    'calendar_empty_day' => $base + array(
+      'arguments' => array(),
+      ),
+     'calendar_stripe_legend' => $base + array(
+       'arguments' => array('stripe_labels'),
+       ),
+     'calendar_stripe_stripe' => $base + array(
+       'arguments' => array('node'),
+       ),
+     );
+}
+
+/**
+ *  TODO need to identify type of timezone handling needed for each date field
+ */
+function calendar_offset($field_name) {
+  $default_offset = variable_get('date_default_timezone', 0);
+  $configurable_zones = variable_get('configurable_timezones', 1);
+}
+
+/**
+ *  Implementation of hook_views_query()
+ *  
+ *  Handle the date_popup calendar goto date.
+ */
+function calendar_views_query_alter(&$query, &$view) {
+  // Check if a new date has been selected and if so redirect.
+  if (isset($_POST['calendar_goto'])) {
+    $parts = explode('/', $_POST['calendar_goto']['date']);
+    $type = $_POST['date_type'];
+    if ($type == 'year') {
+      unset($parts[1], $parts[2]);
+    }
+    elseif ($type == 'month') {
+      unset($parts[2]);
+    }
+    elseif ($type == 'week') {
+      $date = implode('-', $parts);
+      $parts[1] = 'W'. date_week($date);
+      unset($parts[2]);
+    }
+    drupal_goto($view->url .'/'. implode('/', $parts));
+    drupal_exit();
+  }
+}
+
+/**
+ *  A function to test the validity of various date parts
+ */
+function calendar_part_is_valid($value, $type) {
+  if ( !preg_match('/^[0-9]*$/', $value) ) {
+    return false;
+  }
+  $value = intval($value);
+  if ($value <= 0) return false;
+  switch ($type) {
+    case 'year':
+      if ($value < DATE_MIN_YEAR) return false;
+      break;
+    case 'month':
+      if ($value < 0 || $value > 12) return false;
+      break;
+    case 'day':
+      if ($value < 0 || $value > 31) return false;
+      break;
+    case 'week':
+      if ($value < 0 || $value > 53) return false;
+  }
+  return true;
+}
+
+/**
+ *  implementation of hook_block()
+ */
+function calendar_block($op = 'list', $delta = 0) {
+  switch ($op) {
+    case 'list' :
+      $blocks[0]['info'] = t('Calendar Legend.');
+      return $blocks;
+      break;
+    case 'view' :
+      switch ($delta) {
+      case 0:
+        $block['subject'] = t('Calendar Legend');
+        $block['content'] = !empty($GLOBALS['calendar_stripe_labels']) ? '<div class="calendar legend">'. theme('calendar_stripe_legend', $GLOBALS['calendar_stripe_labels']) .'</div>' : '';
+        return $block;
+    }
+  }
+}
+
+/**
+ * Calendar display types
+ */
+function calendar_display_types() {
+  return array('year' => t('Year'), 'month' => t('Month'), 'day' => t('Day'), 'week' => t('Week'));  
+}
+
+/**
+ * Figure out which type of display to use, 
+ * based on the current argument.
+ *
+ * @return year, month, day, or week.
+ */
+function calendar_current_type($view) {
+  if (!is_object($view) || !isset($view->argument) || !is_array($view->argument)) {
+    if (!empty($view->default_display)) {
+      return $view->default_display;
+    }
+    return FALSE;
+  }
+  $i = 0;
+  $date_handler = new date_sql_handler();
+  foreach ($view->argument as $argument) {
+    if ($argument['id'] == 'date_argument') {
+      $parts = array_keys($date_handler->arg_parts($view->args[$i]));
+      break;
+    }
+    $i++;
+  }
+  return array_pop($parts);
+}
+
+/**
+ * Pick up filter and sort info from url.
+ */
+function calendar_url_append($view) {
+  //if ($view->build_type == 'page') {
+    foreach ($_GET as $key => $val) {
+      if ($key != 'q' && $key != 'view') {
+        if (!is_array($val)) {
+          $url .= '&'. $key .'='. $val;
+        }
+        else {
+          foreach ($val as $v) {
+            $url .= '&'. $key .'[]='. $v;
+          }
+        }
+      }
+    }
+  //}
+  return $url;
+}
+
+/**
+ * create a stripe id from a combination of the field and content types
+ * and store value for legend
+ * formula tries to create a unique id for each possible combination
+ *
+ * @param $node - the node object
+ * @param $query_name - the views queryname for this date field
+ * @param $delta - the delta for this field, used to distinguish fields that appear more than once in the calendar
+ * @param $label - the label to give this stripe.
+ */
+function calendar_node_stripe($view, $node, $query_name, $delta, $stripe = NULL, $label = '') {
+  $type_names = node_get_types('names');
+  if (!isset($type_names[$node->type])) {
+    return;
+  }
+  if (!$label) {
+    $label = $type_names[$node->type] .' '. (array_key_exists($delta, $view->field) ? $view->field[$delta]['label'] : '');
+  }
+  if (!$stripe) {
+    $i = 1;
+    foreach ($type_names as $k => $v) {
+      if ($k == $node->type) {
+        break;
+      }
+      $i++;
+    }
+    $stripe = intval((20 * $delta) + $i);
+  }
+  $GLOBALS['calendar_stripe_labels'][$stripe] = $label;
+  return $stripe;
+}
+
+/**
+ * Helper function to figure out a group gid to use in blocks.
+ *
+ * @return an array of group nodes that are relevant.
+ * @todo this may need more work.
+ */
+function calendar_og_groups($view) {
+  if (!$groupnode = og_get_group_context()) {
+    global $user;
+    $groupnodes = array_keys($user->og_groups);
+  }
+  else {
+    $groupnodes = array($groupnode->nid);
+  }
+  return $groupnodes;
+}
+
+/**
+ * A selector to jump to a new date in the calendar.
+ *
+ * @param unknown_type $view
+ * @return unknown
+ */
+function calendar_date_select($view) {
+  return '<div class="calendar-date-select">'. drupal_get_form('calendar_date_select_form', $view) .'</div>';
+}
+
+/**
+ * The date selector form.
+ *
+ * @param object $view
+ * @return the form element
+ *
+ * @TODO is the title desired here or does it take up too much space??
+ */
+function calendar_date_select_form($view) {
+  $format = 'Y/m/d';
+  $form['calendar_goto'] = array(
+    //'#title' => t('Calendar date'),
+    '#type' => 'date_popup',
+    '#default_value' => date_format($view->min_date, 'Y-m-d'),
+    '#date_timezone' => date_default_timezone_name(),
+    '#date_format' => $format,
+    );
+  $form['date_type'] = array(
+    '#type' => 'hidden',
+    '#value' => $view->date_type,
+    );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Change date'),
+    );
+  return $form;
+}

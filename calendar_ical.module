@@ -1,0 +1,298 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Adds ical functionality to Calendar.
+ */
+function calendar_ical_theme() {
+  return array(
+    'calendar_ical_icon' => array(
+      'arguments' => array('url'),
+      ),
+    'calendar_ical_feed' => array(
+      'arguments' => array('view', 'items', 'type'),
+      ),
+    'calendar_ical_field' => array(
+      'arguments' => array('fieldname', 'fields', 'field', 'node', 'view', 'type'),
+      ),
+    'calendar_ical_node' => array(
+      'arguments' => array('node', 'view'),
+      ),
+    );
+}
+
+/**
+ * Identify the cache where the ical feeds are stored.
+ *
+ * @return unknown
+ */
+function calendar_ical_cache() {
+ return 'cache_views';
+}
+
+/**
+ * Implementation of hook_cron().
+ */
+function calendar_ical_cron() {
+ cache_clear_all('calendar_feeds_', calendar_ical_cache(), TRUE);
+}
+
+/**
+ * Implementation of hook_calendar_add_items().
+ */
+function calendar_ical_calendar_add_items($view) {
+  include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
+
+  $items = array();
+  $feeds = calendar_ical_add_feeds($view);
+  foreach ($feeds as $feed) {
+    if (is_object($feed->calendar_start_date) && is_object($feed->calendar_end_date)) {
+      if (date_format($feed->calendar_start_date, DATE_FORMAT_DATETIME) >= date_format($view->min_date, DATE_FORMAT_DATETIME) && date_format($feed->calendar_end_date, DATE_FORMAT_DATETIME) <= date_format($view->max_date, DATE_FORMAT_DATETIME)) {
+        $items[] = $feed;
+      }
+    }
+  }
+  return $items;
+}
+
+/**
+ *  Implementation of hook_calendar_add_types().
+ */
+function calendar_ical_calendar_add_types($view) {
+  return array('calendar_ical' => t('Calendar: iCal Feed'));
+}
+
+/**
+ * Bring an ical feed into the calendar.
+ *
+ * @param $view - the view being manipulated
+ * @param $refresh - whether or not to force a refresh of the feed
+ * @return $nodes to add to calendar
+ * @todo probably need to add more validation of the results in case the url doesn't work.
+ */
+
+function calendar_ical_add_feeds($view, $refresh = FALSE) {
+  $nodes = array();
+  $feeds = variable_get('calendar_feeds_'. $view->name, array());
+  $expire = intval(variable_get('calendar_ical_expire_'. $view->name, 9676800) + time());
+  foreach ($feeds as $delta => $feed) {
+    if ($view->build_type == 'page') {
+      $GLOBALS['calendar_stripe_labels'][$feed['stripe']] = $feed['name'];
+    }
+    if (!$refresh && $cached = cache_get('calendar_feeds_'. $view->name .':'. $feed['url'], calendar_ical_cache())) {
+      $nodes += (array) $cached->data;
+    }
+    else {
+     $expire = intval(variable_get('calendar_ical_expire_'. $view->name, 9676800) + time());
+     include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
+
+      switch ($feed['type']) {
+      case 'ical':
+        $filename = $feed['url'];
+        $new_nodes = array();
+        $calendars = date_ical_import($filename);
+        foreach ($calendars as $calendar) {
+          foreach ($calendar['VEVENT'] as $key => $value) {
+            if (empty($value['DTSTART'])) continue;
+            $node = new stdClass();
+            $node->nid = $value['UID'];
+            $node->title = $value['SUMMARY'];
+            $node->label = $feed['name'];
+            $node->teaser =  $value['DESCRIPTION'];
+            $node->calendar_start_date = date_ical_date($value['DTSTART'], $value['DTSTART']['tz']);
+            $node->calendar_start = date_format_date($node->calendar_start_date, 'custom', DATE_FORMAT_DATETIME);
+            $node->calendar_end_date = date_ical_date($value['DTEND'], $value['DTEND']['tz']);
+            $node->calendar_end = date_format_date($node->calendar_end_date, 'custom', DATE_FORMAT_DATETIME);
+            $show_tz = ' e';
+            $granularity = $value['DTSTART']['type'] == 'DATE' ? array('year', 'month', 'day') : array('year', 'month', 'day', 'hour', 'minute', 'second');
+            $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
+            $node->format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), $granularity) . $show_tz;
+            $node->all_day = $value['DTSTART']['all_day'];
+            $node->stripe = $feed['stripe'];
+            $node->remote = TRUE;
+            $node->uid = $value['uid'] ? $value['UID'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
+            $node->url = $value['URL'] ? $value['URL'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
+            $node->calendar_node_theme = 'calendar_ical_node';
+            $node->calendar_field_theme = 'calendar_ical_field';
+            $new_nodes[$value['UID']] = $node;
+          }
+        }
+        //cache_set('calendar_feeds_'. $view->name .':'. $feed['url'], $new_nodes, calendar_ical_cache(), $expire);
+        $nodes += (array) $new_nodes;
+        break;
+      }
+    }
+  }
+  return $nodes;
+}
+
+/**
+ * feed argument hook that will convert us to ical or display an icon.
+ * the 4th argument isn't part of the hook, but we use it to differentiate
+ * when called as a hook or when called manually from calendar_ical_views_post_view
+ */
+function calendar_ical_views_feed_argument($op, &$view, $arg, $argtype = NULL) {
+ if ($op == 'argument' && $arg == 'ical') {
+    // Keep devel module from appending queries to ical export.
+   $GLOBALS['devel_shutdown'] = FALSE;
+    $view->page_type = 'calendar_ical';
+    // reset the 'real url' to the URL without the feed argument.
+    $view_args = array();
+    $max = count($view->args);
+    foreach ($view->args as $id => $view_arg) {
+      ++$count;
+      if ($view_arg == $arg && $view->argument[$id]['id'] == $argtype['id']) {
+        if ($count != $max) {
+          $view_args[] = $argtype['wildcard'];
+        }
+      }
+      else {
+        $view_args[] = $view_arg;
+      }
+    }
+    $view->feed_url = views_get_url($view, $view_args);
+  }
+  else if ($op == 'post_view') {
+    $args = calendar_ical_post_view_make_args($view, $arg, 'ical');
+    $url = views_get_url($view, $args);
+    $title = views_get_title($view, 'page', $args);
+    if ($view->used_filters) {
+      $filters = drupal_query_string_encode($view->used_filters);
+    }
+    return implode(calendar_ical_add_ical(url($url, $filters), $title));
+  }
+}
+
+function calendar_ical_add_feed($url = NULL, $title = '') {
+  if (!is_null($url)) {
+    $stored_feed_links[$url] = theme('calendar_ical_icon', $url);
+    drupal_add_link(array('rel' => 'alternate',
+                          'type' => 'application/calendar',
+                          'title' => $title,
+                          'href' => $url));
+  }
+  return $stored_feed_links;
+}
+
+function theme_calendar_ical_icon($url) {
+  if ($image = theme('image', drupal_get_path('module', 'date_api') .'/images/ical16x16.gif', t('Add to calendar'), t('Add to calendar'))) {
+    return '<div style="text-align:right"><a href="'. check_url($url) .'" class="ical-icon" title="ical">'. $image .'</a></div>';
+  }
+}
+
+/**
+ * plugin that actually displays an ical feed
+ */
+function theme_calendar_ical_feed($view, $items, $type) {
+  if ($type == 'block') {
+    return;
+  }
+  drupal_set_header('Content-Type: text/calendar; charset=utf-8');
+  drupal_set_header('Content-Disposition: attachment; filename="calendar.ics"; ');
+  $events = array();
+  include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
+  $items = calendar_build_nodes($view, $items);
+  foreach ($items as $node) {
+    $event = array();
+    // Allow modules to affect item fields
+    node_invoke_nodeapi($node, 'ical item');
+    $event['start'] = $node->calendar_start_date;
+    $event['end'] = $node->calendar_end_date;
+    $event['location'] = $node->calendar_location;
+    $event['summary'] = $node->title;
+    $event['description'] = $node->teaser;
+    $event['uid'] = $node->uid ? $node->uid : (is_numeric($node->nid) ? url("node/$node->nid", array('absolute' => TRUE)) : $node->nid);
+    $event['url'] = $node->url ? $node->url : (is_numeric($node->nid) ? url("node/$node->nid", array('absolute' => TRUE)) : $node->nid);
+    $events[] = $event;
+  }
+  $description = $headertitle . ($title ? ' | '. $title : '');
+  print date_ical_export($events, $description);
+  module_invoke_all('exit');
+  exit;
+}
+
+/**
+ * Theme for an entire ical node.
+ */
+function theme_calendar_ical_node($node, $view) {
+  // Check plain may leave html entities in the title.
+  $node->title = html_entity_decode(check_plain($node->title), ENT-QUOTES);
+  $node->teaser = check_markup($node->teaser);
+
+  if ($view->calendar_display == 'calendar') {
+    // Remote nodes may come in with lengthy descriptions that won't fit
+    // in small boxes of year, month, and week calendars.
+    if ($view->date_type != 'day') {
+      $node->teaser = '';
+    }
+    $theme = 'calendar_node_'. $view->date_type;
+    return theme($theme, $node, $view);
+  }
+  else {
+    // Create a pseudo node view for this item.
+    $output  = '<div class="node">';
+    $output .= '<h2>'. l($node->title, $node->url) .'</h2>';
+    $output .= '<div>'. theme('calendar_date_combo', $node, $node->format, t('Dates'), $view)  .'</div>';
+    $output .= '<div class="content">'. $node->teaser .'</div>';
+    $output .= '</div>';
+    return $output;
+  }
+}
+
+/**
+ * Views field theme for an ical field.
+ *
+ * Used for table and list views.
+ *
+ * For non-calendar views that use fields, the field needs a value from the
+ * imported node that matches the kind of field in the view. Most possible
+ * Views fields make no sense here and will return nothing.
+ */
+function theme_calendar_ical_field($fieldname, $fields, $field, $node, $view, $type) {
+  static $datefield;
+
+  // Find the first date field in the view to attach the ical date to.
+  // There may be more than one date field in the view and we only
+  // want to put the ical field in one place.
+  if (empty($datefield)) {
+    $calendar_fields = calendar_fields();
+    foreach ($view->field as $viewfield) {
+      if (in_array($viewfield['field'], array_keys($calendar_fields))) {
+        $datefield = $viewfield['queryname'];
+        break;
+      }
+    }
+  }
+
+  // Check plain may leave html entities in the title.
+  $node->title = html_entity_decode(check_plain($node->title), ENT-QUOTES);
+  $node->teaser = check_markup($node->teaser);
+
+  // Fix some common html entities that may not get decoded correctly.
+  // You can add more of them in this array.
+  $replace = array(
+    '&#039;' => "'",
+    );
+  foreach (array('title', 'teaser') as $key) {
+    $node->$key = strtr($node->$key, $replace);
+  }
+
+  if ($fieldname == $datefield) {
+    return theme('calendar_date_combo', $node, '', $view);
+  }
+
+  switch ($field['fullname']) {
+    case 'node.title':
+      return l($node->title, $node->url);
+
+    case 'node.teaser':
+    case 'node.body':
+      return $node->teaser;
+
+    case 'node.type':
+      return $node->label;
+  }
+  return;
+
+}
