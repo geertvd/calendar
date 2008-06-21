@@ -580,7 +580,11 @@ function calendar_build_nodes(&$view, &$items) {
               }
               else {
                 $delta = !empty($field['delta_field']) ? $field['delta_field'] : 0;
-                $id = 'calendar:'. $item->nid .':'. $field_field_name .':'. $delta .':'. $pos;
+                $real_field = $field_name;
+                if (substr($field['type'], 0, 3) == 'cck') {
+                  $real_field = str_replace(array('_value2', '_value'), '', $field_name);
+                }
+                $id = 'calendar:'. $item->nid .':'. $real_field .':'. $delta .':'. $pos;
                 $node->date_id = $id;
                 if ($view->build_type == 'page' && $view->calendar_type != 'year') {
                   $node->stripe = calendar_node_stripe($view, $node, $field_field, $field_field);
