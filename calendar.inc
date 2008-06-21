@@ -346,7 +346,7 @@ function calendar_build_nodes(&$view, &$items) {
             unset($node);
           }
           else {
-            $delta = !empty($field['delta_field']) ? $field['delta_field'] : 0;
+            $delta = !empty($field['delta_field']) ? $item->{$field['delta_field']} : 0;
             $real_field = $field_name;
             if (substr($field['type'], 0, 3) == 'cck') {
               $real_field = str_replace(array('_value2', '_value'), '', $field_name);
