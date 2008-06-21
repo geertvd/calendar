@@ -146,7 +146,7 @@ function _calendar_fields() {
       }
       // Get the delta value into the query.
       if (!empty($val['content_field']['multiple'])) {
-        array_push($related_fields, "$table_name.delta");
+        array_push($related_fields, $val['table'] .".delta");
         $delta_field = 'delta';
       }
       
