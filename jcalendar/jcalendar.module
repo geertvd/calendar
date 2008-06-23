@@ -1,0 +1,68 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * jQuery Calendar UI features.
+ */
+
+/**
+* Display help and module information
+* @param section which section of the site we're displaying help
+* @return help text for section
+*/
+function jcalendar_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case "admin/help#jcalendar":
+      $output = '<p>'. t("Creates a popup for calendar dates.") .'</p>';
+      break;
+  }
+  return $output;
+} // function jcalendar_help
+
+/**
+* Get calendar node for popup
+* @param integer nid Node id.
+* @param string id Date field unique id.
+* @return string HTML for node
+*/
+function get_calendar_node($nid, $id) {
+  if ($node = node_load($nid)) {
+    if (node_access("view", $node)) {
+      $GLOBALS['devel_shutdown'] = FALSE;
+      $node->date_id = $id;
+      echo node_view($node);
+    }
+  }
+}
+
+/**
+* Implemetation of hook_menu()
+*/
+function jcalendar_menu() {
+
+  $items['jcalendar/getnode'] = array(
+    'title' => 'Get Calendar Node',
+    'page callback' => 'get_calendar_node',
+    'page arguments' => array(2, 3),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+* Override the calendar view to inject javascript.
+* @param view Which view we are using.
+* @return unknown as of yet.
+*/
+function jcalendar_views_pre_view(&$view, &$display_id) {
+  if ($display_id == 'calendar') {
+    $path = drupal_get_path('module', 'jcalendar');
+    drupal_add_js('var var_path = '. drupal_to_js(base_path() . $path) .";", 'inline');
+    drupal_add_js('var var_base_path = '. drupal_to_js(base_path()) .";", 'inline');
+    drupal_add_js($path .'/jcalendar.js');
+    drupal_add_css($path .'/jcalendar.css');
+  }
+}
