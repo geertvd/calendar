@@ -17,11 +17,14 @@ if (Drupal.jsEnabled) {
       div.appendTo(document.body);
       
       // Locate Popup
-      // This is a hack. In D6 fix it with $.css.offset()
-      var x = a.pageX;
-      var y = a.pageY;
-      $('#calpopup').css('left', x - 100);
-      $('#calpopup').css('top', y + 25);
+      var offset = $(this).offset();
+      // Check position with window width.
+      var offset_left = offset.left;
+      if ($(window).width() < $('#calpopup').width() + offset.left) {
+        offset_left = $(window).width() - $('#calpopup').width() - 5;
+      }
+      $('#calpopup').css('left', offset_left);
+      $('#calpopup').css('top', offset.top + 25);
       
       // Show Popup
       $('#calpopup').fadeIn('slow');
