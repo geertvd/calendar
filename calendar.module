@@ -644,7 +644,7 @@ function calendar_info($reset = FALSE) {
  *  Identify all potential date/timestamp fields
  */
 function calendar_fields($reset = FALSE) {
-  static $fields;
+  //static $fields;
   if (empty($fields) || $reset) {
     $cid = 'calendar_fields';
     if (!$reset && $cached = cache_get($cid, 'cache_views')) {
