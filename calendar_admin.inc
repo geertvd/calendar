@@ -92,8 +92,7 @@ function _calendar_fields() {
   views_load_cache();
 
   foreach (_views_get_fields() as $name => $val) {
-    $timestamp_fromto = array();
-    $string_fromto = array();
+    $fromto = array();
     $tmp = explode('.', $name);
     $field_name = $val['content_field']['field_name'] ? $val['content_field']['field_name'] : $tmp[1];
 
@@ -113,7 +112,7 @@ function _calendar_fields() {
     // Don't do anything if this is not a date field we can handle.
     if ($type && $name != 'event.event_start' && $name != 'event.event_end') {
 
-      $timestamp_fromto = array($name, $name);
+      $fromto = array($name, $name);
       $tz_handling = 'site';
       $related_fields = array();
       $timezone_field = '';
@@ -154,13 +153,13 @@ function _calendar_fields() {
       if (!in_array($processed_name, $event_fields_processed)) {
         switch ($val['content_field']['type']) {
           case 'datestamp':
-            $timestamp_fromto = array(
+            $fromto = array(
               $val['table'] .'.'. $field_name .'_value',
               $val['table'] .'.'. ($val['content_field']['todate'] ? $field_name .'_value2' : $field_name .'_value'),
               );
             break;
           case 'date':
-            $string_fromto = array(
+            $fromto = array(
               $val['table'] .'.'. $field_name .'_value',
               $val['table'] .'.'. ($val['content_field']['todate'] ? $field_name .'_value2' : $field_name .'_value'),
               );
@@ -169,29 +168,20 @@ function _calendar_fields() {
         $event_fields_processed[] = $processed_name;
       }
 
-      if (is_array($val['content_field']['granularity'])) {
-        $granularity = (array) array_keys($val['content_field']['granularity']);
-      }
-      else {
-        $granularity = array('Y', 'M', 'D', 'H', 'N');
-      }
-
       // skip this step on second occurrence of fromto date fields, if more than one exists in view
-      if (!in_array($processed_name, $event_fields_processed) || $timestamp_fromto || $string_fromto) {
+      if (!in_array($processed_name, $event_fields_processed) || $fromto) {
         // cck fields append a column name to the field, others do not
         // need a real field_name with no column name appended for cck date formatters
         $fields[$tmp[1]] = array(
           'type' => $type,
           'delta' => $delta,
           'label' => $val['name'],
-          'granularity' => $granularity,
           'fullname' => $name,
           'table' => $tmp[0],
           'field' => $tmp[1],
           'field_name' => $field_name,
           'query_name' => str_replace('.', '_', $name),
-          'timestamp_fromto' => $timestamp_fromto,
-          'string_fromto' => $string_fromto,
+          'fromto' => $fromto,
           'tz_handling' => $tz_handling,
           'offset_field' => $offset_field,
           'timezone_field' => $timezone_field,

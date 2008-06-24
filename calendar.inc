@@ -485,8 +485,7 @@ function calendar_build_nodes(&$view, &$items) {
         $field_type       = strstr($option['type'], 'string') ? 'string' : 'timestamp';
         $field_field      = $option['query_name'];
         $field_field_name = $option['field_name'];
-        $timestamp_fromto = $option['timestamp_fromto'];
-        $string_fromto    = $option['string_fromto'];
+        $fromto           = $option['fromto'];
         $tz_handling      = $option['tz_handling'];
         $label            = $data['label'];
 
@@ -511,8 +510,6 @@ function calendar_build_nodes(&$view, &$items) {
               break;
           }
         }
-
-        $fromto = array_merge($timestamp_fromto, $string_fromto);
 
         foreach ($items as $pos => $item) {
           // The query created from/to dates like 2007-12-31T01:30:00|2007-12-31T02:30:00,
