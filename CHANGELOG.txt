@@ -3,6 +3,7 @@ Views Calendar 5.x
 
 Version 2.0 dev
 ===============
+- #272263 Make sure empty ical stream doesn't get into cache.
 - Cleanup calendar_info() values - we don't use granularity and only need one array for from/to.
 - #261610 Prepare for a jQuery popup in the calendar by adding a unique id to the 'node' and altering the date theme to surpress all other dates if $node->date_id is set.
 - #243172 Theme('calendar_empty') should be theme('calendar_empty_day'), patch by JohnAlbin.
