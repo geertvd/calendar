@@ -93,6 +93,9 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
         $new_nodes = array();
         $calendars = date_ical_import($filename);
         foreach ($calendars as $calendar) {
+          if (empty($calendar) || empty($calendar['VEVENT'])) {
+            continue;
+          }
           foreach ($calendar['VEVENT'] as $key => $value) {
             if (empty($value['DTSTART'])) continue;
             $node = new stdClass();
@@ -118,8 +121,10 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
             $new_nodes[$value['UID']] = $node;
           }
         }
-        //cache_set('calendar_feeds_'. $view->name .':'. $feed['url'], $new_nodes, calendar_ical_cache(), $expire);
-        $nodes += (array) $new_nodes;
+        if (!empty($new_nodes)) {
+          cache_set('calendar_feeds_'. $view->name .':'. $feed['url'], $new_nodes, calendar_ical_cache(), $expire);
+          $nodes += (array) $new_nodes;
+        }
         break;
       }
     }
