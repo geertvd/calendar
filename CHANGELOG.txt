@@ -5,6 +5,7 @@ See documentation at http://drupal.org/node/262064.
 
 Version 2.0 dev
 =================
+- Remove as many dependencies as possible from install files and auto-enable necessary modules.
 - #272263 Make sure empty ical stream doesn't get into cache.
 - #272732 Fix missing php closing tag.
 - #261610 Prepare for a jQuery popup in the calendar by adding a unique id to the 'node' and altering the date theme to surpress all other dates if $node->date_id is set.
