@@ -313,7 +313,8 @@ function calendar_build_nodes(&$view, &$items) {
           $node->label = $label;
           $node->format = $format;
           $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
-          //$node->url = 'node/'. $node->nid;
+          $node->url = url("node/$node->nid", array('absolute' => TRUE));
+
           $node->$fromto[0] = $values[0];
           $node->$fromto[1] = $values[1];
           

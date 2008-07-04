@@ -117,8 +117,8 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
           $node->all_day = $value['DTSTART']['all_day'];
           $node->stripe = $feed['stripe'];
           $node->remote = TRUE;
-          $node->uid = $value['uid'] ? $value['UID'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
-          $node->url = $value['URL'] ? $value['URL'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
+          $node->uid = $value['uid'] ? $value['UID'] : (is_numeric($node->nid) ? url("node/$node->nid", array('absolute' => TRUE)) : $node->nid);
+          $node->url = $value['URL'] ? $value['URL'] : (is_numeric($node->nid) ? url("node/$node->nid", array('absolute' => TRUE)) : $node->nid);
           $node->calendar_node_theme = 'calendar_ical_node';
           $node->calendar_field_theme = 'calendar_ical_field';
           $new_nodes[$value['UID']] = $node;
