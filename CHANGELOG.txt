@@ -3,6 +3,7 @@ Views Calendar 5.x
 
 Version 2.0 dev
 ===============
+- #266623 Protect against foreach() errors on empty ical feeds.
 - PHP4 can't do comparisons of date objects, so alter calendar comparison code to compare formatted dates instead.
 - #275213 Arguments were reversed in date_week_range().
 - Remove as many dependencies as possible from install files and auto-enable necessary modules.

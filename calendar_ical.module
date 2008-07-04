@@ -105,10 +105,13 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
         $filename = $feed['url'];
         $new_nodes = array();
         $calendars = date_ical_import($filename);
-        if (empty($calendar) || empty($calendar['VEVENT'])) {
+        if (empty($calendars)) {
           continue;
         }
         foreach ($calendars as $calendar) {
+          if (empty($calendar) || empty($calendar['VEVENT'])) {
+            continue;
+          }
           foreach ($calendar['VEVENT'] as $key => $value) {
             if (empty($value['DTSTART'])) continue;
             $node = new stdClass();
