@@ -84,8 +84,8 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
       $nodes += (array) $cached->data;
     }
     else {
-     $expire = intval(variable_get('calendar_ical_expire_'. $view->name, 9676800) + time());
-     include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
+      $expire = intval(variable_get('calendar_ical_expire_'. $view->name, 9676800) + time());
+      include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
 
       switch ($feed['type']) {
       case 'ical':
@@ -93,33 +93,35 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
         $new_nodes = array();
         $calendars = date_ical_import($filename);
         foreach ($calendars as $calendar) {
+        if (empty($calendars)) {
+          continue;
+        }
+        foreach ($calendars as $calendar) {
           if (empty($calendar) || empty($calendar['VEVENT'])) {
             continue;
           }
-          foreach ($calendar['VEVENT'] as $key => $value) {
-            if (empty($value['DTSTART'])) continue;
-            $node = new stdClass();
-            $node->nid = $value['UID'];
-            $node->title = $value['SUMMARY'];
-            $node->label = $feed['name'];
-            $node->teaser =  $value['DESCRIPTION'];
-            $node->calendar_start_date = date_ical_date($value['DTSTART'], $value['DTSTART']['tz']);
-            $node->calendar_start = date_format_date($node->calendar_start_date, 'custom', DATE_FORMAT_DATETIME);
-            $node->calendar_end_date = date_ical_date($value['DTEND'], $value['DTEND']['tz']);
-            $node->calendar_end = date_format_date($node->calendar_end_date, 'custom', DATE_FORMAT_DATETIME);
-            $show_tz = ' e';
-            $granularity = $value['DTSTART']['type'] == 'DATE' ? array('year', 'month', 'day') : array('year', 'month', 'day', 'hour', 'minute', 'second');
-            $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
-            $node->format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), $granularity) . $show_tz;
-            $node->all_day = $value['DTSTART']['all_day'];
-            $node->stripe = $feed['stripe'];
-            $node->remote = TRUE;
-            $node->uid = $value['uid'] ? $value['UID'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
-            $node->url = $value['URL'] ? $value['URL'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
-            $node->calendar_node_theme = 'calendar_ical_node';
-            $node->calendar_field_theme = 'calendar_ical_field';
-            $new_nodes[$value['UID']] = $node;
-          }
+          if (empty($value['DTSTART'])) continue;
+          $node = new stdClass();
+          $node->nid = $value['UID'];
+          $node->title = $value['SUMMARY'];
+          $node->label = $feed['name'];
+          $node->teaser =  $value['DESCRIPTION'];
+          $node->calendar_start_date = date_ical_date($value['DTSTART'], $value['DTSTART']['tz']);
+          $node->calendar_start = date_format_date($node->calendar_start_date, 'custom', DATE_FORMAT_DATETIME);
+          $node->calendar_end_date = date_ical_date($value['DTEND'], $value['DTEND']['tz']);
+          $node->calendar_end = date_format_date($node->calendar_end_date, 'custom', DATE_FORMAT_DATETIME);
+          $show_tz = ' e';
+          $granularity = $value['DTSTART']['type'] == 'DATE' ? array('year', 'month', 'day') : array('year', 'month', 'day', 'hour', 'minute', 'second');
+          $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
+          $node->format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), $granularity) . $show_tz;
+          $node->all_day = $value['DTSTART']['all_day'];
+          $node->stripe = $feed['stripe'];
+          $node->remote = TRUE;
+          $node->uid = $value['uid'] ? $value['UID'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
+          $node->url = $value['URL'] ? $value['URL'] : (is_numeric($node->nid) ? url("node/$node->nid", NULL, NULL, 1) : $node->nid);
+          $node->calendar_node_theme = 'calendar_ical_node';
+          $node->calendar_field_theme = 'calendar_ical_field';
+          $new_nodes[$value['UID']] = $node;
         }
         if (!empty($new_nodes)) {
           cache_set('calendar_feeds_'. $view->name .':'. $feed['url'], $new_nodes, calendar_ical_cache(), $expire);
