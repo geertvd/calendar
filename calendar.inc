@@ -236,7 +236,6 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
   // move backwards to the first day of the week
   $day_wday = date_format($curday, 'w');
   date_modify($curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
-  $curday_date = date_format($curday, 'Y-m-d');
   
   // If we're displaying the week number, add it as the
   // first cell in the week.
@@ -247,6 +246,7 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
       'class' => 'week');
   }
   for ($i = 0; $i < 7; $i++) {
+    $curday_date = date_format($curday, 'Y-m-d');
     if ($check_month && ($curday_date < $view->min_date_date || $curday_date > $view->max_date_date || date_format($curday, 'n') != $month)) {
       $class = strtolower($weekdays[$i] .
       ($view->mini ? ' mini' : ''));
