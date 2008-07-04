@@ -128,7 +128,9 @@ function _calendar_views_query_alter(&$query, &$view) {
   $view->week = $query->week;
   $view->min_date = $query->min_date;
   $view->max_date = $query->max_date;
-
+  $view->min_date_date = date_format($view->min_date, 'Y-m-d');
+  $view->max_date_date = date_format($view->max_date, 'Y-m-d');
+   
   // Identify the kind of display we're using for this view.
   // Check first for 'view' in url to get displays set by the switch
   // block, then for 'calendar_display_format' variable to get displays
@@ -155,8 +157,8 @@ function calendar_build_calendar($view, $items, $params) {
   // Remove nodes outside the selected date range.
   $values = array();
   foreach ($items as $delta => $item) {
-    if (($item->calendar_start_date >= $view->min_date && $item->calendar_start_date <= $view->max_date)
-     || ($item->calendar_end_date >= $view->min_date && $item->calendar_end_date <= $view->max_date)) {
+    if (($item->calendar_start >= $view->min_date_date && $item->calendar_start <= $view->max_date_date)
+     || ($item->calendar_end >= $view->min_date_date && $item->calendar_end <= $view->max_date_date)) {
       $values[date_format($item->calendar_start_date, 'Y-m-d')][date_format($item->calendar_start_date, 'Y-m-d')][] = $item;
     }
   }
@@ -210,7 +212,7 @@ function calendar_build_month(&$curday, $view, $items, $params) {
   $rows = array();
   do {
     $rows = array_merge($rows, calendar_build_week($curday, $view, $items, $params, TRUE));
-  } while (date_format($curday, 'n') == $month && $curday <= $view->max_date);
+  } while (date_format($curday, 'n') == $month && date_format($curday, 'Y-m-d') <= $view->max_date_date);
 
   // Merge the day names in as the first row.
   $len = variable_get('calendar_day_header_'. $view->name, 1);
@@ -232,7 +234,8 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
   // move backwards to the first day of the week
   $day_wday = date_format($curday, 'w');
   date_modify($curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
-
+  $curday_date = date_format($curday, 'Y-m-d');
+  
   // If we're displaying the week number, add it as the
   // first cell in the week.
   if ($params['with_weekno'] && $view->calendar_type != 'day') {
@@ -241,9 +244,8 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
       'data' => l($week, $url, NULL, $params['append']),
       'class' => 'week');
   }
-
   for ($i = 0; $i < 7; $i++) {
-    if ($check_month && ($curday < $view->min_date || $curday > $view->max_date || date_format($curday, 'n') != $month)) {
+    if ($check_month && ($curday_date < $view->min_date_date || $curday_date > $view->max_date_date || date_format($curday, 'n') != $month)) {
       $class = strtolower($weekdays[$i] .
       ($view->mini ? ' mini' : ''));
       $content = theme('calendar_empty_day');
@@ -251,15 +253,15 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
     else {
       $content = calendar_build_day($curday, $view, $items, $params);
       $class = strtolower($weekdays[$i] .
-      (date_format($curday, 'Y-m-d') == $today ? ' today' : '') .
-      (date_format($curday, 'Y-m-d') < $today ? ' past' : '') .
-      (date_format($curday, 'Y-m-d') > $today ? ' future' : '') .
+      ($curday_date == $today ? ' today' : '') .
+      ($curday_date < $today ? ' past' : '') .
+      ($curday_date > $today ? ' future' : '') .
       ($view->mini ? ' mini' : ''));
     }
 
     $rows[$week][] = array(
       'data' => $view->mini ? $content : '<div class="inner">'. $content .'</div>',
-      'class' => $class, 'id' => $view->name . '-' . date_format($curday, 'Y-m-d'));
+      'class' => $class, 'id' => $view->name . '-' . $curday_date);
 
     date_modify($curday, '+1 day');
   }
@@ -271,6 +273,7 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
  * Build the contents of a single day for the $rows results.
  */
 function calendar_build_day($curday, $view, $items, $params) {
+  $curday_date = date_format($curday, 'Y-m-d');
   $nextday = drupal_clone($curday);
   date_modify($nextday, '+1 day');
   $inner = '';
