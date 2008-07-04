@@ -230,7 +230,6 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
   $today = date_format(date_now(date_default_timezone_name()), 'Y-m-d');
   $month = date_format($curday, 'n');
   $week = date_week(date_format($curday, 'Y-m-d'));
-
   $first_day = variable_get('date_first_day', 0);
 
   // move backwards to the first day of the week
@@ -541,7 +540,7 @@ function calendar_build_nodes(&$view, &$items) {
               $node->label = $label;
               $node->format = $format;
               $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
-              $node->url = 'node/'. $node->nid;
+              $node->url = url("node/$node->nid", NULL, NULL, TRUE);
 
               // Convert the table.field format in the fromto fields
               // to the table_field format used by the Views formatters.
