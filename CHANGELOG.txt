@@ -5,6 +5,7 @@ See documentation at http://drupal.org/node/262064.
 
 Version 2.0 dev
 =================
+- #258501 Make sure calendar.inc is included when creating ical feed.
 - #258515 Fix url in ical export.
 - #266623 Protect against foreach() errors on empty ical feeds.
 - PHP4 can't do comparisons of date objects, so alter calendar comparison code to compare formatted dates instead.
