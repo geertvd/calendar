@@ -224,7 +224,7 @@ function calendar_filter_week(&$query, $arg) {
   $arg = str_replace('W', '', $arg);
   $query->calendar_type = 'week';
   $query->week = calendar_part_is_valid($arg, 'week') ? $arg : NULL;
-  $range = date_week_range($query->year, $query->week);
+  $range = date_week_range($query->week, $query->year);
   $query->month = date_format($range[0], 'n');
   $query->day = date_format($range[0], 'j');
 }

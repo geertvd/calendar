@@ -3,6 +3,7 @@ Views Calendar 5.x
 
 Version 2.0 dev
 ===============
+- #275213 Arguments were reversed in date_week_range().
 - Remove as many dependencies as possible from install files and auto-enable necessary modules.
 - #272263 Make sure empty ical stream doesn't get into cache.
 - Cleanup calendar_info() values - we don't use granularity and only need one array for from/to.

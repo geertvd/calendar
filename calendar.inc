@@ -345,7 +345,7 @@ function calendar_build_filter(&$query, &$view) {
   $now = date_now();
 
   if ($query->calendar_type == 'week' && calendar_part_is_valid($query->week, 'week')) {
-    $range = date_week_range($query->year, $query->week);
+    $range = date_week_range($query->week, $query->year);
     $date = $range[0];
     $max_date = $range[1];
   } else {
