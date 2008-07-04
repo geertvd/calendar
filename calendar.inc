@@ -11,8 +11,8 @@ function calendar_build_calendar($view, $items) {
   // Remove nodes outside the selected date range.
   $values = array();
   foreach ($items as $delta => $item) {
-    if (($item->calendar_start_date >= $view->min_date && $item->calendar_start_date <= $view->max_date)
-     || ($item->calendar_end_date >= $view->min_date && $item->calendar_end_date <= $view->max_date)) {
+    if (($item->calendar_start >= $view->min_date_date && $item->calendar_start <= $view->max_date_date)
+     || ($item->calendar_end >= $view->min_date_date && $item->calendar_end <= $view->max_date_date)) {
       $values[date_format($item->calendar_start_date, 'Y-m-d')][date_format($item->calendar_start_date, 'H')][] = $item;
     }
   }
@@ -56,12 +56,14 @@ function calendar_build_calendar($view, $items) {
  */
 function calendar_build_month(&$curday, $view, $items) {
   $month = date_format($curday, 'n');
+  $curday_date = date_format($curday, 'Y-m-d');
+  
   date_modify($curday, '-' . strval(date_format($curday, 'j')-1) . ' days');
 
   $rows = array();
   do {
     $rows = array_merge($rows, calendar_build_week($curday, $view, $items, TRUE));
-  } while (date_format($curday, 'n') == $month && $curday <= $view->max_date);
+  } while (date_format($curday, 'n') == $month && $curday_date <= $view->max_date_date);
 
   // Merge the day names in as the first row.
   $rows = array_merge(array(calendar_week_header($view)), $rows);
@@ -82,7 +84,8 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
   // move backwards to the first day of the week
   $day_wday = date_format($curday, 'w');
   date_modify($curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
-
+  $curday_date = date_format($curday, 'Y-m-d');
+  
   // If we're displaying the week number, add it as the
   // first cell in the week.
   if (!empty($view->with_weekno) && $view->granularity != 'day') {
@@ -94,7 +97,7 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
   }
 
   for ($i = 0; $i < 7; $i++) {
-    if ($check_month && ($curday < $view->min_date || $curday > $view->max_date || date_format($curday, 'n') != $month)) {
+    if ($check_month && ($curday_date < $view->min_date_date || $curday_date > $view->max_date_date || date_format($curday, 'n') != $month)) {
       $class = strtolower($weekdays[$i] .
       ($view->mini ? ' mini' : ''));
       $content = theme('calendar_empty_day');
@@ -395,6 +398,8 @@ function calendar_week_range(&$view) {
     date_timezone_set($max_date, timezone_open('UTC'));
     $view->min_date = $min_date;
     $view->max_date = $max_date;
+    $view->min_date_date = date_format($view->min_date, 'Y-m-d');
+    $view->max_date_date = date_format($view->max_date, 'Y-m-d');
     return array($min_date, $max_date);
   }
   return array();
