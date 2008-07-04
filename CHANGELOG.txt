@@ -3,6 +3,7 @@ Views Calendar 5.x
 
 Version 2.0 dev
 ===============
+- #234070 Fix broken ical title.
 - #258501 Make sure calendar.inc is included when creating ical feed.
 - #258515 Fix url in ical export.
 - #266623 Protect against foreach() errors on empty ical feeds.
