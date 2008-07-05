@@ -47,8 +47,12 @@ function calendar_ical_calendar_add_items($view) {
   $items = array();
   $feeds = calendar_ical_add_feeds($view);
   foreach ($feeds as $feed) {
-    if (is_object($feed->calendar_start_date) && is_object($feed->calendar_end_date)) {
-      if (date_format($feed->calendar_start_date, DATE_FORMAT_DATETIME) >= date_format($view->min_date, DATE_FORMAT_DATETIME) && date_format($feed->calendar_end_date, DATE_FORMAT_DATETIME) <= date_format($view->max_date, DATE_FORMAT_DATETIME)) {
+    if (!empty($feed->calendar_start) && !empty($feed->calendar_end)) {
+      if ($feed->calendar_start >= date_format($view->min_date, DATE_FORMAT_DATETIME) && $feed->calendar_end <= date_format($view->max_date, DATE_FORMAT_DATETIME)) {
+        // We have to add a calendar start and end object to the feed,
+        // the cached date objects will not work correctly.
+        $feed->calendar_start_date = date_make_date($feed->calendar_start, $feed->timezone);
+        $feed->calendar_end_date = date_make_date($feed->calendar_end, $feed->timezone);
         $items[] = $feed;
       }
     }
@@ -106,6 +110,7 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
           $node->title = $value['SUMMARY'];
           $node->label = $feed['name'];
           $node->teaser =  $value['DESCRIPTION'];
+          $node->timezone = $value['DTSTART']['tz'];
           $node->calendar_start_date = date_ical_date($value['DTSTART'], $value['DTSTART']['tz']);
           $node->calendar_start = date_format_date($node->calendar_start_date, 'custom', DATE_FORMAT_DATETIME);
           $node->calendar_end_date = date_ical_date($value['DTEND'], $value['DTEND']['tz']);
