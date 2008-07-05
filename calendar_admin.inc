@@ -35,6 +35,7 @@ function _calendar_info() {
   cache_clear_all($cid, 'cache_views');
   $calendar_views = array();
   $calendar_types = calendar_view_types();
+  $calendar_fields = calendar_fields();
   $result = db_query("SELECT vid, name FROM {view_view} ORDER BY name");
   while ($v = db_fetch_object($result)) {
     $view = views_get_view($v->vid);
@@ -43,8 +44,19 @@ function _calendar_info() {
     $additions['name'] = $view->name;
     $additions['url'] = $view->url;
     $additions['args'] = array();
-    $additions['page'] = array_key_exists($view->page_type, $calendar_types);
-    $additions['block'] = array_key_exists($view->block_type, $calendar_types);
+    foreach ((array) $view->field as $delta => $field) {
+      if (in_array($field['field'], array_keys($calendar_fields))) {
+        $additions['fields'][$delta] = $field['id'];
+      }
+    }
+    if (!empty($additions['fields'])) {
+      $additions['page'] = array_key_exists($view->page_type, $calendar_types);
+      $additions['block'] = array_key_exists($view->block_type, $calendar_types);
+    }
+    else {
+      $additions['page'] = FALSE;
+      $additions['block'] = FALSE;
+    }
     foreach ((array) $view->argument as $delta => $argument) {
       if (in_array($argument['type'], calendar_args())) {
         $additions['args'][$delta] = $argument['id'];
@@ -62,8 +74,19 @@ function _calendar_info() {
       $additions['name'] = $view->name;
       $additions['url'] = $view->url;
       $additions['args'] = array();
-      $additions['page'] = array_key_exists($view->page_type, $calendar_types);
-      $additions['block'] = array_key_exists($view->block_type, $calendar_types);
+      foreach ((array) $view->field as $delta => $field) {
+        if (in_array($field['field'], array_keys($calendar_fields))) {
+          $additions['fields'][$delta] = $field['id'];
+        }
+      }
+      if (!empty($additions['fields'])) {
+        $additions['page'] = array_key_exists($view->page_type, $calendar_types);
+        $additions['block'] = array_key_exists($view->block_type, $calendar_types);
+      }
+      else {
+        $additions['page'] = FALSE;
+        $additions['block'] = FALSE;
+      }
       foreach ((array) $view->argument as $delta => $argument) {
         if (in_array($argument['type'], calendar_args())) {
           $additions['args'][$delta] = $argument['id'];
@@ -199,12 +222,21 @@ function _calendar_fields() {
  * Validate a view.
  */
 function _calendar_views_validate($type, $view, $form) {
+  $calendar_fields = array_keys(calendar_fields());
+  $fields = array();
+  
   // list (and table) modes require there to be at least 1 field active.
   if (is_array($view['field'])) {
-    $fields = array_filter(array_keys($view['field']), 'is_numeric');
+    foreach ($view['field'] as $key => $value) {
+      if (is_numeric($key)) {
+        if (in_array($view['field'][$key]['field'], $calendar_fields)) {
+          $fields[] = $view['field'][$key]['field'];
+        }
+      }
+    }
   }
-  if (!$fields) {
-    form_error($form["$type-info"][$type .'_type'], t('The Calendar View requires at least one field.'));
+  if ($form['field'] && !$fields) {
+    form_error($form['field'], t('The Calendar View requires at least one date field.'));
   }
 
   if (isset($view['field']['count'])) {

@@ -478,8 +478,10 @@ function calendar_url_append($view) {
  *  Function to test whether this is a view that uses the calendar plugin theme.
  */
 function calendar_is_calendar($view) {
-  $calendar_info = calendar_info();
-  return $calendar_info[$view->name][$view->build_type];
+  if ($calendar_info = calendar_info() && !empty($calendar_info[$view->name])) {
+    return $calendar_info[$view->name][$view->build_type];
+  }
+  return FALSE;
 }
 
 /**
@@ -487,7 +489,8 @@ function calendar_is_calendar($view) {
  */
 function calendar_has_calendar_args($view, $reset = FALSE) {
   $calendar_info = calendar_info();
-  if (count($calendar_info[$view->name]['args']) > 0) {
+  if (!empty($calendar_info) && !empty($calendar_info[$view->name]) 
+  && count($calendar_info[$view->name]['args']) > 0) {
     return TRUE;
   }
   else {

@@ -8,7 +8,6 @@
 function _calendar_views_query_alter(&$query, &$view) {
   // make sure block views default to the current month
   // and make sure day view is not selected
-
   $now = date_now();
   $view->real_args = $view->args;
   $view->real_url = calendar_real_url($view, $view->args);
