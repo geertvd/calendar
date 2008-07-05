@@ -498,7 +498,8 @@ function calendar_build_nodes(&$view, &$items) {
         $fromto           = $option['fromto'];
         $tz_handling      = $option['tz_handling'];
         $label            = $data['label'];
-
+        $fromto_alias     = array(str_replace('.', '_', $fromto[0]), str_replace('.', '_', $fromto[1]));
+        
         if (strstr($option['type'], 'cck')) {
           $format = date_formatter_format($data['options'], $field_field_name);
         }
@@ -525,7 +526,7 @@ function calendar_build_nodes(&$view, &$items) {
           // The query created from/to dates like 2007-12-31T01:30:00|2007-12-31T02:30:00,
           // explode those values and separate them into from and to dates on the node.
           if ($item->$field_field) {
-            $values = explode('|',  str_replace('T', ' ', $item->$field_field));
+            $values = array($item->$fromto_alias[0], $item->$fromto_alias[1]);
             if ($field_type != 'string') {
               $date = date_make_date($values[0], 'UTC', DATE_UNIX);
               $values[0] = date_format($date, DATE_FORMAT_DATETIME);
@@ -538,7 +539,7 @@ function calendar_build_nodes(&$view, &$items) {
             $now = max(date_format($min_utc, DATE_FORMAT_DATETIME), $values[0]);
             $to  = min(date_format($max_utc, DATE_FORMAT_DATETIME), $values[1]);
             $next = date_make_date($now, 'UTC');
-                          
+                                      
             if (empty($to)) {
               $to = $now;
             }
