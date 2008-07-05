@@ -478,7 +478,8 @@ function calendar_url_append($view) {
  *  Function to test whether this is a view that uses the calendar plugin theme.
  */
 function calendar_is_calendar($view) {
-  if ($calendar_info = calendar_info() && !empty($calendar_info[$view->name])) {
+  $calendar_info = calendar_info();
+  if (!empty($calendar_info) && !empty($calendar_info[$view->name])) {
     return $calendar_info[$view->name][$view->build_type];
   }
   return FALSE;

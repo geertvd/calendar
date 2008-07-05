@@ -25,10 +25,13 @@ function theme_calendar_views_summary(&$view, $type, $level, &$items, $args) {
  * to create a calendar view.
  */
 function theme_calendar_views_calendar(&$view, &$items, $type) {
+  // It is not safe to display the calendar theme if it is not a calendar
+  // view, lots of important information will be missing.
   if (!calendar_is_calendar($view)) {
     return;
   }
   include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
+  
   if ($type == 'block' || !calendar_is_calendar_arg($view)) {
     $view->calendar_type = 'month';
   }
