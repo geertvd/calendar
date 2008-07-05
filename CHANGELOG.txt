@@ -3,6 +3,7 @@ Views Calendar 5.x
 
 Version 2.0 dev
 ===============
+- #268668 Adjust comparison dates for timezone offsets to make sure multi-day events get split correctly.
 - The cached ical feed cannot be used to store date objects, recreate them as needed.
 - #234070 Fix broken ical title.
 - #258501 Make sure calendar.inc is included when creating ical feed.

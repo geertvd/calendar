@@ -481,6 +481,13 @@ function calendar_build_nodes(&$view, &$items) {
   $nodes = array();
   $i = 0;
 
+  // Translate the view min and max dates to UTC values
+  // so we can compare UTC dates to the view range.
+  $min_utc = drupal_clone($view->min_date);
+  date_timezone_set($min_utc, timezone_open('UTC'));
+  $max_utc = drupal_clone($view->max_date);
+  date_timezone_set($max_utc, timezone_open('UTC'));
+  
   // explode out field and format info from the view
   foreach ($view->field as $delta => $data) {
     if ($fields[$data['id']]['visible'] !== FALSE && array_key_exists($data['field'], $fields)) {
@@ -529,8 +536,10 @@ function calendar_build_nodes(&$view, &$items) {
 
             // Create a node for each date within the field's date range,
             // limited to the view's date range.
-            $now = max(date_format($view->min_date, 'Y-m-d'), substr($values[0], 0, 10));
-            $to  = min(date_format($view->max_date, 'Y-m-d'), substr($values[1], 0, 10));
+            $now = max(date_format($min_utc, DATE_FORMAT_DATETIME), $values[0]);
+            $to  = min(date_format($max_utc, DATE_FORMAT_DATETIME), $values[1]);
+            $next = date_make_date($now, 'UTC');
+                          
             if (empty($to)) {
               $to = $now;
             }
@@ -560,8 +569,11 @@ function calendar_build_nodes(&$view, &$items) {
                 }
               }
 
-              $start = $now .' 00:00:00';
-              $end = $now .' 23:59:59';
+              $start = date_format($next, DATE_FORMAT_DATETIME);
+              date_modify($next, '+1 day');
+              date_modify($next, '-1 second');
+              $end = date_format($next, DATE_FORMAT_DATETIME);
+              
               $node->calendar_start = $values[0] < $start ? $start : $values[0];
               $node->calendar_end = !empty($values[1]) ? ($values[1] > $end ? $end : $values[1]) : $node->calendar_start;
 
@@ -593,9 +605,8 @@ function calendar_build_nodes(&$view, &$items) {
                 $nodes[] = $node;
                 unset($node);
               }
-              $next = date_make_date($now, 'UTC');
-              date_modify($next, '+1 day');
-              $now = date_format($next, 'Y-m-d');
+              date_modify($next, '+1 second');
+              $now = date_format($next, DATE_FORMAT_DATETIME);
             }
           }
         }
