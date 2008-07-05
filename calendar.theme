@@ -26,7 +26,7 @@ function theme_calendar_views_summary(&$view, $type, $level, &$items, $args) {
  */
 function theme_calendar_views_calendar(&$view, &$items, $type) {
   if (!calendar_is_calendar($view)) {
-    return theme('calendar_view_list', $view, $items, $type);
+    return;
   }
   include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
   if ($type == 'block' || !calendar_is_calendar_arg($view)) {
