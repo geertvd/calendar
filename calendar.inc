@@ -486,7 +486,7 @@ function calendar_build_nodes(&$view, &$items) {
   date_timezone_set($min_utc, timezone_open('UTC'));
   $max_utc = drupal_clone($view->max_date);
   date_timezone_set($max_utc, timezone_open('UTC'));
-  
+
   // explode out field and format info from the view
   foreach ($view->field as $delta => $data) {
     if ($fields[$data['id']]['visible'] !== FALSE && array_key_exists($data['field'], $fields)) {
@@ -533,13 +533,17 @@ function calendar_build_nodes(&$view, &$items) {
               $date = date_make_date($values[1], 'UTC', DATE_UNIX);
               $values[1] = date_format($date, DATE_FORMAT_DATETIME);
             }
+            else {
+              $values[0] = str_replace('T', ' ', $values[0]);
+              $values[1] = str_replace('T', ' ', $values[1]);
+            }
 
             // Create a node for each date within the field's date range,
             // limited to the view's date range.
             $now = max(date_format($min_utc, DATE_FORMAT_DATETIME), $values[0]);
             $to  = min(date_format($max_utc, DATE_FORMAT_DATETIME), $values[1]);
             $next = date_make_date($now, 'UTC');
-                                      
+            
             if (empty($to)) {
               $to = $now;
             }
