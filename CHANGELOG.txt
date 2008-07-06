@@ -3,6 +3,11 @@ Views Calendar 5.x
 
 Version 2.0 dev
 ===============
+
+Version 2.0-rc2
+===============
+
+- #261610 Make sure delta value is available for jcalendar popup display.
 - #255984 Make popup calendar date selector a configurable value.
 - #251094 Make weekno a configurable value.
 - #259127 Remove ajax back/next navigation on mini calendar, it's not working well enough.
@@ -38,8 +43,8 @@ Version 2.0 dev
 - #242686 Fix spelling errors.
 - #240297 make sure id has a value.
 
-Version 2.0rc
-=============
+Version 2.0-rc
+==============
 - Make sure new required modules get enabled during the update.
 - Fix To time in calendar, was incorrectly picking up a :59 value.
 - Make sure min and max dates are in localtime.

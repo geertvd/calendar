@@ -12,6 +12,14 @@ function _calendar_views_query_alter(&$query, &$view) {
   $view->real_args = $view->args;
   $view->real_url = calendar_real_url($view, $view->args);
   $display_formats = calendar_get_formats($view);
+  
+  $calendar_fields = calendar_fields();
+  foreach ($view->field as $field) {
+    if (in_array($field['field'], array_keys($calendar_fields))) {
+      $calendar_field = $calendar_fields[$field['field']];
+      $query->add_field($calendar_field['delta_field'], $calendar_field['table']);
+    }
+  }
 
   if ($view->build_type == 'block') {
     $query->calendar_type = 'month';
