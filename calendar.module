@@ -24,8 +24,6 @@ function calendar_menu($may_cache) {
 
     drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
     define('CALENDAR_EMPTY_ARG', variable_get('calendar_empty_arg', 'all'));
-    drupal_add_js(drupal_get_path('module', 'calendar') .'/calendarblock.js');
-    drupal_add_js('misc/progress.js');
 
     include_once(drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
     $first = TRUE;

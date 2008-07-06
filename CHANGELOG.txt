@@ -3,6 +3,7 @@ Views Calendar 5.x
 
 Version 2.0 dev
 ===============
+- #259127 Remove ajax back/next navigation on mini calendar, it's not working well enough.
 - #247215 Make sure default calendar view and block are not triggered if there is no date field and add validation to the view to require a date field.
 - #268668 Adjust comparison dates for timezone offsets to make sure multi-day events get split correctly.
 - The cached ical feed cannot be used to store date objects, recreate them as needed.

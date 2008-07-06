@@ -31,7 +31,6 @@ function theme_calendar_views_calendar(&$view, &$items, $type) {
     return;
   }
   include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
-  
   if ($type == 'block' || !calendar_is_calendar_arg($view)) {
     $view->calendar_type = 'month';
   }
@@ -66,10 +65,6 @@ function theme_calendar_views_calendar(&$view, &$items, $type) {
         $params['with_weekno'] = FALSE;
       }
       $out =  calendar_build_calendar($view, $items, $params);
-  }
-  if ($_GET['view'] == 'ajax') {
-    print $out;
-    exit;
   }
   return $out;
 }
