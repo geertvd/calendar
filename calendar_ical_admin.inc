@@ -17,6 +17,14 @@ function _calendar_ical_setup_form($view_name) {
   $form = array();
   $view = views_get_view($view_name);
 
+  if ($view->page && $view->page_title || $view->block && $view->block_title || $view->description) {
+    $title = $view->page && $view->page_title ? $view->page_title : ($view->block && $view->block_title ? $view->block_title : '');
+    $form['markup'] = array(
+      '#type' => 'markup',
+      '#value' => '<h2>'. $title . '</h2>' . (!empty($view->description) ? '<p><em>'. $view->description .'</em></p>' : '') . ($view->page && $view->url ? '<p><strong>URL:</strong> '. l($view->url, $view->url) .'</p>' : ''),
+      );
+  }  
+
   // Create an example of all the stripe colors below the form.
   for ($i = 0; $i < 10; $i++) {
     $node = new stdClass();

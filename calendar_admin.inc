@@ -300,7 +300,7 @@ function _calendar_setup_form($view_name) {
     $title = $view->page && $view->page_title ? $view->page_title : ($view->block && $view->block_title ? $view->block_title : '');
     $form['markup'] = array(
       '#type' => 'markup',
-      '#value' => '<h2>'. $title . ($title && $view->description ? ': ' : '') . $view->description .'</h2>'. ($view->page && $view->url ? '<p><strong>URL:</strong> '. l($view->url, $view->url) .'</p>' : ''),
+      '#value' => '<h2>'. $title . '</h2>' . (!empty($view->description) ? '<p><em>'. $view->description .'</em></p>' : '') . ($view->page && $view->url ? '<p><strong>URL:</strong> '. l($view->url, $view->url) .'</p>' : ''),
       );
   }  
   $form['calendar_time_format'] = array(
