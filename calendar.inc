@@ -303,13 +303,11 @@ function calendar_build_nodes(&$view, &$items) {
         $now = max(date_format($min_utc, DATE_FORMAT_DATETIME), $values[0]);
         $to  = min(date_format($max_utc, DATE_FORMAT_DATETIME), $values[1]);
         $next = date_make_date($now, 'UTC');
-
         if (empty($to)) {
           $to = $now;
         }
         while ($now <= $to) {
           $node = drupal_clone($item);
-          
           // Make sure the pseudo node has the same properties a
           // regular node would have.
           if (isset($node->node_title) && !isset($node->title)) {
