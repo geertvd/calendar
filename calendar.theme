@@ -59,7 +59,7 @@ function theme_calendar_views_calendar(&$view, &$items, $type) {
       if (!empty($formats['week'])
       && $view->build_type != 'block'
       && $view->calendar_type == 'month') {
-        $params['with_weekno'] = TRUE;
+        $params['with_weekno'] = variable_get('calendar_weekno_'. $view->name, 1);
       }
       else {
         $params['with_weekno'] = FALSE;
@@ -306,7 +306,7 @@ function theme_calendar_links($view, $links = FALSE) {
       $calendar_links[] = array('title' => t('Day'), 'href' => $view->real_url .'/'. $view->year .'/'. $view->month .'/'. $view->day, 'query' => $append);
     }
     // If the Date Popup module is enabled, add a popup date selector.
-    if (module_exists('date_popup')) {
+    if (module_exists('date_popup') && variable_get('calendar_popup_'. $view->name, module_exists('date_popup'))) {
       $output = '<div class="clear-block">'. calendar_date_select($view) .'</div>';
     }
     $output .= theme('links', $calendar_links);

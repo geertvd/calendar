@@ -86,6 +86,8 @@ function calendar_uninstall() {
   $ret = array();
   variable_del('calendar_empty_arg');
   foreach (array_keys(calendar_info()) as $view_name) {
+    variable_del('calendar_date_popup_'. $view_name);
+    variable_del('calendar_weekno_'. $view_name);
     variable_del('calendar_time_format_'. $view_name);
     variable_del('calendar_display_format_'. $view_name);
   }

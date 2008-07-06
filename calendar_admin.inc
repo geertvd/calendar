@@ -317,6 +317,20 @@ function _calendar_setup_form($view_name) {
     '#options' => drupal_map_assoc(range(1, 3)),
     '#description' => t('The number of letters to show for mini calendar day of week names.'),
     );
+  $form['calendar_weekno'] = array(
+    '#title' => t('Show week numbers'),
+    '#type' => 'select',
+    '#options' => array(0 => t('No'), 1 => t('Yes')),
+    '#default_value' => variable_get('calendar_weekno_'. $view->name, 1),
+    '#description' => t('Whether or not to display a clickable week number link on the left side of each calendar week.')
+    );    
+  $form['calendar_popup'] = array(
+    '#title' => t('Popup date selector'),
+    '#type' => 'select',
+    '#options' => array(0 => t('No'), 1 => t('Yes')),
+    '#default_value' => variable_get('calendar_popup_'. $view->name, module_exists('date_popup')),
+    '#description' => t('Whether or not to display a popup date selector to change the calendar period. (Only works when the Date Popup module is enabled.)')
+    );
 
   $display_options = array('calendar' => t('Calendar'), 'table' => t('Table'), 'teasers' => t('Teasers'), 'nodes' => t('Full Nodes'), 'list' => t('List'), '' => t('None'));
   $display_format = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar', 'block' => 'calendar'));
@@ -396,6 +410,8 @@ function _calendar_setup_form_submit($form_id, $form_values) {
      break;
     }
   }
+  variable_set('calendar_weekno_'. $view_name, check_plain($form_values['calendar_weekno']));
+  variable_set('calendar_popup_'. $view_name, check_plain($form_values['calendar_popup']));
   variable_set('calendar_display_format_'. $view_name, $display_format);
 }
 
