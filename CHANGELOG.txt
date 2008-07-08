@@ -7,6 +7,7 @@ Version 2.0 dev
 Version 2.0-rc2
 ===============
 
+- #279169 Get rid of calendar_info() function in uninstall.
 - #261610 Make sure delta value is available for jcalendar popup display.
 - #255984 Make popup calendar date selector a configurable value.
 - #251094 Make weekno a configurable value.
