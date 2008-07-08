@@ -32,7 +32,7 @@ function get_calendar_node($nid, $id) {
     if (node_access("view", $node)) {
       $GLOBALS['devel_shutdown'] = FALSE;
       $node->date_id = $id;
-      echo node_view($node, TRUE);
+      print(theme('jcalendar_view', $node);
     }
   }
 }
@@ -65,4 +65,15 @@ function jcalendar_views_pre_view(&$view, &$display_id) {
     drupal_add_js($path .'/jcalendar.js');
     drupal_add_css($path .'/jcalendar.css');
   }
+}
+
+/**
+ * Overrideable theme for the jcalendar popup view.
+ * 
+ * Defaults to show the standard teaser view of the node.
+ */
+function theme_jcalendar_view($node) {
+  $output = node_view($node, TRUE);
+  $output .= '<div id="nodelink"><a href="'. url('node/'. $node->nid) .'">More</a></div>';
+  return $output;
 }
