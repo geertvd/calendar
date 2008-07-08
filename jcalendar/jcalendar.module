@@ -77,6 +77,6 @@ function jcalendar_views_pre_view(&$view) {
  */
 function theme_jcalendar_view($node) {
   $output = node_view($node, TRUE);
-  $output .= '<div id="nodelink"><a href="'. url('node/'. $node->nid) .'">More</a></div>';
+  $output .= '<div id="nodelink"><a href="'. url('node/'. $node->nid) .'">'. t('more') .'</a></div>';
   return $output;
 }
