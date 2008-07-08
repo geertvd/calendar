@@ -68,12 +68,21 @@ function jcalendar_views_pre_view(&$view, &$display_id) {
 }
 
 /**
+ * Implementation of hook_theme().
+ */
+function jcalendar_theme() {
+ return array(
+   'jcalendar_view' => array('arguments' => array('node' => NULL)),
+   );
+}
+
+/**
  * Overrideable theme for the jcalendar popup view.
  * 
  * Defaults to show the standard teaser view of the node.
  */
 function theme_jcalendar_view($node) {
   $output = node_view($node, TRUE);
-  $output .= '<div id="nodelink"><a href="'. url('node/'. $node->nid) .'">More</a></div>';
+  $output .= '<div id="nodelink"><a href="'. url('node/'. $node->nid) .'">'. t('more') .'</a></div>';
   return $output;
 }
