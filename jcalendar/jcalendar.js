@@ -20,8 +20,8 @@ if (Drupal.jsEnabled) {
       // This is a hack. In D6 do it right with $.css.offset()
       var x = a.pageX;
       var y = a.pageY;
-      $('#calpopup').css('left', x - 100);
-      $('#calpopup').css('top', y + 25);
+      $('#calpopup').css('left', (x - 100) + "px");
+      $('#calpopup').css('top', (y + 25) + "px");
       
       // Show Popup
       $('#calpopup').fadeIn('slow');
