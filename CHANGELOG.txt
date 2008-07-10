@@ -5,6 +5,8 @@ See documentation at http://drupal.org/node/262064.
 
 Version 2.0 dev
 =================
+
+- #279195 Remove deprecated calendar_week_range().
 - Set min_date_date and max_date_date in the view object so calendar can be written.
 - #278267 Add a theme for the jcalendar popup.
 - #259127 Remove ajax back/next navigation on mini calendar, it's not working well enough.

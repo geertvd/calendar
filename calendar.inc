@@ -383,41 +383,6 @@ function calendar_build_nodes(&$view, &$items) {
 }
 
 /**
- * Set the start and end dates for a calendar week.
- */
-function calendar_week_range(&$view) {
-  if (isset($view->week)) {
-    $min_date = date_make_date($view->year .'-01-01 00:00:00', date_default_timezone_name());
-    date_timezone_set($min_date, date_default_timezone());
-
-    // move to the right week
-    date_modify($min_date, '+' . strval(7*($view->week-1)) . ' days');
-
-    // move backwards to the first day of the week
-    $first_day = variable_get('date_first_day', 0);
-    $day_wday = date_format($min_date, 'w');
-    date_modify($min_date, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
-
-    // move forwards to the last day of the week
-    $max_date = drupal_clone($min_date);
-    date_modify($max_date, '+7 days');
-
-    if (date_format($min_date, 'Y') != $view->year) {
-      $min_date = date_make_date($view->year .'-01-01 00:00:00', date_default_timezone());
-    }
-
-    date_timezone_set($min_date, timezone_open('UTC'));
-    date_timezone_set($max_date, timezone_open('UTC'));
-    $view->min_date = $min_date;
-    $view->max_date = $max_date;
-    $view->min_date_date = date_format($view->min_date, 'Y-m-d');
-    $view->max_date_date = date_format($view->max_date, 'Y-m-d');
-    return array($min_date, $max_date);
-  }
-  return array();
-}
-
-/**
  *  Identify all potential date/timestamp fields.
  *
  *  @return
