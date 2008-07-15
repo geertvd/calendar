@@ -169,7 +169,7 @@ function calendar_build_calendar($view, $items, $params) {
     $item_end = date_format($item->calendar_end_date, 'Y-m-d');
     if (($item_start >= $view->min_date_date && $item_start <= $view->max_date_date)
      || ($item_end >= $view->min_date_date && $item_end <= $view->max_date_date)) {
-      $values[date_format($item->calendar_start_date, 'Y-m-d')][date_format($item->calendar_start_date, 'Y-m-d')][] = $item;
+      $values[$item_start][$item_start][] = $item;
     }
   }
   $items = $values;
@@ -221,7 +221,9 @@ function calendar_build_month(&$curday, $view, $items, $params) {
   $rows = array();
   do {
     $rows = array_merge($rows, calendar_build_week($curday, $view, $items, $params, TRUE));
-  } while (date_format($curday, 'n') == $month && date_format($curday, 'Y-m-d') <= $view->max_date_date);
+    $curday_date = date_format($curday, 'Y-m-d');
+    $curday_month = date_format($curday, 'n');
+  } while ($curday_month == $month && $curday_date <= $view->max_date_date);
 
   // Merge the day names in as the first row.
   $len = variable_get('calendar_day_header_'. $view->name, 1);
@@ -270,7 +272,7 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
     $rows[$week][] = array(
       'data' => $view->mini ? $content : '<div class="inner">'. $content .'</div>',
       'class' => $class, 'id' => $view->name . '-' . $curday_date);
-
+    
     date_modify($curday, '+1 day');
   }
 
@@ -282,12 +284,10 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
  */
 function calendar_build_day($curday, $view, $items, $params) {
   $curday_date = date_format($curday, 'Y-m-d');
-  $nextday = drupal_clone($curday);
-  date_modify($nextday, '+1 day');
   $inner = '';
   $selected = FALSE;
   foreach ($items as $date => $day) {
-    if ($date == date_format($curday, 'Y-m-d')) {
+    if ($date == $curday_date) {
       $selected = TRUE;
       ksort($day);
       foreach ($day as $time) {
@@ -303,7 +303,7 @@ function calendar_build_day($curday, $view, $items, $params) {
   if (empty($inner)) {
     $inner = theme('calendar_empty_day');
   }
-  $content = theme('calendar_date_box', date_format($curday, 'Y-m-d'), $view, $items, $params, $selected) . $inner;
+  $content = theme('calendar_date_box', $curday_date, $view, $items, $params, $selected) . $inner;
   return $content;
 }
 
