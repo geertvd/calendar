@@ -15,7 +15,7 @@ function calendar_build_calendar($view, $items) {
     $item_end = date_format($item->calendar_end_date, 'Y-m-d');
     if (($item_start >= $view->min_date_date && $item_start <= $view->max_date_date)
      || ($item_end >= $view->min_date_date && $item_end <= $view->max_date_date)) {
-      $values[date_format($item->calendar_start_date, 'Y-m-d')][date_format($item->calendar_start_date, 'H')][] = $item;
+      $values[$item_start][$item_start][] = $item;
     }
   }
   $items = $values;
@@ -58,14 +58,14 @@ function calendar_build_calendar($view, $items) {
  */
 function calendar_build_month(&$curday, $view, $items) {
   $month = date_format($curday, 'n');
-  $curday_date = date_format($curday, 'Y-m-d');
-  
   date_modify($curday, '-' . strval(date_format($curday, 'j')-1) . ' days');
 
   $rows = array();
   do {
     $rows = array_merge($rows, calendar_build_week($curday, $view, $items, TRUE));
-  } while (date_format($curday, 'n') == $month && $curday_date <= $view->max_date_date);
+    $curday_date = date_format($curday, 'Y-m-d');
+    $curday_month = date_format($curday, 'n');
+  } while ($curday_month == $month && $curday_date <= $view->max_date_date);
 
   // Merge the day names in as the first row.
   $rows = array_merge(array(calendar_week_header($view)), $rows);
@@ -127,12 +127,11 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
  * Build the contents of a single day for the $rows results.
  */
 function calendar_build_day($curday, $view, $items) {
-  $nextday = drupal_clone($curday);
-  date_modify($nextday, '+1 day');
+  $curday_date = date_format($curday, 'Y-m-d');
   $inner = '';
   $selected = FALSE;
   foreach ($items as $date => $day) {
-    if ($date == date_format($curday, 'Y-m-d')) {
+    if ($date == $curday_date) {
       $selected = TRUE;
       ksort($day);
       foreach ($day as $hour) {
@@ -148,7 +147,7 @@ function calendar_build_day($curday, $view, $items) {
   if (empty($inner)) {
     $inner = theme('calendar_empty_day');
   }
-  $content = theme('calendar_datebox', date_format($curday, 'Y-m-d'), $view, $items, $selected) . $inner;
+  $content = theme('calendar_datebox', $curday_date, $view, $items, $selected) . $inner;
   return $content;
 }
 
