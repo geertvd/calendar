@@ -398,7 +398,7 @@ function _calendar_legend_form($view_name) {
   $form = array();
   $form['markup'] = array(
     '#type' => 'markup',
-    '#value' => _calendar_settings_header($view) .  t('<p>Select a stripe color to use in the calendar legend for each content type.</p>'),
+    '#value' => _calendar_settings_header($view) .  t('<h3>Content Type</h3><p>Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Types with empty values will have no stripe in the calendar and will not be added to the legend.</p>'),
     ); 
   //TODO Add in methods other than content types for setting legend colors.
   $method =  variable_get('calendar_legend_method_'. $view_name, 'types');

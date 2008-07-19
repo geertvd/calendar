@@ -365,6 +365,9 @@ function theme_calendar_stripe_legend($stripe_labels) {
  * Add key value to text, then hide it with css for accessibility to screen readers
  */
 function theme_calendar_stripe_stripe($node) {
+  if (empty($node->stripe)) {
+    return;
+  }
   return '<div style="background-color:'. $node->stripe .';color:'. $node->stripe .'" class="stripe" title="Key: '. $node->stripe_label .'">Key '. $node->stripe_label .'</div>'."\n";
 }
 

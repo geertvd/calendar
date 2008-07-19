@@ -72,7 +72,7 @@ function _calendar_ical_setup_form($view_name) {
         '#type' => 'calendar_colorfield',
         '#default_value' => isset($feed['stripe']) ? $feed['stripe'] : '#ffffff',
         '#calendar_colorpicker' => $view_name .'-'. $delta .'-calendar-colorpicker',
-        '#description' => t('The hex color value to use for this feed\'s calendar stripe.'),
+        '#description' => t('The hex color value (like #ffffff) to use for this feed\'s calendar stripe.'),
        ),
     );
   }
