@@ -612,7 +612,7 @@ function calendar_build_nodes(&$view, &$items) {
                 $id = 'calendar:'. $item->nid .':'. $real_field .':'. $delta .':'. $pos;
                 $node->date_id = $id;
                 if ($view->build_type == 'page' && $view->calendar_type != 'year') {
-                  $node->stripe = calendar_node_stripe($view, $node, $field_field, $field_field);
+                  calendar_node_stripe($view, $node, $field_field, $field_field);
                 }
                 $nodes[] = $node;
                 unset($node);

@@ -338,16 +338,25 @@ function theme_calendar_nav_prev($url, $text = TRUE, $querystring = NULL) {
  * Format a node stripe legend
  */
 function theme_calendar_stripe_legend($stripe_labels) {
+  $view = $GLOBALS['current_view'];
   $header = array(
       array('class' => 'legend', 'data' => t('Item')),
       array('class' => 'legend', 'data' => t('Key'))
       );
-  foreach ($stripe_labels as $stripe => $label) {
-    $node = new StdClass();
-    $node->stripe = $stripe;
-    $rows[] = array($label, theme('calendar_stripe_stripe', $node), array('class' => 'stripe'));
+  $type_names = node_get_types('names');
+  $colors = variable_get('calendar_color_'. $view->name, array());
+  foreach ($type_names as $type_name => $type) {
+    if (!empty($colors[$type_name])) {
+      $label = $type_names[$type_name];
+      $stripe = $colors[$type_name];
+      $node = new StdClass();
+      $node->type = $type_name;
+      $node->stripe = $stripe;
+      $node->stripe_label = $label;
+      $rows[] = array($label, theme('calendar_stripe_stripe', $node));
+    }
   }
-  $output = theme('table', $header, $rows, array('class' => 'mini'));
+  $output = theme('table', $header, $rows, array('class' => 'mini legend'));
   return $output;
 }
 
@@ -356,20 +365,7 @@ function theme_calendar_stripe_legend($stripe_labels) {
  * Add key value to text, then hide it with css for accessibility to screen readers
  */
 function theme_calendar_stripe_stripe($node) {
-  static $stripe, $stripe_map;
-
-  if(!$stripe_map[$node->stripe]) {
-    if($stripe >= 10) {
-      $stripe = 1;
-    }
-    else {
-      $stripe++;
-    }
-    $stripe_map[$node->stripe] = $stripe;
-  }
-
-  $output .= '<div class="stripe-'. $stripe_map[$node->stripe] .'" title="Key: '.$stripe_map[$node->stripe] .'"><span class="stripe">Key '.$stripe_map[$node->stripe] .'</span></div>'."\n";
-  return $output;
+  return '<div style="background-color:'. $node->stripe .';color:'. $node->stripe .'" class="stripe" title="Key: '. $node->stripe_label .'">Key '. $node->stripe_label .'</div>'."\n";
 }
 
 /**

@@ -13,26 +13,15 @@
  */
 function _calendar_ical_setup_form($view_name) {
   include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
-
+  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
+  
   $form = array();
   $view = views_get_view($view_name);
 
-  if ($view->page && $view->page_title || $view->block && $view->block_title || $view->description) {
-    $title = $view->page && $view->page_title ? $view->page_title : ($view->block && $view->block_title ? $view->block_title : '');
-    $form['markup'] = array(
-      '#type' => 'markup',
-      '#value' => '<h2>'. $title . '</h2>' . (!empty($view->description) ? '<p><em>'. $view->description .'</em></p>' : '') . ($view->page && $view->url ? '<p><strong>URL:</strong> '. l($view->url, $view->url) .'</p>' : ''),
-      );
-  }  
-
-  // Create an example of all the stripe colors below the form.
-  for ($i = 0; $i < 10; $i++) {
-    $node = new stdClass();
-    $node->stripe = $i;
-    $stripes[$i] = '<div style="width:20px;">'. $i .'</div>'.
-      '<div class="calendar" style="width:130px;float:left;">'. theme('calendar_stripe_stripe', $node) .'</div>';
-  }
-  $form['#suffix'] = t('<h3>Stripe options</h3>') . implode($stripes);
+  $form['markup'] = array(
+    '#type' => 'markup',
+    '#value' =>  _calendar_settings_header($view),
+    );
 
   $period = drupal_map_assoc(array(0, 3600, 10800, 21600, 32400, 43200, 86400, 172800, 259200, 604800, 1209600, 2419200, 4838400, 9676800), 'format_interval');
   $form['calendar_ical_expire_'. $view->name] = array(
@@ -41,13 +30,11 @@ function _calendar_ical_setup_form($view_name) {
     '#description' => t('iCal feeds are cached to improve performance. Set an expiration time for cached feeds.')
     );
 
-  $empty_feed = array(0 => array('name' => '', 'url' => '', 'type' => 'ical', 'stripe' => 0));
+  $empty_feed = array(0 => array('name' => '', 'url' => '', 'type' => 'ical', 'stripe' => '#ffffff'));
   $form[$view->name] = array(
     '#type' => 'fieldset',
     '#title' => t('iCal Feeds'),
     '#description' => t('Use this section to set up iCal feeds that should be displayed in this calendar. They will be shown along with any internal items that match the calendar criteria.'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
     '#tree' => TRUE,
     );
 
@@ -55,6 +42,10 @@ function _calendar_ical_setup_form($view_name) {
   $view_feeds = array_merge((array) variable_get('calendar_feeds_'. $view->name, $empty_feed), $empty_feed);
   foreach ($view_feeds as $delta => $feed) {
     $form[$view->name][$delta] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Feed @delta', array('@delta' => $delta)),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
       'type' => array(
         '#title' => t('Feed type'),
         '#type' => 'hidden',
@@ -73,13 +64,15 @@ function _calendar_ical_setup_form($view_name) {
         '#default_value' => $feed['url'],
         '#description' => t('The external feed url or internal file path and name. Change \'webcal://\' to \'http://\'.'),
       ),
+     'calendar_colorpicker' => array(
+        '#type' => 'calendar_colorpicker',
+        '#title' => t('Stripe color'),
+      ),
       'stripe' => array(
-        '#title' => t('Stripe'),
-        '#type' => 'select',
-        '#options' => range(0, 10),
-        '#default_value' => $feed['stripe'],
-        '#description' => t('The color stripe to use for this feed (not working yet).'),
-        '#suffix' => '<hr>',
+        '#type' => 'calendar_colorfield',
+        '#default_value' => isset($feed['stripe']) ? $feed['stripe'] : '#ffffff',
+        '#calendar_colorpicker' => $view_name .'-'. $delta .'-calendar-colorpicker',
+        '#description' => t('The hex color value to use for this feed\'s calendar stripe.'),
        ),
     );
   }

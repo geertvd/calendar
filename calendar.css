@@ -162,64 +162,18 @@
   padding: 3px;
   padding-left: 5px;
 }
-/*  multi-day calendar top stripes  */
+
 .calendar .stripe {
   height: 5px;
-  line-height:5px;
-  font-size:5px;
-  visibility:hidden;
-}
-.calendar .stripe-1 {
-  background-color: #FF6;
-  height: 5px;
   width: 100%;
+  font-size:1px;
+  line-height:1px;
 }
-.calendar .stripe-2 {
-  background-color: #F66;
-  height: 5px;
-  width: 100%;
+.calendar .legend .stripe {
+  height:14px;
+  font-size:12px;
+  line-height:12px;
 }
-.calendar .stripe-3 {
-  background-color: #668CFF;
-  height: 5px;
-  width: 100%;
-}
-.calendar .stripe-4 {
-  background-color: #FFB366;
-  height: 5px;
-  width: 100%;
-}
-.calendar .stripe-5 {
-  background-color: #85FF66;
-  height: 5px;
-  width: 100%;
-}
-.calendar .stripe-6 {
-  background-color: #A666FF;
-  height: 5px;
-  width: 100%;
-}
-.calendar .stripe-7 {
-  background-color: #FFE066;
-  height: 5px;
-  width: 100%;
-}
-.calendar .stripe-8 {
-  background-color: #66FFFF;
-  height: 5px;
-  width: 100%;
-}
-.calendar .stripe-9 {
-  background-color: #FF66D9;
-  height: 5px;
-  width: 100%;
-}
-.calendar .stripe-10 {
-  background-color: #DDD;
-  height: 5px;
-  width: 100%;
-}
-
 .calendar div.form-item {
   white-space: normal;
 }
@@ -304,4 +258,3 @@ table th.legend {
 .calendar-calendar td.today, .calendar-calendar td.today .mini-day-on {
   background: #ffcccc;
 }
-

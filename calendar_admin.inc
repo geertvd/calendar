@@ -276,6 +276,13 @@ function _calendar_views_validate($type, $view, $form) {
   }
 }
 
+function _calendar_settings_header($view) {
+  if ($view->page && $view->page_title || $view->block && $view->block_title || $view->description) {
+    $title = $view->page && $view->page_title ? $view->page_title : ($view->block && $view->block_title ? $view->block_title : '');
+    return '<h2>'. $title . '</h2>' . (!empty($view->description) ? '<p><em>'. $view->description .'</em></p>' : '') . ($view->page && $view->url ? '<p><strong>URL:</strong> '. l($view->url, $view->url) .'</p>' : '');
+  }  
+}
+
 /**
  * Setup Calendar parameters.
  */
@@ -296,13 +303,10 @@ function _calendar_setup_form($view_name) {
     'h:i a' => date('h:i a', $time),
     'h:i A' => date('h:i A', $time),
     );
-  if ($view->page && $view->page_title || $view->block && $view->block_title || $view->description) {
-    $title = $view->page && $view->page_title ? $view->page_title : ($view->block && $view->block_title ? $view->block_title : '');
-    $form['markup'] = array(
-      '#type' => 'markup',
-      '#value' => '<h2>'. $title . '</h2>' . (!empty($view->description) ? '<p><em>'. $view->description .'</em></p>' : '') . ($view->page && $view->url ? '<p><strong>URL:</strong> '. l($view->url, $view->url) .'</p>' : ''),
-      );
-  }  
+  $form['markup'] = array(
+    '#type' => 'markup',
+    '#value' => _calendar_settings_header($view),
+    );
   $form['calendar_time_format'] = array(
     '#title' => t('Time format'),
     '#default_value' => variable_get('calendar_time_format_'. $view->name, 'H:i'),
@@ -387,6 +391,57 @@ function _calendar_setup_form($view_name) {
 }
 
 /**
+ * Setup Calendar legend parameters.
+ */
+function _calendar_legend_form($view_name) {
+  $view = views_get_view($view_name);
+  $form = array();
+  $form['markup'] = array(
+    '#type' => 'markup',
+    '#value' => _calendar_settings_header($view) .  t('<p>Select a stripe color to use in the calendar legend for each content type.</p>'),
+    ); 
+  //TODO Add in methods other than content types for setting legend colors.
+  $method =  variable_get('calendar_legend_method_'. $view_name, 'types');
+  
+  // TODO Move the embedded styles other than the color into a stylesheet.
+  $form['calendar_colorpicker'] = array(
+      '#type' => 'calendar_colorpicker',
+      '#title' => t('Legend colors'),
+      '#prefix' => '<div style="float:left">',
+      '#suffix' => '</div>',
+    );
+  $form['color'] = array('#tree' => TRUE);
+  $colors = variable_get('calendar_color_'. $view_name, $default_colors); 
+  
+  switch ($method) {
+    case 'types':
+      $color_types = node_get_types('names');
+      break;
+  }
+  foreach ($color_types as $key => $name) {
+    $form['color'][$key] = array(
+      '#title' => $name,
+      '#type' => 'calendar_colorfield',
+      '#default_value' => isset($colors[$key]) ? $colors[$key] : '#ffffff',
+      '#calendar_colorpicker' => 'calendar_colorpicker',
+      '#prefix' => '<div style="float:left;margin-right:10px">',
+      '#suffix' => '</div>',
+    );
+  }
+  $form['view_name'] = array(
+    '#type' => 'hidden',
+    '#value' => $view->name,
+    );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+    '#prefix' => '<div style="clear:both;">',
+    '#suffix' => '</div>',
+    );
+  return $form;
+}
+
+/**
  * Save requested values.
  */
 function _calendar_setup_form_submit($form_id, $form_values) {
@@ -413,7 +468,18 @@ function _calendar_setup_form_submit($form_id, $form_values) {
   variable_set('calendar_weekno_'. $view_name, check_plain($form_values['calendar_weekno']));
   variable_set('calendar_popup_'. $view_name, check_plain($form_values['calendar_popup']));
   variable_set('calendar_display_format_'. $view_name, $display_format);
+  drupal_set_message(t('Calendar settings have been updated.'));
 }
+
+/**
+ * Save requested values.
+ */
+function _calendar_legend_form_submit($form_id, $form_values) {
+  $view_name = $form_values['view_name'];
+  variable_set('calendar_color_'. $view_name, $form_values['color']);
+  drupal_set_message(t('Calendar legend settings have been updated.'));
+}
+
 
 /**
  *  Implementation of hook_views_style_plugins()
