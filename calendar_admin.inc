@@ -318,8 +318,15 @@ function _calendar_setup_form($view_name) {
     '#title' => t('Mini day name size'),
     '#default_value' => variable_get('calendar_day_header_'. $view->name, 1),
     '#type' => 'select',
-    '#options' => drupal_map_assoc(range(1, 3)),
-    '#description' => t('The number of letters to show for mini calendar day of week names.'),
+    '#options' => array(1 => t('First letter of name'), 2 => t('First two letters of name'), 3 => t('Abbreviated name'), 99 => t('Full name')),
+    '#description' => t('The way day of week names should be displayed in a mini calendar.'),
+    );
+  $form['calendar_full_day_header'] = array(
+    '#title' => t('Full day name size'),
+    '#default_value' => variable_get('calendar_full_day_header_'. $view->name, 3),
+    '#type' => 'select',
+    '#options' => array(1 => t('First letter of name'), 2 => t('First two letters of name'), 3 => t('Abbreviated name'), 99 => t('Full name')),
+    '#description' => t('The way day of week names should be displayed in a full size calendar.'),
     );
   $form['calendar_weekno'] = array(
     '#title' => t('Show week numbers'),
@@ -455,6 +462,9 @@ function _calendar_setup_form_submit($form_id, $form_values) {
         break;
     case 'calendar_day_header':
         variable_set('calendar_day_header_'. $view_name,  $value);
+        break;
+    case 'calendar_full_day_header':
+        variable_set('calendar_full_day_header_'. $view_name,  $value);
         break;
     case 'year':
     case 'month':

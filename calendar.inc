@@ -199,7 +199,12 @@ function calendar_build_calendar($view, $items, $params) {
       $rows = calendar_build_week($curday, $view, $items, $params);
 
       // Merge the day names in as the first row.
-      $len = variable_get('calendar_day_header_'. $view->name, 1);
+      if (!empty($view->mini)) {
+        $len = variable_get('calendar_day_header_'. $view->name, 1);
+      }
+      else {
+        $len = variable_get('calendar_full_day_header_'. $view->name, 3);
+      }
       $rows = array_merge(array(calendar_week_header($view->mini, $params['with_weekno'], $len)), $rows);
       break;
   }
@@ -226,7 +231,12 @@ function calendar_build_month(&$curday, $view, $items, $params) {
   } while ($curday_month == $month && $curday_date <= $view->max_date_date);
 
   // Merge the day names in as the first row.
-  $len = variable_get('calendar_day_header_'. $view->name, 1);
+  if (!empty($view->mini)) {
+    $len = variable_get('calendar_day_header_'. $view->name, 1);
+  }
+  else {
+    $len = variable_get('calendar_full_day_header_'. $view->name, 3);
+  }
   $rows = array_merge(array(calendar_week_header($view->mini, $params['with_weekno'], $len)), $rows);
   return $rows;
 }
@@ -329,7 +339,12 @@ function calendar_build_day($curday, $view, $items, $params) {
 function calendar_week_header($mini = FALSE, $with_week = TRUE, $len = 1) {
   // create week header
   $untranslated_days = calendar_untranslated_days();
-  $translated_days = date_week_days_ordered(date_week_days_abbr(TRUE));
+  if ($len == 99) {
+    $translated_days = date_week_days_ordered(date_week_days(TRUE));
+  }
+  else {
+    $translated_days = date_week_days_ordered(date_week_days_abbr(TRUE));
+  }
 
   if ($with_week) {
     $row[] = array('header' => TRUE, 'class' => "days week", 'data' => '&nbsp;');
