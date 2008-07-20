@@ -235,26 +235,36 @@ function calendar_build_month(&$curday, $view, $items, $params) {
  * Build one week row.
  */
 function calendar_build_week(&$curday, $view, $items, $params, $check_month = FALSE) {
+  $curday_date = date_format($curday, 'Y-m-d');
   $weekdays = calendar_untranslated_days($results, $view);
   $today = date_format(date_now(date_default_timezone_name()), 'Y-m-d');
   $month = date_format($curday, 'n');
-  $week = date_week(date_format($curday, 'Y-m-d'));
+  $week = date_week($curday_date);
   $first_day = variable_get('date_first_day', 0);
 
   // move backwards to the first day of the week
   $day_wday = date_format($curday, 'w');
   date_modify($curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
-  
+  $curday_date = date_format($curday, 'Y-m-d');
+    
   // If we're displaying the week number, add it as the
   // first cell in the week.
+  $display_formats = calendar_get_formats($view);
   if ($params['with_weekno'] && $view->calendar_type != 'day') {
     $url = $params['url'] .'/'. $view->year .'/W'. $week;
+    if (!empty($display_formats['week'])) {
+      $weekno = l($week, $url, NULL, $params['append']);
+    }
+    else { 
+      // Do not link week numbers, if Week views are disabled.
+      $weekno = $week;
+    }
     $rows[$week][] = array(
-      'data' => l($week, $url, NULL, $params['append']),
-      'class' => 'week');
+      'data' => $weekno,
+      'class' => 'week',
+      );
   }
   for ($i = 0; $i < 7; $i++) {
-    $curday_date = date_format($curday, 'Y-m-d');
     if ($check_month && ($curday_date < $view->min_date_date || $curday_date > $view->max_date_date || date_format($curday, 'n') != $month)) {
       $class = strtolower($weekdays[$i] .
       ($view->mini ? ' mini' : ''));
@@ -272,7 +282,10 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
     $rows[$week][] = array(
       'data' => $view->mini ? $content : '<div class="inner">'. $content .'</div>',
       'class' => $class, 'id' => $view->name . '-' . $curday_date);
-    
+    //skip the unnecessary date_format after the last iteration
+    if ($i < 6) {
+      $curday_date = date_format($curday, 'Y-m-d');    
+    }
     date_modify($curday, '+1 day');
   }
 

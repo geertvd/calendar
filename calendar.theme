@@ -56,9 +56,7 @@ function theme_calendar_views_calendar(&$view, &$items, $type) {
 
       // Set to TRUE to see week numbers in each row.
       $formats = calendar_get_formats($view);
-      if (!empty($formats['week'])
-      && $view->build_type != 'block'
-      && $view->calendar_type == 'month') {
+      if ($view->build_type != 'block') {
         $params['with_weekno'] = variable_get('calendar_weekno_'. $view->name, 1);
       }
       else {
