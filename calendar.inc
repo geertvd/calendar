@@ -76,29 +76,36 @@ function calendar_build_month(&$curday, $view, $items) {
  * Build one week row.
  */
 function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
+  $curday_date = date_format($curday, 'Y-m-d');
   $weekdays = calendar_untranslated_days($items, $view);
   $today = date_format(date_now(date_default_timezone_name()), 'Y-m-d');
   $month = date_format($curday, 'n');
-  $week = date_week(date_format($curday, 'Y-m-d'));
-
+  $week = date_week($curday_date);
   $first_day = variable_get('date_first_day', 0);
 
   // move backwards to the first day of the week
   $day_wday = date_format($curday, 'w');
   date_modify($curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
-  
+  $curday_date = date_format($curday, 'Y-m-d');
+    
   // If we're displaying the week number, add it as the
   // first cell in the week.
   if (!empty($view->with_weekno) && $view->granularity != 'day') {
-    $url = $view->get_url() .'/'. $view->year .'-W'. $week;
+    $url = $view->get_path() .'/'. $view->year .'-W'. $week;
+    if (!empty($view->display_types['week'])) {
+      $weekno = l($week, $url, array('query' => !empty($view->append) ? $view->append : ''));
+    }
+    else { 
+      // Do not link week numbers, if Week views are disabled.
+      $weekno = $week;
+    }
     $rows[$week][] = array(
-      'data' => l($week, $url, array('query' => !empty($view->append) ? $view->append : '')),
-      'id' => $view->name . '-weekno-' . date_format($curday, 'Y-m-d'),  
+      'data' => $weekno,
+      'id' => $view->name . '-weekno-' . $curday_date,  
       'class' => 'week');
   }
 
   for ($i = 0; $i < 7; $i++) {
-    $curday_date = date_format($curday, 'Y-m-d');
     if ($check_month && ($curday_date < $view->min_date_date || $curday_date > $view->max_date_date || date_format($curday, 'n') != $month)) {
       $class = strtolower($weekdays[$i] .
       ($view->mini ? ' mini' : ''));
@@ -107,16 +114,19 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
     else {
       $content = calendar_build_day($curday, $view, $items);
       $class = strtolower($weekdays[$i] .
-      (date_format($curday, 'Y-m-d') == $today ? ' today' : '') .
-      (date_format($curday, 'Y-m-d') < $today ? ' past' : '') .
-      (date_format($curday, 'Y-m-d') > $today ? ' future' : '') .
+      ($curday_date == $today ? ' today' : '') .
+      ($curday_date < $today ? ' past' : '') .
+      ($curday_date > $today ? ' future' : '') .
       ($view->mini ? ' mini' : ''));
     }
 
     $rows[$week][] = array(
       'data' => $view->mini ? $content : '<div class="inner">'. $content .'</div>',
-      'class' => $class, 'id' => $view->name . '-' . date_format($curday, 'Y-m-d'));
-
+      'class' => $class, 'id' => $view->name . '-' . $curday_date);
+    //skip the unnecessary date_format after the last iteration
+    if ($i < 6) {
+      $curday_date = date_format($curday, 'Y-m-d');    
+    }
     date_modify($curday, '+1 day');
   }
 

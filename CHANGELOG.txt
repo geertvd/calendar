@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #284760 Don't make weekno a link when there is no week view, eliminate some redundant date_format() calls.
 - #276421 Use farbtastic color picker to set calendar stripes, and start process of making stripes more customizable.
 - #282777 Try to make calendar creation in PHP4 more efficient to speed up creation of year calendar.
 - #279195 Remove deprecated calendar_week_range().
