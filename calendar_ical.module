@@ -121,6 +121,7 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
             $node->format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), $granularity) . $show_tz;
             $node->all_day = $value['DTSTART']['all_day'];
             $node->stripe = $feed['stripe'];
+            $node->stripe_label = $feed['name'];
             $node->remote = TRUE;
             $node->uid = $value['uid'] ? $value['UID'] : (is_numeric($node->nid) ? url("node/$node->nid", array('absolute' => TRUE)) : $node->nid);
             $node->url = $value['URL'] ? $value['URL'] : (is_numeric($node->nid) ? url("node/$node->nid", array('absolute' => TRUE)) : $node->nid);

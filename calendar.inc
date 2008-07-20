@@ -367,7 +367,7 @@ function calendar_build_nodes(&$view, &$items) {
               $real_field = str_replace(array('_value2', '_value'), '', $field_name);
             }
             $id = 'calendar:'. $item->nid .':'. $real_field .':'. $delta .':'. $pos;
-            $node->stripe = calendar_node_stripe($view, $node, $alias, $alias);
+            calendar_node_stripe($view, $node, $alias, $alias);
             $node->date_id = $id;
             $nodes[] = $node;
             unset($node);

@@ -61,6 +61,12 @@ function calendar_theme() {
      'calendar_stripe_stripe' => $base + array(
        'arguments' => array('node'),
        ),
+     'calendar_colorpicker' => $base + array(
+       'arguments' => array('element'),
+       ),
+     'calendar_colorfield' => $base + array(
+       'arguments' => array('element'),
+       ),
      );
 }
 
@@ -196,34 +202,40 @@ function calendar_url_append($view) {
 }
 
 /**
- * create a stripe id from a combination of the field and content types
- * and store value for legend
- * formula tries to create a unique id for each possible combination
+ * Create a stripe.
  *
  * @param $node - the node object
  * @param $query_name - the views queryname for this date field
  * @param $delta - the delta for this field, used to distinguish fields that appear more than once in the calendar
+ * @param $stripe - the hex code for this stripe.
  * @param $label - the label to give this stripe.
+ * 
+ * TODO this is still too hard-wired to node types.
+ * Come back later and make it possible to use taxonomy terms or other
+ * values as stripe keys.
+ * 
+ * TODO Need to add in hook so ical and other modules can add things to the legend.
+ * 
+ * TODO Reconsider use of $GLOBALS as a method of triggering the legend, there
+ * may be a better way.
  */
-function calendar_node_stripe($view, $node, $query_name, $delta, $stripe = NULL, $label = '') {
+function calendar_node_stripe($view, &$node, $query_name, $delta, $stripe = NULL, $label = '') {
   $type_names = node_get_types('names');
-  if (!isset($type_names[$node->type])) {
-    return;
-  }
+  $colors = $view->calendar_colors;
   if (!$label) {
-    $label = $type_names[$node->type] .' '. (array_key_exists($delta, $view->field) ? $view->field[$delta]['label'] : '');
+    $label = $type_names[$node->type];
   }
   if (!$stripe) {
-    $i = 1;
-    foreach ($type_names as $k => $v) {
-      if ($k == $node->type) {
-        break;
-      }
-      $i++;
+    if (array_key_exists($node->type, $colors)) {
+      $stripe = $colors[$node->type];
     }
-    $stripe = intval((20 * $delta) + $i);
+    else {
+      $stripe = '';
+    }
   }
-  $GLOBALS['calendar_stripe_labels'][$stripe] = $label;
+  $node->stripe = $stripe;
+  $node->stripe_label = $label;
+  $GLOBALS['calendar_stripe_labels'][$node->type] = array('stripe' => $stripe, 'label' => $label);
   return $stripe;
 }
 
@@ -280,4 +292,76 @@ function calendar_date_select_form($view) {
     '#value' => t('Change date'),
     );
   return $form;
+}
+
+/**
+ * Implementation of hook_elements.
+ * 
+ * Much of the colorpicker code was adapted from the Colorpicker module.
+ * That module has no stable release yet nor any D6 branch.
+ * 
+ * TODO Consider dropping the duplicate code and adding a dependency
+ * when that module is more stable, if calendar module customizations will 
+ * work in it.
+ */
+function calendar_elements() {
+  // the Farbtastic colorpicker
+  $type['calendar_colorpicker'] = array(
+    '#attributes' => array('class' => 'calendar_colorpicker'), 
+    '#input' => TRUE,
+  );
+  
+  // a textfield to associate with the Farbtastic colorpicker
+  $type['calendar_colorfield'] = array(
+    '#attributes' => array('class' => 'calendar_colorfield'), 
+	  '#input' => TRUE,
+	  '#validate' => array('calendar_validate_hex_color' => array())
+  );
+  return $type;
+}
+
+/**
+ *  Check to make sure the user has entered a valid 6 digit hex color.
+ */
+function calendar_validate_hex_color($element) {
+  if (!$element['#required'] && empty($element['#value'])) {
+    return;
+  }
+  if (!preg_match('/^#(?:(?:[a-f\d]{3}){1,2})$/i', $element['#value'])) {
+    form_error($element, "'". check_plain($element['#value']) ."'". t(' is not a valid hex color'));
+  }
+  else {
+    form_set_value($element, $element['#value']);
+  }
+}
+
+/**
+ * Format calendar_colorpicker.
+ */
+function theme_calendar_colorpicker($element) {
+  $path = drupal_get_path('module', 'calendar');
+
+  // Add Farbtastic color picker
+  drupal_add_css('misc/farbtastic/farbtastic.css');
+  drupal_add_js('misc/farbtastic/farbtastic.js');
+	  
+  // Add our custom js and css for our calendar_color
+  drupal_add_js($path . '/js/calendar_colorpicker.js');
+  $output = '';
+  $output .= '<div id="'. $element['#id'] .'" '. drupal_attributes($element['#attributes']) .' ></div>';
+  return theme('form_element', $element, $output);
+}
+
+/**
+ * Format calendar_color textfield.
+ */
+function theme_calendar_colorfield($element) {
+  $size = isset($element['#size']) ? ' size="' . $element['#size'] . '"' : '';
+  $maxlength = isset($element['#maxlength']) ?  'maxlength="'.$element['#maxlength'] .'"' : '';
+  $output = '';
+  if (isset($element['#calendar_colorpicker'])) {
+    $element['#attributes']['class'] .= ' edit-'. str_replace("_", "-", $element['#calendar_colorpicker']);
+  }
+  $output .= '<input type="text" name="'. $element['#name'] .'" id="'. $element['#id'] .'" '. $maxlength . $size .' value="'. check_plain($element['#value']) .'"'. drupal_attributes($element['#attributes']) .' />';
+  return theme('form_element', $element, $output);
 }

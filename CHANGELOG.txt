@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #276421 Use farbtastic color picker to set calendar stripes, and start process of making stripes more customizable.
 - #282777 Try to make calendar creation in PHP4 more efficient to speed up creation of year calendar.
 - #279195 Remove deprecated calendar_week_range().
 - Set min_date_date and max_date_date in the view object so calendar can be written.
