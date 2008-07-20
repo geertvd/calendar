@@ -11,6 +11,9 @@ function calendar_build_calendar($view, $items) {
   // Remove nodes outside the selected date range.
   $values = array();
   foreach ($items as $delta => $item) {
+    if (empty($item->calendar_start_date) || empty($item->calendar_end_date)) {
+      continue;
+    }
     $item_start = date_format($item->calendar_start_date, 'Y-m-d');
     $item_end = date_format($item->calendar_end_date, 'Y-m-d');
     if (($item_start >= $view->min_date_date && $item_start <= $view->max_date_date)
