@@ -368,8 +368,8 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
     }
     elseif (substr($display_id, 0, 8) == 'calendar') {
       $this->view->parent_id = $display_id;
+      $this->view->calendar_colors = $this->view->display[$display_id]->handler->options['calendar_colors'];
     }
-    $this->view->calendar_colors = $this->view->display[$display_id]->handler->options['calendar_colors'];
     parent::attach_to($display_id);
     
   }

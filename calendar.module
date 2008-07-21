@@ -221,7 +221,7 @@ function calendar_url_append($view) {
  */
 function calendar_node_stripe($view, &$node, $query_name, $delta, $stripe = NULL, $label = '') {
   $type_names = node_get_types('names');
-  $colors = (array) $view->calendar_colors;
+  $colors = isset($view->calendar_colors) ? $view->calendar_colors : array();
   if (!$label) {
     $label = $type_names[$node->type];
   }
