@@ -90,7 +90,6 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
   $day_wday = date_format($curday, 'w');
   date_modify($curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
   $curday_date = date_format($curday, 'Y-m-d');
-  dsm($curday_date);
     
   // If we're displaying the week number, add it as the
   // first cell in the week.
