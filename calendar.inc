@@ -278,6 +278,7 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
       );
   }
   for ($i = 0; $i < 7; $i++) {
+    $curday_date = date_format($curday, 'Y-m-d');
     if ($check_month && ($curday_date < $view->min_date_date || $curday_date > $view->max_date_date || date_format($curday, 'n') != $month)) {
       $class = strtolower($weekdays[$i] .
       ($view->mini ? ' mini' : ''));
@@ -295,10 +296,6 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
     $rows[$week][] = array(
       'data' => $view->mini ? $content : '<div class="inner">'. $content .'</div>',
       'class' => $class, 'id' => $view->name . '-' . $curday_date);
-    //skip the unnecessary date_format after the last iteration
-    if ($i < 6) {
-      $curday_date = date_format($curday, 'Y-m-d');    
-    }
     date_modify($curday, '+1 day');
   }
 
