@@ -90,6 +90,7 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
   $day_wday = date_format($curday, 'w');
   date_modify($curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
   $curday_date = date_format($curday, 'Y-m-d');
+  dsm($curday_date);
     
   // If we're displaying the week number, add it as the
   // first cell in the week.
@@ -107,8 +108,8 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
       'id' => $view->name . '-weekno-' . $curday_date,  
       'class' => 'week');
   }
-
   for ($i = 0; $i < 7; $i++) {
+    $curday_date = date_format($curday, 'Y-m-d'); 
     if ($check_month && ($curday_date < $view->min_date_date || $curday_date > $view->max_date_date || date_format($curday, 'n') != $month)) {
       $class = strtolower($weekdays[$i] .
       ($view->mini ? ' mini' : ''));
@@ -126,10 +127,6 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
     $rows[$week][] = array(
       'data' => $view->mini ? $content : '<div class="inner">'. $content .'</div>',
       'class' => $class, 'id' => $view->name . '-' . $curday_date);
-    //skip the unnecessary date_format after the last iteration
-    if ($i < 6) {
-      $curday_date = date_format($curday, 'Y-m-d');    
-    }
     date_modify($curday, '+1 day');
   }
 
