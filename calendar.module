@@ -184,6 +184,7 @@ function calendar_current_type($view) {
  * Pick up filter and sort info from url.
  */
 function calendar_url_append($view) {
+  $url = '';
   //if ($view->build_type == 'page') {
     foreach ($_GET as $key => $val) {
       if ($key != 'q' && $key != 'view') {

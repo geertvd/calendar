@@ -5,7 +5,6 @@
  */
 function template_preprocess_calendar_main(&$vars) {
   include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
-
   $view     = $vars['view'];
 
   $result   = (array) $view->result;
@@ -53,7 +52,6 @@ function template_preprocess_calendar_main(&$vars) {
   if (module_exists('date_popup')) {
     //$output = '<div class="clear-block">'. calendar_date_select($view) .'</div>';
   }
-  
   $vars['view'] = $view;  
   $vars['mini'] = !empty($view->mini);
   $vars['block'] = !empty($view->block);
@@ -67,8 +65,8 @@ function template_preprocess_calendar_main(&$vars) {
  */
 function template_preprocess_calendar(&$vars) {
   include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
-  
   $view     = $vars['view'];
+  
   // Make sure we only run through this function one time.
   if (!empty($view->calendar_processed)) {
     return;
@@ -179,6 +177,13 @@ function template_preprocess_calendar_year(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar($vars);
   
+  // Get the url of the year view and remove the year argument from it.
+  // TODO clean this up in case there is another arg that looks like
+  // the year to make sure only the year gets removed.
+  $view = $vars['view'];
+  $year = date_format($view->min_date, 'Y');
+  $url = str_replace('/'. $year, '', $view->get_url());
+  
   // Construct a calendar for each month, adjusting the $view passed 
   // to the theme so it will produce the right results.  
   $view = drupal_clone($vars['view']);
@@ -191,6 +196,7 @@ function template_preprocess_calendar_year(&$vars) {
     $view->hide_nav = TRUE;
     $view->with_weekno = FALSE;
     $view->show_title = TRUE;
+    $view->url = $url;
     $view->min_date = date_make_date($view->year .'-'. date_pad($month) .'-01 00:00:00', date_default_timezone_name());
     $view->max_date = drupal_clone($view->min_date);
     date_modify($view->max_date, '+1 month');

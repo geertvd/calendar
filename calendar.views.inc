@@ -184,7 +184,14 @@ function calendar_views_plugins() {
  * deferred to the attachments.
  */
 class calendar_plugin_display_page extends views_plugin_display_page {
-
+  /**
+   * Init will be called after construct, when the plugin is attached to a
+   * view and a display. 
+   */
+  function init(&$view, &$display) {
+    parent::init($view, $display);
+  }
+  
   function get_style_type() { return 'calendar'; }
   
   function defaultable_sections($section = NULL) {
