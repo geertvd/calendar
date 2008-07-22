@@ -246,7 +246,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
   
         // TODO Move the embedded styles other than the color into a stylesheet.
        $form['#title'] .= t('Legend colors');
-       $form['#prefix'] = t('<h3>Content Type</h3><p>Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Types with empty values will have no stripe in the calendar and will not be added to the legend.</p>');
+       $form['#prefix'] = t('<div class="form-item"><label>Content Type</label><p>Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Types with empty values will have no stripe in the calendar and will not be added to the legend.</p></div>');
        $form['calendar_colors']['#tree'] = TRUE;
        $form['calendar_colors']['colorpicker'] = array(
           '#type' => 'calendar_colorpicker',
