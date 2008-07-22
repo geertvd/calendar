@@ -212,9 +212,9 @@ function calendar_build_calendar($view, $items, $params) {
       break;
   }
 
-  // Add the navigation in as the header.
-  $header = calendar_nav($view, $params['with_weekno']);
-  $output = theme('calendar_links', $view, $view->build_type != 'block');
+  $output  = theme('calendar_links', $view, $view->build_type != 'block');
+  $output .= theme('calendar_nav', $view);
+  $header = in_array($view->calendar_type, array('month', 'week')) ? array_shift($rows) : array();
   $output .= theme('calendar_'. $view->calendar_type, $view, $header, $rows);
   return $output;
 }
@@ -654,62 +654,6 @@ function calendar_build_nodes(&$view, &$items) {
     }
   }
   return $nodes;
-}
-
-/**
- *  Function to construct back and next navigation from views arguments
- */
-function calendar_nav($view, $with_weekno = FALSE) {
-  $mini = $view->mini;
-  if (!calendar_part_is_valid($view->year, 'year')) {
-    return array($view->subtitle);
-  }
-
-  // make the navigation into a header, with prev and next links
-  // use the calendar_nav themes to mimic standard calendar navigation
-  $paths = calendar_get_paths($view);
-  $prev_path = implode('/', array_reverse($paths[0]));
-  $next_path = implode('/', array_reverse($paths[1]));
-
-  $prev_query = $next_query = array();
-
-  if ($_GET['view']) {
-    $prev_query[] = 'view='. $_GET['view'];
-    $next_query[] = 'view='. $_GET['view'];
-  }
-  // for the mini calendar in a block, treat the url as a 	 
-	// querystring to avoid actually changing the page 	 
-	if ($mini) { 	 
-	  $prev_query[] = 'mini='. $prev_path; 	 
-	  $prev_path = $_GET['q']; 	 
-	  $next_query[] = 'mini='. $next_path; 	 
-	  $next_path = $_GET['q']; 	 
-	}
-	$prev_query[] = calendar_url_append($view);
-  $next_query[] = calendar_url_append($view);
-
-  switch ($view->calendar_type) {
-    case 'day':
-    case 'year':
-      $colspan_prev = 1;
-      $colspan_middle = 1;
-      $colspan_next = 1;
-      break;
-    default:
-      $colspan_prev = 2;
-      $colspan_middle = 3;
-      $colspan_next = 2;
-      if ($with_weekno) {
-        $colspan_prev = 3;
-      }
-      break;
-  }
-  $header = array();
-  $header[]  = array('data' => theme('calendar_nav_prev', $prev_path, $view->build_type == 'block' ? FALSE : TRUE, implode('&', $prev_query)), 'class' => 'prev', 'colspan' => $colspan_prev);
-  $header[]  = array('data' => $view->subtitle, 'class' => 'heading', 'colspan' => $colspan_middle);
-  $header[]  = array('data' => theme('calendar_nav_next', $next_path, $view->build_type == 'block' ? FALSE : TRUE, implode('&', $next_query)), 'class' => 'next', 'colspan' => $colspan_next);
-
-  return $header;
 }
 
 function calendar_get_paths($view) {
