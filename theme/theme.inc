@@ -383,7 +383,7 @@ function theme_calendar_stripe_legend($stripe_labels) {
       array('class' => 'legend', 'data' => t('Key'))
       );
   $type_names = node_get_types('names');
-  $colors = $view->calendar_colors;
+  $colors = (array) $view->calendar_colors;
   foreach ($type_names as $type_name => $type) {
     if (!empty($colors[$type_name])) {
       $label = $type_names[$type_name];
