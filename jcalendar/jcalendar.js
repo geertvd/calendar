@@ -13,7 +13,7 @@ if (Drupal.jsEnabled) {
       $('div#calpopup').remove();
       
       // create div to hold data and add it to the end of the body
-      var div = $('<div id="calpopup"><div><img id="popup-close-img" src="' + var_path + '/images/cross.png" /></div><div id="calpopup-body"><img src="' + var_path + '/images/throbber.gif" id="popthrobber" /></div></div>').attr('style','display: none');
+      var div = $('<div id="calpopup"><div id="popup-close"><img id="popup-close-img" src="' + var_path + '/images/cross.png" /></div><div id="calpopup-body"><img src="' + var_path + '/images/throbber.gif" id="popthrobber" /></div></div>').attr('style','display: none');
       div.appendTo(document.body);
       
       // Locate Popup
