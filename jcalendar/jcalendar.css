@@ -21,7 +21,8 @@ div#calpopup-body div.node {
   border: 0;
 }
 
-div#calpopup-body div.content {
+div#calpopup-body {
+  margin: 1em;
   max-height: 20em;
   overflow-y: auto;
   /* IE7 Hack 
@@ -30,9 +31,9 @@ div#calpopup-body div.content {
   position: relative;
 }
 
-img#popup-close-img {
-  float: right;
-  margin: 1em;
+#popup-close {
+  text-align: right;
+  padding: 1em 1em 0 1em;
 }
 
 div#nodelink {
