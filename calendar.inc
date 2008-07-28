@@ -664,35 +664,37 @@ function calendar_get_paths($view) {
   date_modify($next_date, '+1 '. $view->calendar_type);
 
   // build an array of the current path and its parts
+  $real_url = calendar_real_url($view, $view->real_args);
+  $buried_args = calendar_args_in_url($view);
   $i = 0;
-  $path[$i]     = array(
-    'path' => $view->url,
+  $path[0]     = array(
+    'path' => $real_url,
     'type' => 'url',
       );
+  $start_calendar = FALSE;    
   foreach ($view->argument as $delta => $arg) {
-    if ($view->args[$delta]) {
-      $i++;
+    if ($delta < $buried_args) {
+      continue;
+    }
+    if (substr($arg['type'], 0, 8) == 'calendar') {
+      $start_calendar = TRUE;
       $pathtype = str_replace('calendar_', '', $arg['type']);
-      $path[$i] = array(
+      $path[$delta + 1] = array(
         'path' => $view->args[$delta] != CALENDAR_EMPTY_ARG ? $view->args[$delta] : CALENDAR_EMPTY_ARG,
         'type' => $pathtype,
         );
     }
+    // Args prior to the calendar arg are already reflected in the $real_url.
+    elseif ($start_calendar) {
+      $path[$delta + 1] = array(
+        'path' => $view->args[$delta],
+        'type' => '',
+      );
+    }
   }
-
-  // if there are other arguments after the view arguments, add them to the
-  // navigation links
-  while($i < sizeof($view->args)) {
-    $i++;
-    $path[$i] = array(
-      'path' => $view->args[intval($i - 1)],
-      'type' => '',
-    );
-  }
-
   // reverse through the path, creating a $nextpath and $prevpath arrays
   $formats = array('day' => 'j', 'month' => 'm', 'year' => 'Y', 'week' => 'W');
-  for ($x = $i; $x >= 0; $x--) {
+  for ($x = $delta + 1; $x >= 0; $x--) {
     $type = $path[$x]['type'];
     if (in_array($type, array_keys($formats)) && $path[$x]['path'] != CALENDAR_EMPTY_ARG) {
       if ($type != 'week') {
@@ -717,7 +719,7 @@ function calendar_get_paths($view) {
       }
     }
     // Non-date path elements just get passed through.
-    else {
+    elseif (!empty($path[$x]['path'])) {
       $nextpath[$x] = $path[$x]['path'];
       $prevpath[$x] = $path[$x]['path'];
     }

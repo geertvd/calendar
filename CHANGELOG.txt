@@ -4,6 +4,9 @@ Views Calendar 5.x
 Version 2.0 dev
 ===============
 
+- #269920 Fix breadcrumb on year view.
+- #238369 Clean up breadcrumb when using calendar with other arguments.
+- #282008 Fix back/next links on year view to omit mini links.
 - Tweaked the jcalendar popup html and css a bit to keep title from popping out of the box in some themes.
 - Bring the 5.2 and 6.2 calendar themes into alignment so both use the same styles and themes, including tableless back/next navigation links and themeable headers.
 - #283902 Make sure date_format() isn't used on items with no calendar dates.

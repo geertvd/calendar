@@ -30,6 +30,13 @@ function theme_calendar_views_calendar(&$view, &$items, $type) {
   if (!calendar_is_calendar($view)) {
     return;
   }
+  // If there are args before the calendar args and they don't have values
+  // we don't have enough information to create calendar navigation links
+  // so exit here.
+  $pos = calendar_arg_positions($view);
+  if ($pos[0] > count($view->real_args)) {
+    return;
+  }
   include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
   if ($type == 'block' || !calendar_is_calendar_arg($view)) {
     $view->calendar_type = 'month';
@@ -190,13 +197,22 @@ function theme_calendar_view_nodes($view, $nodes, $type, $teasers = false, $link
  *  $view->block_title.
  */
 function theme_calendar_page_title($view, $items, $output) {
+  // Get rid of empty args to display the right title for the calendar.
+  $args = $view->args;
+  foreach($args as $delta => $arg) {
+    if ($arg == CALENDAR_EMPTY_ARG || empty($arg)) {
+      unset($args[$delta]);
+    }
+  }
+  $last_arg = array_pop($args);
+  return theme('calendar_arg_title', strtoupper($view->calendar_type), $last_arg, $last_arg);
   switch ($view->build_type) {
     case 'page':
       if ($view->calendar_type == 'year') {
         return $view->year;
       }
       else {
-        return views_get_title($view, $context = 'page', $args = $view->real_args);
+        return views_get_title($view, 'page', $args);
       }
     case 'block':
       return $view->block_title;
@@ -213,18 +229,13 @@ function theme_calendar_page_title($view, $items, $output) {
  * @return string formatted title
  */
 function theme_calendar_arg_title($field_type, $value, $query) {
-  $view = $GLOBALS['current_view'];
   $value = intval(check_plain($value));
   if (empty($value)) {
-    if ($view->month) {
-      return date_format_date($view->min_date, 'custom', 'F Y');
-    }
-    elseif ($view->year) {
-     return $view->year;
-    }
+    return '';
 	}
 	else {
-	  switch ($field_type) {
+	  $view = $GLOBALS['current_view'];
+    switch (strtoupper($field_type)) {
     case 'YEAR':
       $view->year = $value;
       return $view->year;
@@ -236,13 +247,15 @@ function theme_calendar_arg_title($field_type, $value, $query) {
     	return t('Week of @date', array('@date' => date_format($view->min_date, 'F j')));
    }
 	}
+	return $value;
 }
 
 /**
  *  Function to construct back and next navigation from views arguments
  */
 function theme_calendar_nav($view, $link = FALSE, $format = NULL) {
-  $mini = $view->mini;
+  $mini = $view->mini && $view->calendar_type != 'year';
+  
   if (!calendar_part_is_valid($view->year, 'year')) {
     return $view->subtitle;
   }
@@ -252,7 +265,6 @@ function theme_calendar_nav($view, $link = FALSE, $format = NULL) {
   $paths = calendar_get_paths($view);
   $prev_path = implode('/', array_reverse($paths[0]));
   $next_path = implode('/', array_reverse($paths[1]));
-
   $prev_query = $next_query = array();
 
   if ($_GET['view']) {
