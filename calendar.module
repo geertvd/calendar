@@ -497,6 +497,71 @@ function calendar_url_append($view) {
 }
 
 /**
+ * An alternative to views_get_url()
+ * that will correctly substitute replacement
+ * values like $group or $node.
+ */
+function calendar_get_url($view, $args, $as_array = FALSE) {
+  // build an array of the current path and its parts
+  $real_url = calendar_real_url($view, $view->real_args);
+  $buried_args = calendar_args_in_url($view);
+  $i = 0;
+  $path[0]     = array(
+    'path' => $real_url,
+    'type' => 'url',
+      );
+  $start_calendar = FALSE;    
+  foreach ($view->argument as $delta => $arg) {
+    if ($delta < $buried_args) {
+      continue;
+    }
+    if (in_array($arg['type'], calendar_args())) {
+      $start_calendar = TRUE;
+      $pathtype = str_replace('calendar_', '', $arg['type']);
+      $path[$delta + 1] = array(
+        'path' => $args[$delta] != CALENDAR_EMPTY_ARG ? $args[$delta] : CALENDAR_EMPTY_ARG,
+        'type' => $pathtype,
+        );
+    }
+    // Args prior to the calendar arg are already reflected in the $real_url.
+    elseif ($start_calendar) {
+      $path[$delta + 1] = array(
+        'path' => $args[$delta],
+        'type' => '',
+      );
+    }
+  }
+  if ($as_array) {
+    return $path;
+  }
+  else {
+    $string = '';
+    $first = TRUE;
+    foreach ($path as $part) {
+      if (!$first) {
+        $string .= '/';
+      }
+      $string .= $part['path'];
+      $first = FALSE;
+    }
+    return $string;
+  }
+}
+
+/**
+ * Substitute a calendar argument with a wildcard.
+ */
+function calendar_wildcard($arg, $value) {
+  if (empty($value) && substr($arg['type'], 0, 8) == 'calendar') {
+    $value = CALENDAR_EMPTY_ARG;
+  }
+  elseif (!empty($arg['wildcard_substitution']) && !empty($arg['wildcard']) && !empty($value) && $value == $arg['wildcard']) {
+    $value = $arg['wildcard_substitution'];
+  }
+  return $value;
+}
+
+/**
  *  Function to test whether this is a view that uses the calendar plugin theme.
  */
 function calendar_is_calendar($view) {

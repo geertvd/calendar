@@ -188,7 +188,7 @@ function calendar_ical_views_arguments() {
  * handler for our own ical argument; mimics the feed selector
  */
 function views_handler_arg_ical($op, &$query, $argtype, $arg = '') {
- switch ($op) {
+  switch ($op) {
     case 'summary':
     case 'sort':
     case 'link':
@@ -223,9 +223,9 @@ function calendar_ical_views_post_view($view, $items, $output) {
  * when called as a hook or when called manually from calendar_ical_views_post_view
  */
 function calendar_ical_views_feed_argument($op, &$view, $arg, $argtype = NULL) {
- if ($op == 'argument' && $arg == 'ical') {
+  if ($op == 'argument' && $arg == 'ical') {
     // Keep devel module from appending queries to ical export.
-   $GLOBALS['devel_shutdown'] = FALSE;
+    $GLOBALS['devel_shutdown'] = FALSE;
     $view->page_type = 'calendar_ical';
     // reset the 'real url' to the URL without the feed argument.
     $view_args = array();
@@ -241,11 +241,12 @@ function calendar_ical_views_feed_argument($op, &$view, $arg, $argtype = NULL) {
         $view_args[] = $view_arg;
       }
     }
-    $view->feed_url = views_get_url($view, $view_args);
+    $url = calendar_get_url($view, $args, FALSE);
+    $view->feed_url = $url;
   }
   else if ($op == 'post_view') {
     $args = calendar_ical_post_view_make_args($view, $arg, 'ical');
-    $url = views_get_url($view, $args);
+    $url = calendar_get_url($view, $args, FALSE);
     $title = views_get_title($view, 'page', $args);
     if ($view->used_filters) {
       $filters = drupal_query_string_encode($view->used_filters);
