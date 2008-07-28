@@ -664,10 +664,10 @@ function calendar_get_paths($view) {
   date_modify($next_date, '+1 '. $view->calendar_type);
   
   $path = calendar_get_url($view, $view->args, TRUE);
-
+  
   // reverse through the path, creating a $nextpath and $prevpath arrays
   $formats = array('day' => 'j', 'month' => 'm', 'year' => 'Y', 'week' => 'W');
-  for ($x = $delta + 1; $x >= 0; $x--) {
+  for ($x = count($path); $x >= 0; $x--) {
     $type = $path[$x]['type'];
     if (in_array($type, array_keys($formats)) && $path[$x]['path'] != CALENDAR_EMPTY_ARG) {
       if ($type != 'week') {
@@ -697,5 +697,6 @@ function calendar_get_paths($view) {
       $prevpath[$x] = $path[$x]['path'];
     }
   }
+  
   return array($prevpath, $nextpath);
 }
