@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 2.0 dev
 ===============
 
+- #238287 Make sure calendars with other args (like OG) display default view.
 - #269920 Fix breadcrumb on year view.
 - #238369 Clean up breadcrumb when using calendar with other arguments.
 - #282008 Fix back/next links on year view to omit mini links.
