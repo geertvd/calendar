@@ -295,6 +295,10 @@ function calendar_views_pre_view(&$view, &$items) {
   if ((!calendar_is_calendar($view) || !calendar_has_calendar_args($view))) {
     return;
   }
+  $summary = !empty($items) && array_key_exists('num_nodes', $items[0]);
+  if (!calendar_is_calendar_arg($view) || $summary) {
+    return;
+  }
   include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
 
   // Massage the resulting items into formatted calendar items.
