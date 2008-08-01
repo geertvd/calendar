@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Make sure week title gets translated by using date_format_date() instead of date_format().
 - #289775 Day link needs a leading zero.
 - Make sure calendars have a min and max date even if the date argument is not the first argument.
 - Tweaked the jcalendar popup html and css a bit to keep title from popping out of the box in some themes.

@@ -438,7 +438,7 @@ function theme_calendar_title($granularity, $view) {
     case 'day':
       return date_format_date($view->min_date, 'custom', 'l, F j Y');
     case 'week':
-    	return t('Week of @date', array('@date' => date_format($view->min_date, 'F j')));
+    	return t('Week of @date', array('@date' => date_format_date($view->min_date, 'custom', 'F j')));
   }
 }
 
