@@ -27,7 +27,7 @@ function template_preprocess_calendar_main(&$vars) {
   $view->url = $url;
   $arg = $view->date_arg;
   $view->month    = $view->month && $view->month != $view->argument['date_argument']->options['wildcard'] ? $view->month : date_format($now, 'm');
-  $view->day      = $view->day && $view->day != $view->argument['date_argument']->options['wildcard'] ? $view->day : date_format($now, 'j');
+  $view->day      = $view->day && $view->day != $view->argument['date_argument']->options['wildcard'] ? $view->day : date_format($now, 'd');
   if (empty($view->week) || $view->week == $view->argument['date_argument']->options['wildcard']) {
     $view->week = date_week($view->year .'-'. date_pad($view->month) .'-'. date_pad($view->day));
   }
