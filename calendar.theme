@@ -39,12 +39,7 @@ function theme_calendar_views_calendar(&$view, &$items, $type) {
     return;
   }
   include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
-  if ($type == 'block' || !calendar_is_calendar_arg($view)) {
-    $view->calendar_type = 'month';
-  }
-  if ($type == 'block') {
-    $view->mini = TRUE;
-  }
+    
   // Bail out here to display regular views views instead of calendar.
   switch($view->calendar_display) {
     case ('table') :

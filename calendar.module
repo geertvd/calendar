@@ -81,7 +81,7 @@ function calendar_menu($may_cache) {
 function calendar_max_weeks($year) {
   $date = date_make_date(($year+1) . '-01-01 12:00:00', 'UTC');
   date_modify($date, '-1 day');
-  return date_week(date_format($date, 'Y-m-d'));
+  return date_week(date_format($date, DATE_FORMAT_DATE));
 }
 
 /**
@@ -255,9 +255,10 @@ function calendar_views_query_alter(&$query, &$view) {
   }
   // If there are args before the calendar args and they don't have values
   // we don't have enough information to create calendar navigation links
-  // so exit here.
+  // so exit here. Except if this is a block because we construct
+  // missing arguments for the block.
   $pos = calendar_arg_positions($view);
-  if ($pos[0] > count($view->args)) {
+  if ($pos[0] > count($view->args) && $view->build_type != 'block') {
     return;
   }
 
@@ -295,6 +296,8 @@ function calendar_views_pre_view(&$view, &$items) {
   if ((!calendar_is_calendar($view) || !calendar_has_calendar_args($view))) {
     return;
   }
+  if ($view->build_type == 'block' || $view->calendar_type == 'year') $view->mini = TRUE;
+  
   $summary = !empty($items) && array_key_exists('num_nodes', $items[0]);
   if (!calendar_is_calendar_arg($view) || $summary) {
     return;
@@ -315,8 +318,6 @@ function calendar_views_pre_view(&$view, &$items) {
       }
     }
   }
-
-  if ($view->build_type == 'block' || $view->calendar_type == 'year') $view->mini = TRUE;
 
   // Construct a formatted title for the view from the last calendar
   // argument encountered.
@@ -851,7 +852,7 @@ function calendar_date_select_form($view) {
   $form['calendar_goto'] = array(
     //'#title' => t('Calendar date'),
     '#type' => 'date_popup',
-    '#default_value' => date_format($view->min_date, 'Y-m-d'),
+    '#default_value' => date_format($view->min_date, DATE_FORMAT_DATE),
     '#date_timezone' => date_default_timezone_name(),
     '#date_format' => $format,
     );

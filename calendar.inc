@@ -136,8 +136,8 @@ function _calendar_views_query_alter(&$query, &$view) {
   $view->week = $query->week;
   $view->min_date = $query->min_date;
   $view->max_date = $query->max_date;
-  $view->min_date_date = date_format($view->min_date, 'Y-m-d');
-  $view->max_date_date = date_format($view->max_date, 'Y-m-d');
+  $view->min_date_date = date_format($view->min_date, DATE_FORMAT_DATE);
+  $view->max_date_date = date_format($view->max_date, DATE_FORMAT_DATE);
   
   // Identify the kind of display we're using for this view.
   // Check first for 'view' in url to get displays set by the switch
@@ -168,8 +168,8 @@ function calendar_build_calendar($view, $items, $params) {
     if (empty($item->calendar_start_date) || empty($item->calendar_end_date)) {
       continue;
     }
-    $item_start = date_format($item->calendar_start_date, 'Y-m-d');
-    $item_end = date_format($item->calendar_end_date, 'Y-m-d');
+    $item_start = date_format($item->calendar_start_date, DATE_FORMAT_DATE);
+    $item_end = date_format($item->calendar_end_date, DATE_FORMAT_DATE);
     if (($item_start >= $view->min_date_date && $item_start <= $view->max_date_date)
      || ($item_end >= $view->min_date_date && $item_end <= $view->max_date_date)) {
       $values[$item_start][$item_start][] = $item;
@@ -229,7 +229,7 @@ function calendar_build_month(&$curday, $view, $items, $params) {
   $rows = array();
   do {
     $rows = array_merge($rows, calendar_build_week($curday, $view, $items, $params, TRUE));
-    $curday_date = date_format($curday, 'Y-m-d');
+    $curday_date = date_format($curday, DATE_FORMAT_DATE);
     $curday_month = date_format($curday, 'n');
   } while ($curday_month == $month && $curday_date <= $view->max_date_date);
 
@@ -248,9 +248,9 @@ function calendar_build_month(&$curday, $view, $items, $params) {
  * Build one week row.
  */
 function calendar_build_week(&$curday, $view, $items, $params, $check_month = FALSE) {
-  $curday_date = date_format($curday, 'Y-m-d');
+  $curday_date = date_format($curday, DATE_FORMAT_DATE);
   $weekdays = calendar_untranslated_days($results, $view);
-  $today = date_format(date_now(date_default_timezone_name()), 'Y-m-d');
+  $today = date_format(date_now(date_default_timezone_name()), DATE_FORMAT_DATE);
   $month = date_format($curday, 'n');
   $week = date_week($curday_date);
   $first_day = variable_get('date_first_day', 0);
@@ -258,7 +258,7 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
   // move backwards to the first day of the week
   $day_wday = date_format($curday, 'w');
   date_modify($curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
-  $curday_date = date_format($curday, 'Y-m-d');
+  $curday_date = date_format($curday, DATE_FORMAT_DATE);
     
   // If we're displaying the week number, add it as the
   // first cell in the week.
@@ -278,7 +278,7 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
       );
   }
   for ($i = 0; $i < 7; $i++) {
-    $curday_date = date_format($curday, 'Y-m-d');
+    $curday_date = date_format($curday, DATE_FORMAT_DATE);
     if ($check_month && ($curday_date < $view->min_date_date || $curday_date > $view->max_date_date || date_format($curday, 'n') != $month)) {
       $class = strtolower($weekdays[$i] .
       ($view->mini ? ' mini' : ''));
@@ -306,7 +306,7 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
  * Build the contents of a single day for the $rows results.
  */
 function calendar_build_day($curday, $view, $items, $params) {
-  $curday_date = date_format($curday, 'Y-m-d');
+  $curday_date = date_format($curday, DATE_FORMAT_DATE);
   $inner = '';
   $selected = FALSE;
   foreach ($items as $date => $day) {
