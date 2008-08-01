@@ -570,8 +570,8 @@ class calendar_plugin_style extends views_plugin_style {
         $this->view->week = isset($argument->week) ? $argument->week : NULL;
         $this->view->min_date = $argument->min_date;
         $this->view->max_date = $argument->max_date;
-        $this->view->min_date_date = date_format($this->view->min_date, 'Y-m-d');
-        $this->view->max_date_date = date_format($this->view->max_date, 'Y-m-d');
+        $this->view->min_date_date = date_format($this->view->min_date, DATE_FORMAT_DATE);
+        $this->view->max_date_date = date_format($this->view->max_date, DATE_FORMAT_DATE);
       }
       $i++;
     }
