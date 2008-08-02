@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #268669 Improve logic for splitting multi-day nodes across calendar dates, patch by emok.
 - Add new DATE_FORMAT_DATE for date-only format that is used throughout the calendar.
 - Make sure week title gets translated by using date_format_date() instead of date_format().
 - #289775 Day link needs a leading zero.

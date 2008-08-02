@@ -222,12 +222,18 @@ function calendar_build_nodes(&$view, &$items) {
   if (empty($view->min_date) || empty($view->max_date)) {
     return $items;
   }
+  // Midnights are determined based on the same timezone as the View uses
+  $display_timezone = date_timezone_get($view->min_date);
+  $display_timezone_name = timezone_name_get($display_timezone);
+  
   // Translate the view min and max dates to UTC values
   // so we can compare UTC dates to the view range.
   $min_utc = drupal_clone($view->min_date);
   date_timezone_set($min_utc, timezone_open('UTC'));
   $max_utc = drupal_clone($view->max_date);
   date_timezone_set($max_utc, timezone_open('UTC'));
+  $min_zone_string = array(); // Will cache $min_utc-strings in various timezones 
+  $max_zone_string = array();
 
   $view->nodes_per_page = 0;
   $type_names = node_get_types('names');
@@ -295,25 +301,68 @@ function calendar_build_nodes(&$view, &$items) {
         if ($tz_handling == 'date' && !empty($item->$tz_alias)) {
           $to_zone = $item->$tz_alias;
         }
+        // NOTE: Now $display_timezone determines how $item is split
+        // into one entry per day, while $to_zone determines how date is displayed.
+        // Maybe someone wants to the date fields's timezone for the day splitting,
+        // then use: $display_timezone_name = $to_zone;
+        $values_display = array();
+        // Start date
         $date = date_make_date($values[0], $db_tz, $field['sql_type']);
         if ($db_tz != $to_zone) {
           date_timezone_set($date, timezone_open($to_zone));
         }
         $values[0] = date_format($date, DATE_FORMAT_DATETIME);
+        if ($display_timezone_name != $to_zone) {
+          date_timezone_set($date, $display_timezone);
+          $values_display[0] = date_format($date, DATE_FORMAT_DATETIME);
+        } 
+        else {
+          $values_display[0] = $values[0];
+        }
+        
+        // End date
         $date = date_make_date($values[1], $db_tz, $field['sql_type']);
         if ($db_tz != $to_zone) {
           date_timezone_set($date, timezone_open($to_zone));
         }
         $values[1] = date_format($date, DATE_FORMAT_DATETIME);
-        
+        if ($display_timezone_name != $to_zone) {
+          date_timezone_set($date, $display_timezone);
+          $values_display[1] = date_format($date, DATE_FORMAT_DATETIME);
+        } 
+        else {
+          $values_display[1] = $values[1];
+        }
+        // Now $values contain start and end date of a node,
+        // expressed as strings in the display (local) timezone.
+        // $values_utc does the same in UTC timezone.
+
+        // Get calendar min and max day (not time) as strings in the
+        // $display_timezone. Cache in $min_zone_string and $max_zone_string,
+        // since many items or fields typically use the samee timezone.
+        if (!isset($min_zone_string[$display_timezone_name])) {
+          $date = drupal_clone($view->min_date);
+          date_timezone_set($date, $display_timezone);
+          $min_zone_string[$display_timezone_name] = date_format($date, 'Y-m-d');
+          $date = drupal_clone($view->max_date);
+          date_timezone_set($date, $display_timezone);
+          $max_zone_string[$display_timezone_name] = date_format($date, 'Y-m-d');
+        }
         // Create a node for each date within the field's date range,
-        // limited to the view's date range.
-        $now = max(date_format($min_utc, DATE_FORMAT_DATETIME), $values[0]);
-        $to  = min(date_format($max_utc, DATE_FORMAT_DATETIME), $values[1]);
-        $next = date_make_date($now, 'UTC');
+        // limited to the view's date range (regarding only day, not time).
+        $now = max($min_zone_string[$display_timezone_name], substr($values_display[0], 0, 10));
+        $to  = min($max_zone_string[$display_timezone_name], substr($values_display[1], 0, 10));
+        $next = date_make_date($now, $display_timezone);
+        if ($display_timezone_name != $to_zone) {
+          // Make $start and $end (derived from $node) use the timezone $to_zone, just as $values[..] do
+          date_timezone_set($next, timezone_open($to_zone));
+        }
         if (empty($to)) {
           $to = $now;
         }
+        // $now and $next are midnight (in display timezone) on the first day where node will occur.
+        // $to is midnight on the last day where node will occur.
+        // All three were limited by the min-max date range of the view.
         while ($now <= $to) {
           $node = drupal_clone($item);
           // Make sure the pseudo node has the same properties a
@@ -327,11 +376,11 @@ function calendar_build_nodes(&$view, &$items) {
 
           $node->label = $label;
           $node->format = $format;
-          $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
+          $node->format_time = date_limit_format($format, array('hour', 'minute', 'second'));
           $node->url = url("node/$node->nid", array('absolute' => TRUE));
 
-          $node->$fromto[0] = $values[0];
-          $node->$fromto[1] = $values[1];
+          //$node->$fromto[0] = $values[0];
+          //$node->$fromto[1] = $values[1];
           
           // Flag which datefield this node is using, in case
           // there are multiple date fields in the view.
@@ -346,20 +395,29 @@ function calendar_build_nodes(&$view, &$items) {
             }
           }
 
+          // Get start and end of current day
           $start = date_format($next, DATE_FORMAT_DATETIME);
           date_modify($next, '+1 day');
           date_modify($next, '-1 second');
           $end = date_format($next, DATE_FORMAT_DATETIME);
 
+          // Get intersection of current day and the node value's duration (as strings in $to_zone timezone)
           $node->calendar_start = $values[0] < $start ? $start : $values[0];
           $node->calendar_end = !empty($values[1]) ? ($values[1] > $end ? $end : $values[1]) : $node->calendar_start;
 
-          $node->calendar_start_date = date_create($node->calendar_start, timezone_open('UTC'));
-          $node->calendar_end_date = date_create($node->calendar_end, timezone_open('UTC'));
+          // Make date objects
+          $node->calendar_start_date = date_create($node->calendar_start, timezone_open($to_zone));
+          $node->calendar_end_date = date_create($node->calendar_end, timezone_open($to_zone));
           if ($tz_handling != 'utc' && $tz_handling != 'none') {
             date_timezone_set($node->calendar_start_date, date_default_timezone());
             date_timezone_set($node->calendar_end_date, date_default_timezone());
+          } 
+          else {
+            date_timezone_set($node->calendar_start_date, timezone_open('UTC'));
+            date_timezone_set($node->calendar_end_date, timezone_open('UTC'));
           }
+          // Change string timezones into 
+          // calendar_start and calendar_end are UTC dates as formatted strings
           $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
           $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
           
@@ -378,11 +436,12 @@ function calendar_build_nodes(&$view, &$items) {
             $id = 'calendar:'. $item->nid .':'. $real_field .':'. $delta .':'. $pos;
             calendar_node_stripe($view, $node, $alias, $alias);
             $node->date_id = $id;
+
             $nodes[] = $node;
             unset($node);
           }
           date_modify($next, '+1 second');
-          $now = date_format($next, DATE_FORMAT_DATETIME);
+          $now = date_format($next, 'Y-m-d');
         }
       }
     }
