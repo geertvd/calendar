@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 2.0 dev
 ===============
 
+- #268669 Improve logic for splitting multi-day nodes across calendar dates, patch by emok.
 - Add new DATE_FORMAT_DATE for date-only format that is used throughout the calendar.
 - Make sure you can have arguments with summary views preceding the calendar.
 - #258176 Make sure mini calendar links includes all other arguments.

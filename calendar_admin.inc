@@ -191,12 +191,28 @@ function _calendar_fields() {
         $event_fields_processed[] = $processed_name;
       }
 
+       // skip this step on second occurrence of fromto date fields, if more than one exists in view
+      // cck fields append a column name to the field, others do not
+      // need a real field_name with no column name appended for cck date formatters
+      switch ($type) {
+        case 'cck_string':
+          $sql_type = DATE_ISO;
+          break;
+        case 'cck_datetime':
+          $sql_type = DATE_DATETIME;
+          break;
+        default:
+          $sql_type = DATE_UNIX;
+          break;
+      }
+
       // skip this step on second occurrence of fromto date fields, if more than one exists in view
       if (!in_array($processed_name, $event_fields_processed) || $fromto) {
         // cck fields append a column name to the field, others do not
         // need a real field_name with no column name appended for cck date formatters
         $fields[$tmp[1]] = array(
           'type' => $type,
+          'sql_type' => $sql_type,
           'delta' => $delta,
           'label' => $val['name'],
           'fullname' => $name,
@@ -214,7 +230,7 @@ function _calendar_fields() {
       }
     }
   }
-  cache_set($cid, 'cache_views', serialize($fields));
+  //cache_set($cid, 'cache_views', serialize($fields));
   return $fields;
 }
 
