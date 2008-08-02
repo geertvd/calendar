@@ -347,6 +347,23 @@ class calendar_plugin_display_block extends views_plugin_display_block {
     $display->display_options['defaults']['row_plugin'] = FALSE;
     $display->display_options['defaults']['row_options'] = FALSE;
   } 
+  
+  /**
+   * The display block handler returns the structure necessary for a block.
+   * 
+   * TODO This can be removed when the patch at http://drupal.org/node/290328
+   * gets into an official release.
+   */
+  function execute() {
+    // Prior to this being called, the $view should already be set to this
+    // display, and arguments should be set on the view.
+    $info['content'] = $this->view->render();
+    $info['subject'] = filter_xss_admin($this->view->get_title());
+    if (!empty($this->view->result) || $this->get_option('empty') || !empty($this->view->style_plugin->definition['even empty'])) {
+      return $info;
+    }
+  }
+  
 }
 
 /**
@@ -613,7 +630,6 @@ class calendar_view_plugin_style extends calendar_plugin_style {
    */
   function options(&$options) {
     $options['name_size'] = 3;
-    $options['display_type'] = 'month';
     $options['with_weekno'] = 0;
   }
 
@@ -621,13 +637,6 @@ class calendar_view_plugin_style extends calendar_plugin_style {
    * Style options.
    */
   function options_form(&$form, &$form_state) {
-    $form['display_type'] = array(
-      '#type' => 'radios',
-      '#title' => t('Display'),
-      '#options' => calendar_display_types(),
-      '#description' => t('What type of calendar template should be used for this style?'),
-      '#default_value' => $this->options['display_type'],
-    );
     $form['name_size'] = array(
       '#title' => t('Calendar day of week names'),
       '#default_value' => $this->options['name_size'],
@@ -649,8 +658,8 @@ class calendar_view_plugin_style extends calendar_plugin_style {
    * Render the calendar attachment style.
    */
   function render() {
-    // Adjust the theme to match the currently selected calendar type.
-    $this->definition['theme'] = 'calendar_'. $this->options['display_type'];
+    // Adjust the theme to match the currently selected default.
+    $this->definition['theme'] = 'calendar_'. $this->view->granularity;
     $this->view->hide_admin_links = TRUE;
     return theme($this->theme_functions(), $this->view, $this->options, array());
   }

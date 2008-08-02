@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #289981, #290328 Fixing broken handling of empty blocks that sometimes kept calendars from displaying in blocks.
 - Clean up logic for creating calendar fields info.
 - #268669 Improve logic for splitting multi-day nodes across calendar dates, patch by emok.
 - Add new DATE_FORMAT_DATE for date-only format that is used throughout the calendar.
