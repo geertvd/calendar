@@ -448,7 +448,6 @@ function calendar_build_nodes(&$view, &$items) {
   }
   return $nodes;
 }
-
 /**
  *  Identify all potential date/timestamp fields.
  *
@@ -505,52 +504,54 @@ function _calendar_fields($base = 'node') {
       $delta_field = '';
       $rrule_field = '';
       
-      // Handling for content field dates
-      if ($handler->content_field['tz_handling']) {
-        $tz_handling = $handler->content_field['tz_handling'];
-        $db_info = content_database_info($handler->content_field);
-        if ($tz_handling == 'date') {
-          $offset_field = $table_name .'.'. $db_info['columns']['offset']['column'];
-          $timezone_field = $table_name .'.'. $db_info['columns']['timezone']['column'];
-          $related_fields = array(
-            $table_name .'.'. $field_name,
-            $table_name .'.'. $db_info['columns']['value2']['column'],
-            $table_name .'.'. $db_info['columns']['timezone']['column'],
-            $table_name .'.'. $db_info['columns']['offset']['column'],
-            $table_name .'.'. $db_info['columns']['offset2']['column'],
-          );
-        }
-        else {
-          $related_fields = array(
-            $table_name .'.'. $field_name,
-            $table_name .'.'. $db_info['columns']['value2']['column'],
-          );
-        }
-      }
-      // Get the delta value into the query.
-      if (!empty($handler->content_field['multiple'])) {
-        array_push($related_fields, "$table_name.delta");
-        $delta_field = 'delta';
-      }
-      if (!empty($db_info['columns']['rrule'])) {
-        $rrule_field = $table_name .'.'. $db_info['columns']['rrule']['column'];
-      }
       // Handling for simple timestamp fields
-      else {
+      if (empty($handler->content_field['type'])) {
         $fromto = array($alias, $alias);
         $tz_handling = 'site';
       }
-      // Handling for cck fromto dates
-      switch ($handler->content_field['type']) {
-        case 'date':
-        case 'datetime':
-        case 'datestamp':
+      // Handling for content field dates
+      else {
+        if ($handler->content_field['tz_handling']) {
+          $tz_handling = $handler->content_field['tz_handling'];
           $db_info = content_database_info($handler->content_field);
-          $fromto = array(
-            $table_name .'_'. $db_info['columns']['value']['column'],
-            $table_name .'_'. ($handler->content_field['todate'] ? $db_info['columns']['value2']['column'] : $db_info['columns']['value']['column']),
+          if ($tz_handling == 'date') {
+            $offset_field = $table_name .'.'. $db_info['columns']['offset']['column'];
+            $timezone_field = $table_name .'.'. $db_info['columns']['timezone']['column'];
+            $related_fields = array(
+              $table_name .'.'. $field_name,
+              $table_name .'.'. $db_info['columns']['value2']['column'],
+              $table_name .'.'. $db_info['columns']['timezone']['column'],
+              $table_name .'.'. $db_info['columns']['offset']['column'],
+              $table_name .'.'. $db_info['columns']['offset2']['column'],
             );
-          break;
+          }
+          else {
+            $related_fields = array(
+              $table_name .'.'. $field_name,
+              $table_name .'.'. $db_info['columns']['value2']['column'],
+            );
+          }
+        }
+        // Get the delta value into the query.
+        if (!empty($handler->content_field['multiple'])) {
+          array_push($related_fields, "$table_name.delta");
+          $delta_field = 'delta';
+        }
+        if (!empty($db_info['columns']['rrule'])) {
+          $rrule_field = $table_name .'.'. $db_info['columns']['rrule']['column'];
+        }
+        // Handling for cck fromto dates
+        switch ($handler->content_field['type']) {
+          case 'date':
+          case 'datetime':
+          case 'datestamp':
+            $db_info = content_database_info($handler->content_field);
+            $fromto = array(
+              $table_name .'_'. $db_info['columns']['value']['column'],
+              $table_name .'_'. ($handler->content_field['todate'] ? $db_info['columns']['value2']['column'] : $db_info['columns']['value']['column']),
+              );
+            break;
+        }
       }
       
       if (is_array($handler->content_field['granularity'])) {
