@@ -343,10 +343,10 @@ function calendar_build_nodes(&$view, &$items) {
         if (!isset($min_zone_string[$display_timezone_name])) {
           $date = drupal_clone($view->min_date);
           date_timezone_set($date, $display_timezone);
-          $min_zone_string[$display_timezone_name] = date_format($date, 'Y-m-d');
+          $min_zone_string[$display_timezone_name] = date_format($date, DATE_FORMAT_DATE);
           $date = drupal_clone($view->max_date);
           date_timezone_set($date, $display_timezone);
-          $max_zone_string[$display_timezone_name] = date_format($date, 'Y-m-d');
+          $max_zone_string[$display_timezone_name] = date_format($date, DATE_FORMAT_DATE);
         }
         // Create a node for each date within the field's date range,
         // limited to the view's date range (regarding only day, not time).
@@ -441,7 +441,7 @@ function calendar_build_nodes(&$view, &$items) {
             unset($node);
           }
           date_modify($next, '+1 second');
-          $now = date_format($next, 'Y-m-d');
+          $now = date_format($next, DATE_FORMAT_DATE);
         }
       }
     }

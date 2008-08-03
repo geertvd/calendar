@@ -382,7 +382,34 @@ class calendar_plugin_display_block extends views_plugin_display_block {
  */
 class calendar_plugin_display_attachment extends views_plugin_display_attachment {
 
+  /**
+   * Attach only the appropriate displays for the current argument.
+   */
   function attach_to($display_id) {
+    $i = 0;
+    $display_granularity = str_replace('calendar_plugin_', '', $this->definition['handler']);
+    $arguments = $this->view->get_items('argument', $display_id);
+    foreach ($arguments as $argument) {
+      if ($argument['id'] == 'date_argument') {
+        $pos = $i;
+        $default_granularity = $argument['granularity'];
+        break;
+      }
+      $i++;
+    }
+    if (!empty($this->view->args[$pos])) {
+      include_once(drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
+      $date_handler = new date_sql_handler();
+      $view_granularity = $date_handler->arg_granularity($this->view->args[$pos]);
+    }
+    else {
+      $view_granularity = $default_granularity;
+    }
+    
+    // If this isn't the right attachment for this argument, stop here.
+    if ($view_granularity != $display_granularity) {
+      return;
+    }
     
     // See if we're attaching to a block rather than a page.
     if (substr($display_id, 0, 14) == 'calendar_block') {
@@ -394,6 +421,7 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
       $this->view->parent_id = $display_id;
       $this->view->calendar_colors = $this->view->display[$display_id]->handler->options['calendar_colors'];
     }
+    $this->view->display_granularity = $display_granularity;
     parent::attach_to($display_id);
     
   }
@@ -427,14 +455,6 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
     return parent::defaultable_sections($section);
   }
   
-  /**
-   * Only render this attachment if it is the right one.
-   */
-  function render() {
-    if (!empty($this->view->block) || $this->definition['handler'] == 'calendar_plugin_'. $this->view->granularity) {
-      return theme($this->theme_functions(), $this->view);
-    } 
-  }
 }
 
 class calendar_plugin_year extends calendar_plugin_display_attachment {
