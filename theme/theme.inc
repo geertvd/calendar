@@ -55,6 +55,8 @@ function template_preprocess_calendar_main(&$vars) {
   $vars['view'] = $view;  
   $vars['mini'] = !empty($view->mini);
   $vars['block'] = !empty($view->block);
+  $vars['block_identifier'] = isset($view->block_identifier) ? $view->block_identifier : 'mini';
+    
 }
 
 /**
