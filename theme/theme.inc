@@ -283,10 +283,14 @@ function template_preprocess_calendar_node(&$vars) {
   foreach ($view->field as $field) {
     $field_alias = $field->field_alias;
     if (!empty($node->$field_alias)) {
+      $data = $node->$field_alias;
+      if ($field_alias == $node->datefield) {
+        $data = theme('calendar_date_combo', $node, $field->options['label'], $view);
+      }
       $fields[$field_alias] = array(
         'id' => views_css_safe($field_alias),
         'label' => $field->options['label'],
-        'data' => $node->$field_alias,
+        'data' => $data,
         );
     }
   }
@@ -448,17 +452,15 @@ function theme_calendar_title($granularity, $view) {
  * Format a from/to date in the calendar view.
  *
  * Alter the display as appropriate for the type of view.
- * We have to do our own display of the date because we altered the
- * value to the local timezone, and the built-in formatters assume
- * they're operating on a UTC date. Plus we can fine-tune the display
- * to show only the time in the calendar month and week cells but the
+ * We can fine-tune the display to show only the time in 
+ * the calendar month and week cells but the
  * whole date in other places.
  */
 function theme_calendar_date_combo($node, $label, $view) {
-  switch ($view->calendar_display) {
+  switch ($view->style_plugin->definition['handler']) {
     // Some of the calendar views need a smaller date format.
-    case 'calendar':
-      switch ($view->granularity) {
+    case 'calendar_view_plugin_style':
+      switch ($view->calendar_display) {
         case 'year':
           // We don't display individual dates in the calendar year view.
           return;
@@ -479,9 +481,9 @@ function theme_calendar_date_combo($node, $label, $view) {
       $format = $node->format;
       break;
   }
-  $date1 = date_format_date($node->calendar_start_date, 'custom', $format);
-  $date2 = date_format_date($node->calendar_end_date, 'custom', $format);
-
+  $date1 = theme('date_all_day', 'date1', $node->calendar_start_date, $node->calendar_end_date, $format, $node, $view);
+  $date2 = theme('date_all_day', 'date2', $node->calendar_start_date, $node->calendar_end_date, $format, $node, $view);
+  
   // No date values, display nothing.
   if (empty($date1) && empty($date2)) {
     $output = '';
@@ -508,6 +510,5 @@ function theme_calendar_date_combo($node, $label, $view) {
   }
   return $output;
 }
-
 
 /** @} End of addtogroup themeable */
