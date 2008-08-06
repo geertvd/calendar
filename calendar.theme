@@ -642,10 +642,8 @@ function theme_calendar_views_field($fieldname, $fields, $field, $node, $view, $
  * Format a from/to date in the calendar view.
  *
  * Alter the display as appropriate for the type of view.
- * We have to do our own display of the date because we altered the
- * value to the local timezone, and the built-in formatters assume
- * they're operating on a UTC date. Plus we can fine-tune the display
- * to show only the time in the calendar month and week cells but the
+ * We can fine-tune the display to show only the time in 
+ * the calendar month and week cells but the
  * whole date in other places.
  */
 function theme_calendar_date_combo($node, $label, $view) {
@@ -673,9 +671,9 @@ function theme_calendar_date_combo($node, $label, $view) {
       $format = $node->format;
       break;
   }
-  $date1 = date_format_date($node->calendar_start_date, 'custom', $format);
-  $date2 = date_format_date($node->calendar_end_date, 'custom', $format);
-
+  $date1 = theme('date_all_day', 'date1', $node->calendar_start_date, $node->calendar_end_date, $format, $node, $view);
+  $date2 = theme('date_all_day', 'date2', $node->calendar_start_date, $node->calendar_end_date, $format, $node, $view);
+  
   // No date values, display nothing.
   if (empty($date1) && empty($date2)) {
     $output = '';

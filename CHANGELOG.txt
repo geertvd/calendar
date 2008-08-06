@@ -4,9 +4,14 @@ Views Calendar 5.x
 Version 2.0 dev
 ===============
 
+- Add 'All day' themes for use in nodes and calendar psuedo nodes.
 - #290826 Fix logic error that was missing date ranges that start before the current period by changing 'AND' to 'OR' in argument filter.
 - #268669 Improve logic for splitting multi-day nodes across calendar dates, patch by emok.
 - Add new DATE_FORMAT_DATE for date-only format that is used throughout the calendar.
+
+Version 2.0-rc3
+===============
+
 - Make sure you can have arguments with summary views preceding the calendar.
 - #258176 Make sure mini calendar links includes all other arguments.
 - #239594 Make sure ical links with other arguments work correctly.
