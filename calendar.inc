@@ -467,13 +467,12 @@ function calendar_build_field_query(&$query, $field) {
       }
     }
 
-    if ($this_field['timestamp_fromto'] || $this_field['string_fromto']) {
+    if ($this_field['fromto']) {
       // Format dates with from and to times into a single value that is made
       // up of the two local DATETIME values separated with a pipe (|).
-      $value = $this_field['timestamp_fromto'] ? 'timestamp_fromto' : 'string_fromto';
-      $dbfield = date_sql_concat(array($this_field[$value][0], "'|'", $this_field[$value][1]));
-      $queries[] = "(". $date_handler->sql_where_date('DATE', $this_field[$value][1], '>=', $min) .
-        " AND ". $date_handler->sql_where_date('DATE', $this_field[$value][0], '<=', $max) .")";
+      $dbfield = date_sql_concat(array($this_field['fromto'][0], "'|'", $this_field['fromto'][1]));
+      $queries[] = "(". $date_handler->sql_where_date('DATE', $this_field['fromto'][1], '>=', $min) .
+        " OR ". $date_handler->sql_where_date('DATE', $this_field['fromto'][0], '<=', $max) .")";
     }
     else {
       $dbfield = $this_field['fullname'];
@@ -629,10 +628,10 @@ function calendar_build_nodes(&$view, &$items) {
             if (!isset($min_zone_string[$display_timezone_name])) {
               $date = drupal_clone($view->min_date);
               date_timezone_set($date, $display_timezone);
-              $min_zone_string[$display_timezone_name] = date_format($date, 'Y-m-d');
+              $min_zone_string[$display_timezone_name] = date_format($date, DATE_FORMAT_DATE);
               $date = drupal_clone($view->max_date);
               date_timezone_set($date, $display_timezone);
-              $max_zone_string[$display_timezone_name] = date_format($date, 'Y-m-d');
+              $max_zone_string[$display_timezone_name] = date_format($date, DATE_FORMAT_DATE);
             }
             // Create a node for each date within the field's date range,
             // limited to the view's date range (regarding only day, not time).
@@ -731,7 +730,7 @@ function calendar_build_nodes(&$view, &$items) {
                 unset($node);
               }
               date_modify($next, '+1 second');
-              $now = date_format($next, 'Y-m-d');
+              $now = date_format($next, DATE_FORMAT_DATE);
             }
           }
         }

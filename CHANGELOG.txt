@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 2.0 dev
 ===============
 
+- #290826 Fix logic error that was missing date ranges that start before the current period by changing 'AND' to 'OR' in argument filter.
 - #268669 Improve logic for splitting multi-day nodes across calendar dates, patch by emok.
 - Add new DATE_FORMAT_DATE for date-only format that is used throughout the calendar.
 - Make sure you can have arguments with summary views preceding the calendar.
