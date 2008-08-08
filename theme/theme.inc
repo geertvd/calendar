@@ -389,7 +389,6 @@ function template_preprocess_calendar_week_node(&$vars) {
  * Format a node stripe legend
  */
 function theme_calendar_stripe_legend() {
-  $view = $GLOBALS['current_view'];
   $header = array(
       array('class' => 'legend', 'data' => t('Item')),
       array('class' => 'legend', 'data' => t('Key'))
