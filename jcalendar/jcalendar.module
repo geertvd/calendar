@@ -28,14 +28,15 @@ function jcalendar_help($path, $arg) {
 * @return string HTML for node
 */
 function get_calendar_node($nid, $id) {
-  if ($node = node_load($nid)) {
-    if (node_access("view", $node)) {
-      $GLOBALS['devel_shutdown'] = FALSE;
-      $node->date_id = $id;
-      print theme('jcalendar_view', $node);
+  if (is_numeric($nid)) {
+    if ($node = node_load($nid)) {
+      if (node_access("view", $node)) {
+        $GLOBALS['devel_shutdown'] = FALSE;
+        $node->date_id = $id;
+        print theme('jcalendar_view', $node);
+      }
     }
-  }
-}
+  }}
 
 /**
 * Implemetation of hook_menu()
@@ -83,6 +84,6 @@ function jcalendar_theme() {
  */
 function theme_jcalendar_view($node) {
   $output = node_view($node, TRUE);
-  $output .= '<div id="nodelink">'. l(t('more'), 'node/'. $node->nid) .'</div>';
+  $output .= '<div id="nodelink">'. l(t('more'), calendar_get_node_link($node) .'</div>';
   return $output;
 }

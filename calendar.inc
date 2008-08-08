@@ -377,7 +377,7 @@ function calendar_build_nodes(&$view, &$items) {
           $node->label = $label;
           $node->format = $format;
           $node->format_time = date_limit_format($format, array('hour', 'minute', 'second'));
-          $node->url = url("node/$node->nid", array('absolute' => TRUE));
+          $node->url = calendar_get_node_link($node);
 
           //$node->$fromto[0] = $values[0];
           //$node->$fromto[1] = $values[1];
