@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 2.0 dev
 ===============
 
+- Add helper function calendar_get_node_link() to construct a node link for either an internal or external node.
 - #272330 Rework css to add background colors where colors are defined and group colors together in the file.
 
 Version 2.0-rc4

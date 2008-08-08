@@ -58,11 +58,18 @@ function _calendar_ical_setup_form($view_name) {
         '#description' => t('The name of a feed to include in this calendar.'),
        ),
       'url' => array(
-        '#title' => t('Url'),
+        '#title' => t('iCal url'),
         '#type' => 'textarea',
         '#rows' => 2,
         '#default_value' => $feed['url'],
-        '#description' => t('The external feed url or internal file path and name. Change \'webcal://\' to \'http://\'.'),
+        '#description' => t('The ical url, either an external feed url or internal file path and name. Change \'webcal://\' to \'http://\'.'),
+      ),
+      'link' => array(
+        '#title' => t('Default link'),
+        '#type' => 'textarea',
+        '#rows' => 2,
+        '#default_value' => $feed['link'],
+        '#description' => t('A url to use to link back to ical items without a url, generally the public link to the calendar these items are coming from.'),
       ),
      'calendar_colorpicker' => array(
         '#type' => 'calendar_colorpicker',

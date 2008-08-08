@@ -663,7 +663,7 @@ function calendar_build_nodes(&$view, &$items) {
               $node->label = $label;
               $node->format = $format;
               $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
-              $node->url = url("node/$node->nid", NULL, NULL, TRUE);
+              $node->url = calendar_get_node_link($node);
 
               // Convert the table.field format in the fromto fields
               // to the table_field format used by the Views formatters.

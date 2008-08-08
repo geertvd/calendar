@@ -868,6 +868,24 @@ function calendar_date_select_form($view) {
 }
 
 /**
+ * Get the url for a calendar node.
+ * 
+ * @param $node - a calendar node object
+ * @param $default - a default url to use when nothing specific is provided.
+ */
+function calendar_get_node_link($node, $default = NULL) {
+  if (isset($node->url)) {
+    return url($node->url, NULL, NULL, TRUE);
+  }
+  elseif (empty($node->remote) && is_numeric($node->nid)) {
+    return url("node/$node->nid", NULL, NULL, TRUE);
+  }
+  elseif (!empty($default)) {
+    return url($default, NULL, NULL, TRUE);
+  }
+}
+
+/**
  * Implementation of hook_elements.
  * 
  * Much of the colorpicker code was adapted from the Colorpicker module.
