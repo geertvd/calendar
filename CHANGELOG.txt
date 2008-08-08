@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Rework the calendar legend to incorporate imported ical node colors as well as internal colors.
 - Add helper function calendar_get_node_link() to construct a node link for either an internal or external node.
 - #272330 Rework css to add background colors where colors are defined and group colors together in the file.
 - Add 'All day' themes for use in nodes and calendar psuedo nodes.
