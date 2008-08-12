@@ -30,7 +30,7 @@ function _calendar_ical_setup_form($view_name) {
     '#description' => t('iCal feeds are cached to improve performance. Set an expiration time for cached feeds.')
     );
 
-  $empty_feed = array(0 => array('name' => '', 'url' => '', 'type' => 'ical', 'stripe' => '#ffffff'));
+  $empty_feed = array(0 => array('name' => '', 'url' => '', 'link' => '', 'type' => 'ical', 'stripe' => '#ffffff'));
   $form[$view->name] = array(
     '#type' => 'fieldset',
     '#title' => t('iCal Feeds'),
