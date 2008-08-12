@@ -472,7 +472,7 @@ function calendar_build_field_query(&$query, $field) {
       // up of the two local DATETIME values separated with a pipe (|).
       $dbfield = date_sql_concat(array($this_field['fromto'][0], "'|'", $this_field['fromto'][1]));
       $queries[] = "(". $date_handler->sql_where_date('DATE', $this_field['fromto'][1], '>=', $min) .
-        " OR ". $date_handler->sql_where_date('DATE', $this_field['fromto'][0], '<=', $max) .")";
+        " AND ". $date_handler->sql_where_date('DATE', $this_field['fromto'][0], '<=', $max) .")";
     }
     else {
       $dbfield = $this_field['fullname'];
