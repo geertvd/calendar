@@ -451,6 +451,9 @@ function calendar_args() {
  * Figure out what the URL of the calendar view we're currently looking at is.
  */
 function calendar_real_url($view, $args) {
+  if (empty($args)) {
+    return $view->url;
+  }
   // Add non-calendar arguments to the base url.
   $parts = explode('/', $view->url);
   $bump = 0;
