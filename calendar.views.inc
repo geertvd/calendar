@@ -1,6 +1,36 @@
 <?php
 //$Id$
 /**
+ *  Implementation of hook_views_query()
+ *  
+ *  Handle the date_popup calendar goto date.
+ */
+function calendar_views_query_alter(&$query, &$view) {
+  // Check if a new date has been selected and if so redirect.
+  if (isset($_POST['calendar_goto'])) {
+    $parts = explode('/', $_POST['calendar_goto']['date']);
+    $type = $_POST['date_type'];
+    if ($type == 'year') {
+      unset($parts[1], $parts[2]);
+    }
+    elseif ($type == 'month') {
+      unset($parts[2]);
+    }
+    elseif ($type == 'week') {
+      $date = implode('-', $parts);
+      $parts[1] = 'W'. date_week($date);
+      unset($parts[2]);
+    }
+    drupal_goto($view->url .'/'. implode('/', $parts));
+    drupal_exit();
+  }
+}
+
+function calendar_views_pre_view(&$view, &$display_id, &$args) {
+  //
+}
+
+/**
  * @file
  * 
  * Creates calendar displays of Views results.
