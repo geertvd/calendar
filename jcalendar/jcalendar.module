@@ -28,10 +28,10 @@ function jcalendar_help($section='') {
 * @return string HTML for node
 */
 function get_calendar_node($nid, $id) {
+  $GLOBALS['devel_shutdown'] = FALSE;
   if (is_numeric($nid)) {
     if ($node = node_load($nid)) {
       if (node_access("view", $node)) {
-        $GLOBALS['devel_shutdown'] = FALSE;
         $node->date_id = $id;
         print theme('jcalendar_view', $node);
       }
