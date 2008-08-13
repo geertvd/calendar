@@ -17,23 +17,12 @@
 
 <div class="calendar-calendar"><div class="day-view">
 <table>
-  <thead>
-    <tr>
-      <th colspan="3">
-        <?php print $day_names; ?>
-      </th>
-    </tr>
-  </thead>
   <tbody>
-    <?php foreach ((array) $rows as $row): ?>
-      <tr>
-        <?php foreach ($row as $cell): ?>
-          <td id="<?php print $cell['id']; ?>" class="<?php print $cell['class']; ?>">
-            <?php print $cell['data']; ?>
-          </td>
-        <?php endforeach; ?>
-      </tr>
-    <?php endforeach; ?>
+     <tr>
+       <td>
+         <?php print $rows; ?>
+       </td>
+     </tr>
   </tbody>
 </table>
 </div></div>

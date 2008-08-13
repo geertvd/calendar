@@ -214,18 +214,9 @@ function template_preprocess_calendar_year(&$vars) {
 function template_preprocess_calendar_day(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar($vars);
-  
   $rows = $vars['rows'];
-  if (sizeof($rows) > 1) {
-    $day_names = array_shift($rows);
-  }
-  else {
-    $day_names = $rows;
-    $rows = array();
-  }
-  $vars['rows'] = $rows;
-  $vars['day_names'] = $day_names;
   
+  $vars['day_names'] = array();
   $view = $vars['view'];
 }
 
