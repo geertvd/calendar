@@ -28,6 +28,7 @@ function jcalendar_help($section='') {
 * @return string HTML for node
 */
 function get_calendar_node($nid, $id) {
+  watchdog('jcalendar', $id);
   $GLOBALS['devel_shutdown'] = FALSE;
   if (is_numeric($nid)) {
     if ($node = node_load($nid)) {

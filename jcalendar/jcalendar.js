@@ -1,13 +1,21 @@
 if (Drupal.jsEnabled) {
   $(document).ready(function() {
-    // I am assuming that all of the links are refering to an internal node
-    
     // add the attribute rel=facebox to all of the links I want to have a popup
     $('div.view-field > a').attr('class', 'popup');
    
     // on click of a link
     $('a.popup').click(function(a) {
     
+      // Get NodeID and ItemID
+      var ids = $(this).parent().parent().parent().attr('id');
+      var arr = ids.split(":");
+      var nid = arr[1];
+      var id = arr[4];
+       
+      // If there is no nid (like for a remote node), don't intervene.     
+      if (!nid) {
+        return true;
+      }
       // Make sure that other stuff is closed. This seems to cause a problem in Fx2 and IE7.
       $('div#calpopup').fadeOut();
       $('div#calpopup').remove();
@@ -30,12 +38,6 @@ if (Drupal.jsEnabled) {
       function domCallback(msg) {
         $('#calpopup-body').html(msg);
       }
-      
-      // Get NodeID and ItemID
-      var ids = $(this).parent().parent().parent().attr('id');
-      var arr = ids.split(":");
-      var nid = arr[1];
-      var id = arr[4];
       
       // fill the div with data
       $.ajax({

@@ -7,6 +7,7 @@ Version 2.0 dev
 Version 2.0-rc5
 ===============
 
+- Fix jCalendar popup so it doesn't do anything on items without a nid, like remote nodes.
 - Make sure Devel module doesn't add queries to Calendar Popups.
 - #292306 Make sure no error is thrown if $GLOBALS['calendar_stripes'] is empty.
 - Make sure database values with empty timezone names get defaulted to use site timezone in calendar handling.
