@@ -7,6 +7,7 @@ Version 2.0 dev
 Version 2.0-rc5
 ===============
 
+- Make sure database values with empty timezone names get defaulted to use site timezone in calendar handling.
 - #288644 Add test for $args in calendar_real_url().
 - #292811 From/To arguments should be combined with AND instead of OR.
 - Rework the calendar legend to incorporate imported ical node colors as well as internal colors.

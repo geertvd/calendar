@@ -580,9 +580,15 @@ function calendar_build_nodes(&$view, &$items) {
             // the correct timezone.
             $values = array($item->$fromto_alias[0], $item->$fromto_alias[1]);
             $to_zone = $local_tz;
-            if ($tz_handling == 'date' && !empty($item->$tz_alias)) {
-              $to_zone = $item->$tz_alias;
+            if ($tz_handling == 'date') {
+              if (!empty($item->$tz_alias)) {
+                $local_tz = $to_zone = $item->$tz_alias;
+              }
+              else {
+                $local_tz = $to_zone = date_default_timezone_name();
+              }
             }
+            
             // NOTE: Now $display_timezone determines how $item is split
             // into one entry per day, while $to_zone determines how date is displayed.
             // Maybe someone wants to the date fields's timezone for the day splitting,
