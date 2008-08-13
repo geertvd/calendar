@@ -284,12 +284,25 @@ function template_preprocess_calendar_node(&$vars) {
     $field_alias = $field->field_alias;
     if (!empty($node->$field_alias)) {
       $data = $node->$field_alias;
+      $label = $field->options['label'];
+      
+      // CCK has some special label options.
+      if (!empty($field->content_field)) {
+        switch ($field->options['label_type']) {
+          case 'none':
+            $label = '';
+            break;
+          case 'widget':
+            $label = $field->content_field['widget']['label'];
+            break;
+        }
+      }
       if ($field_alias == $node->datefield) {
         $data = theme('calendar_date_combo', $node, $field->options['label'], $view);
       }
       $fields[$field_alias] = array(
         'id' => views_css_safe($field_alias),
-        'label' => $field->options['label'],
+        'label' => $label,
         'data' => $data,
         );
     }

@@ -36,7 +36,7 @@
  *   print date_format($calendar_start_date, 'l, j F Y - g:ia');
  * 
  * @see template_preprocess_calendar_day_node.
- */ 
+ */
 ?>
 <div class="view-item view-item-<?php print $view->name ?>">
   <div class="calendar dayview" id="<?php print $node->date_id ?>">

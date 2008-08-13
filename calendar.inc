@@ -267,7 +267,6 @@ function calendar_build_nodes(&$view, &$items) {
         $local_tz = 'date';
         break;
     }
-    
     if (strstr($field['type'], 'cck')) {
       $cck_field_name = str_replace(array('_value2', '_value'), '', $field_name);
       $format = date_formatter_format(isset($data['options']) ? $data['options'] : 'default', $cck_field_name);
