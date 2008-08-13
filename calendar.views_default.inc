@@ -96,6 +96,10 @@ $handler->override_option('tab_options', array(
   'title' => '',
   'weight' => 0,
 ));
+$handler->override_option('calendar_colors', array(
+  'page' => '#ffff66',
+  'story' => '#668cff',
+));
 $handler = $view->new_display('calendar_year', 'Year view', 'calendar_year');
 $handler->override_option('style_plugin', 'calendar_style');
 $handler->override_option('style_options', array(

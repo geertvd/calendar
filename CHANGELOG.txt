@@ -5,6 +5,56 @@ See documentation at http://drupal.org/node/262064.
 
 Version 2.0 dev
 =================
+
+Version 2.0 rc1
+=================
+
+- Fix jCalendar popup so it doesn't do anything on items without a nid, like remote nodes.
+- Make sure Devel module doesn't add queries to Calendar Popups.
+- #292306 Make sure no error is thrown if $GLOBALS['calendar_stripes'] is empty.
+- Fix day theme, there is no rows array here, it is a single rendered value.
+- CCK field labels were getting lost if 'widget' was selected.
+- Don't omit date fields that are not used in the date argument from being displayed on calendar nodes.
+- Make sure database values with empty timezone names get defaulted to use site timezone in calendar handling.
+- Views 2 moves views_query_alter() and views_pre_view() into calendar.views.inc.
+- Calendar legend block should now be working correctly.
+- Rework the calendar legend to incorporate imported ical node colors as well as internal colors.
+- Add helper function calendar_get_node_link() to construct a node link for either an internal or external node.
+- #272330 Rework css to add background colors where colors are defined and group colors together in the file.
+- Add 'All day' themes for use in nodes and calendar psuedo nodes.
+
+Version 2.0 beta4
+=================
+
+- #270318 Get date browser and calendar navigation working correctly when used in a block.
+- Don't attach any displays but the right one for a given argument.
+- #289981, #290328 Fixing broken handling of empty blocks that sometimes kept calendars from displaying in blocks.
+- Clean up logic for creating calendar fields info.
+- #268669 Improve logic for splitting multi-day nodes across calendar dates, patch by emok.
+- Add new DATE_FORMAT_DATE for date-only format that is used throughout the calendar.
+- Make sure week title gets translated by using date_format_date() instead of date_format().
+- #289775 Day link needs a leading zero.
+- Make sure calendars have a min and max date even if the date argument is not the first argument.
+- Tweaked the jcalendar popup html and css a bit to keep title from popping out of the box in some themes.
+- Bring the 5.2 and 6.2 calendar themes into alignment so both use the same styles and themes, including tableless back/next navigation links and themeable headers.
+- #285104 Make sure calendar_colors is always an array, needed for transition to new value.
+- #283902 Make sure date_format() isn't used on items with no calendar dates.
+- #284760 Don't make weekno a link when there is no week view, eliminate some redundant date_format() calls.
+- #276421 Use farbtastic color picker to set calendar stripes, and start process of making stripes more customizable.
+- #282777 Try to make calendar creation in PHP4 more efficient to speed up creation of year calendar.
+- #279195 Remove deprecated calendar_week_range().
+- Set min_date_date and max_date_date in the view object so calendar can be written.
+- #278267 Add a theme for the jcalendar popup.
+- #259127 Remove ajax back/next navigation on mini calendar, it's not working well enough.
+- #268668 Adjust comparison dates for timezone offsets to make sure multi-day events get split correctly.
+- The cached ical feed cannot be used to store date objects, recreate them as needed.
+- #234070 Fix broken ical title.
+- #258501 Make sure calendar.inc is included when creating ical feed.
+- #258515 Fix url in ical export.
+- #266623 Protect against foreach() errors on empty ical feeds.
+- PHP4 can't do comparisons of date objects, so alter calendar comparison code to compare formatted dates instead.
+- Remove as many dependencies as possible from install files and auto-enable necessary modules.
+- #272263 Make sure empty ical stream doesn't get into cache.
 - #272732 Fix missing php closing tag.
 - #261610 Prepare for a jQuery popup in the calendar by adding a unique id to the 'node' and altering the date theme to surpress all other dates if $node->date_id is set.
 - #243172 Theme('calendar_empty') should be theme('calendar_empty_day'), patch by JohnAlbin.

@@ -14,7 +14,7 @@
   padding:0;
   margin:0;
   width:100%;
-  }
+}
 
   /* IE needs a little help to get the side by side tables to the right size */
 .calendar-calendar .year-view td {
@@ -31,13 +31,18 @@
 .calendar-calendar tr {
   padding: 0;
   margin: 0;
-  background: white;
+  background-color: white;
 }
 .calendar-calendar th {
   color: #fff;
-  background: #ccc;
+  background-color: #ccc;
   text-align: center;
   margin:0;
+}
+.calendar-calendar th a {
+  font-weight: bold;
+  color: #fff;
+  background-color: #ccc;
 }
 .calendar-calendar td {
   width: 13%; /* 14% is about 1/7 of total table width */
@@ -100,26 +105,22 @@
   width:50%;
   float:left;
 }
-.calendar-calendar th a {
-  font-weight: bold;
-  color: #fff;
-}
 .calendar-calendar td a {
-  color: #222244;
   font-weight: bold;
   text-decoration: none;
 }
 .calendar-calendar td a:hover {
   text-decoration: underline;
 }
-.calendar-calendar td.year, .calendar-calendar td.month {
+.calendar-calendar td.year, 
+.calendar-calendar td.month {
   text-align: center;
 }
 
 /* format days of the week header cells */
 .calendar-calendar th.days {
   color: #ccc;
-  background: #224;
+  background-color: #224;
   text-align: center;
   padding:1px;
   margin:0;
@@ -131,7 +132,7 @@
   text-align: center;
   padding: 0.125em 0.25em 0 0.25em;
   margin: 0;
-  background: #f3f3f3;
+  background-color: #f3f3f3;
   border: 1px solid gray;
   border-width: 0 0 1px 1px;
   clear:both;
@@ -170,69 +171,13 @@
   padding: 3px;
   padding-left: 5px;
 }
-/*  multi-day calendar top stripes  */
-.calendar .stripe {
-  height: 5px;
-  line-height:5px;
-  font-size:5px;
-  visibility:hidden;
-}
-.calendar .stripe-1 {
-  background-color: #FF6;
-  height: 5px;
-  width: 100%;
-}
-.calendar .stripe-2 {
-  background-color: #F66;
-  height: 5px;
-  width: 100%;
-}
-.calendar .stripe-3 {
-  background-color: #668CFF;
-  height: 5px;
-  width: 100%;
-}
-.calendar .stripe-4 {
-  background-color: #FFB366;
-  height: 5px;
-  width: 100%;
-}
-.calendar .stripe-5 {
-  background-color: #85FF66;
-  height: 5px;
-  width: 100%;
-}
-.calendar .stripe-6 {
-  background-color: #A666FF;
-  height: 5px;
-  width: 100%;
-}
-.calendar .stripe-7 {
-  background-color: #FFE066;
-  height: 5px;
-  width: 100%;
-}
-.calendar .stripe-8 {
-  background-color: #66FFFF;
-  height: 5px;
-  width: 100%;
-}
-.calendar .stripe-9 {
-  background-color: #FF66D9;
-  height: 5px;
-  width: 100%;
-}
-.calendar .stripe-10 {
-  background-color: #DDD;
-  height: 5px;
-  width: 100%;
-}
-
 .calendar div.form-item {
   white-space: normal;
 }
 
-table td.mini, table th.mini, table.mini td.week {
+table td.mini, 
+table th.mini, 
+table.mini td.week {
   padding:0 1px 0 0;
   margin:0;
   }
@@ -244,7 +189,6 @@ table td.mini a {
 }
 .calendar-calendar .mini-day-on {
   padding:0px;
-  background-color:#ffc;
 }
 table .mini-day-on a {
   text-decoration:underline;
@@ -264,23 +208,34 @@ table .mini-day-on a {
   vertical-align:top;
   }
 
- /* formatting for the legend block */
+/* formatting for the legend stripe and block */
+.calendar .stripe {
+  height: 5px;
+  width: 100%;
+  font-size:1px;
+  line-height:1px;
+}
+.calendar .legend .stripe {
+  height:14px;
+  font-size:12px;
+  line-height:12px;
+}
  .legend table {
   width:100%;
   margin:0;
   padding:0;
-  }
+}
 table th.legend {
   background-color:#ccc;
-  }
+}
 .legend td {
   text-align:left;
-  }
+}
 
 .calendar-empty {
   font-size:1px;
   line-height:1px;
-  }
+}
 
 /* the popup date selector for jumping to a new date */
 .calendar-date-select {
@@ -288,7 +243,9 @@ table th.legend {
   float:right;
   width:25%;
 }
-.calendar-date-select div, .calendar-date-select input, .calendar-date-select label {
+.calendar-date-select div, 
+.calendar-date-select input, 
+.calendar-date-select label {
   text-align:right;
   padding:0;
   margin:0;
@@ -302,14 +259,51 @@ table th.legend {
 }
 
 /* background colors for the calendar cells */
-.calendar-calendar td.sat, .calendar-calendar td.sun {
-  background: #eee;
+.calendar-calendar td, 
+.calendar-calendar td a {
+  color: #222244;
+  background-color: #fff;
 }
-.calendar-calendar td.past, .calendar-calendar td.today .mini-day-on {
+.calendar-calendar td.sat, 
+.calendar-calendar td.sun {
+  color: #222244;
+  background-color: #eee;
 }
-.calendar-calendar td.future, .calendar-calendar td.today .mini-day-on {
+.calendar-calendar td.sat a, 
+.calendar-calendar td.sun a {
+  color: #222244;
+  background-color: #eee;
 }
-.calendar-calendar td.today, .calendar-calendar td.today .mini-day-on {
-  background: #ffcccc;
+.calendar-calendar td .mini-day-on {
+  color: #222244;
+  background-color:#ffc;
+}
+.calendar-calendar td .mini-day-on a {
+  color: #222244;
+  background-color:#ffc;
 }
 
+/* Set this last to override other styles, 'today' takes precedence over all */
+.calendar-calendar td.today, 
+.calendar-calendar td.today .mini-day-on {
+  color: #222244;
+  background-color: #ffcccc;
+}
+.calendar-calendar td.today a, 
+.calendar-calendar td.today .mini-day-on a {
+  color: #222244;
+  background-color: #ffcccc;
+}
+
+/* Not used by default, but available for themeing */
+.calendar-calendar td.past {
+}
+.calendar-calendar td.future {
+}
+
+/* The inner 'node' displayed in the full month view */
+.calendar-calendar td .inner div,
+.calendar-calendar td .inner div a {
+  background-color:#fff;
+  color:000;
+}

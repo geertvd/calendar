@@ -48,7 +48,7 @@ function calendar_requirements($phase) {
  */
 function calendar_enable() {
   module_enable(array('date_api'));
-  if (version_compare(PHP_VERSION, '5.2', '<') && !module_exists('date_php4')) {
+  if (version_compare(PHP_VERSION, '5.2', '<')) {
     module_enable(array('date_php4'));
   }
   module_enable(array('date_timezone'));
@@ -76,7 +76,7 @@ function calendar_uninstall() {
 function calendar_install() {
   $ret = array();
   module_enable(array('date_api'));
-  if (version_compare(PHP_VERSION, '5.2', '<') && !module_exists('date_php4')) {
+  if (version_compare(PHP_VERSION, '5.2', '<')) {
     module_enable(array('date_php4'));
   }
   module_enable(array('date_timezone'));
@@ -108,6 +108,10 @@ function calendar_update_5001() {
 
 function calendar_update_5200() {
   $ret = array();
+  module_enable(array('date_api'));
+  if (version_compare(PHP_VERSION, '5.2', '<')) {
+    module_enable(array('date_php4'));
+  }
   module_enable(array('date_timezone'));
   return $ret;
 }

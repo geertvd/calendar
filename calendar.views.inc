@@ -1,6 +1,36 @@
 <?php
 //$Id$
 /**
+ *  Implementation of hook_views_query()
+ *  
+ *  Handle the date_popup calendar goto date.
+ */
+function calendar_views_query_alter(&$query, &$view) {
+  // Check if a new date has been selected and if so redirect.
+  if (isset($_POST['calendar_goto'])) {
+    $parts = explode('/', $_POST['calendar_goto']['date']);
+    $type = $_POST['date_type'];
+    if ($type == 'year') {
+      unset($parts[1], $parts[2]);
+    }
+    elseif ($type == 'month') {
+      unset($parts[2]);
+    }
+    elseif ($type == 'week') {
+      $date = implode('-', $parts);
+      $parts[1] = 'W'. date_week($date);
+      unset($parts[2]);
+    }
+    drupal_goto($view->url .'/'. implode('/', $parts));
+    drupal_exit();
+  }
+}
+
+function calendar_views_pre_view(&$view, &$display_id, &$args) {
+  //
+}
+
+/**
  * @file
  * 
  * Creates calendar displays of Views results.
@@ -184,7 +214,14 @@ function calendar_views_plugins() {
  * deferred to the attachments.
  */
 class calendar_plugin_display_page extends views_plugin_display_page {
-
+  /**
+   * Init will be called after construct, when the plugin is attached to a
+   * view and a display. 
+   */
+  function init(&$view, &$display) {
+    parent::init($view, $display);
+  }
+  
   function get_style_type() { return 'calendar'; }
   
   function defaultable_sections($section = NULL) {
@@ -206,6 +243,88 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     $display->display_options['defaults']['row_options'] = FALSE;
     $display->display_options['defaults']['items_per_page'] = FALSE;
   } 
+  
+  function option_definition () {
+    $options = parent::option_definition();
+
+    $options['calendar_colors'] = array();
+    return $options;
+  }
+
+  /**
+   * Provide the summary for attachment options in the views UI.
+   *
+   * This output is returned as an array.
+   */
+  function options_summary(&$categories, &$options) {
+    // It is very important to call the parent function here:
+    parent::options_summary($categories, $options);
+
+    $categories['calendar_settings'] = array(
+      'title' => t('Calendar settings'),
+    );
+    
+    $colors = $this->get_option('calendar_colors');
+    $options['calendar_colors'] = array(
+      'category' => 'calendar_settings',
+      'title' => t('Legend colors'),
+      'value' => t('Edit'),
+    );
+  }
+   
+  function options_form(&$form, &$form_state) {
+    // It is very important to call the parent function here:
+    parent::options_form($form, $form_state);
+       
+    switch ($form_state['section']) {
+      case 'calendar_colors':
+        //TODO Add in methods other than content types for setting legend colors.
+        $method =  'types';
+  
+        // TODO Move the embedded styles other than the color into a stylesheet.
+       $form['#title'] .= t('Legend colors');
+       $form['#prefix'] = t('<div class="form-item"><label>Content Type</label><p>Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Types with empty values will have no stripe in the calendar and will not be added to the legend.</p></div>');
+       $form['calendar_colors']['#tree'] = TRUE;
+       $form['calendar_colors']['colorpicker'] = array(
+          '#type' => 'calendar_colorpicker',
+          '#prefix' => '<div class="clear-block"><div style="float:left">',
+          '#suffix' => '</div>',
+        );
+        $colors = $this->get_option('calendar_colors'); 
+  
+        switch ($method) {
+          case 'types':
+            $color_types = node_get_types('names');
+            break;
+        }
+        foreach ($color_types as $key => $name) {
+          $form['calendar_colors']['color'][$key] = array(
+            '#title' => $name,
+            '#type' => 'calendar_colorfield',
+            '#default_value' => isset($colors[$key]) ? $colors[$key] : '#ffffff',
+            '#calendar_colorpicker' => 'calendar-colors-colorpicker',
+            '#prefix' => '<div style="float:left;margin-right:10px">',
+            '#suffix' => '</div>',
+          );
+        }
+        $form['calendar_colors']['color']['#suffix'] = '</div>';
+        break;
+    }
+  }
+
+ /**
+   * Perform any necessary changes to the form values prior to storage.
+   * There is no need for this function to actually store the data.
+   */
+  function options_submit($form, &$form_state) {
+    // It is very important to call the parent function here:
+    parent::options_submit($form, $form_state);
+    switch ($form_state['section']) {
+      case 'calendar_colors':
+        $this->set_option($form_state['section'], $form_state['values'][$form_state['section']]['color']);
+        break;
+    }
+  }  
 }
 
 /**
@@ -258,6 +377,23 @@ class calendar_plugin_display_block extends views_plugin_display_block {
     $display->display_options['defaults']['row_plugin'] = FALSE;
     $display->display_options['defaults']['row_options'] = FALSE;
   } 
+  
+  /**
+   * The display block handler returns the structure necessary for a block.
+   * 
+   * TODO This can be removed when the patch at http://drupal.org/node/290328
+   * gets into an official release.
+   */
+  function execute() {
+    // Prior to this being called, the $view should already be set to this
+    // display, and arguments should be set on the view.
+    $info['content'] = $this->view->render();
+    $info['subject'] = filter_xss_admin($this->view->get_title());
+    if (!empty($this->view->result) || $this->get_option('empty') || !empty($this->view->style_plugin->definition['even empty'])) {
+      return $info;
+    }
+  }
+  
 }
 
 /**
@@ -276,6 +412,48 @@ class calendar_plugin_display_block extends views_plugin_display_block {
  */
 class calendar_plugin_display_attachment extends views_plugin_display_attachment {
 
+  /**
+   * Attach only the appropriate displays for the current argument.
+   */
+  function attach_to($display_id) {
+    $i = 0;
+    $display_granularity = str_replace('calendar_plugin_', '', $this->definition['handler']);
+    $arguments = $this->view->get_items('argument', $display_id);
+    foreach ($arguments as $argument) {
+      if ($argument['id'] == 'date_argument') {
+        $pos = $i;
+        $default_granularity = $argument['granularity'];
+        break;
+      }
+      $i++;
+    }
+    if (!empty($this->view->args[$pos])) {
+      include_once(drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
+      $date_handler = new date_sql_handler();
+      $view_granularity = $date_handler->arg_granularity($this->view->args[$pos]);
+    }
+    else {
+      $view_granularity = $default_granularity;
+    }
+    
+    // See if we're attaching to a block rather than a page.
+    if (substr($display_id, 0, 14) == 'calendar_block') {
+      $this->view->mini = TRUE;
+      $this->view->block = TRUE;
+      $this->view->parent_id = $display_id;
+    }
+    elseif (substr($display_id, 0, 8) == 'calendar') {
+      $this->view->parent_id = $display_id;
+      $this->view->calendar_colors = $this->view->display[$display_id]->handler->options['calendar_colors'];
+      if ($view_granularity != $display_granularity) {
+        return;
+      }
+    }
+    $this->view->display_granularity = $display_granularity;
+    parent::attach_to($display_id);
+    
+  }
+  
   function display_types($type = 'month') {
     $types = calendar_display_types();
     return $types[$type];
@@ -305,14 +483,6 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
     return parent::defaultable_sections($section);
   }
   
-  /**
-   * Only render this attachment if it is the right one.
-   */
-  function render() {
-    if (!empty($this->view->block) || $this->definition['handler'] == 'calendar_plugin_'. $this->view->granularity) {
-      return theme($this->theme_functions(), $this->view);
-    } 
-  }
 }
 
 class calendar_plugin_year extends calendar_plugin_display_attachment {
@@ -344,15 +514,6 @@ class calendar_plugin_week extends calendar_plugin_display_attachment {
 }
 
 class calendar_plugin_block extends calendar_plugin_display_attachment {
-  function attach_to($display_id) {
-    // See if we're attaching to a block rather than a page.
-    if ($display_id == 'calendar_block') {
-      $this->view->mini = TRUE;
-      $this->view->block = TRUE;
-    }
-    parent::attach_to($display_id);
-  }
-  
   function options(&$display) {
     parent::options($display);
     $display->display_options['calendar_type'] = 'month';
@@ -455,7 +616,16 @@ class calendar_plugin_style extends views_plugin_style {
     // calendar display we need to create.
     $i = 0;   
     foreach ($this->view->argument as $id => $argument) {
-      if ($id == 'date_argument') {
+      if ($argument->field == 'date_argument') {
+        // TODO Decide if we want to provide a date here or not.
+        // Adding this now is to prevent fatal errors later if the
+        // view is used in unexpected ways without a date being set.
+        if (empty($argument->min_date)) {
+          $value = $argument->get_default_argument();
+          $range = $argument->date_handler->arg_range($value);
+          $argument->min_date = $range[0];
+          $argument->max_date = $range[1];
+        }
         $this->view->granularity = !empty($argument->granularity) ? $argument->granularity : $argument->options['granularity'];
         $this->view->date_arg = !empty($this->view->args) ? $this->view->args[$argument->position] : '';
         $this->view->date_arg_pos = $i;
@@ -465,6 +635,8 @@ class calendar_plugin_style extends views_plugin_style {
         $this->view->week = isset($argument->week) ? $argument->week : NULL;
         $this->view->min_date = $argument->min_date;
         $this->view->max_date = $argument->max_date;
+        $this->view->min_date_date = date_format($this->view->min_date, DATE_FORMAT_DATE);
+        $this->view->max_date_date = date_format($this->view->max_date, DATE_FORMAT_DATE);
       }
       $i++;
     }
@@ -506,7 +678,6 @@ class calendar_view_plugin_style extends calendar_plugin_style {
    */
   function options(&$options) {
     $options['name_size'] = 3;
-    $options['display_type'] = 'month';
     $options['with_weekno'] = 0;
   }
 
@@ -514,13 +685,6 @@ class calendar_view_plugin_style extends calendar_plugin_style {
    * Style options.
    */
   function options_form(&$form, &$form_state) {
-    $form['display_type'] = array(
-      '#type' => 'radios',
-      '#title' => t('Display'),
-      '#options' => calendar_display_types(),
-      '#description' => t('What type of calendar template should be used for this style?'),
-      '#default_value' => $this->options['display_type'],
-    );
     $form['name_size'] = array(
       '#title' => t('Calendar day of week names'),
       '#default_value' => $this->options['name_size'],
@@ -535,14 +699,15 @@ class calendar_view_plugin_style extends calendar_plugin_style {
       '#options' => array(0 => t('No'), 1 => t('Yes')),
       '#description' => t('Whether or not to show week numbers in the left column of calendar weeks and months.'),
       );
+
   }
   
    /**
    * Render the calendar attachment style.
    */
   function render() {
-    // Adjust the theme to match the currently selected calendar type.
-    $this->definition['theme'] = 'calendar_'. $this->options['display_type'];
+    // Adjust the theme to match the currently selected default.
+    $this->definition['theme'] = 'calendar_'. $this->view->granularity;
     $this->view->hide_admin_links = TRUE;
     return theme($this->theme_functions(), $this->view, $this->options, array());
   }

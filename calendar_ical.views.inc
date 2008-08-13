@@ -181,7 +181,16 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
     // calendar display we need to create.
     $i = 0;   
     foreach ($this->view->argument as $id => $argument) {
-      if ($id == 'date_argument') {
+      if ($argument->field == 'date_argument') {
+        // TODO Decide if we want to provide a date here or not.
+        // Adding this now is to prevent fatal errors later if the
+        // view is used in unexpected ways without a date being set.
+        if (empty($argument->min_date)) {
+          $value = $argument->get_default_argument();
+          $range = $argument->date_handler->arg_range($value);
+          $argument->min_date = $range[0];
+          $argument->max_date = $range[1];
+        }
         $this->view->granularity = !empty($argument->granularity) ? $argument->granularity : $argument->options['granularity'];
         $this->view->date_arg = !empty($this->view->args) ? $this->view->args[$argument->position] : '';
         $this->view->date_arg_pos = $i;
