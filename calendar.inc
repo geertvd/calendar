@@ -238,10 +238,12 @@ function calendar_build_nodes(&$view, &$items) {
   $view->nodes_per_page = 0;
   $type_names = node_get_types('names');
 
+  $datefields = array();
   $fields = date_api_fields();
-  foreach($fields['name'] as $field) {
-    $datefields[] = $field['query_name'];
+  foreach ($view->argument['date_argument']->options['date_fields'] as $name) {
+    $datefields[] = $fields['name'][$name]['query_name'];
   }
+  
   $view_fields      = date_api_views_fetch_fields('node', 'field');
   $field_names = (array) array_keys($fields);
   $nodes = array();
@@ -298,9 +300,15 @@ function calendar_build_nodes(&$view, &$items) {
         $values[1] = $item->calendar_fields->$fromto[1];
         
         $to_zone = $local_tz;
-        if ($tz_handling == 'date' && !empty($item->$tz_alias)) {
-          $to_zone = $item->$tz_alias;
+        if ($tz_handling == 'date') {
+          if (!empty($item->$tz_alias)) {
+            $local_tz = $to_zone = $item->$tz_alias;
+          }
+          else {
+            $local_tz = $to_zone = date_default_timezone_name();
+          }
         }
+        
         // NOTE: Now $display_timezone determines how $item is split
         // into one entry per day, while $to_zone determines how date is displayed.
         // Maybe someone wants to the date fields's timezone for the day splitting,

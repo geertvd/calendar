@@ -6,6 +6,8 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Don't omit date fields that are not used in the date argument from being displayed on calendar nodes.
+- Make sure database values with empty timezone names get defaulted to use site timezone in calendar handling.
 - Views 2 moves views_query_alter() and views_pre_view() into calendar.views.inc.
 - Calendar legend block should now be working correctly.
 - Rework the calendar legend to incorporate imported ical node colors as well as internal colors.
