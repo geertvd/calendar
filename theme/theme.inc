@@ -393,11 +393,14 @@ function template_preprocess_calendar_week_node(&$vars) {
  * Format a node stripe legend
  */
 function theme_calendar_stripe_legend() {
+  if (empty($GLOBALS['calendar_stripes'])) {
+    return '';
+  }
   $header = array(
       array('class' => 'legend', 'data' => t('Item')),
       array('class' => 'legend', 'data' => t('Key'))
       );
-  foreach ($GLOBALS['calendar_stripes'] as $label => $stripe) {
+  foreach ((array) $GLOBALS['calendar_stripes'] as $label => $stripe) {
     $rows[] = array($label, '<div style="background-color:'. $stripe .';color:'. $stripe .'" class="stripe" title="Key: '. $label .'">Key '. $label .'</div>');
   }
   $output = theme('table', $header, $rows, array('class' => 'mini legend'));

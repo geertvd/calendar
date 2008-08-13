@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #292306 Make sure no error is thrown if $GLOBALS['calendar_stripes'] is empty.
 - Fix day theme, there is no rows array here, it is a single rendered value.
 - CCK field labels were getting lost if 'widget' was selected.
 - Don't omit date fields that are not used in the date argument from being displayed on calendar nodes.
