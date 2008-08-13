@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Make sure Devel module doesn't add queries to Calendar Popups.
 - #292306 Make sure no error is thrown if $GLOBALS['calendar_stripes'] is empty.
 - Fix day theme, there is no rows array here, it is a single rendered value.
 - CCK field labels were getting lost if 'widget' was selected.
