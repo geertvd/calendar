@@ -273,9 +273,10 @@ function theme_calendar_nav($view, $link = FALSE, $format = NULL) {
   // for the mini calendar in a block, treat the url as a 	 
 	// querystring to avoid actually changing the page 	 
 	if ($mini) { 	 
-	  $prev_query[] = 'mini='. $prev_path; 	 
+	  $block_identifier = isset($view->block_identifier) ? $view->block_identifier : 'mini';
+    $prev_query[] = "$block_identifier=$prev_path"; 	 
 	  $prev_path = $_GET['q']; 	 
-	  $next_query[] = 'mini='. $next_path; 	 
+	  $next_query[] =  "$block_identifier=$next_path"; 	 
 	  $next_path = $_GET['q']; 	 
 	}
 	$prev_query[] = calendar_url_append($view);

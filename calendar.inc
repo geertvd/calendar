@@ -21,12 +21,12 @@ function _calendar_views_query_alter(&$query, &$view) {
       }
     }
   }
-
   if ($view->build_type == 'block') {
     $query->calendar_type = 'month';
     $view->calendar_display = $display_formats['block'];
-    if (empty($view->args)) {
-      $view->args = explode('/', str_replace($view->url .'/', '', $_GET['mini']));
+    $block_identifier = isset($view->block_identifier) ? $view->block_identifier : 'mini';
+    if (empty($view->args) && !empty($_GET[$block_identifier])) {
+      $view->args = explode('/', str_replace($view->url .'/', '', $_GET[$block_identifier]));
     }
     foreach ($view->argument as $delta => $argument) {
       // Special handling for OG gid argument.
