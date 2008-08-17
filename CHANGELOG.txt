@@ -6,6 +6,8 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Fix css for week number to be sure it stays small in all browsers.
+
 Version 2.0 rc1
 =================
 
