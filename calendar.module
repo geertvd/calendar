@@ -17,7 +17,7 @@ function calendar_help($section, $arg) {
 
 function calendar_init() {
   drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
-  include_once(drupal_get_path('module', 'calendar') .'/theme/theme.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/theme/theme.inc');
 }
 
 function calendar_theme() {

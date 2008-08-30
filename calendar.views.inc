@@ -8,7 +8,7 @@
 function calendar_views_query_alter(&$query, &$view) {
   // Check if a new date has been selected and if so redirect.
   if (isset($_POST['calendar_goto'])) {
-    include_once('./'. drupal_get_path('module', 'date_api') .'/date_api_elements.inc');
+    require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_elements.inc');
     $format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), array('year', 'month', 'day'));
     $date = date_convert_from_custom($_POST['calendar_goto']['date'], $format);  
     switch ($_POST['calendar_type']) {
@@ -445,7 +445,7 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
       $i++;
     }
     if (!empty($this->view->args[$pos])) {
-      include_once(drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
+      require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
       $date_handler = new date_sql_handler();
       $view_granularity = $date_handler->arg_granularity($this->view->args[$pos]);
     }
@@ -625,7 +625,7 @@ class calendar_plugin_style extends views_plugin_style {
 
   function query() {
     
-    include_once(drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
+    require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
         
     $style_options = $this->view->style_plugin->options;
     

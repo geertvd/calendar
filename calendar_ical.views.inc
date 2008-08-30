@@ -168,7 +168,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
   }
 
   function render() {
-    include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
+    require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
     
     // Transfer the style options to the view object so they
     // can be easily accessed in the theme.

@@ -4,7 +4,7 @@
  * Display a calendar navigation and links
  */
 function template_preprocess_calendar_main(&$vars) {
-  include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
   $view     = $vars['view'];
 
   $result   = (array) $view->result;
@@ -66,7 +66,7 @@ function template_preprocess_calendar_main(&$vars) {
  * views and the template takes care of displaying links to related views.
  */
 function template_preprocess_calendar(&$vars) {
-  include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
   $view     = $vars['view'];
   
   // Make sure we only run through this function one time.
@@ -357,9 +357,9 @@ function template_preprocess_calendar_view_ical(&$vars) {
   
   drupal_set_header('Content-Type: text/calendar; charset=utf-8');
   drupal_set_header('Content-Disposition: attachment; filename="calendar.ics"; ');
-  include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
-  include_once(drupal_get_path('module', 'date_api') .'/theme/theme.inc');
-  include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
+  require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
+  require_once('./'. drupal_get_path('module', 'date_api') .'/theme/theme.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
   
   $events = array();
   foreach ($items as $node) {
