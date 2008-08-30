@@ -264,18 +264,35 @@ function calendar_views_query_alter(&$query, &$view) {
 
   // Check if a new date has been selected and if so redirect.
   if (isset($_POST['calendar_goto'])) {
-    $parts = explode('/', $_POST['calendar_goto']['date']);
-    $type = $_POST['calendar_type'];
-    if ($type == 'year') {
-      unset($parts[1], $parts[2]);
-    }
-    elseif ($type == 'month') {
-      unset($parts[2]);
-    }
-    elseif ($type == 'week') {
-      $date = implode('-', $parts);
-      $parts[1] = 'W'. date_week($date);
-      unset($parts[2]);
+    include_once('./'. drupal_get_path('module', 'date_api') .'/date_api_elements.inc');
+    $format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), array('year', 'month', 'day'));
+    $date = date_convert_from_custom($_POST['calendar_goto']['date'], $format);  
+    switch ($_POST['calendar_type']) {
+      case 'year':
+        $parts = array(
+          'year' => date_pad(date_part_extract($date, 'year'), 4),
+        );
+        break; 
+      case 'month':
+        $parts = array(
+          'year' => date_pad(date_part_extract($date, 'year'), 4),
+          'month' => date_pad(date_part_extract($date, 'month')),
+        );
+        break; 
+      case 'week':
+        $parts = array(
+          'year' => date_pad(date_part_extract($date, 'year'), 4),
+          'week' => 'W'. date_pad(date_week($date)),
+        );
+        break; 
+      default:
+        $parts = array(
+          'year' => date_pad(date_part_extract($date, 'year'), 4),
+          'month' => date_pad(date_part_extract($date, 'month')),
+          'day' => date_pad(date_part_extract($date, 'day')),
+        );
+        break; 
+        
     }
     drupal_goto($view->url .'/'. implode('/', $parts));
     drupal_exit();
@@ -851,10 +868,10 @@ function calendar_date_select($view) {
  * @TODO is the title desired here or does it take up too much space??
  */
 function calendar_date_select_form($view) {
-  $format = 'Y/m/d';
+  $format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), array('year', 'month', 'day'));
   $form['calendar_goto'] = array(
     //'#title' => t('Calendar date'),
-    '#type' => 'date_popup',
+    '#type' => module_exists('date_popup') ? 'date_popup' : 'date_select',
     '#default_value' => date_format($view->min_date, DATE_FORMAT_DATE),
     '#date_timezone' => date_default_timezone_name(),
     '#date_format' => $format,

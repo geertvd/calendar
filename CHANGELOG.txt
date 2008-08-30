@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 2.0 dev
 ===============
 
+- #301324 Rework calendar date selector to use site short date format.
 - #294185 Add test for non-NULL values when concating the from/to date values, using COALESCE.
 - Fix css for week number to be sure it stays small in all browsers.
 - Add test for view->block_identifier to allow a way to set the block url to something other than 'mini=' so you can have more than one calendar block or panel on a page.
