@@ -419,7 +419,7 @@ function calendar_build_filter(&$query, &$view) {
  * @param array $field - the view field array
  */
 function calendar_build_field_query(&$query, $field) {
-  include_once(drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
+  require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
 	$queries = array();
 	$fields = calendar_fields();
   $field_name = $field['field'];

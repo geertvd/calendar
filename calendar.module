@@ -26,7 +26,7 @@ function calendar_menu($may_cache) {
     drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
     define('CALENDAR_EMPTY_ARG', variable_get('calendar_empty_arg', 'all'));
 
-    include_once(drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
+    require_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
     $first = TRUE;
     foreach (calendar_info() as $view_name => $view) {
       if ($first) {
@@ -264,7 +264,7 @@ function calendar_views_query_alter(&$query, &$view) {
 
   // Check if a new date has been selected and if so redirect.
   if (isset($_POST['calendar_goto'])) {
-    include_once('./'. drupal_get_path('module', 'date_api') .'/date_api_elements.inc');
+    require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_elements.inc');
     $format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), array('year', 'month', 'day'));
     $date = date_convert_from_custom($_POST['calendar_goto']['date'], $format);  
     switch ($_POST['calendar_type']) {
@@ -298,8 +298,8 @@ function calendar_views_query_alter(&$query, &$view) {
     drupal_exit();
   }
 
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.theme');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.theme');
   return _calendar_views_query_alter($query, $view);
 }
 
@@ -307,7 +307,7 @@ function calendar_views_query_alter(&$query, &$view) {
  *  Implementation of hook_views_pre_view()
  */
 function calendar_views_pre_view(&$view, &$items) {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.theme');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.theme');
 
   // If no part of this view has calendar elements, exit.
   if ((!calendar_is_calendar($view) || !calendar_has_calendar_args($view))) {
@@ -319,7 +319,7 @@ function calendar_views_pre_view(&$view, &$items) {
   if (!calendar_is_calendar_arg($view) || $summary) {
     return;
   }
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
 
   // Massage the resulting items into formatted calendar items.
   $items = calendar_build_nodes($view, $items);
@@ -375,7 +375,7 @@ function calendar_views_post_view(&$view, $items, $output) {
   if ($view->build_type != 'page' || !calendar_is_calendar($view) || !calendar_has_calendar_args($view)) {
     return;
   }
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
   $title = theme('calendar_page_title', $view, $items, $output);
   drupal_set_title($title);
 }
@@ -719,7 +719,7 @@ function calendar_node_stripe($view, &$node, $query_name, $delta, $stripe = NULL
  *  Implementation of hook_views_style_plugins()
  */
 function calendar_views_style_plugins() {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
   return _calendar_views_style_plugins();
 }
 
@@ -727,7 +727,7 @@ function calendar_views_style_plugins() {
  * Implementation of hook_views_default_views()
  */
 function calendar_views_default_views() {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
   return _calendar_views_default_views();
 }
 
@@ -735,7 +735,7 @@ function calendar_views_default_views() {
  *  Implementation of hook_views_arguments()
  */
 function calendar_views_arguments() {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
   return _calendar_views_arguments();
 }
 
@@ -743,7 +743,7 @@ function calendar_views_arguments() {
  *  Function to return all possible calendar views page display types.
  */
 function calendar_view_types($reset = FALSE) {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
   return _calendar_view_types($reset);
 }
 
@@ -758,7 +758,7 @@ function calendar_info($reset = FALSE) {
       $calendar_views = unserialize($cached->data);
     }
     else {
-     include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
+     require_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
      $calendar_views = _calendar_info();
     }
   }
@@ -776,7 +776,7 @@ function calendar_fields($reset = FALSE) {
       $fields = unserialize($cached->data);
     }
     else {
-      include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
+      require_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
       $fields = _calendar_fields();
     }
   }
@@ -787,7 +787,7 @@ function calendar_fields($reset = FALSE) {
  * Validate a view during Views administration.
  */
 function calendar_views_validate($type, $view, $form) {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
   return _calendar_views_validate($type, $view, $form);
 }
 
@@ -795,7 +795,7 @@ function calendar_views_validate($type, $view, $form) {
  * Setup Calendar parameters in the Setup Tab.
  */
 function calendar_setup_form($view_name) {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
   return _calendar_setup_form($view_name);
 }
 
@@ -803,7 +803,7 @@ function calendar_setup_form($view_name) {
  * Save Setup values.
  */
 function calendar_setup_form_submit($form_id, $form_values) {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
   return _calendar_setup_form_submit($form_id, $form_values);
 }
 
@@ -811,7 +811,7 @@ function calendar_setup_form_submit($form_id, $form_values) {
  * Save Setup values.
  */
 function calendar_legend_form_submit($form_id, $form_values) {
-  include_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar_admin.inc');
   return _calendar_legend_form_submit($form_id, $form_values);
 }
 

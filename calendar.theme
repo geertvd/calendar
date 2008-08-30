@@ -38,7 +38,7 @@ function theme_calendar_views_calendar(&$view, &$items, $type) {
   if ($pos[0] > count($view->real_args)) {
     return;
   }
-  include_once(drupal_get_path('module', 'calendar') .'/calendar.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
     
   // Bail out here to display regular views views instead of calendar.
   switch($view->calendar_display) {

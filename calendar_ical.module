@@ -13,7 +13,7 @@ function calendar_ical_menu($may_cache) {
   $items = array();
   if (!$may_cache) {
     drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
-    include_once(drupal_get_path('module', 'calendar') .'/calendar.module');
+    require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.module');
     foreach (calendar_info() as $view_name => $view) {
       $items[] = array(
         'path'     => 'admin/settings/calendar/'. $view_name .'/ical',
@@ -31,7 +31,7 @@ function calendar_ical_menu($may_cache) {
 }
 
 function calendar_ical_setup_form($view_name) {
-  include_once(drupal_get_path('module', 'calendar') .'/calendar_ical_admin.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar_ical_admin.inc');
   return _calendar_ical_setup_form($view_name);
 }
 
@@ -55,7 +55,7 @@ function calendar_ical_cron() {
  * Implementation of hook_calendar_add_items().
  */
 function calendar_ical_calendar_add_items($view) {
-  include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
+  require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
 
   $items = array();
   $feeds = calendar_ical_add_feeds($view);
@@ -102,7 +102,7 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
     }
     else {
      $expire = intval(variable_get('calendar_ical_expire_'. $view->name, 9676800) + time());
-     include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
+     require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
 
       switch ($feed['type']) {
       case 'ical':
