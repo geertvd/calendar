@@ -8,18 +8,35 @@
 function calendar_views_query_alter(&$query, &$view) {
   // Check if a new date has been selected and if so redirect.
   if (isset($_POST['calendar_goto'])) {
-    $parts = explode('/', $_POST['calendar_goto']['date']);
-    $type = $_POST['date_type'];
-    if ($type == 'year') {
-      unset($parts[1], $parts[2]);
-    }
-    elseif ($type == 'month') {
-      unset($parts[2]);
-    }
-    elseif ($type == 'week') {
-      $date = implode('-', $parts);
-      $parts[1] = 'W'. date_week($date);
-      unset($parts[2]);
+    include_once('./'. drupal_get_path('module', 'date_api') .'/date_api_elements.inc');
+    $format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), array('year', 'month', 'day'));
+    $date = date_convert_from_custom($_POST['calendar_goto']['date'], $format);  
+    switch ($_POST['calendar_type']) {
+      case 'year':
+        $parts = array(
+          'year' => date_pad(date_part_extract($date, 'year'), 4),
+        );
+        break; 
+      case 'month':
+        $parts = array(
+          'year' => date_pad(date_part_extract($date, 'year'), 4),
+          'month' => date_pad(date_part_extract($date, 'month')),
+        );
+        break; 
+      case 'week':
+        $parts = array(
+          'year' => date_pad(date_part_extract($date, 'year'), 4),
+          'week' => 'W'. date_pad(date_week($date)),
+        );
+        break; 
+      default:
+        $parts = array(
+          'year' => date_pad(date_part_extract($date, 'year'), 4),
+          'month' => date_pad(date_part_extract($date, 'month')),
+          'day' => date_pad(date_part_extract($date, 'day')),
+        );
+        break; 
+        
     }
     drupal_goto($view->url .'/'. implode('/', $parts));
     drupal_exit();
