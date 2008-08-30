@@ -473,8 +473,8 @@ function calendar_build_field_query(&$query, $field) {
       $value1 = $this_field['fromto'][0];
       $value2 = date_sql_coalesce(array($this_field['fromto'][1], $this_field['fromto'][0]));
       $dbfield  = date_sql_concat(array($value1, "'|'", $value2));
-      $queries[] = "(". $date_handler->sql_where_date('DATE', $value2, '>=', $min) .
-        " AND ". $date_handler->sql_where_date('DATE', $value1, '<=', $max) .")";
+      $queries[] = "(". $date_handler->sql_where_date('DATE', $this_field['fromto'][1], '>=', $min) .
+        " AND ". $date_handler->sql_where_date('DATE', $this_field['fromto'][0], '<=', $max) .")";
     }
     else {
       $dbfield = $this_field['fullname'];
