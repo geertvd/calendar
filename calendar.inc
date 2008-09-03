@@ -470,18 +470,13 @@ function calendar_build_field_query(&$query, $field) {
     if ($this_field['fromto'] && $this_field['fromto'][0] != $this_field['fromto'][1]) {
       // Format dates with from and to times into a single value that is made
       // up of the two local DATETIME values separated with a pipe (|).
-      $value1 = $this_field['fromto'][0];
-      $value2 = date_sql_coalesce(array($this_field['fromto'][1], $this_field['fromto'][0]));
-      $dbfield  = date_sql_concat(array($value1, "'|'", $value2));
       $queries[] = "(". $date_handler->sql_where_date('DATE', $this_field['fromto'][1], '>=', $min) .
         " AND ". $date_handler->sql_where_date('DATE', $this_field['fromto'][0], '<=', $max) .")";
     }
     else {
-      $dbfield = $this_field['fullname'];
       $queries[] = "(". $date_handler->sql_where_date('DATE', $this_field['fullname'], '>=', $min) .
         ' AND '. $date_handler->sql_where_date('DATE', $this_field['fullname'], '<=', $max) .")";
     }
-    $query->fields[$field_delta] = $dbfield .' AS '. $this_field['query_name'];
   }
   return $queries;
 }
@@ -580,7 +575,10 @@ function calendar_build_nodes(&$view, &$items) {
             
             // Create from and to date values for each item, adjusted to
             // the correct timezone.
-            $values = array($item->$fromto_alias[0], $item->$fromto_alias[1]);
+            $values = array(
+              $item->$fromto_alias[0], 
+              isset($item->$fromto_alias[1]) ? $item->$fromto_alias[1] : $item->$fromto_alias[0],
+              );
             $to_zone = $local_tz;
             if ($tz_handling == 'date') {
               if (!empty($item->$tz_alias)) {
@@ -688,6 +686,15 @@ function calendar_build_nodes(&$view, &$items) {
               foreach ($node as $key => $val) {
                 if ($key != $field['query_name'] && in_array($key, $datefields)) {
                   unset($node->$key);
+                  foreach ($fields as $other_fields) {
+                    // If the unused date has other fields, unset them, too.
+                    if ($other_fields['query_name'] == $key) {
+                      foreach ($other_fields['related_fields'] as $related_field) {
+                        $key2 = str_replace('.', '_', $related_field);
+                        unset($node->$key2);
+                      }
+                    }
+                  }
                 }
               }
 
