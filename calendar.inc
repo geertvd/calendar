@@ -21,105 +21,101 @@ function _calendar_views_query_alter(&$query, &$view) {
       }
     }
   }
-  if ($view->build_type == 'block') {
-    $query->calendar_type = 'month';
-    $view->calendar_display = $display_formats['block'];
+  
+  // Embedded calendar views can have additional arguments.
+  if ($view->build_type == 'block' || $view->build_type == 'embed') {
     $block_identifier = isset($view->block_identifier) ? $view->block_identifier : 'mini';
-    if (empty($view->args) && !empty($_GET[$block_identifier])) {
-      $view->args = explode('/', str_replace($view->url .'/', '', $_GET[$block_identifier]));
-    }
-    foreach ($view->argument as $delta => $argument) {
-      // Special handling for OG gid argument.
-      // Find a default value for the gid when used in a block.
-      if ($argument['type'] == 'gid') {
-        $groupnodes = calendar_og_groups($view);
-        $view->args[$delta] = $groupnodes[0];
-        $query->ensure_table('og_ancestry');
-        $query->add_where("og_ancestry.group_nid IN (%d)", implode(',', $groupnodes));
-      }
-      if ($argument['type'] == 'calendar_year') {
-        if (!$view->args[$delta]) $view->args[$delta] = date_format($now, 'Y');
-        $query->year = $view->args[$delta];
-        calendar_filter_year($query, $query->year);
-      }
-      elseif (($argument['type'] == 'calendar_month' || $argument['type'] == 'calendar_week')) {
-        if (!$view->args[$delta]) $view->args[$delta] = date_format($now, 'm');
-        $query->month = $view->args[$delta];
-        calendar_filter_month($query, $query->month);
-      }
-      elseif ($argument['type'] == 'calendar_day') {
-      	$query->day = CALENDAR_EMPTY_ARG;
-        $view->args[$delta] = CALENDAR_EMPTY_ARG;
+    $pos = calendar_arg_positions($view);
+    
+    // If we don't have any calendar arguments, look in the block_identifier for them.
+    if ($pos[0] >= count($view->args) && !empty($_GET[$block_identifier])) {
+      // Add the arguments from the block_identifier query param.
+      $view->real_args = $view->args = array_merge($view->args, explode('/', str_replace($view->real_url .'/', '', $_GET[$block_identifier])));
+      // Filter the query based on the newly acquired arguments.
+      foreach ($view->argument as $delta => $argument) {
+        // Special handling for OG gid argument.
+        // Find a default value for the gid when used in a block.
+        if ($argument['type'] == 'gid') {
+          $groupnodes = calendar_og_groups($view);
+          $view->args[$delta] = $groupnodes[0];
+          $query->ensure_table('og_ancestry');
+          $query->add_where("og_ancestry.group_nid IN (%d)", implode(',', $groupnodes));
+        }
+        if (!empty($view->args[$delta]) && $view->args[$delta] != CALENDAR_EMPTY_ARG) {
+          if ($argument['type'] == 'calendar_year') {
+            calendar_filter_year($query, $view->args[$delta]);
+          }
+          elseif ($argument['type'] == 'calendar_month') {
+            calendar_filter_month($query, $view->args[$delta]);
+          }
+          elseif ($argument['type'] == 'calendar_day') {
+            calendar_filter_day($query, $view->args[$delta]);
+          }
+        }
       }
     }
   }
 
-  // Either a month or a week argument could occupy the second position of the group
-  // this is done so that a single view has the capability to switch between all calendar layouts
-  // to make this work we must make some adjustments to the view
-  if ($view->build_type == 'page') {
-    $GLOBALS['calendar_is_calendar'] = TRUE;
-
-    if (empty($view->args) || !calendar_is_calendar_arg($view)) {
-
-    	// If no arguments are provided, default to current month view.
-    	$query->calendar_type = 'month';
-      foreach ($view->argument as $delta => $argument) {
-        if ($argument['type'] == 'calendar_year' && !$view->args[$delta]) {
-          $view->args[$delta] = date_format($now, 'Y');
-          calendar_filter_year($query, date_format($now, 'Y'));
-        }
-        elseif ($argument['type'] == 'calendar_month' && !$view->args[$delta]) {
-          $view->args[$delta] = date_format($now, 'm');
-          calendar_filter_month($query, date_format($now, 'm'));
-        }
-        elseif ($argument['type'] == 'calendar_day' && !$view->args[$delta]) {
-          $view->args[$delta] = CALENDAR_EMPTY_ARG;
-        }
-        else {
-          $view->args[$delta] = $view->real_args[$delta];
-        }
+  // If no arguments are provided, default to current month view.
+  if (empty($view->args) || !calendar_is_calendar_arg($view)) {
+  	$query->calendar_type = 'month';
+    foreach ($view->argument as $delta => $argument) {
+      if ($argument['type'] == 'calendar_year' && !$view->args[$delta]) {
+        $view->args[$delta] = date_format($now, 'Y');
+        calendar_filter_year($query, date_format($now, 'Y'));
+      }
+      elseif ($argument['type'] == 'calendar_month' && !$view->args[$delta]) {
+        $view->args[$delta] = date_format($now, 'm');
+        calendar_filter_month($query, date_format($now, 'm'));
+      }
+      elseif ($argument['type'] == 'calendar_day' && !$view->args[$delta]) {
+        $view->args[$delta] = CALENDAR_EMPTY_ARG;
+      }
+      else {
+        $view->args[$delta] = $view->real_args[$delta];
       }
     }
-    foreach ($view->argument as $delta => $argument) {
-      if (in_array($argument['type'], calendar_args())) {
-        // make sure 'display all values' is selected for the calendar arguments
-        // summary views are meaningless and create errors in this context
-        $view->argument[$delta]['argdefault'] = 2;
+    // Default arguments are real arguments, too.
+    $view->real_args = $view->args;
+  }
+  foreach ($view->argument as $delta => $argument) {
+    if (in_array($argument['type'], calendar_args())) {
+      // make sure 'display all values' is selected for the calendar arguments
+      // summary views are meaningless and create errors in this context
+      $view->argument[$delta]['argdefault'] = 2;
 
-        // Pad any unused values in the view arguments with
-        // CALENDAR_EMPTY_ARG to indicate all values.
-        if (empty($view->args[$delta])) {
-        	$view->args[$delta] = CALENDAR_EMPTY_ARG;
-        }
+      // Pad any unused values in the view arguments with
+      // CALENDAR_EMPTY_ARG to indicate all values.
+      if (empty($view->args[$delta])) {
+      	$view->args[$delta] = CALENDAR_EMPTY_ARG;
       }
+    }
 
-      // Calendar_week and Calendar_month can swap positions as the second arg
-      // in the url. Do some work here to make sure we know which is which and
-      // swap view data to match it. The difference between a calendar_month
-      // arg and a calendar_week arg is the preceding 'W'
-      if ($argument['type'] == 'calendar_week' || $argument['type'] == 'calendar_month') {
+    // Calendar_week and Calendar_month can swap positions as the second arg
+    // in the url. Do some work here to make sure we know which is which and
+    // swap view data to match it. The difference between a calendar_month
+    // arg and a calendar_week arg is the preceding 'W'
+    if ($argument['type'] == 'calendar_week' || $argument['type'] == 'calendar_month') {
 
-        if (strstr($view->args[$delta], 'W')) {
-        	calendar_filter_week($query, $view->args[$delta]);
-          $view->argument[$delta]['type'] = 'calendar_week';
-          $view->argument[$delta]['id'] = 'calendar_week';
-          $view->argument[$delta + 1]['type'] = 'calendar_day';
-          $view->argument[$delta + 1]['id'] = 'calendar_day';
+      if (strstr($view->args[$delta], 'W')) {
+      	calendar_filter_week($query, $view->args[$delta]);
+        $view->argument[$delta]['type'] = 'calendar_week';
+        $view->argument[$delta]['id'] = 'calendar_week';
+        $view->argument[$delta + 1]['type'] = 'calendar_day';
+        $view->argument[$delta + 1]['id'] = 'calendar_day';
 
-          // Make sure that there is no day set for the week view.
-          $view->args[$delta + 1] = CALENDAR_EMPTY_ARG;
-        }
-        // if this is not a week argument and view was created with a
-        // week argument, change it back
-        elseif (!strstr($view->args[$delta], 'W') && $view->build_type == 'page'
-          && $view->argument[$delta]['type'] == 'calendar_week') {
-          calendar_filter_month($query, $view->args[$delta]);
-          $view->argument[$delta]['type'] = 'calendar_month';
-          $view->argument[$delta]['id'] = 'calendar_month';
-          $view->argument[$delta + 1]['type'] = 'calendar_day';
-          $view->argument[$delta + 1]['id'] = 'calendar_day';
-        }
+        // Make sure that there is no day set for the week view.
+        $view->args[$delta + 1] = CALENDAR_EMPTY_ARG;
+      }
+      // if this is not a week argument and view was created with a
+      // week argument, change it back
+      elseif (($view->build_type == 'page' || $view->build_type == 'embed')
+        && $view->argument[$delta]['type'] == 'calendar_week') {
+        calendar_filter_month($query, $view->args[$delta]);
+        $view->argument[$delta]['type'] = 'calendar_month';
+        $view->argument[$delta]['id'] = 'calendar_month';
+        $view->argument[$delta + 1]['type'] = 'calendar_day';
+        $view->argument[$delta + 1]['id'] = 'calendar_day';
       }
     }
   }
@@ -143,13 +139,23 @@ function _calendar_views_query_alter(&$query, &$view) {
   // Check first for 'view' in url to get displays set by the switch
   // block, then for 'calendar_display_format' variable to get displays
   // set in the setup, default to normal calendar display.
-  if (isset($_GET['view']) && $view->build_type == 'page') {
+  
+  if ($view->build_type == 'block') {
+    $view->calendar_display = $display_formats['block'];
+  }
+  elseif (isset($_GET['view']) && $view->build_type == 'page') {
   	$view->calendar_display = !empty($_GET['view']) ? check_plain($_GET['view']) : 'calendar';
   }
-  elseif ($view->build_type == 'page') {
+  elseif ($view->build_type == 'page' || $view->build_type == 'embed') {
   	$display_formats = calendar_get_formats($view);
   	$view->calendar_display = $display_formats[$view->calendar_type];
   }
+  
+  // Global used to turn on the "Switch calendar" block.
+  if ($view->build_type == 'page') {
+    $GLOBALS['calendar_is_calendar'] = TRUE;
+  }
+
   return;
 }
 
@@ -264,9 +270,17 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
   // first cell in the week.
   $display_formats = calendar_get_formats($view);
   if ($params['with_weekno'] && $view->calendar_type != 'day') {
-    $url = $params['url'] .'/'. $view->year .'/W'. $week;
     if (!empty($display_formats['week'])) {
-      $weekno = l($week, $url, NULL, $params['append']);
+      if ($view->build_type == 'embed') {
+        $url = $params['url'];
+        $block_identifier = isset($view->block_identifier) ? $view->block_identifier : 'mini';
+        $query_string = (!empty($params['append']) ? $params['append'] .'&' : '') . $block_identifier .'='. $params['url'] .'/'. $view->year .'/W'. $week;
+      }
+      else {
+        $url = $params['url'] .'/'. $view->year .'/W'. $week;
+        $query_string = $params['append'];
+      }
+      $weekno = l($week, $url, NULL, $query_string);
     }
     else { 
       // Do not link week numbers, if Week views are disabled.

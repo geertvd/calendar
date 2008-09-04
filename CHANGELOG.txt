@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 2.0 dev
 ===============
 
+- #295523 patch by JohnAlbin, alter code so all calendar navigation and paths will work correctly when the calendar is embedded. Should get calendars in panels working right.
 - #292061 Add validation to prevent using 'first' or 'last' as well as 'grouped' handlers in the calendar so dates display on the correct day.
 - #298680, #300361 get rid of concatonation of 'from' and 'to' dates to fix problems displaying them correctly.
 - Replace all include_once() with require_once().

@@ -52,10 +52,12 @@ function _calendar_info() {
     if (!empty($additions['fields'])) {
       $additions['page'] = array_key_exists($view->page_type, $calendar_types);
       $additions['block'] = array_key_exists($view->block_type, $calendar_types);
+      $additions['embed'] = $additions['page'] || $additions['block'];
     }
     else {
       $additions['page'] = FALSE;
       $additions['block'] = FALSE;
+      $additions['embed'] = FALSE;
     }
     foreach ((array) $view->argument as $delta => $argument) {
       if (in_array($argument['type'], calendar_args())) {
@@ -82,10 +84,12 @@ function _calendar_info() {
       if (!empty($additions['fields'])) {
         $additions['page'] = array_key_exists($view->page_type, $calendar_types);
         $additions['block'] = array_key_exists($view->block_type, $calendar_types);
+        $additions['embed'] = $additions['page'] || $additions['block'];
       }
       else {
         $additions['page'] = FALSE;
         $additions['block'] = FALSE;
+        $additions['embed'] = FALSE;
       }
       foreach ((array) $view->argument as $delta => $argument) {
         if (in_array($argument['type'], calendar_args())) {

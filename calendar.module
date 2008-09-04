@@ -294,7 +294,16 @@ function calendar_views_query_alter(&$query, &$view) {
         break; 
         
     }
-    drupal_goto($view->url .'/'. implode('/', $parts));
+    if ($view->build_type == 'page') {
+      // Append the date parts on to the end of the path.
+      drupal_goto($view->url .'/'. implode('/', $parts), calendar_querystring($view));
+    }
+    else {
+      // Append the date parts on to the end of the block_identifier query param.
+      $block_identifier = isset($view->block_identifier) ? $view->block_identifier : 'mini';
+      $view->real_url = calendar_real_url($view, $view->args);
+      drupal_goto($view->real_url, calendar_querystring($view, array($block_identifier => $view->real_url .'/'. implode('/', $parts))));
+    }
     drupal_exit();
   }
 
@@ -465,6 +474,21 @@ function calendar_args() {
 }
 
 /**
+ * Identify the base url of the page,
+ * needed when the calendar is embedded so we
+ * don't set the url to the calendar url.
+ */
+function calendar_page_url($view) {
+  if ($view->build_type == 'page') {
+    return calendar_real_url($view, $view->real_args);
+  }
+  else {
+    $block_identifier = isset($view->block_identifier) ? $view->block_identifier : 'mini';
+    return url($_GET['q'], calendar_querystring($view, array($block_identifier => NULL)), NULL, TRUE);
+  }
+}
+
+/**
  * Figure out what the URL of the calendar view we're currently looking at is.
  */
 function calendar_real_url($view, $args) {
@@ -503,22 +527,24 @@ function calendar_args_in_url($view) {
 /**
  * Pick up filter and sort info from url.
  */
-function calendar_url_append($view) {
-  if ($view->build_type == 'page') {
-    foreach ($_GET as $key => $val) {
-      if ($key != 'q' && $key != 'view') {
-        if (!is_array($val)) {
-          $url .= '&'. $key .'='. $val;
-        }
-        else {
-          foreach ($val as $v) {
-            $url .= '&'. $key .'[]='. $v;
-          }
-        }
-      }
+function calendar_querystring($view, $extra_params = array()) {
+  $query_params = array_merge($_GET, $extra_params);
+  // Allow NULL params to be removed from the query string.
+  foreach ($extra_params AS $key => $value) {
+    if (!isset($value)) {
+      unset($query_params[$key]);
     }
   }
-  return $url;
+  // Filter the special "q" and "view" variables out of the query string.
+  $exclude = array('q');
+  // If we don't explicitly add a value for "view", filter it out.
+  if (empty($extra_params['view'])) {
+    $exclude[] = 'view';
+  }
+  $query = drupal_query_string_encode($query_params, $exclude);
+  // To prevent an empty query string from adding a "?" on to the end of a URL,
+  // we return NULL.
+  return !empty($query) ? $query : NULL;
 }
 
 /**
@@ -529,6 +555,7 @@ function calendar_url_append($view) {
 function calendar_get_url($view, $args, $as_array = FALSE) {
   // build an array of the current path and its parts
   $real_url = calendar_real_url($view, $view->real_args);
+  
   $buried_args = calendar_args_in_url($view);
   $i = 0;
   $path[0]     = array(
