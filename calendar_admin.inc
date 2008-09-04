@@ -286,7 +286,7 @@ function _calendar_views_validate($type, $view, $form) {
   // CCK date fields cannot use grouped handler.
   $calendar_fields = array_keys(calendar_fields());
   foreach ($view['field'] as $delta => $field) {
-    if (in_array($field['field'], $calendar_fields) && $field['handler'] == 'content_views_field_handler_group') {
+    if (in_array($field['field'], $calendar_fields) && $field['handler'] != 'content_views_field_handler_ungroup') {
       form_error($form['field'][$delta]['handler'], t('Calendar CCK Date fields must be set to \'Do not group multiple values\'.'));
     }
   }

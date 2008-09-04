@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 2.0 dev
 ===============
 
+- #292061 Add validation to prevent using 'first' or 'last' as well as 'grouped' handlers in the calendar so dates display on the correct day.
 - #298680, #300361 get rid of concatonation of 'from' and 'to' dates to fix problems displaying them correctly.
 - Replace all include_once() with require_once().
 - #301324 Rework calendar date selector to use site short date format.
