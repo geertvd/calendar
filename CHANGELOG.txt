@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Update to new Views2 API. Now requires latest versions of Views and CCK, and files have been re-arranged.
 - Replace all include_once() with require_once().
 - #301324 Rework calendar date selector to use site short date format.
 - Fix css for week number to be sure it stays small in all browsers.

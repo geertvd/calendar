@@ -1,82 +1,5 @@
 <?php
-//$Id$
-//views_include_handlers();
-/**
- * Implementation of hook_views_plugins
- */
-function calendar_ical_views_plugins() {
-  $path = drupal_get_path('module', 'calendar');
-  require_once "./$path/theme/theme.inc";
-
-  $base = array(
-    'file' => 'theme.inc',
-    'path' => "$path/theme",
-  );
-  return array(
-    'module' => 'calendar_ical', // This just tells our themes are elsewhere.
-    'display' => array(
-      'ical' => $base + array(
-        'title' => t('iCal feed'),
-        'help' => t('Display the view as an iCal feed.'),
-        'handler' => 'calendar_plugin_display_ical',
-        'uses hook menu' => TRUE,
-        'theme' => 'views_view',
-        'no ui' => TRUE,
-        'no remove' => TRUE,
-        'use ajax' => FALSE,
-        'use pager' => FALSE,
-        'accept attachments' => FALSE,
-        'admin' => t('iCal feed'),
-        'help topic' => 'display-ical',
-      ),
-    ),
-    'style' => array(
-      'ical' => $base + array(
-      'title' => t('iCal Feed'),
-      'help' => t('Generates an iCal feed from a view.'),
-      'handler' => 'calendar_plugin_style_ical',
-      'theme' => 'calendar_view_ical',
-      'uses row plugin' => FALSE,
-      'uses fields' => TRUE,
-      'uses row plugin' => FALSE,
-      'uses options' => TRUE,
-      'type' => 'ical',
-      'even empty' => TRUE,
-      ),
-    ),
-  );
-}
-
-/**
- * The plugin that handles a feed, such as RSS or atom.
- *
- * For the most part, feeds are page displays but with some subtle differences.
- */
-class calendar_plugin_display_ical extends views_plugin_display_feed {
-  function get_style_type() { return 'ical'; }
-
-  /**
-   * Provide the default form for setting options.
-   */
-  function options_form(&$form, &$form_state) {
-    // It is very important to call the parent function here.
-    parent::options_form($form, $form_state);
-
-    switch ($form_state['section']) {
-      case 'path':
-        $form['path']['#description'] = t('This view will be displayed by visiting this path on your site. It is recommended that the path be something like "path/%/%/ical", putting one % in the path for each argument you have defined in the view.');
-    }
-  }
-
-  /**
-   * Instead of going through the standard views_view.tpl.php, delegate this
-   * to the style handler.
-   */
-  function render() {
-    return $this->view->style_plugin->render($this->view->result);
-  }
-}
-
+// $Id$
 /**
  * Default style plugin to render an iCal feed.
  */
@@ -168,7 +91,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
   }
 
   function render() {
-    require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
+    require_once('./'. drupal_get_path('module', 'calendar') .'/includes/calendar.inc');
     
     // Transfer the style options to the view object so they
     // can be easily accessed in the theme.

@@ -2,6 +2,18 @@
 // $Id$
 
 /**
+ * Implementation of hook_views_api().
+ *
+ * This one is used as the base to reduce errors when updating.
+ */
+function calendar_ical_views_api() {
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'calendar_ical'),
+  );
+}
+
+/**
  * @file
  * Adds ical functionality to Calendar.
  */
@@ -207,7 +219,7 @@ function theme_calendar_ical_feed($view, $items, $type) {
   drupal_set_header('Content-Disposition: attachment; filename="calendar.ics"; ');
   $events = array();
   require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
-  require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
+  require_once('./'. drupal_get_path('module', 'calendar') .'/includes/calendar.inc');
   $items = calendar_build_nodes($view, $items);
   foreach ($items as $node) {
     $event = array();
