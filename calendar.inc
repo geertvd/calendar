@@ -585,8 +585,8 @@ function calendar_build_nodes(&$view, &$items) {
               isset($item->$fromto_alias[1]) ? $item->$fromto_alias[1] : $item->$fromto_alias[0],
               );
             
-            $db_tz   = date_get_timezone_db($tz_handling, $item->$tz_alias);
-            $to_zone = date_get_timezone($tz_handling, $item->$tz_alias);
+            $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_alias) ? $item->$tz_alias : $display_timezone_name);
+            $to_zone = date_get_timezone($tz_handling, isset($item->$tz_alias) ? $item->$tz_alias : $display_timezone_name);
         
             // NOTE: Now $display_timezone determines how $item is split
             // into one entry per day, while $to_zone determines how date is displayed.
