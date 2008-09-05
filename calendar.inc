@@ -552,16 +552,7 @@ function calendar_build_nodes(&$view, &$items) {
         $fromto       = $field['fromto'];
         $fromto_alias = array(str_replace('.', '_', $fromto[0]), str_replace('.', '_', $fromto[1]));
         $tz_alias     = str_replace('.', '_', $field['timezone_field']);
-        $db_tz = 'UTC';
-        $local_tz = date_default_timezone_name();
-        switch ($field['tz_handling']) {
-          case 'none':
-            $db_tz = date_default_timezone_name();
-            break;
-          case 'date':
-            $local_tz = 'date';
-            break;
-        }
+        
         if (strstr($field['type'], 'cck')) {
           $format = date_formatter_format($data['options'], $field['field_name']);
         }
@@ -593,16 +584,10 @@ function calendar_build_nodes(&$view, &$items) {
               $item->$fromto_alias[0], 
               isset($item->$fromto_alias[1]) ? $item->$fromto_alias[1] : $item->$fromto_alias[0],
               );
-            $to_zone = $local_tz;
-            if ($tz_handling == 'date') {
-              if (!empty($item->$tz_alias)) {
-                $local_tz = $to_zone = $item->$tz_alias;
-              }
-              else {
-                $local_tz = $to_zone = date_default_timezone_name();
-              }
-            }
             
+            $db_tz   = date_get_timezone_db($tz_handling, $item->$tz_alias);
+            $to_zone = date_get_timezone($tz_handling, $item->$tz_alias);
+        
             // NOTE: Now $display_timezone determines how $item is split
             // into one entry per day, while $to_zone determines how date is displayed.
             // Maybe someone wants to the date fields's timezone for the day splitting,
