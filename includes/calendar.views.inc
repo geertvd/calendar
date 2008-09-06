@@ -82,19 +82,52 @@ function calendar_views_pre_view(&$view, &$display_id, &$args) {
  * Implementation of hook_views_plugins
  */
 function calendar_views_plugins() {
-  $path = drupal_get_path('module', 'calendar') .'/theme';
-  $file = 'theme.inc';
-  require_once "./$path/$file";
+  $path = drupal_get_path('module', 'calendar');
+  $views_path = drupal_get_path('module', 'views');
+  require_once "./$path/theme/theme.inc";
 
   $data = array(
     'module' => 'calendar', // This just tells our themes are elsewhere.
     'display' => array(
+      // Parents are not really displays, just needed so the files can
+      // be included.
+      'parent' => array(
+        'no ui' => TRUE,
+        'handler' => 'views_plugin_display',
+        'path' => "$views_path/plugins",
+        'parent' => '',
+      ),
+      'page' => array(
+        'no ui' => TRUE,
+        'handler' => 'views_plugin_display_page',
+        'path' => "$views_path/plugins",
+        'parent' => 'parent',
+      ),
+      'block' => array(
+        'no ui' => TRUE,
+        'handler' => 'views_plugin_display_block',
+        'path' => "$views_path/plugins",
+        'parent' => 'parent',
+      ),
+      'attachment' => array(
+        'no ui' => TRUE,
+        'handler' => 'views_plugin_display_attachment',
+        'path' => "$views_path/plugins",
+        'parent' => 'parent',
+      ),
+      'calendar_attachment' => array(
+        'handler' => 'calendar_plugin_display_attachment',
+        'path' => "$path/includes",
+        'parent' => 'attachment',
+        'no ui' => TRUE,
+        ),
       // Main calendar display plugin.
       'calendar' => array(
         'title' => t('Calendar page'),
         'help' => t('Calendar page display. Attach one or more of the Year/Month/Day/Week views to this page.'),
         'handler' => 'calendar_plugin_display_page',
-        'parent' => 'views_plugin_display_page',
+        'path' => "$path/includes",
+        'parent' => 'page',
         'theme' => 'views_view',
         'no ui' => TRUE,
         'no remove' => TRUE,
@@ -110,7 +143,8 @@ function calendar_views_plugins() {
         'title' => t('Calendar block'),
         'help' => t('Calendar block display. Attach a block view to this block'),
         'handler' => 'calendar_plugin_display_block',
-        'parent' => 'views_plugin_display_block',
+        'path' => "$path/includes",
+        'parent' => 'block',
         'theme' => 'views_view',
         'no ui' => TRUE,
         'no remove' => TRUE,
@@ -127,7 +161,9 @@ function calendar_views_plugins() {
         'title' => t('Year view'),
         'help' => t('This view can use any style you choose.'),
         'handler' => 'calendar_plugin_year',
-        'parent' => 'calendar_plugin_display_attachment',
+        'path' => "$path/includes",
+        'file' => 'calendar_plugin_display_attachment.inc',
+        'parent' => 'calendar_attachment',
         'theme' => 'views_view',
         'no ui' => TRUE,
         'no remove' => TRUE,
@@ -140,7 +176,9 @@ function calendar_views_plugins() {
         'title' => t('Month view'),
         'help' => t('This view can use any style you choose.'),
         'handler' => 'calendar_plugin_month',
-        'parent' => 'calendar_plugin_display_attachment',
+        'path' => "$path/includes",
+        'file' => 'calendar_plugin_display_attachment.inc',
+        'parent' => 'calendar_attachment',
         'theme' => 'views_view',
         'no ui' => TRUE,
         'no remove' => TRUE,
@@ -153,7 +191,9 @@ function calendar_views_plugins() {
         'title' => t('Day view'),
         'help' => t('This view can use any style you choose.'),
         'handler' => 'calendar_plugin_day',
-        'parent' => 'calendar_plugin_display_attachment',
+        'path' => "$path/includes",
+        'file' => 'calendar_plugin_display_attachment.inc',
+        'parent' => 'calendar_attachment',
         'theme' => 'views_view',
         'no ui' => TRUE,
         'no remove' => TRUE,
@@ -166,7 +206,9 @@ function calendar_views_plugins() {
         'title' => t('Week view'),
         'help' => t('This view can use any style you choose.'),
         'handler' => 'calendar_plugin_week',
-        'parent' => 'calendar_plugin_display_attachment',
+        'path' => "$path/includes",
+        'file' => 'calendar_plugin_display_attachment.inc',
+        'parent' => 'calendar_attachment',
         'theme' => 'views_view',
         'no ui' => TRUE,
         'no remove' => TRUE,
@@ -179,7 +221,9 @@ function calendar_views_plugins() {
         'title' => t('Block view'),
         'help' => t('This view can use any style you choose.'),
         'handler' => 'calendar_plugin_block',
-        'parent' => 'calendar_plugin_display_block',
+        'path' => "$path/includes",
+        'file' => 'calendar_plugin_display_attachment.inc',
+        'parent' => 'calendar_attachment',
         'theme' => 'views_view',
         'no ui' => TRUE,
         'no remove' => TRUE,
@@ -190,15 +234,24 @@ function calendar_views_plugins() {
       ),
     ),
     'style' => array(
+      'parent' => array(
+        // this isn't really a display but is necessary so the file can
+        // be included.
+        'no ui' => TRUE,
+        'handler' => 'views_plugin_style',
+        'path' => "$views_path/plugins",
+        'parent' => '',
+      ),
       // Style plugin for the navigation.
       'calendar_nav' => array(
         'title' => t('Calendar navigation'),
         'help' => t('Creates back/next navigation and calendar links.'),
         'handler' => 'calendar_plugin_style',
-        'parent' => 'views_plugin_style',
+        'path' => "$path/includes",
+        'parent' => 'parent',
         'theme' => 'calendar_main',
-        'theme file' => $file,
-        'theme path' => $path,
+        'theme file' => 'theme.inc',
+        'theme path' => "$path/includes",
         'uses row plugin' => FALSE,
         'uses fields' => TRUE,
         'uses options' => FALSE,
@@ -209,10 +262,11 @@ function calendar_views_plugins() {
         'title' => t('Calendar'),
         'help' => t('Displays Views results in a calendar.'),
         'handler' => 'calendar_view_plugin_style',
-        'parent' => 'calendar_plugin_style',
+        'path' => "$path/includes",
+        'parent' => 'calendar_nav',
         'theme' => 'calendar_month',
-        'theme file' => $file,
-        'theme path' => $path,
+        'theme file' => 'theme.inc',
+        'theme path' => "$path/includes",
         'additional themes' => array(
           'calendar_year' => 'style',
           'calendar_day' => 'style',
