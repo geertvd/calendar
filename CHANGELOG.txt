@@ -4,6 +4,13 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+Version 5.2-dev
+===============
+
+- #304762 Add missing folders for translations.
+
+Version 5.2.2
+===============
 - Critical bugfix, fix possible undefined $item->$tz.
 
 Version 5.2.1
