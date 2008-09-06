@@ -18,7 +18,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2008-09-06 08:07-0500\n"
+"POT-Creation-Date: 2008-09-06 09:06-0500\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -459,28 +459,3 @@ msgstr ""
 msgid "Replaces the links to calendar items with a javascript popup that gracefully regresses if javascript is not enabled"
 msgstr ""
 
-<div class="dev-query">Executed <em>19</em> queries in <em>8.14</em> milliseconds. Queries taking longer than <em>5</em> ms and queries executed more than once, are <span class="marker">highlighted</span>. Page execution time was <em>1251.04</em> ms.<table>
- <thead><tr><th>ms</th><th>#</th><th>where</th><th>query</th> </tr></thead>
-<tbody>
- <tr class="odd"><td>0.34</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/drupal_lookup_path">drupal_lookup_path</a></td><td>SELECT COUNT(pid) FROM url_alias</td> </tr>
- <tr class="even"><td>0.24</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/drupal_lookup_path">drupal_lookup_path</a></td><td>SELECT src FROM url_alias WHERE dst = &#039;admin/settings/locale/potx&#039;</td> </tr>
- <tr class="odd"><td>0.95</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/module_list">module_list</a></td><td>SELECT name, filename, throttle FROM system WHERE type = &#039;module&#039; AND status = 1 ORDER BY weight ASC, filename ASC</td> </tr>
- <tr class="even"><td>0.38</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/locale_supported_languages">locale_supported_languages</a></td><td>SELECT locale, name, formula, enabled FROM locales_meta ORDER BY isdefault DESC, enabled DESC, name ASC</td> </tr>
- <tr class="odd"><td>0.3</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/user_load">user_load</a></td><td>SELECT * FROM users u WHERE uid = 1</td> </tr>
- <tr class="even"><td>0.19</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/user_load">user_load</a></td><td>SELECT r.rid, r.name FROM role r INNER JOIN users_roles ur ON ur.rid = r.rid WHERE ur.uid = 1</td> </tr>
- <tr class="odd"><td>0.38</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/_node_types_build">_node_types_build</a></td><td>SELECT nt.type, nt.* FROM node_type nt ORDER BY nt.type ASC</td> </tr>
- <tr class="even"><td>0.89</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/og_get_subscriptions">og_get_subscriptions</a></td><td>SELECT n.title, n.type, n.status, ou.* FROM og_uid ou INNER JOIN node n ON ou.nid = n.nid WHERE ou.uid = 1 AND ou.is_active &gt;= 1 AND n.type IN (&#039;group&#039;) ORDER BY n.title</td> </tr>
- <tr class="odd"><td>0.18</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/og_user">og_user</a></td><td>SELECT og_email FROM og_uid_global WHERE uid = 1</td> </tr>
- <tr class="even"><td>1.05</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/cache_get">cache_get</a></td><td>SELECT data, created, headers, expire FROM cache_menu WHERE cid = &#039;1:en&#039;</td> </tr>
- <tr class="odd"><td>0.43</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/cache_get">cache_get</a></td><td>SELECT data, created, headers, expire FROM cache_views WHERE cid = &#039;calendar_views&#039;</td> </tr>
- <tr class="even"><td>0.25</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/panels_page_load_all">panels_page_load_all</a></td><td>SELECT * FROM panels_page</td> </tr>
- <tr class="odd"><td>0.21</td><td class="marker">2</td><td><a href="http://api.drupal.org/api/HEAD/function/cache_get">cache_get</a></td><td>SELECT data, created, headers, expire FROM cache_views WHERE cid = &#039;views_urls&#039;</td> </tr>
- <tr class="even"><td>0.2</td><td class="marker">2</td><td><a href="http://api.drupal.org/api/HEAD/function/cache_get">cache_get</a></td><td>SELECT data, created, headers, expire FROM cache_views WHERE cid = &#039;views_urls&#039;</td> </tr>
- <tr class="odd"><td>0.65</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/system_get_files_database">system_get_files_database</a></td><td>SELECT filename, name, type, status, throttle, schema_version FROM system WHERE type = &#039;module&#039;</td> </tr>
- <tr class="even"><td>0.56</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/list_themes">list_themes</a></td><td>SELECT * FROM system WHERE type = &#039;theme&#039;</td> </tr>
- <tr class="odd"><td>0.4</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/sess_write">sess_write</a></td><td>SELECT sid FROM sessions WHERE sid = &#039;618fae481ffc4c4472bc8ced01429cf7&#039;</td> </tr>
- <tr class="even"><td>0.33</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/sess_write">sess_write</a></td><td>UPDATE sessions SET uid = 1, cache = 0, hostname = &#039;127.0.0.1&#039;, session = &#039;og_last|N;form|a:2:{s:32:\&quot;24d843099f0e42bf5c5abaa83f96a1ef\&quot;;a:2:{s:9:\&quot;timestamp\&quot;;i:1220706305;s:4:\&quot;args\&quot;;a:1:{i:0;s:14:\&quot;system_modules\&quot;;}}s:32:\&quot;1d74aa3fe0ddfd5084e243f60dc3c51a\&quot;;a:2:{s:9:\&quot;timestamp\&quot;;i:1220706346;s:4:\&quot;args\&quot;;a:1:{i:0;s:14:\&quot;system_modules\&quot;;}}}&#039;, timestamp = 1220706428 WHERE sid = &#039;618fae481ffc4c4472bc8ced01429cf7&#039;</td> </tr>
- <tr class="odd"><td>0.21</td><td>1</td><td><a href="http://api.drupal.org/api/HEAD/function/sess_write">sess_write</a></td><td>UPDATE users SET access = 1220706428 WHERE uid = 1</td> </tr>
-</tbody>
-</table>
-</div><div class="dev-memory-usage"><h3>Memory usage:</h3><div class="item-list"><ul><li>Memory used at <em>devel_init()</em>: <em>13.48</em> MB</li><li>Memory used at <em>devel_shutdown()</em>: <em>15.79</em> MB</li></ul></div></div>
