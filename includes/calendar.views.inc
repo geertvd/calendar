@@ -251,7 +251,7 @@ function calendar_views_plugins() {
         'parent' => 'parent',
         'theme' => 'calendar_main',
         'theme file' => 'theme.inc',
-        'theme path' => "$path/includes",
+        'theme path' => "$path/theme",
         'uses row plugin' => FALSE,
         'uses fields' => TRUE,
         'uses options' => FALSE,
@@ -266,7 +266,7 @@ function calendar_views_plugins() {
         'parent' => 'calendar_nav',
         'theme' => 'calendar_month',
         'theme file' => 'theme.inc',
-        'theme path' => "$path/includes",
+        'theme path' => "$path/theme",
         'additional themes' => array(
           'calendar_year' => 'style',
           'calendar_day' => 'style',

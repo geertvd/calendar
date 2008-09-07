@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #303999 Correct theme paths for Views themes.
 - #304762 Add missing folders for translations.
 - Update to new Views2 API. Now requires latest versions of Views and CCK, and files have been re-arranged.
 - Replace all include_once() with require_once().

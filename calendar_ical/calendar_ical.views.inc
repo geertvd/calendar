@@ -55,8 +55,6 @@ function calendar_ical_views_plugins() {
         'no ui' => TRUE,
         'handler' => 'views_plugin_style',
         'path' => "$views_path/plugins",
-        'theme file' => 'theme.inc',
-        'theme path' => "$views_path/theme",
         'parent' => '',
       ),
       'rss' => array(
@@ -65,8 +63,6 @@ function calendar_ical_views_plugins() {
         'no ui' => TRUE,
         'handler' => 'views_plugin_style_rss',
         'path' => "$views_path/plugins",
-        'theme file' => 'theme.inc',
-        'theme path' => "$views_path/theme",
         'parent' => 'parent',
       ),
       'ical' => array(
