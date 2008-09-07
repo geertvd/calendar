@@ -608,7 +608,7 @@ function theme_calendar_date_box($date, $view, $items, $params, $selected = FALS
     $append = (!empty($querystring) ? $querystring .'&' : '') . $block_identifier .'='. $view->real_url .'/'. $year .'/'. $month .'/'. $day;
   }
   else {
-    $url = $view->page_url .'/'. $year .'/'. $month .'/'. $day;
+    $url = $view->real_url .'/'. $year .'/'. $month .'/'. $day;
     $append = $params['append'];
   }
 
