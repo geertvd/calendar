@@ -142,6 +142,7 @@ function _calendar_views_query_alter(&$query, &$view) {
   
   if ($view->build_type == 'block') {
     $view->calendar_display = $display_formats['block'];
+    $view->mini = TRUE;
   }
   elseif (isset($_GET['view']) && $view->build_type == 'page') {
   	$view->calendar_display = !empty($_GET['view']) ? check_plain($_GET['view']) : 'calendar';

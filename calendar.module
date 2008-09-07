@@ -324,10 +324,18 @@ function calendar_views_pre_view(&$view, &$items) {
   }
   if ($view->build_type == 'block' || $view->calendar_type == 'year') $view->mini = TRUE;
   
-  $summary = !empty($items) && array_key_exists('num_nodes', $items[0]);
-  if (!calendar_is_calendar_arg($view) || $summary) {
+  // Don't do anything in summary views.
+  if ($summary = !empty($items) && array_key_exists('num_nodes', $items[0])) {
     return;
   }
+  
+  // Don't do anything if this isn't a calendar component.
+  if (!calendar_has_calendar_args($view) ||
+    (empty($view->args) && !calendar_is_calendar_arg($view)
+    && $view->argument[0]['argdefault'] != 2)) {
+    return;
+  }
+  
   require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
 
   // Massage the resulting items into formatted calendar items.
