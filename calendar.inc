@@ -11,6 +11,7 @@ function _calendar_views_query_alter(&$query, &$view) {
   $now = date_now();
   $view->real_args = $view->args;
   $view->real_url = calendar_real_url($view, $view->args);
+  
   $display_formats = calendar_get_formats($view);
   $calendar_fields = calendar_fields();
   foreach ($view->field as $field) {
@@ -156,7 +157,7 @@ function _calendar_views_query_alter(&$query, &$view) {
   if ($view->build_type == 'page') {
     $GLOBALS['calendar_is_calendar'] = TRUE;
   }
-
+  
   return;
 }
 
@@ -218,7 +219,7 @@ function calendar_build_calendar($view, $items, $params) {
       $rows = array_merge(array(calendar_week_header($view->mini, $params['with_weekno'], $len)), $rows);
       break;
   }
-
+  
   $output  = theme('calendar_links', $view, $view->build_type != 'block');
   $output .= theme('calendar_nav', $view);
   $header = in_array($view->calendar_type, array('month', 'week')) ? array_shift($rows) : array();

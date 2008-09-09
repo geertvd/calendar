@@ -410,6 +410,7 @@ function calendar_views_pre_view(&$view, &$items) {
       $view->block_empty = check_markup($view->block_header, $view->block_header_format) . check_markup($view->block_empty, $view->block_empty_format);
     }
   }
+  
 }
 
 /**
