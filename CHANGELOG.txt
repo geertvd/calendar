@@ -4,7 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
-Version 5.2-dev
+Version 5.2.3
 ===============
 
 - #305677 Preserve sort order in non-calendar views, including imported feeds.
