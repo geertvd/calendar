@@ -611,10 +611,10 @@ function theme_calendar_date_box($date, $view, $items, $params, $selected = FALS
   if ($view->build_type == 'embed') {
     $url = $view->page_url;
     $block_identifier = isset($view->block_identifier) ? $view->block_identifier : 'mini';
-    $append = (!empty($querystring) ? $querystring .'&' : '') . $block_identifier .'='. $view->real_url .'/'. $year .'/'. $month .'/'. $day;
+    $append = (!empty($querystring) ? $querystring .'&' : '') . $block_identifier .'='. $view->real_url .'/'. date_pad($year, 4) .'/'. date_pad($month) .'/'. date_pad($day);
   }
   else {
-    $url = $view->real_url .'/'. $year .'/'. $month .'/'. $day;
+    $url = $view->real_url .'/'. date_pad($year, 4) .'/'. date_pad($month) .'/'. date_pad($day);
     $append = $params['append'];
   }
 
