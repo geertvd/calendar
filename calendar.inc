@@ -588,7 +588,7 @@ function calendar_build_nodes(&$view, &$items) {
             
             $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_alias) ? $item->$tz_alias : $display_timezone_name);
             $to_zone = date_get_timezone($tz_handling, isset($item->$tz_alias) ? $item->$tz_alias : $display_timezone_name);
-        
+            
             // NOTE: Now $display_timezone determines how $item is split
             // into one entry per day, while $to_zone determines how date is displayed.
             // Maybe someone wants to the date fields's timezone for the day splitting,
@@ -639,6 +639,7 @@ function calendar_build_nodes(&$view, &$items) {
               date_timezone_set($date, $display_timezone);
               $max_zone_string[$display_timezone_name] = date_format($date, DATE_FORMAT_DATE);
             }
+            
             // Create a node for each date within the field's date range,
             // limited to the view's date range (regarding only day, not time).
             $now = max($min_zone_string[$display_timezone_name], substr($values_display[0], 0, 10));
@@ -703,22 +704,15 @@ function calendar_build_nodes(&$view, &$items) {
               date_modify($next, '+1 day');
               date_modify($next, '-1 second');
               $end = date_format($next, DATE_FORMAT_DATETIME);
-
+              
               // Get intersection of current day and the node value's duration (as strings in $to_zone timezone)
               $node->calendar_start = $values[0] < $start ? $start : $values[0];
               $node->calendar_end = !empty($values[1]) ? ($values[1] > $end ? $end : $values[1]) : $node->calendar_start;
-
+              
               // Make date objects
               $node->calendar_start_date = date_create($node->calendar_start, timezone_open($to_zone));
               $node->calendar_end_date = date_create($node->calendar_end, timezone_open($to_zone));
-              if ($tz_handling != 'utc' && $tz_handling != 'none') {
-                date_timezone_set($node->calendar_start_date, date_default_timezone());
-                date_timezone_set($node->calendar_end_date, date_default_timezone());
-              } 
-              else {
-                date_timezone_set($node->calendar_start_date, timezone_open('UTC'));
-                date_timezone_set($node->calendar_end_date, timezone_open('UTC'));
-              }
+              
               // Change string timezones into 
               // calendar_start and calendar_end are UTC dates as formatted strings
               $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
