@@ -317,9 +317,19 @@ function calendar_views_query_alter(&$query, &$view) {
  */
 function calendar_views_pre_view(&$view, &$items) {
   require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.theme');
+  
+  // Construct a formatted title for the view from the last calendar
+  // argument encountered.
+  $view->subtitle = theme('calendar_nav_title', $view->calendar_type, $view);
+
+  // If this is a view with calendar arguments but not a calendar view,
+  // add navigation to the top of the view and return.
+  if (!calendar_is_calendar($view) && calendar_has_calendar_args($view)) {
+    return theme('calendar_nav', $view,  $view->build_type != 'block');
+  }
 
   // If no part of this view has calendar elements, exit.
-  if ((!calendar_is_calendar($view) || !calendar_has_calendar_args($view))) {
+  elseif ((!calendar_is_calendar($view) || !calendar_has_calendar_args($view))) {
     return;
   }
   if ($view->build_type == 'block' || $view->calendar_type == 'year') $view->mini = TRUE;
@@ -351,16 +361,6 @@ function calendar_views_pre_view(&$view, &$items) {
         }
       }
     }
-  }
-
-  // Construct a formatted title for the view from the last calendar
-  // argument encountered.
-  $view->subtitle = theme('calendar_nav_title', $view->calendar_type, $view);
-
-  // If this is a view with calendar arguments but not a calendar view,
-  // add navigation to the top of the view and return.
-  if (!calendar_is_calendar($view) && calendar_has_calendar_args($view)) {
-    return theme('calendar_show_nav', $view,  $view->build_type == 'block', calendar_is_calendar($view));
   }
 
   // If this is a calendar plugin theme view, make sure empty results

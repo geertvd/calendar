@@ -7,6 +7,7 @@ Version 5.2 dev
 Version 5.2-dev
 ===============
 
+- #243172 Fix handling of navigation on non-calendar view with calendar arguments.
 - #296735 Make sure 'day' links use the leading zeros for consistency.
 - #196611 Add 'empty' text to header when there are no results.
 - #294469 Get rid of redundant timezone conversion that showed dates without timezone conversion in UTC.
