@@ -260,7 +260,6 @@ function theme_calendar_arg_title($field_type, $value, $query) {
  */
 function theme_calendar_nav($view, $link = FALSE, $format = NULL) {
   $mini = $view->mini && $view->calendar_type != 'year';
-  dsm('HERE');
   if (!calendar_part_is_valid($view->year, 'year')) {
     return $view->subtitle;
   }
