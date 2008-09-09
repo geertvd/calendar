@@ -298,27 +298,22 @@ function calendar_build_nodes(&$view, &$items) {
         $values[0] = $item->calendar_fields->$fromto[0];
         $values[1] = $item->calendar_fields->$fromto[1];
         
-        $to_zone = $local_tz;
-        if ($tz_handling == 'date') {
-          if (!empty($item->$tz_alias)) {
-            $local_tz = $to_zone = $item->$tz_alias;
-          }
-          else {
-            $local_tz = $to_zone = date_default_timezone_name();
-          }
-        }
+        $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_alias) ? $item->$tz_alias : $display_timezone_name);
+        $to_zone = date_get_timezone($tz_handling, isset($item->$tz_alias) ? $item->$tz_alias : $display_timezone_name);
         
         // NOTE: Now $display_timezone determines how $item is split
         // into one entry per day, while $to_zone determines how date is displayed.
         // Maybe someone wants to the date fields's timezone for the day splitting,
         // then use: $display_timezone_name = $to_zone;
         $values_display = array();
+        
         // Start date
         $date = date_make_date($values[0], $db_tz, $field['sql_type']);
         if ($db_tz != $to_zone) {
           date_timezone_set($date, timezone_open($to_zone));
         }
         $values[0] = date_format($date, DATE_FORMAT_DATETIME);
+            
         if ($display_timezone_name != $to_zone) {
           date_timezone_set($date, $display_timezone);
           $values_display[0] = date_format($date, DATE_FORMAT_DATETIME);
@@ -326,7 +321,7 @@ function calendar_build_nodes(&$view, &$items) {
         else {
           $values_display[0] = $values[0];
         }
-        
+            
         // End date
         $date = date_make_date($values[1], $db_tz, $field['sql_type']);
         if ($db_tz != $to_zone) {
@@ -340,6 +335,7 @@ function calendar_build_nodes(&$view, &$items) {
         else {
           $values_display[1] = $values[1];
         }
+
         // Now $values contain start and end date of a node,
         // expressed as strings in the display (local) timezone.
         // $values_utc does the same in UTC timezone.
@@ -415,14 +411,7 @@ function calendar_build_nodes(&$view, &$items) {
           // Make date objects
           $node->calendar_start_date = date_create($node->calendar_start, timezone_open($to_zone));
           $node->calendar_end_date = date_create($node->calendar_end, timezone_open($to_zone));
-          if ($tz_handling != 'utc' && $tz_handling != 'none') {
-            date_timezone_set($node->calendar_start_date, date_default_timezone());
-            date_timezone_set($node->calendar_end_date, date_default_timezone());
-          } 
-          else {
-            date_timezone_set($node->calendar_start_date, timezone_open('UTC'));
-            date_timezone_set($node->calendar_end_date, timezone_open('UTC'));
-          }
+
           // Change string timezones into 
           // calendar_start and calendar_end are UTC dates as formatted strings
           $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
