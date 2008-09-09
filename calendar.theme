@@ -31,6 +31,7 @@ function theme_calendar_views_calendar(&$view, &$items, $type) {
   if (!calendar_is_calendar($view)) {
     return;
   }
+  
   // If there are args before the calendar args and they don't have values
   // we don't have enough information to create calendar navigation links
   // so exit here.
@@ -70,7 +71,12 @@ function theme_calendar_views_calendar(&$view, &$items, $type) {
       }
       $out =  calendar_build_calendar($view, $items, $params);
   }
-  return $out;
+  if (empty($items)) {
+    return $view->page_empty . $out;
+  }
+  else {
+    return $out;
+  }
 }
 
 /**
