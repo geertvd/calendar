@@ -381,7 +381,6 @@ function calendar_views_pre_view(&$view, &$items) {
     }
   }
   if (!empty($sort)) {
-    $nodes = array();
     if ($sort == 'DESC') {
       krsort($items);
     }
@@ -390,6 +389,7 @@ function calendar_views_pre_view(&$view, &$items) {
     }
   }
 
+  $nodes = array();
   foreach ($items as $date => $values) {
     foreach ($values as $node) {
       $nodes[] = $node;
