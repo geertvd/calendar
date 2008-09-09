@@ -388,13 +388,14 @@ function calendar_views_pre_view(&$view, &$items) {
     else {
       ksort($items);
     }
-    foreach ($items as $date => $values) {
-      foreach ($values as $node) {
-        $nodes[] = $node;
-      }
-    }
-    $items = $nodes;
   }
+
+  foreach ($items as $date => $values) {
+    foreach ($values as $node) {
+      $nodes[] = $node;
+    }
+  }
+  $items = $nodes;
   
   // If this is a calendar plugin theme view, make sure empty results
   // will produce blank calendar page
