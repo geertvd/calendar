@@ -347,9 +347,10 @@ function calendar_views_pre_view(&$view, &$items) {
   }
   
   require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
+  $display_formats = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar', 'block' => 'calendar'));
 
   // Massage the resulting items into formatted calendar items.
-  $items = calendar_build_nodes($view, $items);
+  $items = calendar_build_nodes($view, $items, $display_formats[$view->calendar_type]);
 
   // Merge in items from other sources.
   foreach (module_implements('calendar_add_items') as $module) {
@@ -357,22 +358,54 @@ function calendar_views_pre_view(&$view, &$items) {
     if (function_exists($function)) {
       if ($feeds = $function($view)) {
         foreach ($feeds as $feed) {
-          $items[] = $feed;
+          $items[$feed->calendar_start][] = $feed;
         }
       }
     }
   }
 
+  // Sort the results -- sort needed if they are to be displayed
+  // in a list or other non-calendar format, since sorting was
+  // clobbered by adding in feeds and breaking items up into
+  // individual days.
+  $sort = '';
+  $fields = array_keys(calendar_fields());
+  foreach ($view->field as $field) {
+    if (in_array($field['field'], $fields)) {
+      foreach ($view->sort as $sort) {
+        if ($sort['field'] = $field['field']) {
+          $sort = $sort['sortorder'];
+          break;
+        }
+      }
+    }
+  }
+  if (!empty($sort)) {
+    $nodes = array();
+    if ($sort == 'DESC') {
+      krsort($items);
+    }
+    else {
+      ksort($items);
+    }
+    foreach ($items as $date => $values) {
+      foreach ($values as $node) {
+        $nodes[] = $node;
+      }
+    }
+    $items = $nodes;
+  }
+  
   // If this is a calendar plugin theme view, make sure empty results
   // will produce blank calendar page
-  $display_format = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar', 'block' => 'calendar'));
+  
   if (array_key_exists($view->page_type, calendar_view_types())) {
-    if (!$items && $view->build_type == 'page' && $view->year && $display_format[$view->calendar_type] == 'calendar') {
+    if (!$items && $view->build_type == 'page' && $view->year && $display_formats[$view->calendar_type] == 'calendar') {
       $view->page_empty = check_markup($view->page_header, $view->page_header_format) . check_markup($view->page_empty, $view->page_empty_format);
     }
   }
   if (array_key_exists($view->block_type, calendar_view_types())) {
-    if (!$items && $view->build_type == 'block' && $view->year && $display_format[$view->calendar_type] == 'calendar') {
+    if (!$items && $view->build_type == 'block' && $view->year && $display_formats[$view->calendar_type] == 'calendar') {
       $view->block_empty = check_markup($view->block_header, $view->block_header_format) . check_markup($view->block_empty, $view->block_empty_format);
     }
   }

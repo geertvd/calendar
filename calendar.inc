@@ -184,7 +184,7 @@ function calendar_build_calendar($view, $items, $params) {
   }
   $items = $values;
   ksort($items);
-
+  
   $rows = array();
   $curday = drupal_clone($view->min_date);
   date_timezone_set($curday, timezone_open(date_default_timezone_name()));
@@ -512,11 +512,11 @@ function calendar_build_field_query(&$query, $field) {
  * When we finish, we will have a distinct node for each distinct day
  * and date field.
  */
-function calendar_build_nodes(&$view, &$items) {
+function calendar_build_nodes(&$view, &$items, $display_type) {
   if (empty($view->min_date) || empty($view->max_date)) {
     return $items;
   }
-  
+    
   // Midnights are determined based on the same timezone as the View uses
   $display_timezone = date_timezone_get($view->min_date);
   $display_timezone_name = timezone_name_get($display_timezone);
@@ -735,7 +735,7 @@ function calendar_build_nodes(&$view, &$items) {
                 if ($view->build_type == 'page' && $view->calendar_type != 'year') {
                   calendar_node_stripe($view, $node, $field['query_name'], $field['query_name']);
                 }
-                $nodes[] = $node;
+                $nodes[$node->calendar_start][] = $node;
                 unset($node);
               }
               date_modify($next, '+1 second');
