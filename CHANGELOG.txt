@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #303000 The calendar ical feed was deeply sub-classed and wasn't working right, rewrite it to not require so many other classes.
 - #294469 Get rid of redundant timezone conversion that showed dates without timezone conversion in UTC.
 - #303999 Correct theme paths for Views themes.
 - #304762 Add missing folders for translations.

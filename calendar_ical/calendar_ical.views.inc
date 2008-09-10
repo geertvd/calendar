@@ -26,12 +26,6 @@ function calendar_ical_views_plugins() {
         'path' => "$views_path/plugins",
         'parent' => 'parent',
       ),
-      'feed' => array(
-        'no ui' => TRUE,
-        'handler' => 'views_plugin_display_feed',
-        'path' => "$views_path/plugins",
-        'parent' => 'page',
-      ),
       'ical' => array(
         'title' => t('iCal feed'),
         'help' => t('Display the view as an iCal feed.'),
