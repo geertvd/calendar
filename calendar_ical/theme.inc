@@ -49,5 +49,4 @@ function template_preprocess_calendar_view_ical(&$vars) {
   $vars['calname'] = variable_get('site_name', '') . (!empty($view->title) ? ' | '. $view->title : '');
   $vars['events'] = $events;
   template_preprocess_date_vcalendar($vars);
-  
 }
