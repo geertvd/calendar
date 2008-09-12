@@ -274,12 +274,12 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
   if ($params['with_weekno'] && $view->calendar_type != 'day') {
     if (!empty($display_formats['week'])) {
       if ($view->build_type == 'embed') {
-        $url = $params['url'];
+        $url = $view->page_url .'/'. $view->year .'/W'. $week;
         $block_identifier = isset($view->block_identifier) ? $view->block_identifier : 'mini';
         $query_string = (!empty($params['append']) ? $params['append'] .'&' : '') . $block_identifier .'='. $params['url'] .'/'. $view->year .'/W'. $week;
       }
       else {
-        $url = $params['url'] .'/'. $view->year .'/W'. $week;
+        $url = $view->real_url .'/'. $view->year .'/W'. $week;
         $query_string = $params['append'];
       }
       $weekno = l($week, $url, NULL, $query_string);

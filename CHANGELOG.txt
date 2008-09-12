@@ -4,6 +4,8 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- #306328 Fix week links.
+
 Version 5.2.3
 ===============
 
