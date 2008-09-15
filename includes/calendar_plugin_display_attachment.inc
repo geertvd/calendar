@@ -54,8 +54,8 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
       }
     }
     $this->view->display_granularity = $display_granularity;
+
     parent::attach_to($display_id);
-    
   }
   
   function display_types($type = 'month') {

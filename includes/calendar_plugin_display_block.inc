@@ -66,5 +66,13 @@ class calendar_plugin_display_block extends views_plugin_display_block {
       return $info;
     }
   }
+
+  function query() {
+    // We don't need a query for the navigation. There's no way to
+    // completely turn it off, but we can set it to something simple.
+    $this->view->query->clear_fields();
+    $this->view->query->where = array();
+    $this->view->query->add_where(NULL, "0");
+  }
   
 }

@@ -6,7 +6,7 @@
 function template_preprocess_calendar_main(&$vars) {
   require_once('./'. drupal_get_path('module', 'calendar') .'/includes/calendar.inc');
   $view     = $vars['view'];
-
+    
   $result   = (array) $view->result;
   $options  = $view->style_plugin->options;
   $handler  = $view->style_plugin;

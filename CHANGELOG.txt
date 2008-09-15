@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Eliminate query for navigation display.
 - Calendar ical theme was in the wrong folder, move it to the ical folder.
 - #303000 The calendar ical feed was deeply sub-classed and wasn't working right, rewrite it to not require so many other classes.
 - #294469 Get rid of redundant timezone conversion that showed dates without timezone conversion in UTC.
