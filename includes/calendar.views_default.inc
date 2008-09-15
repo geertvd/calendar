@@ -164,35 +164,6 @@ $handler->override_option('displays', array(
   'calendar' => 0,
 ));
 
-if (module_exists('calendar_ical')) {
-$handler = $view->new_display('ical', 'iCal feed', 'ical_1');
-$handler->override_option('style_plugin', 'ical');
-$handler->override_option('style_options', array(
-  'mission_description' => FALSE,
-  'description' => '',
-  'summary_field' => 'node_title',
-  'description_field' => 'node_revisions_body',
-  'location_field' => '',
-));
-$handler->override_option('path', 'calendar/%/ical');
-$handler->override_option('menu', array(
-  'type' => 'none',
-  'title' => '',
-  'weight' => 0,
-));
-$handler->override_option('tab_options', array(
-  'type' => 'none',
-  'title' => '',
-  'weight' => 0,
-));
-$handler->override_option('displays', array(
-  'calendar' => 'calendar',
-  'default' => 0,
-  'calendar_block' => 0,
-));
-
-}
-
   $views[$view->name] = $view;
   return $views;
 }

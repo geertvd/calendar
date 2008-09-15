@@ -128,3 +128,14 @@ function calendar_update_6000() {
   cache_clear_all('variables', 'cache');
   return $ret;
 }
+
+/**
+ * Make sure handlers for disabled Calendar iCal module don't get saved in the view.
+ */
+function calendar_update_6001() {
+  $ret = array();
+  if (!module_exists('calendar_ical')) {
+    $ret[] = update_sql("DELETE FROM {views_display} WHERE display_plugin = 'ical'");
+  }
+  return $ret;
+}

@@ -7,6 +7,24 @@ function calendar_ical_install() {
   db_query("UPDATE {system} SET weight = 1 WHERE name = 'calendar_ical'");
 }
 
+/**
+ * Make sure handlers for disabled Calendar iCal module don't get saved in the view.
+ */
+function calendar_ical_uninstall() {
+  db_query("DELETE FROM {views_display} WHERE display_plugin = 'ical'");
+}
+
+function calendar_ical_enable() {
+  
+}
+
+/**
+ * Make sure handlers for disabled Calendar iCal module don't get saved in the view.
+ */
+function calendar_ical_disable() {
+  db_query("DELETE FROM {views_display} WHERE display_plugin = 'ical'");
+}
+
 function calendar_ical_update_1() {
   $ret = array();
   $ret[] = update_sql("UPDATE {system} SET weight = 1 WHERE name = 'calendar_ical'");
