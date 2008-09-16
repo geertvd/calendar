@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #301414 Revert http://drupal.org/cvs?commit=133523, wrong way to fix that.
 - #308372 Make ical display handlers are removed from views display table when Calendar iCal is disabled.
 - Eliminate query for navigation display.
 - Calendar ical theme was in the wrong folder, move it to the ical folder.

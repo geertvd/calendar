@@ -15,7 +15,6 @@ function template_preprocess_calendar_main(&$vars) {
   $vars['min_date_formatted'] = date_format($view->min_date, DATE_FORMAT_DATETIME);
   $vars['max_date_formatted'] = date_format($view->max_date, DATE_FORMAT_DATETIME);
   
-
   $view->mini = isset($view->mini) ? $view->mini : $view->granularity == 'year';
 
   // Construct a formatted title for the view from the calendar type.
