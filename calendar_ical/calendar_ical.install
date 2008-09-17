@@ -19,13 +19,14 @@ function calendar_ical_uninstall() {
 }
 
 function calendar_ical_enable() {
-  
+  db_query("DELETE FROM {cache_views}");
 }
 
 /**
  * Make sure handlers for disabled Calendar iCal module don't get saved in the view.
  */
 function calendar_ical_disable() {
+  db_query("DELETE FROM {cache_views}");
 }
 
 function calendar_ical_update_1() {
