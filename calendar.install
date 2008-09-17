@@ -52,6 +52,7 @@ function calendar_enable() {
     module_enable(array('date_php4'));
   }
   module_enable(array('date_timezone'));
+  db_query("DELETE FROM {cache_views}");
 }
 
 /**
@@ -59,14 +60,32 @@ function calendar_enable() {
  * Empty the calendar caches.
  */
 function calendar_disable() {
+  db_query("DELETE FROM {cache_views}");
 }
 
 /**
  * Implementation of hook_uninstall().
- *
+ * Remove all traces of calendars.
  */
 function calendar_uninstall() {
   $ret = array();
+  $displays = array(
+    'calendar', 
+    'calendar_attachment', 
+    'calendar_year', 
+    'calendar_day', 
+    'calendar_month', 
+    'calendar_week', 
+    'calendar_block', 
+    'calendar_block_view',
+    'calendar_ical',
+    );
+  $result = db_query("SELECT DISTINCT vid FROM {views_display} WHERE display_plugin IN ('". implode("','", $displays) ."')");
+  while($row = db_fetch_array($result)) {
+    db_query("DELETE FROM {views_view} WHERE vid = %d", $row['vid']);
+  }
+  db_query("DELETE FROM {views_display} WHERE display_plugin IN ('". implode("','", $displays) ."')");
+  db_query("DELETE FROM {cache_views}");
   return $ret;
 }
 
@@ -82,6 +101,7 @@ function calendar_install() {
   module_enable(array('date_timezone'));
   // Make sure this module loads after date_api.
   db_query("UPDATE {system} SET weight = 1 WHERE name = 'calendar'");
+  db_query("DELETE FROM {cache_views}");
   return $ret;
 }
 
@@ -116,7 +136,7 @@ function calendar_update_5200() {
   return $ret;
 }
 
-// No longer tracking views info in variables now that
+// No longer track views info in variables now that
 // Views 2 has settings we can use.
 function calendar_update_6000() {
   $ret = array();

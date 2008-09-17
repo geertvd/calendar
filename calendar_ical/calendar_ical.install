@@ -11,7 +11,11 @@ function calendar_ical_install() {
  * Make sure handlers for disabled Calendar iCal module don't get saved in the view.
  */
 function calendar_ical_uninstall() {
-  db_query("DELETE FROM {views_display} WHERE display_plugin = 'ical'");
+  $displays = array(
+    'ical', 
+    );
+  db_query("DELETE FROM {views_display} WHERE display_plugin IN ('". implode("','", $displays) ."')");
+  db_query("DELETE FROM {cache_views}");
 }
 
 function calendar_ical_enable() {
@@ -22,7 +26,6 @@ function calendar_ical_enable() {
  * Make sure handlers for disabled Calendar iCal module don't get saved in the view.
  */
 function calendar_ical_disable() {
-  db_query("DELETE FROM {views_display} WHERE display_plugin = 'ical'");
 }
 
 function calendar_ical_update_1() {
