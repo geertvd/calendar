@@ -4,7 +4,8 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
-- #313538 Fix typo in calendar.css.
+- #303537 Display:relative should be position:relative.
+- #313538 Fix color typo in calendar.css.
 - #306328 Fix week links.
 
 Version 5.2.3
