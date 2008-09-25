@@ -402,12 +402,12 @@ function calendar_views_pre_view(&$view, &$items) {
   
   if (array_key_exists($view->page_type, calendar_view_types())) {
     if (!$items && $view->build_type == 'page' && $view->year && $display_formats[$view->calendar_type] == 'calendar') {
-      $view->page_empty = check_markup($view->page_header, $view->page_header_format) . check_markup($view->page_empty, $view->page_empty_format);
+      $view->page_empty = check_markup($view->page_header, $view->page_header_format, FALSE) . check_markup($view->page_empty, $view->page_empty_format, FALSE);
     }
   }
   if (array_key_exists($view->block_type, calendar_view_types())) {
     if (!$items && $view->build_type == 'block' && $view->year && $display_formats[$view->calendar_type] == 'calendar') {
-      $view->block_empty = check_markup($view->block_header, $view->block_header_format) . check_markup($view->block_empty, $view->block_empty_format);
+      $view->block_empty = check_markup($view->block_header, $view->block_header_format, FALSE) . check_markup($view->block_empty, $view->block_empty_format, FALSE);
     }
   }
   

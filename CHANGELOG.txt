@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- #311839 Fix permissions to see header and empty text.
 - #313161 Use date_id as iCal UID to be sure it is unique.
 - #306328 Fix one more embedded link for the week number.
 - #303537 Display:relative should be position:relative.
