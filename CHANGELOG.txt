@@ -6,7 +6,8 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
-- #313538 Fix typo in calendar.css.
+- #303537 Display:relative should be position:relative.
+- #313538 Fix color typo in calendar.css.
 - #309608, #309253 Get rid of attempt to simplify the navigation query, it is too easily broken. 
 - #309391 Now that the Views fatal error for missing display handlers is fixed, add the ical display back.
 

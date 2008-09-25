@@ -89,7 +89,7 @@
 
 .calendar-calendar .calendar-nav {
   width:100%;
-  display:relative;
+  position:relative;
 }
 .calendar-calendar .calendar-nav div.prev {
   text-align: left;
