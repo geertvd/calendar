@@ -321,8 +321,8 @@ function theme_calendar_ical_feed($view, $items, $type) {
     $event['location'] = $node->calendar_location;
     $event['summary'] = $node->title;
     $event['description'] = $node->teaser;
-    $event['uid'] = $node->uid ? $node->uid : calendar_get_node_link($node);
     $event['url'] = $node->url ? $node->url : calendar_get_node_link($node);
+    $event['uid'] = !empty($node->date_id) ? $node->date_id : $event['url'];
     $events[] = $event;
   }
   
