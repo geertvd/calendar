@@ -73,37 +73,37 @@ class calendar_plugin_display_page extends views_plugin_display_page {
        
     switch ($form_state['section']) {
       case 'calendar_colors':
-        //TODO Add in methods other than content types for setting legend colors.
-        $method =  'types';
+
+      $method =  'types';
   
-        // TODO Move the embedded styles other than the color into a stylesheet.
-       $form['#title'] .= t('Legend colors');
-       $form['#prefix'] = t('<div class="form-item"><label>Content Type</label><p>Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Types with empty values will have no stripe in the calendar and will not be added to the legend.</p></div>');
-       $form['calendar_colors']['#tree'] = TRUE;
-       $form['calendar_colors']['colorpicker'] = array(
-          '#type' => 'calendar_colorpicker',
-          '#prefix' => '<div class="clear-block"><div style="float:left">',
-          '#suffix' => '</div>',
-        );
-        $colors = $this->get_option('calendar_colors'); 
-  
-        switch ($method) {
-          case 'types':
-            $color_types = node_get_types('names');
-            break;
-        }
-        foreach ($color_types as $key => $name) {
-          $form['calendar_colors']['color'][$key] = array(
-            '#title' => $name,
-            '#type' => 'calendar_colorfield',
-            '#default_value' => isset($colors[$key]) ? $colors[$key] : '#ffffff',
-            '#calendar_colorpicker' => 'calendar-colors-colorpicker',
-            '#prefix' => '<div style="float:left;margin-right:10px">',
-            '#suffix' => '</div>',
-          );
-        }
-        $form['calendar_colors']['color']['#suffix'] = '</div>';
-        break;
+      // TODO Move the embedded styles other than the color into a stylesheet.
+      $form['#title'] .= t('Legend colors');
+      $form['calendar_colors']['#tree'] = TRUE;
+      $form['calendar_colors']['#prefix'] = t('<div class="form-item"><label>Content Type</label><p>Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Types with empty values will have no stripe in the calendar and will not be added to the legend.</p></div>');
+      $form['calendar_colors']['colorpicker'] = array(
+         '#type' => 'calendar_colorpicker',
+         '#prefix' => '<div class="clear-block"><div style="float:left">',
+         '#suffix' => '</div>',
+       );
+       $colors = $this->get_option('calendar_colors'); 
+
+       switch ($method) {
+         case 'types':
+           $color_types = node_get_types('names');
+           break;
+       }
+       foreach ($color_types as $key => $name) {
+         $form['calendar_colors']['color'][$key] = array(
+           '#title' => $name,
+           '#type' => 'calendar_colorfield',
+           '#default_value' => isset($colors[$key]) ? $colors[$key] : '#ffffff',
+           '#calendar_colorpicker' => 'calendar-colors-colorpicker',
+           '#prefix' => '<div style="float:left;margin-right:10px">',
+           '#suffix' => '</div>',
+         );
+       }
+       $form['calendar_colors']['color']['#suffix'] = '</div>';
+       break;
     }
   }
 
