@@ -9,10 +9,10 @@
 /*
  *  Bind the colorpicker event to the form element
  */
-$(document).ready(function () {
-
+Drupal.behaviors.calendarColorpicker = function (context) {
+  
   // do we have multiple calendar_colors?
-  if ($("div.calendar_colorpicker").size() > 1) {
+  if ($("div.calendar_colorpicker").size() > 0) {
   
     // loop over each calendar_color type
     $("div.calendar_colorpicker").each(function() {
@@ -37,20 +37,5 @@ $(document).ready(function () {
 
     });
   }
-  else {
-    // we do this differently because we don't care about the id
-  var farb = $.farbtastic("div.calendar_colorpicker");
-    $("input.calendar_colorfield").each(function () {
-      // set the background colors of all of the textfields appropriately
-      farb.linkTo(this);
-
-      // update the farbtastic colorpicker when this textfield is clicked
-      $(this).click(function () {
-        farb.linkTo(this);
-      });
-
-    
-  });
-  }
-});
+};
 
