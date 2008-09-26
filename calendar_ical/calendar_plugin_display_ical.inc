@@ -16,6 +16,7 @@ class calendar_plugin_display_ical extends views_plugin_display_page {
    * Drupal believes that the page has already rendered itself...which it has.
    */
   function execute() {
+    $this->view->title = $this->view->display_handler->get_option('title');
     print $this->view->render();
   }
 

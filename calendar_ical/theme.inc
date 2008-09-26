@@ -47,7 +47,12 @@ function template_preprocess_calendar_view_ical(&$vars) {
     $event['uid'] = !empty($node->date_id) ? $node->date_id : $event['url'];
     $events[$event['uid']] = $event;
   }
-  $vars['calname'] = variable_get('site_name', '') . (!empty($view->title) ? ' | '. $view->title : '');
+  
+  $headertitle = filter_xss_admin($view->title);
+  $title = variable_get('site_name', 'Drupal');
+  $description = $headertitle . ($title ? ' | '. $title : '');
+  
+  $vars['calname'] = $description;
   $vars['events'] = $events;
   template_preprocess_date_vcalendar($vars);
 }

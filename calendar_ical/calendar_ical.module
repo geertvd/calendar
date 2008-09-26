@@ -209,42 +209,6 @@ function theme_calendar_ical_icon($url) {
 }
 
 /**
- * plugin that actually displays an ical feed
- */
-function theme_calendar_ical_feed($view, $items, $type) {
-  if ($type == 'block') {
-    return;
-  }
-  drupal_set_header('Content-Type: text/calendar; charset=utf-8');
-  drupal_set_header('Content-Disposition: attachment; filename="calendar.ics"; ');
-  $events = array();
-  require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
-  require_once('./'. drupal_get_path('module', 'calendar') .'/includes/calendar.inc');
-  $items = calendar_build_nodes($view, $items);
-  foreach ($items as $node) {
-    $event = array();
-    // Allow modules to affect item fields
-    node_invoke_nodeapi($node, 'ical item');
-    $event['start'] = $node->calendar_start_date;
-    $event['end'] = $node->calendar_end_date;
-    $event['location'] = $node->calendar_location;
-    $event['summary'] = $node->title;
-    $event['description'] = $node->teaser;
-    $event['uid'] = $node->uid ? $node->uid : calendar_get_node_link($node);
-    $event['url'] = $node->url ? $node->url : calendar_get_node_link($node);
-    $events[] = $event;
-  }
-
-  $headertitle = filter_xss_admin(views_get_title($view, 'page'));
-  $title = variable_get('site_name', 'Drupal');
-  $description = $headertitle . ($title ? ' | '. $title : '');
-  
-  print date_ical_export($events, $description);
-  module_invoke_all('exit');
-  exit;
-}
-
-/**
  * Theme for an entire ical node.
  */
 function theme_calendar_ical_node($node, $view) {

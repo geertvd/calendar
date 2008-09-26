@@ -17,6 +17,10 @@
  *   $event['url'] - the url for the event.
  *   $event['location'] - the name of the event location.
  *   $event['description'] - a description of the event.
+ * 
+ *   Note that there are empty spaces after RRULE, URL, LOCATION, etc
+ *   that are needed to make sure we get the required line break.
+ * 
  */
 
 ?>
@@ -35,7 +39,7 @@ DTSTART;<?php print $event['timezone'] ?>VALUE=DATE-TIME:<?php print $event['sta
 DTEND;<?php print $event['timezone'] ?>VALUE=DATE-TIME:<?php print $event['end'] ?> 
 <?php endif; ?>
 <?php if (!empty($event['rrule'])) : ?>
-RRULE;<?php print $event['rrule'] ?>
+RRULE;<?php print $event['rrule'] ?> 
 <?php endif; ?>
 <?php if (!empty($event['url'])): ?>
 URL;VALUE=URI:<?php print $event['url'] ?> 
@@ -44,7 +48,7 @@ URL;VALUE=URI:<?php print $event['url'] ?>
 LOCATION:<?php print $event['location'] ?> 
 <?php endif; ?>
 <?php if (!empty($event['description'])) : ?>
-DESCRIPTION:<?php print $event['description'] ?>
+DESCRIPTION:<?php print $event['description'] ?> 
 <?php endif; ?>
 END:VEVENT
 <?php endforeach; ?>
