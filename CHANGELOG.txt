@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #314682 Add missing url() in jcalendar js code.
 - #315955 Translation cleanup.
 - Get colorpicker working in the Views UI again. I'm not loading the js in the best place, but at least it works now.
 - Get rid of deprecated theme for ical output that is not being used in current code.
