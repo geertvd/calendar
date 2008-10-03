@@ -62,7 +62,7 @@ function jcalendar_views_pre_view(&$view, &$display_id) {
   if ($display_id == 'calendar') {
     $path = drupal_get_path('module', 'jcalendar');
     drupal_add_js('var var_path = '. drupal_to_js(base_path() . $path) .";", 'inline');
-    drupal_add_js('var var_base_path = '. drupal_to_js(url(base_path())) .";", 'inline');
+    drupal_add_js('var var_base_path = '. drupal_to_js((base_path())) .";", 'inline');
     drupal_add_js($path .'/jcalendar.js');
     drupal_add_css($path .'/jcalendar.css');
   }
