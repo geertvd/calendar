@@ -136,7 +136,7 @@ function calendar_views_plugins() {
         'use pager' => FALSE,
         'accept attachments' => TRUE,
         'admin' => t('Calendar page'),
-        'help topic' => 'display-calendar',
+        'help topic' => 'getting-started',
         'js' => array(
           'misc/farbtastic/farbtastic.js', 
           drupal_get_path('module', 'calendar') .'/js/calendar_colorpicker.js',
@@ -158,7 +158,7 @@ function calendar_views_plugins() {
         'use more' => TRUE,
         'accept attachments' => TRUE,
         'admin' => t('Calendar block'),
-        'help topic' => 'display-calendar',
+        'help topic' => 'getting-started',
       ),
       // Display plugins for calendar displays.
       'calendar_year' => array(
@@ -174,7 +174,7 @@ function calendar_views_plugins() {
         'use ajax' => TRUE,
         'use pager' => TRUE,
         'admin' => t('Calendar page year'),
-        'help topic' => 'display-calendar',
+        'help topic' => 'getting-started',
       ),
       'calendar_month' => array(
         'title' => t('Month view'),
@@ -189,7 +189,7 @@ function calendar_views_plugins() {
         'use ajax' => TRUE,
         'use pager' => TRUE,
         'admin' => t('Calendar page month'),
-        'help topic' => 'display-calendar',
+        'help topic' => 'getting-started',
       ),
       'calendar_day' => array(
         'title' => t('Day view'),
@@ -204,7 +204,7 @@ function calendar_views_plugins() {
         'use ajax' => TRUE,
         'use pager' => TRUE,
         'admin' => t('Calendar page day'),
-        'help topic' => 'display-calendar',
+        'help topic' => 'getting-started',
       ),
       'calendar_week' => array(
         'title' => t('Week view'),
@@ -219,7 +219,7 @@ function calendar_views_plugins() {
         'use ajax' => TRUE,
         'use pager' => TRUE,
         'admin' => t('Calendar page week'),
-        'help topic' => 'display-calendar',
+        'help topic' => 'getting-started',
       ),
       'calendar_block_view' => array(
         'title' => t('Block view'),
@@ -234,7 +234,7 @@ function calendar_views_plugins() {
         'use ajax' => TRUE,
         'use pager' => TRUE,
         'admin' => t('Calendar block view'),
-        'help topic' => 'display-calendar',
+        'help topic' => 'getting-started',
       ),
     ),
     'style' => array(

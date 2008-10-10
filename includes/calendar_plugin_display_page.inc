@@ -62,7 +62,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     $colors = $this->get_option('calendar_colors');
     $options['calendar_colors'] = array(
       'category' => 'calendar_settings',
-      'title' => t('Legend colors'),
+      'title' => theme('advanced_help_topic', 'calendar', 'settings') . t('Legend colors'),
       'value' => t('Edit'),
     );
   }

@@ -26,9 +26,7 @@ function calendar_build_calendar($view, $items) {
 
   $rows = array();
   $curday = drupal_clone($view->min_date);
-  date_timezone_set($curday, timezone_open(date_default_timezone_name()));
-  date_time_set($curday, 0, 0, 0);
-
+  
   switch ($view->granularity) {
     case 'year':
       $rows = array();

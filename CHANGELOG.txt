@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Start adding in Advanced help for the calendar.
 - Move the colorpicker js info to the plugin so it isn't loaded everywhere.
 - #314682 Add missing url() in jcalendar js code.
 - #315955 Translation cleanup.
