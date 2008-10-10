@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #311485 Make sure mini calendar has the right number of columns if using week number.
 - #317660 Hard code line feeds in ical export to be sure they come through correctly in all systems.
 - Start adding in Advanced help for the calendar.
 - Move the colorpicker js info to the plugin so it isn't loaded everywhere.

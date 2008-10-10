@@ -24,7 +24,7 @@
   <thead>
     <?php if ($view->show_title): ?>
     <tr>
-      <th colspan="7">
+      <th colspan="<?php print count($day_names); ?>">
         <?php print theme('date_navigation', $view); ?>
       </th>
     </tr>
