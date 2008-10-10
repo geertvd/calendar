@@ -31,24 +31,24 @@ X-WR-CALNAME: <?php print $calname ?>
 PRODID:-//Drupal iCal API//EN
 <?php foreach($events as $event): ?>
 BEGIN:VEVENT
-UID:<?php print $event['uid'] ?> 
-SUMMARY:<?php print $event['summary'] ?> 
-DTSTAMP;TZID=<?php print $site_timezone ?>;VALUE=DATE-TIME:<?php print $current_date ?> 
-DTSTART;<?php print $event['timezone'] ?>VALUE=DATE-TIME:<?php print $event['start'] ?> 
+UID:<?php print($event['uid'] . "\n") ?>
+SUMMARY:<?php print($event['summary'] . "\n") ?>
+DTSTAMP;TZID=<?php print $site_timezone ?>;VALUE=DATE-TIME:<?php print($current_date . "\n") ?>
+DTSTART;<?php print $event['timezone'] ?>VALUE=DATE-TIME:<?php print($event['start'] . "\n") ?>
 <?php if (!empty($event['end'])): ?>
-DTEND;<?php print $event['timezone'] ?>VALUE=DATE-TIME:<?php print $event['end'] ?> 
+DTEND;<?php print $event['timezone'] ?>VALUE=DATE-TIME:<?php print($event['end'] . "\n") ?>
 <?php endif; ?>
 <?php if (!empty($event['rrule'])) : ?>
-RRULE;<?php print $event['rrule'] ?> 
+RRULE;<?php print($event['rrule'] . "\n") ?>
 <?php endif; ?>
 <?php if (!empty($event['url'])): ?>
-URL;VALUE=URI:<?php print $event['url'] ?> 
+URL;VALUE=URI:<?php print($event['url'] . "\n") ?>
 <?php endif; ?>
-<?php if (!empty($event['location'])): ?> 
-LOCATION:<?php print $event['location'] ?> 
+<?php if (!empty($event['location'])): ?>
+LOCATION:<?php print($event['location'] . "\n") ?>
 <?php endif; ?>
 <?php if (!empty($event['description'])) : ?>
-DESCRIPTION:<?php print $event['description'] ?> 
+DESCRIPTION:<?php print($event['description'] . "\n") ?>
 <?php endif; ?>
 END:VEVENT
 <?php endforeach; ?>
