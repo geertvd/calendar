@@ -29,20 +29,11 @@ function calendar_help($section, $arg) {
 
 function calendar_init() {
   drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
-  require_once('./'. drupal_get_path('module', 'calendar') .'/theme/theme.inc');
-
-  // TODO
-  // This is the wrong way to add this in but I can't find any other way
-  // so the color javascript will work in the Views UI. I'm hoping someone
-  // will submit a patch to move this to a better place.
-  
-  // Add Farbtastic color picker
+  // The css for Farbtastic color picker, painless to add it here 
+  // even though it isn't needed everywhere.
   drupal_add_css('misc/farbtastic/farbtastic.css');
-  drupal_add_js('misc/farbtastic/farbtastic.js');
-	  
-  // Add our custom js and css for our calendar_color
-  $path = drupal_get_path('module', 'calendar');
-  drupal_add_js($path . '/js/calendar_colorpicker.js');
+
+  require_once('./'. drupal_get_path('module', 'calendar') .'/theme/theme.inc');
 }
 
 function calendar_theme() {

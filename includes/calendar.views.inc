@@ -137,6 +137,10 @@ function calendar_views_plugins() {
         'accept attachments' => TRUE,
         'admin' => t('Calendar page'),
         'help topic' => 'display-calendar',
+        'js' => array(
+          'misc/farbtastic/farbtastic.js', 
+          drupal_get_path('module', 'calendar') .'/js/calendar_colorpicker.js',
+          ),
       ),
       // Calendar block display plugin.
       'calendar_block' => array(
