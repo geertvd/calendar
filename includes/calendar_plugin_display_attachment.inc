@@ -67,14 +67,20 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
       if ($argument['id'] == 'date_argument') {
         $pos = $i;
         $default_granularity = $argument['granularity'];
+        $wildcard = $argument['wildcard'];
+        $argument = $this->view->args[$pos];
         break;
       }
       $i++;
     }
-    if (!empty($this->view->args[$pos])) {
+    // TODO Anything else we need to do for 'all' arguments?
+    if ($argument == $wildcard) {
+      $view_granularity = $default_granularity;
+    }
+    elseif (!empty($argument)) {
       require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
       $date_handler = new date_sql_handler();
-      $view_granularity = $date_handler->arg_granularity($this->view->args[$pos]);
+      $view_granularity = $date_handler->arg_granularity($argument);
     }
     else {
       $view_granularity = $default_granularity;
