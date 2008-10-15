@@ -14,7 +14,6 @@ function template_preprocess_calendar_main(&$vars) {
   $vars['display_type'] = $view->granularity;
   $vars['min_date_formatted'] = date_format($view->min_date, DATE_FORMAT_DATETIME);
   $vars['max_date_formatted'] = date_format($view->max_date, DATE_FORMAT_DATETIME);
-  
   $view->mini = isset($view->mini) ? $view->mini : $view->granularity == 'year';
 
   // Construct a formatted title for the view from the calendar type.
@@ -109,7 +108,7 @@ function template_preprocess_calendar(&$vars) {
   
   // Massage the resulting items into formatted calendar items.
   $items = calendar_build_nodes($view, $items);
-    
+   
   // Merge in items from other sources.
   foreach (module_implements('calendar_add_items') as $module) {
     $function = $module .'_calendar_add_items';
