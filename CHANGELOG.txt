@@ -6,6 +6,9 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+Version 2.0 rc3
+=================
+
 - Change the jcalendar code to use the new display_ids.
 - Make it possible to expose the calendar parts in the UI. To make this work better, combine year, month, day, and week handlers into a single handler.
 - #311485 Make sure mini calendar has the right number of columns if using week number.
