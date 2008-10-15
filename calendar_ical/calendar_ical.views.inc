@@ -9,7 +9,7 @@ function calendar_ical_views_plugins() {
   $views_path = drupal_get_path('module', 'views');
   require_once "./$path/theme.inc";
 
-  return array(
+  $data = array(
     'module' => 'calendar_ical', // This just tells our themes are elsewhere.
     'display' => array(
       // Parents are not really displays, just needed so the files can
@@ -26,11 +26,12 @@ function calendar_ical_views_plugins() {
         'path' => "$views_path/plugins",
         'parent' => 'parent',
       ),
-      'ical' => array(
-        'title' => t('iCal feed'),
+      'calendar_ical' => array(
+        'title' => t('Calendar iCal feed'),
         'help' => t('Display the view as an iCal feed.'),
         'handler' => 'calendar_plugin_display_ical',
         'path' => "$path",
+        'parent' => 'page',
         'uses hook menu' => TRUE,
         'theme' => 'views_view',
         'no ui' => TRUE,
@@ -77,4 +78,5 @@ function calendar_ical_views_plugins() {
       ),
     ),
   );
+  return $data;
 }

@@ -9,6 +9,23 @@
  * deferred to the attachments.
  */
 class calendar_plugin_display_page extends views_plugin_display_page {
+  
+  /**
+   * Display validation.
+   */
+  function validate() {
+    $errors = parent::validate();
+    
+    $arguments = $this->display->handler->get_option('arguments');
+    if (!in_array('date_argument', array_keys($arguments))) {
+      $errors[] = t("The Calendar period display '@display_title' will not work without a Date argument.", array('@display_title' => $this->definition['title']));      
+    }
+    elseif ($arguments['date_argument']['default_action'] != 'default' || $arguments['date_argument']['default_argument_type'] != 'date') {
+      $errors[] = t("The Date argument @title in this view must be set up to provide a default value set to the current date.", array('@title' => $arguments['date_argument']['title']));      
+    }
+    return $errors;
+  }
+
   /**
    * Init will be called after construct, when the plugin is attached to a
    * view and a display. 
@@ -43,6 +60,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     $options = parent::option_definition();
 
     $options['calendar_colors'] = array();
+    $options['style_plugin'] = 'calendar_nav';
     return $options;
   }
 
@@ -120,6 +138,6 @@ class calendar_plugin_display_page extends views_plugin_display_page {
         break;
     }
   }  
-  
+
 }
 

@@ -20,10 +20,10 @@ class calendar_plugin_style extends views_plugin_style {
     $names = array();
     foreach (calendar_display_types() as $name => $type) {
       foreach ($this->view->display as $id => $display) {
-        if (in_array($display->display_plugin, array('calendar_year', 'calendar_month', 'calendar_day', 'calendar_week'))) {
-          if ($display->display_plugin == 'calendar_'. $name) {
+        if ($display->display_plugin == 'calendar_period') {
+          if (!empty($display->display_options['calendar_type']) && $display->display_options['calendar_type'] == $name) {
             $attachments = array_filter($display->display_options['displays']);
-            if (isset($attachments['calendar'])) {
+            if (isset($attachments['calendar_1'])) {
               $ids[$name] = $id;
               $names[$name] = $display->display_title;
             }
@@ -67,13 +67,12 @@ class calendar_plugin_style extends views_plugin_style {
     
     $arguments = $this->display->handler->get_option('arguments');
     if (!in_array('date_argument', array_keys($arguments))) {
-      $errors[] = t('Style @style will not work without the Date argument.', array('@style' => $this->definition['title']));      
+      $errors[] = t("The style '@display_title' will not work without a Date argument.", array('@display_title' => $this->definition['title']));      
     }
     elseif ($arguments['date_argument']['default_action'] != 'default' || $arguments['date_argument']['default_argument_type'] != 'date') {
-      $errors[] = t('The Date argument must be set up to provide a default value set to the current date.');      
+      $errors[] = t("The Date argument @title in this view must be set up to provide a default value set to the current date.", array('@title' => $arguments['date_argument']['title']));      
     }
       
-    
     // TODO fix the following validation code to work correctly in Views2.
   
     // CCK date fields cannot use grouped handler.

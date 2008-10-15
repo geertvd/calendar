@@ -159,3 +159,41 @@ function calendar_update_6001() {
   }
   return $ret;
 }
+
+function calendar_update_6002() {
+  $ret = array();
+  $periods = array(
+    'calendar_month' => 'calendar_period_1',
+    'calendar_year' => 'calendar_period_2',
+    'calendar_day' => 'calendar_period_3',
+    'calendar_week' => 'calendar_period_4',
+    'calendar_block_view' => 'calendar_period_5',
+    );
+  $result = db_query("SELECT * FROM {views_display} d LEFT JOIN {views_view} v ON d.vid = v.vid");
+  drupal_load('module', 'views');
+  while ($row = db_fetch_array($result)) {
+    if (in_array($row['display_plugin'], array_keys($periods))) {
+      $id = $row['id'];
+      $options = unserialize($row['display_options']);
+      if ($row['display_plugin'] == 'calendar_block_view') {
+        $options['calendar_type'] = 'month';
+        $options['displays'] = array('calendar_1' => 0, 'default' => 0, 'calendar_block_1' => 'calendar_block_1');
+      }
+      else {
+        $options['calendar_type'] = str_replace('calendar_', '', $row['display_plugin']);
+        $options['displays'] = array('calendar_1' => 'calendar_1', 'default' => 0, 'calendar_block_1' => 0);
+      }
+      $row['id'] = $periods[$row['id']];
+      $row['display_plugin'] = 'calendar_period';
+      $row['display_options'] = serialize($options);
+      db_query("UPDATE {views_display} SET id='%s', display_plugin='%s', display_options='%s' WHERE id='%s'", $row['id'], $row['display_plugin'], $row['display_options'], $id);
+    }
+    elseif ($row['display_plugin'] == 'calendar' || $row['display_plugin'] == 'calendar_block') {
+      db_query("UPDATE {views_display} SET id='%s' WHERE id='%s'", $row['id'] .'_1', $row['id']);      
+    }
+    db_query("DELETE FROM {views_object_cache} WHERE name = '%s'", $row['name']);
+  }
+  views_invalidate_cache();
+  $ret[] = array('success' => TRUE, 'query' => 'Updated calendar displays to use new handlers.');
+  return $ret;
+}

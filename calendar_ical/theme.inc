@@ -25,8 +25,8 @@ function template_preprocess_calendar_view_ical(&$vars) {
   // Keep devel module from appending queries to ical export.
   $GLOBALS['devel_shutdown'] = FALSE;
   
-  drupal_set_header('Content-Type: text/calendar; charset=utf-8');
-  drupal_set_header('Content-Disposition: attachment; filename="calendar.ics"; ');
+  //drupal_set_header('Content-Type: text/calendar; charset=utf-8');
+  //drupal_set_header('Content-Disposition: attachment; filename="calendar.ics"; ');
   require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
   require_once('./'. drupal_get_path('module', 'date_api') .'/theme/theme.inc');
   require_once('./'. drupal_get_path('module', 'calendar') .'/includes/calendar.inc');
@@ -48,7 +48,7 @@ function template_preprocess_calendar_view_ical(&$vars) {
     $events[$event['uid']] = $event;
   }
   
-  $headertitle = filter_xss_admin($view->title);
+  $headertitle = filter_xss_admin($view->get_title());
   $title = variable_get('site_name', 'Drupal');
   $description = $headertitle . ($title ? ' | '. $title : '');
   

@@ -6,6 +6,7 @@
  * For the most part, feeds are page displays but with some subtle differences.
  */
 class calendar_plugin_display_ical extends views_plugin_display_page {
+  
   function get_style_type() { return 'ical'; }
 
   function uses_breadcrumb() { return FALSE; }
@@ -16,8 +17,11 @@ class calendar_plugin_display_ical extends views_plugin_display_page {
    * Drupal believes that the page has already rendered itself...which it has.
    */
   function execute() {
-    $this->view->title = $this->view->display_handler->get_option('title');
-    print $this->view->render();
+    $output = $this->view->render();
+    if (empty($output)) {
+      return drupal_not_found();
+    }
+    print $output;
   }
 
   function preview() {
@@ -74,7 +78,7 @@ class calendar_plugin_display_ical extends views_plugin_display_page {
     // Since we're childing off the 'page' type, we'll still *call* our
     // category 'page' but let's override it so it says feed settings.
     $categories['page'] = array(
-      'title' => t('Feed settings'),
+      'title' => t('iCal settings'),
     );
 
     if ($this->get_option('sitename_title')) {
@@ -137,7 +141,7 @@ class calendar_plugin_display_ical extends views_plugin_display_page {
         }
         $form['displays'] = array(
           '#type' => 'checkboxes',
-          '#description' => t('Attach before or after the parent display?'),
+          '#description' => t('The ical icon will be shown only on the selected displays.'),
           '#options' => $displays,
           '#default_value' => $this->get_option('displays'),
         );
@@ -178,7 +182,10 @@ class calendar_plugin_display_ical extends views_plugin_display_page {
     // attach a feed icon.
     $plugin = $this->get_plugin();
     if ($plugin) {
-      $plugin->attach_to($display_id, $this->get_path(), $this->get_option('title'));
+      $clone = $this->view->clone_view();
+      $clone->set_display($this->display->id);
+      $clone->build_title();
+      $plugin->attach_to($display_id, $this->get_path(), $clone->get_title());
     }
   }
 }

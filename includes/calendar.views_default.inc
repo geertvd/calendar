@@ -22,24 +22,6 @@ $handler->override_option('fields', array(
     'field' => 'title',
     'relationship' => 'none',
   ),
-  'changed' => array(
-    'label' => 'Updated date',
-    'date_format' => 'small',
-    'custom_date_format' => '',
-    'exclude' => 0,
-    'id' => 'changed',
-    'table' => 'node',
-    'field' => 'changed',
-    'relationship' => 'none',
-  ),
-  'body' => array(
-    'label' => 'Body',
-    'exclude' => 1,
-    'id' => 'body',
-    'table' => 'node_revisions',
-    'field' => 'body',
-    'relationship' => 'none',
-  ),
 ));
 $handler->override_option('arguments', array(
   'date_argument' => array(
@@ -77,15 +59,38 @@ $handler->override_option('arguments', array(
     'validate_argument_php' => '',
   ),
 ));
+$handler->override_option('filters', array(
+  'status' => array(
+    'operator' => '=',
+    'value' => 1,
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+    ),
+    'id' => 'status',
+    'table' => 'node',
+    'field' => 'status',
+    'relationship' => 'none',
+  ),
+));
 $handler->override_option('access', array(
   'type' => 'none',
   'role' => array(),
   'perm' => '',
 ));
 $handler->override_option('items_per_page', 0);
-$handler->override_option('style_plugin', 'calendar_nav');
-$handler = $view->new_display('calendar', 'Calendar page', 'calendar');
+$handler->override_option('style_plugin', 'calendar_style');
+$handler->override_option('style_options', array(
+  'name_size' => '3',
+  'with_weekno' => '0',
+));
+
+$handler = $view->new_display('calendar', 'Calendar page', 'calendar_1');
 $handler->override_option('path', 'calendar');
+$handler->override_option('style_plugin', 'calendar_nav');
+$handler->override_option('style_options', array());
 $handler->override_option('menu', array(
   'type' => 'none',
   'title' => '',
@@ -100,19 +105,29 @@ $handler->override_option('calendar_colors', array(
   'page' => '#ffff66',
   'story' => '#668cff',
 ));
-$handler = $view->new_display('calendar_year', 'Year view', 'calendar_year');
+
+$handler = $view->new_display('calendar_block', 'Calendar block', 'calendar_block_1');
+$handler->override_option('style_plugin', 'calendar_nav');
+$handler->override_option('style_options', array());
+
+$handler = $view->new_display('calendar_period', 'Year view', 'calendar_period_1');
+$handler->override_option('calendar_type', 'year');
 $handler->override_option('style_plugin', 'calendar_style');
 $handler->override_option('style_options', array(
   'display_type' => 'year',
   'name_size' => '1',
 ));
 $handler->override_option('attachment_position', 'after');
+$handler->override_option('inherit_arguments', TRUE);
+$handler->override_option('inherit_exposed_filters', TRUE);
 $handler->override_option('displays', array(
-  'calendar' => 'calendar',
+  'calendar_1' => 'calendar_1',
   'default' => 0,
-  'calendar_block' => 0,
+  'calendar_block_1' => 0,
 ));
-$handler = $view->new_display('calendar_month', 'Month view', 'calendar_month');
+
+$handler = $view->new_display('calendar_period', 'Month view', 'calendar_period_2');
+$handler->override_option('calendar_type', 'month');
 $handler->override_option('style_plugin', 'calendar_style');
 $handler->override_option('style_options', array(
   'display_type' => 'month',
@@ -121,51 +136,64 @@ $handler->override_option('style_options', array(
   'date_fields' => NULL,
 ));
 $handler->override_option('attachment_position', 'after');
+$handler->override_option('inherit_arguments', TRUE);
+$handler->override_option('inherit_exposed_filters', TRUE);
 $handler->override_option('displays', array(
-  'calendar' => 'calendar',
+  'calendar_1' => 'calendar_1',
   'default' => 0,
-  'calendar_block' => 0,
+  'calendar_block_1' => 0,
 ));
-$handler = $view->new_display('calendar_day', 'Day view', 'calendar_day');
+
+$handler = $view->new_display('calendar_period', 'Day view', 'calendar_period_3');
+$handler->override_option('calendar_type', 'day');
 $handler->override_option('style_plugin', 'calendar_style');
 $handler->override_option('style_options', array(
   'display_type' => 'day',
   'name_size' => '99',
 ));
 $handler->override_option('attachment_position', 'after');
+$handler->override_option('inherit_arguments', TRUE);
+$handler->override_option('inherit_exposed_filters', TRUE);
 $handler->override_option('displays', array(
-  'calendar' => 'calendar',
+  'calendar_1' => 'calendar_1',
   'default' => 0,
-  'calendar_block' => 0,
+  'calendar_block_1' => 0,
 ));
-$handler = $view->new_display('calendar_week', 'Week view', 'calendar_week');
+
+$handler = $view->new_display('calendar_period', 'Week view', 'calendar_period_4');
+$handler->override_option('calendar_type', 'week');
 $handler->override_option('style_plugin', 'calendar_style');
 $handler->override_option('style_options', array(
   'display_type' => 'week',
   'name_size' => '99',
 ));
 $handler->override_option('attachment_position', 'after');
+$handler->override_option('inherit_arguments', TRUE);
+$handler->override_option('inherit_exposed_filters', TRUE);
 $handler->override_option('displays', array(
-  'calendar' => 'calendar',
+  'calendar_1' => 'calendar_1',
   'default' => 0,
-  'calendar_block' => 0,
+  'calendar_block_1' => 0,
 ));
-$handler = $view->new_display('calendar_block', 'Calendar block', 'calendar_block');
-$handler = $view->new_display('calendar_block_view', 'Block view', 'calendar_block_view');
+
+$handler = $view->new_display('calendar_period', 'Block view', 'calendar_period_5');
+$handler->override_option('calendar_type', 'month');
 $handler->override_option('style_plugin', 'calendar_style');
 $handler->override_option('style_options', array(
   'display_type' => 'month',
   'name_size' => '1',
 ));
 $handler->override_option('attachment_position', 'after');
+$handler->override_option('inherit_arguments', TRUE);
+$handler->override_option('inherit_exposed_filters', TRUE);
 $handler->override_option('displays', array(
-  'calendar_block' => 'calendar_block',
+  'calendar_1' => 0,
   'default' => 0,
-  'calendar' => 0,
+  'calendar_block_1' => 'calendar_block_1',
 ));
 
 if (module_exists('calendar_ical')) {
-$handler = $view->new_display('ical', 'iCal feed', 'ical_1');
+$handler = $view->new_display('calendar_ical', 'iCal feed', 'calendar_ical_1');
 $handler->override_option('style_plugin', 'ical');
 $handler->override_option('style_options', array(
   'mission_description' => FALSE,
@@ -186,9 +214,9 @@ $handler->override_option('tab_options', array(
   'weight' => 0,
 ));
 $handler->override_option('displays', array(
-  'calendar' => 'calendar',
+  'calendar_1' => 'calendar_1',
   'default' => 0,
-  'calendar_block' => 0,
+  'calendar_block_1' => 'calendar_block_1',
 ));
 
 }

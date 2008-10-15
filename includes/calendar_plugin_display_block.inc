@@ -9,20 +9,29 @@
  * deferred to the attachments.
  */
 class calendar_plugin_display_block extends views_plugin_display_block {
+
+  /**
+   * Display validation.
+   */
+  function validate() {
+    $errors = parent::validate();
+    
+    $arguments = $this->display->handler->get_option('arguments');
+    if (!in_array('date_argument', array_keys($arguments))) {
+      $errors[] = t("The Calendar period display '@display_title' will not work without a Date argument.", array('@display_title' => $this->definition['title']));      
+    }
+    elseif ($arguments['date_argument']['default_action'] != 'default' || $arguments['date_argument']['default_argument_type'] != 'date') {
+      $errors[] = t("The Date argument @title in this view must be set up to provide a default value set to the current date.", array('@title' => $arguments['date_argument']['title']));      
+    }
+    return $errors;
+  }
+  
   /**
    * Init will be called after construct, when the plugin is attached to a
    * view and a display. 
    */
   function init(&$view, &$display) {
     parent::init($view, $display);
-    if (!isset($display->display_options['style_options'])) {
-      return;
-    }
-    if (!$granularity = calendar_current_type($view)) {
-      $granularity = $display->display_options['style_options']['default_display'];
-    }
-    $view->granularity = $granularity;
-    $view->default_display = $display->display_options['style_options']['default_display'];
     if ($display->id == 'calendar_block') {
       $view->mini = TRUE;
       $view->block = TRUE;
@@ -51,6 +60,13 @@ class calendar_plugin_display_block extends views_plugin_display_block {
     $display->display_options['defaults']['row_options'] = FALSE;
   } 
   
+  function option_definition () {
+    $options = parent::option_definition();
+
+    $options['style_plugin'] = 'calendar_nav';
+    return $options;
+  }
+
   /**
    * The display block handler returns the structure necessary for a block.
    * 

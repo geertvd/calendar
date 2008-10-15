@@ -20,23 +20,24 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
   function attach_to($display_id, $path, $title) {
     $display = $this->view->display[$display_id]->handler;
     $url_options = array();
-    if (!empty($view->exposed_raw_input)) {
-      $url_options['query'] = $view->exposed_raw_input;
+    $input = $this->view->get_exposed_input();
+    if ($input) {
+      $url_options['query'] = $input;
     }
-
+    
+    // TODO adjust this to pick up default values when no arg is set?
     $url = url($this->view->get_url(NULL, $path), $url_options);
-    if (!$display->has_path()) {
-      if (empty($this->preview)) {
-        calendar_ical_add_feed($url, $title);
-      }
+    if (empty($this->view->feed_icon)) {
+      $this->view->feed_icon = '';
     }
-    else {
-      if (empty($this->view->feed_icon)) {
-        $this->view->feed_icon = '';
-      }
-      
-      $this->view->feed_icon .= theme('calendar_ical_icon', $url, $title);
-    }
+    $this->view->feed_icon .= theme('calendar_ical_icon', $url, $title);
+
+    drupal_add_link(array(
+      'rel' => 'alternate',
+      'type' => 'application/calendar',
+      'title' => $title,
+      'href' => $url
+    ));
   }
 
   /**

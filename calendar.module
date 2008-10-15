@@ -229,7 +229,7 @@ function calendar_querystring($view, $extra_params = array()) {
 function calendar_node_stripe($view, &$node, $query_name, $delta, $stripe = NULL, $label = '') {
   $type_names = node_get_types('names');
   $colors = isset($view->calendar_colors) ? $view->calendar_colors : array();
-  if (!$label) {
+  if (!$label && array_key_exists($node->type, $type_names)) {
     $label = $type_names[$node->type];
   }
   if (!$stripe) {
