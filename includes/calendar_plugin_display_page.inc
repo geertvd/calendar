@@ -18,11 +18,12 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     
     $arguments = $this->display->handler->get_option('arguments');
     if (!in_array('date_argument', array_keys($arguments))) {
-      $errors[] = t("The Calendar period display '@display_title' will not work without a Date argument.", array('@display_title' => $this->definition['title']));      
+      $errors[] = t("The Calendar display '@display_title' will not work without a Date argument.", array('@display_title' => $this->definition['title']));      
     }
     elseif ($arguments['date_argument']['default_action'] != 'default' || $arguments['date_argument']['default_argument_type'] != 'date') {
       $errors[] = t("The Date argument @title in this view must be set up to provide a default value set to the current date.", array('@title' => $arguments['date_argument']['title']));      
     }
+    
     return $errors;
   }
 

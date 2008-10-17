@@ -62,6 +62,9 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
     
     $display_granularity = $this->calendar_type();
     $arguments = $this->view->get_items('argument', $display_id);
+    $wildcard = '';
+    $argument = '';
+    $default_granularity = '';
     $i = 0;
     foreach ($arguments as $argument) {
       if ($argument['id'] == 'date_argument') {
