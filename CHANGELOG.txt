@@ -6,6 +6,8 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #315843 Make sure there is validation to keep you from trying to group multiple date values in the calendar.
+
 Version 2.0 rc3
 =================
 

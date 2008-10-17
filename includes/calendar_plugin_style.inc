@@ -65,23 +65,29 @@ class calendar_plugin_style extends views_plugin_style {
   function validate() {
     $errors = parent::validate();
     
+    $style = $this->display->display_options['style_plugin'];
+    
     $arguments = $this->display->handler->get_option('arguments');
     if (!in_array('date_argument', array_keys($arguments))) {
-      $errors[] = t("The style '@display_title' will not work without a Date argument.", array('@display_title' => $this->definition['title']));      
+      $errors[$style] = t("The @style style requires a Date argument.", array('@style' => $style));      
     }
     elseif ($arguments['date_argument']['default_action'] != 'default' || $arguments['date_argument']['default_argument_type'] != 'date') {
       $errors[] = t("The Date argument @title in this view must be set up to provide a default value set to the current date.", array('@title' => $arguments['date_argument']['title']));      
     }
-      
-    // TODO fix the following validation code to work correctly in Views2.
-  
-    // CCK date fields cannot use grouped handler.
-    //$calendar_fields = array_keys(date_api_fields());
-    //foreach ($view['field'] as $delta => $field) {
-    //  if (in_array($field['field_name'], $calendar_fields) && $field['id'] == 'content_views_field_handler_group') {
-        //form_error($form['field_name'][$delta], t('Calendar CCK Date fields must be set to \'Do not group multiple values\'.'));
-    //  }
-    //}
+     
+    // Make sure date fields are not set up to 'Group multiple values' 
+    // in the calendar style.
+    if ($style == 'calendar_style') {
+      $view_fields = date_api_fields('node');
+      $view_fields = $view_fields['name'];
+      $fields = $this->display->handler->get_option('fields');
+      foreach ($fields as $column => $field) {
+        if (!empty($field['multiple']) && $field['multiple']['group']) {
+          $field_name = $field['table'] .".". $field['field'];
+          $errors[] = t("The date field '@field' used by the display '@display_title' cannot be set to 'Group multiple values'.", array('@field' => $view_fields[$field_name]['label'], '@display_title' => $this->display->display_title));
+        }
+      }
+    }
     return $errors;
   }
 
