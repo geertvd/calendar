@@ -333,11 +333,11 @@ function calendar_build_day($curday, $view, $items, $params) {
       foreach ($day as $time) {
         foreach ($time as $item) {
           $count++;
-          if (!$view->mini && ($count <= $max_events  || $view->calendar_type == 'day'))  {
+          if (!$view->mini && ($max_events > 0 && $count <= $max_events  || $view->calendar_type == 'day'))  {
             $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_node_'. $view->calendar_type;
             $inner .= theme($theme, $item, $view);
-            $types[$item->type] = $item;
           }
+          $types[$item->type] = $item;
         }
       }
     }
