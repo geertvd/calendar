@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- #319344 Add method of limiting the number of events that display in calendar cells.
 - #310262 Add missing parameter to calendar_build_nodes() in calendar ical.
 - #314682 Add missing url() in jcalendar js code.
 - #311839 Fix permissions to see header and empty text.

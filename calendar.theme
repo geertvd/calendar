@@ -587,6 +587,74 @@ function theme_calendar_node_month($node, $view) {
 }
 
 /**
+ * Format an calendar day with multiple nodes 
+ * for display in an expanded month calendar, like a calendar page
+ *
+ * @param $curday_date
+ *   date_format object
+ * 
+ * @param $count
+ *   number of events on that day
+ * 
+ * @param $view
+ *   The view object
+ */
+function theme_calendar_multiple_node_month($curday_date, $count, $view, $types) {
+  
+  // get the year month and date
+  $parts = explode('-', substr($curday_date, 0, 10));
+  $year = $parts[0];
+  $month = intval($parts[1]);
+  $day = intval($parts[2]);
+  
+  // create the link to the day
+  $link = $view->real_url .'/'. date_pad($year, 4) .'/'. date_pad($month) .'/'. date_pad($day);
+  
+  // mak sure the divs match the theme_calendar_node_month
+  $output .= '<div class="calendar monthview">'."\n";
+  $item = "<div class='multiple-events'>". l(t('Click to see all @count events', array('@count' => $count)), $link) ."</div>";
+  foreach ($types as $type) {
+    $output .= theme('calendar_stripe_stripe', $type);
+  }
+  $output .= "<div class='view-item ". views_css_safe('view-item-'. $view->name) ."'>$item</div>\n";
+  $output .= "</div>\n";
+  return $output;
+}
+
+/**
+ * Format an calendar day with multiple nodes 
+ * for display in an expanded week calendar, like a calendar page
+ *
+ * @param $curday_date
+ *   date_format object
+ * 
+ * @param $count
+ *   number of events on that day
+ * 
+ * @param $view
+ *   The view object
+ */
+function theme_calendar_multiple_node_week($curday_date, $count, $view, $types) {
+ // get the year month and date
+  $parts = explode('-', substr($curday_date, 0, 10));
+  $year = $parts[0];
+  $month = intval($parts[1]);
+  $day = intval($parts[2]);
+  
+  // create the link to the day
+  $link = $view->real_url .'/'. date_pad($year, 4) .'/'. date_pad($month) .'/'. date_pad($day);
+  
+  // make sure the divs line up with theme_calendar_node_week
+  $output .= '<div class="calendar weekview">'."\n";
+  $item = "<div class='multiple-events'>". l(t('Click to see all @count events', array('@count' => $count)), $link) ."</div>";
+  foreach ($types as $type) {
+    $output .= theme('calendar_stripe_stripe', $type);
+  }
+  $output .= "<div class='view-item ". views_css_safe('view-item-'. $view->name) ."'>$item</div>\n";
+  $output .= "</div>\n";
+  return $output;
+}
+/**
  * Format an date's day box in a calendar
  *
  * @param date

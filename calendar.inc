@@ -185,11 +185,9 @@ function calendar_build_calendar($view, $items, $params) {
   }
   $items = $values;
   ksort($items);
-  
   $rows = array();
   $curday = drupal_clone($view->min_date);
-  date_timezone_set($curday, timezone_open(date_default_timezone_name()));
-  date_time_set($curday, 0, 0, 0);
+  
   switch ($view->calendar_type) {
     case 'year':
       $rows = array();
@@ -325,15 +323,20 @@ function calendar_build_day($curday, $view, $items, $params) {
   $curday_date = date_format($curday, DATE_FORMAT_DATE);
   $inner = '';
   $selected = FALSE;
+  $max_events = variable_get('calendar_limit_'. $view->name, 5);
+  $types = array();
   foreach ($items as $date => $day) {
     if ($date == $curday_date) {
+      $count = 0;
       $selected = TRUE;
       ksort($day);
       foreach ($day as $time) {
         foreach ($time as $item) {
-          if (!$view->mini) {
+          $count++;
+          if (!$view->mini && ($count <= $max_events  || $view->calendar_type == 'day'))  {
             $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_node_'. $view->calendar_type;
             $inner .= theme($theme, $item, $view);
+            $types[$item->type] = $item;
           }
         }
       }
@@ -341,6 +344,10 @@ function calendar_build_day($curday, $view, $items, $params) {
   }
   if (empty($inner)) {
     $inner = theme('calendar_empty_day');
+  }
+  // we have too many events on this day. use the theme('calendar_multiple_')
+  if ($max_events > 0 && $count > $max_events && $view->calendar_type != 'day' && !$view->mini) {
+    $inner = theme('calendar_multiple_node_'. $view->calendar_type, $curday_date, $count, $view, $types);
   }
   $content = theme('calendar_date_box', $curday_date, $view, $items, $params, $selected) . $inner;
   return $content;

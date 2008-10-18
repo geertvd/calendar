@@ -362,6 +362,13 @@ function _calendar_setup_form($view_name) {
     '#default_value' => variable_get('calendar_popup_'. $view->name, module_exists('date_popup')),
     '#description' => t('Whether or not to display a popup date selector to change the calendar period. (Only works when the Date Popup module is enabled.)')
     );
+  $form['calendar_limit'] = array(
+    '#title' => t('Items to show'),
+    '#type' => 'select',
+    '#options' => array(0 => t('Unlimited'), 3 => t('3 items'), 5 => t('5 items'), 10 => t('10 items')),
+    '#default_value' => variable_get('calendar_limit_'. $view->name, 5),
+    '#description' => t('Maximum number of items to show in calendar cells, used to keep the calendar from expanding to a huge size when there are lots of items in one day. When there more items than this limit, a summary message with a link to the day view will be displayed instead.'),
+    );
 
   $display_options = array('calendar' => t('Calendar'), 'table' => t('Table'), 'teasers' => t('Teasers'), 'nodes' => t('Full Nodes'), 'list' => t('List'), '' => t('None'));
   $display_format = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar', 'block' => 'calendar'));
@@ -477,6 +484,9 @@ function _calendar_setup_form_submit($form_id, $form_values) {
   variable_set('calendar_empty_arg', check_plain($form_values['calendar_empty_arg']));
   foreach ($form_values as $value_name => $value) {
    switch ($value_name) {
+    case 'calendar_limit':
+        variable_set('calendar_limit_'. $view_name,  $value);
+        break;
     case 'calendar_time_format':
         variable_set('calendar_time_format_'. $view_name,  $value);
         break;
