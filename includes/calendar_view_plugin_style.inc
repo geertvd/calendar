@@ -11,8 +11,9 @@ class calendar_view_plugin_style extends calendar_plugin_style {
    */
   function init(&$view, &$display) {
     parent::init($view, $display);
-    $view->name_size = $this->options['name_size'];
-    $view->with_weekno = $this->options['with_weekno'];
+    $view->style_name_size = $this->options['name_size'];
+    $view->style_with_weekno = $this->options['with_weekno'];
+    $view->style_limit = $this->options['limit'];
   }
   
   /**
@@ -21,6 +22,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
   function options(&$options) {
     $options['name_size'] = 3;
     $options['with_weekno'] = 0;
+    $options['limit'] = 5;
   }
 
   /**
@@ -40,6 +42,13 @@ class calendar_view_plugin_style extends calendar_plugin_style {
       '#type' => 'radios',
       '#options' => array(0 => t('No'), 1 => t('Yes')),
       '#description' => t('Whether or not to show week numbers in the left column of calendar weeks and months.'),
+      );
+    $form['limit'] = array(
+      '#title' => t('Items to show'),
+      '#type' => 'select',
+      '#options' => array(0 => t('Unlimited'), 3 => t('3 items'), 5 => t('5 items'), 10 => t('10 items')),
+      '#default_value' => $this->options['limit'],
+      '#description' => t('Maximum number of items to show in calendar cells, used to keep the calendar from expanding to a huge size when there are lots of items in one day. When there more items than this limit, a summary message with a link to the day view will be displayed instead.'),
       );
 
   }

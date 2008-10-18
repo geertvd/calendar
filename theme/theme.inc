@@ -194,7 +194,7 @@ function template_preprocess_calendar_year(&$vars) {
     $view->granularity = 'month';
     $view->mini = TRUE;
     $view->hide_nav = TRUE;
-    $view->with_weekno = FALSE;
+    $view->style_with_weekno = FALSE;
     $view->show_title = TRUE;
     $view->url = $url;
     $view->min_date = date_make_date($view->year .'-'. date_pad($month) .'-01 00:00:00', date_default_timezone_name());
@@ -317,6 +317,20 @@ function template_preprocess_calendar_month_node(&$vars) {
 }
 
 /**
+ * Format an calendar month node for display.
+ */
+function template_preprocess_calendar_month_multiple_node(&$vars) {
+  // get the year month and date
+  $parts = explode('-', substr($curday_date, 0, 10));
+  $year = $parts[0];
+  $month = intval($parts[1]);
+  $day = intval($parts[2]);
+  
+  // create the link to the day
+  $vars['link'] = $view->real_url .'/'. date_pad($year, 4) .'/'. date_pad($month) .'/'. date_pad($day);
+}
+
+/**
  * Format an calendar day node for display.
  */
 function template_preprocess_calendar_day_node(&$vars) {
@@ -333,6 +347,20 @@ function template_preprocess_calendar_day_node(&$vars) {
  */
 function template_preprocess_calendar_week_node(&$vars) {
   template_preprocess_calendar_node($vars);
+}
+
+/**
+ * Format an calendar week node for display.
+ */
+function template_preprocess_calendar_week_multiple_node(&$vars) {
+  // get the year month and date
+  $parts = explode('-', substr($curday_date, 0, 10));
+  $year = $parts[0];
+  $month = intval($parts[1]);
+  $day = intval($parts[2]);
+  
+  // create the link to the day
+  $vars['link'] = $view->real_url .'/'. date_pad($year, 4) .'/'. date_pad($month) .'/'. date_pad($day);
 }
 
 /**

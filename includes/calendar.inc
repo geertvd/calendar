@@ -91,7 +91,7 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
     
   // If we're displaying the week number, add it as the
   // first cell in the week.
-  if (!empty($view->with_weekno) && $view->granularity != 'day') {
+  if (!empty($view->style_with_weekno) && $view->granularity != 'day') {
     $url = $view->get_path() .'/'. $view->year .'-W'. $week;
     if (!empty($view->display_types['week'])) {
       $weekno = l($week, $url, array('query' => !empty($view->append) ? $view->append : ''));
@@ -137,22 +137,32 @@ function calendar_build_day($curday, $view, $items) {
   $curday_date = date_format($curday, DATE_FORMAT_DATE);
   $inner = '';
   $selected = FALSE;
+  $max_events = $view->style_limit;
+  $types = array();
+  $count = 0;
   foreach ($items as $date => $day) {
     if ($date == $curday_date) {
+      $count = 0;
       $selected = TRUE;
       ksort($day);
       foreach ($day as $hour) {
         foreach ($hour as $item) {
-          if (!$view->mini) {
+          $count++;
+          if (!$view->mini && ($max_events > 0 && $count <= $max_events  || $view->calendar_type == 'day'))  {
             $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->granularity .'_node';
             $inner .= theme($theme, $item, $view);
           }
+          $types[$item->type] = $item;
         }
       }
     }
   }
   if (empty($inner)) {
     $inner = theme('calendar_empty_day');
+  }
+  // we have too many events on this day. use the theme('calendar_multiple_')
+  if ($max_events > 0 && $count > $max_events && $view->calendar_type != 'day' && !$view->mini) {
+    $inner = theme('calendar_multiple_node_'. $view->calendar_type, $curday_date, $count, $view, $types);
   }
   $content = theme('calendar_datebox', $curday_date, $view, $items, $selected) . $inner;
   return $content;
@@ -165,8 +175,8 @@ function calendar_build_day($curday, $view, $items) {
  * @return array with weekday table header data
  */
 function calendar_week_header($view) {
-  $len = isset($view->name_size) ? $view->name_size : (!empty($view->mini) ? 1 : 3);
-  $with_week = !empty($view->with_weekno);
+  $len = isset($view->style_name_size) ? $view->style_name_size : (!empty($view->mini) ? 1 : 3);
+  $with_week = !empty($view->style_with_weekno);
   
   // create week header
   $untranslated_days = calendar_untranslated_days();
