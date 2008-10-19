@@ -88,7 +88,7 @@ $handler->override_option('access', array(
 ));
 $handler->override_option('title', 'Calendar');
 $handler->override_option('items_per_page', 0);
-$handler->override_option('use_more', 1);
+$handler->override_option('use_more', 0);
 $handler->override_option('style_plugin', 'calendar_nav');
 $handler->override_option('style_options', array(
   'name_size' => '3',
@@ -349,6 +349,7 @@ $handler->override_option('filters', array(
     'relationship' => 'none',
   ),
 ));
+$handler->override_option('use_more', 1);
 $handler->override_option('items_per_page', 5);
 $handler->override_option('style_plugin', 'list');
 $handler->override_option('style_options', array(
