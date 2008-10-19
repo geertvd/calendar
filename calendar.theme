@@ -290,7 +290,7 @@ function theme_calendar_nav($view, $link = FALSE, $format = NULL) {
   $output .= '<div class="date-prev">';
   $querystring = calendar_querystring($view, $prev_query);
   $period = $view->build_type != 'block' ? t('prev') : '';
-  $output .= l(t('‹ !period  ', array('!period' => $period)), $prev_path, array(), (!empty($querystring) ? $querystring : NULL));
+  $output .= l(t('‹ !period  ', array('!period' => $period)), $prev_path, array('rel' => 'nofollow'), (!empty($querystring) ? $querystring : NULL));
   
   $heading = theme('calendar_nav_title', $view->calendar_type, $view, $link, $format);
   $output .= '</div><div class="date-heading"><h3>'. $heading .'</h3></div>';
@@ -298,7 +298,7 @@ function theme_calendar_nav($view, $link = FALSE, $format = NULL) {
   $output .= '<div class="date-next">';
   $querystring = calendar_querystring($view, $next_query);
   $period = $view->build_type != 'block' ? t('next') : '';
-  $output .= l(t('  !period  ›', array('!period' => $period)), $next_path, array(), (!empty($querystring) ? $querystring : NULL));
+  $output .= l(t('  !period  ›', array('!period' => $period)), $next_path, array('rel' => 'nofollow'), (!empty($querystring) ? $querystring : NULL));
   $output .= '</div></div>';
   return $output;
 }
@@ -363,8 +363,9 @@ function theme_calendar_links($view, $links = FALSE) {
     // For "page" views, add the arguments to the path.
     if ($view->build_type == 'page') {
       $query_string = calendar_querystring($view, !empty($_GET['view']) ? array('view' => $_GET['view']) : array());
+      $base = array('attributes' => array('rel' => 'nofollow'));
       if (!empty($formats['year'])) {
-        $calendar_links[] = array('title' => t('Year'), 'href' => $view->real_url .'/'. $view->year, 'query' => $query_string);
+        $calendar_links[] = $base + array('title' => t('Year'), 'href' => $view->real_url .'/'. $view->year, 'query' => $query_string);
       }
       if (!empty($formats['month'])) {
         $calendar_links[] = array('title' => t('Month'), 'href' => $view->real_url .'/'. $view->year .'/'. $view->month, 'query' => $query_string);
@@ -379,24 +380,25 @@ function theme_calendar_links($view, $links = FALSE) {
     // For "embed" views, add the arguments to the query string.
     else {
       $block_identifier = isset($view->block_identifier) ? $view->block_identifier : 'mini';
+      $base = array('href' => $view->page_url, 'attributes' => array('rel' => 'nofollow'));
       if (!empty($_GET['view'])) {
         $query_params['view'] = $_GET['view'];
       }
       if (!empty($formats['year'])) {
         $query_params[$block_identifier] = $view->real_url .'/'. $view->year;
-        $calendar_links[] = array('title' => t('Year'), 'href' =>  $view->page_url, 'query' => calendar_querystring($view, $query_params));
+        $calendar_links[] = $base + array('title' => t('Year'), 'query' => calendar_querystring($view, $query_params));
       }
       if (!empty($formats['month'])) {
         $query_params[$block_identifier] = $view->real_url .'/'. $view->year .'/'. $view->month;
-        $calendar_links[] = array('title' => t('Month'), 'href' =>  $view->page_url, 'query' => calendar_querystring($view, $query_params));
+        $calendar_links[] = $base + array('title' => t('Month'), 'query' => calendar_querystring($view, $query_params));
       }
       if (!empty($formats['week'])) {
         $query_params[$block_identifier] = $view->real_url .'/'. $view->year .'/W'. $view->week;
-        $calendar_links[] = array('title' => t('Week'), 'href' =>  $view->page_url, 'query' => calendar_querystring($view, $query_params));
+        $calendar_links[] = $base + array('title' => t('Week'), 'query' => calendar_querystring($view, $query_params));
       }
       if (!empty($formats['day'])) {
         $query_params[$block_identifier] = $view->real_url .'/'. $view->year .'/'. $view->month .'/'. $view->day;
-        $calendar_links[] = array('title' => t('Day'), 'href' =>  $view->page_url, 'query' => calendar_querystring($view, $query_params));
+        $calendar_links[] = $base + array('title' => t('Day'), 'query' => calendar_querystring($view, $query_params));
       }
     }
     // If this is a page, add a popup date selector.
