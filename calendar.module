@@ -347,6 +347,7 @@ function calendar_views_pre_view(&$view, &$items) {
   }
   
   require_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
+  
   $display_formats = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar', 'block' => 'calendar'));
 
   // Massage the resulting items into formatted calendar items.
@@ -973,6 +974,19 @@ function calendar_get_node_link($node, $default = NULL) {
   }
 }
 
+/**
+ * Get the absolute minimum and maxium allowable years for a view.
+ */
+function calendar_year_range($view) {
+  $year_range = explode(':', variable_get('calendar_year_range_'. $view->name, '-3:+3'));
+  if (substr(variable_get('calendar_year_range_'. $view->name, '-3:+3'), 0, 1) == '-' || $year_range[0] < 0) {
+    $this_year = date_format(date_now(), 'Y');
+    $year_range[0] = $this_year + $year_range[0];
+    $year_range[1] = $this_year + $year_range[1];
+  }
+  return $year_range;
+}
+  
 /**
  * Implementation of hook_elements.
  * 

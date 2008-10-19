@@ -136,6 +136,16 @@ function _calendar_views_query_alter(&$query, &$view) {
   $view->min_date_date = date_format($view->min_date, DATE_FORMAT_DATE);
   $view->max_date_date = date_format($view->max_date, DATE_FORMAT_DATE);
   
+  // See if we're outside the allowed date range for our argument.
+  $view_dates = calendar_year_range($view);
+  $view_min_year = $view_dates[0];
+  $view_max_year = $view_dates[1];
+  if (date_format($view->min_date, 'Y') < $view_min_year 
+    || date_format($view->max_date, 'Y') > $view_max_year) {
+    drupal_not_found();
+    exit;
+  }  
+  
   // Identify the kind of display we're using for this view.
   // Check first for 'view' in url to get displays set by the switch
   // block, then for 'calendar_display_format' variable to get displays
@@ -763,7 +773,7 @@ function calendar_get_paths($view) {
   date_modify($prev_date, '-1 '. $view->calendar_type);
   $next_date = drupal_clone($view->min_date);
   date_modify($next_date, '+1 '. $view->calendar_type);
-  
+
   $path = calendar_get_url($view, $view->args, TRUE);
   
   // reverse through the path, creating a $nextpath and $prevpath arrays
@@ -799,5 +809,16 @@ function calendar_get_paths($view) {
     }
   }
   
+  // See if back/next navigation will take us outside 
+  // the allowed date range for our argument.
+  $view_dates = calendar_year_range($view);
+  $view_min_year = $view_dates[0];
+  $view_max_year = $view_dates[1];
+  if (date_format($prev_date, 'Y') < $view_min_year) {
+    $prevpath = array();
+  }
+  if (date_format($next_date, 'Y') > $view_max_year) {
+    $nextpath = array();
+  }  
   return array($prevpath, $nextpath);
 }

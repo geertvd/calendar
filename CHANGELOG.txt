@@ -4,6 +4,8 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- #174580 Add min/max year setting to Date argument and set Page Not Found outside that range.
+- #174580 Add rel=nofollow to back/next links.
 - #319344 Add method of limiting the number of events that display in calendar cells.
 - #310262 Add missing parameter to calendar_build_nodes() in calendar ical.
 - #314682 Add missing url() in jcalendar js code.

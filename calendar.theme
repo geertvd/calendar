@@ -281,16 +281,18 @@ function theme_calendar_nav($view, $link = FALSE, $format = NULL) {
   if ($mini || $view->build_type == 'embed') {
     $block_identifier = isset($view->block_identifier) ? $view->block_identifier : 'mini';
     $prev_query[$block_identifier] = $prev_path;
-    $prev_path = $_GET['q'];
+    $prev_path = !empty($prev_path) ? $_GET['q'] : '';
     $next_query[$block_identifier] = $next_path;
-    $next_path = $_GET['q'];
+    $next_path = !empty($next_path) ? $_GET['q'] : '';
   }
 
   $output  = '<div class="date-nav clear-block">';
   $output .= '<div class="date-prev">';
   $querystring = calendar_querystring($view, $prev_query);
   $period = $view->build_type != 'block' ? t('prev') : '';
-  $output .= l(t('‹ !period  ', array('!period' => $period)), $prev_path, array('rel' => 'nofollow'), (!empty($querystring) ? $querystring : NULL));
+  if (!empty($prev_path)) {
+    $output .= l(t('‹ !period  ', array('!period' => $period)), $prev_path, array('rel' => 'nofollow'), (!empty($querystring) ? $querystring : NULL));
+  }
   
   $heading = theme('calendar_nav_title', $view->calendar_type, $view, $link, $format);
   $output .= '</div><div class="date-heading"><h3>'. $heading .'</h3></div>';
@@ -298,7 +300,10 @@ function theme_calendar_nav($view, $link = FALSE, $format = NULL) {
   $output .= '<div class="date-next">';
   $querystring = calendar_querystring($view, $next_query);
   $period = $view->build_type != 'block' ? t('next') : '';
-  $output .= l(t('  !period  ›', array('!period' => $period)), $next_path, array('rel' => 'nofollow'), (!empty($querystring) ? $querystring : NULL));
+  if (!empty($next_path)) {
+    $output .= l(t('  !period  ›', array('!period' => $period)), $next_path, array('rel' => 'nofollow'), (!empty($querystring) ? $querystring : NULL));
+  }
+
   $output .= '</div></div>';
   return $output;
 }

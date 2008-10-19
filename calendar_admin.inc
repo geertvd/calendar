@@ -407,6 +407,13 @@ function _calendar_setup_form($view_name) {
     '#type' => 'select',
     '#options' => $display_options,
   );
+  $form['calendar_year_range'] = array(
+    '#title' => t('Date year range'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('calendar_year_range_'. $view->name, '-3:+3'),
+    '#description' => t("Set the allowable minimum and maximum year range for this argument, either a -X:+X offset from the current year, like '-3:+3' or an absolute minimum and maximum year, like '2005:2010'.  When the argument is set to a date outside the range, the page will be returned as 'Page not found (404)'."),
+  );
+
   $form['calendar_empty_arg'] = array(
     '#title' => t('Wildcard argument'),
     '#type' => 'textfield',
@@ -475,6 +482,12 @@ function _calendar_legend_form($view_name) {
   return $form;
 }
 
+function _calendar_setup_form_validate($form_id, $form_values) {
+  if (!preg_match('@\-[0-9]*:[\+|\-][0-9]*@', $form_values['calendar_year_range']) 
+    && !preg_match('@[0-9]{4}:[0-9]{4}@', $form_values['calendar_year_range'])) {
+    form_set_error('calendar_year_range', t('Date year range must be in the format -9:+9 or 2005:2010.'));
+  }
+}
 /**
  * Save requested values.
  */
@@ -484,6 +497,9 @@ function _calendar_setup_form_submit($form_id, $form_values) {
   variable_set('calendar_empty_arg', check_plain($form_values['calendar_empty_arg']));
   foreach ($form_values as $value_name => $value) {
    switch ($value_name) {
+    case 'calendar_year_range':
+        variable_set('calendar_year_range_'. $view_name,  $value);
+        break;
     case 'calendar_limit':
         variable_set('calendar_limit_'. $view_name,  $value);
         break;
