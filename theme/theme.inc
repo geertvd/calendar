@@ -32,17 +32,18 @@ function template_preprocess_calendar_main(&$vars) {
   $displays = $view->display_types;
     
   $calendar_links = array();
+  $base = array('attributes' => array('rel' => 'nofollow'));
   if (!empty($displays['year'])) {
-    $calendar_links[] = array('title' => t('Year'), 'href' => str_replace($arg, $view->year, $url));
+    $calendar_links[] = $base + array('title' => t('Year'), 'href' => str_replace($arg, $view->year, $url));
   }
   if (!empty($displays['month'])) {
-    $calendar_links[] = array('title' => t('Month'), 'href' => str_replace($arg, $view->year .'-'. $view->month, $url));
+    $calendar_links[] = $base + array('title' => t('Month'), 'href' => str_replace($arg, $view->year .'-'. $view->month, $url));
   }
   if (!empty($displays['week'])) {
-    $calendar_links[] = array('title' => t('Week'), 'href' => str_replace($arg, $view->year .'-W'. $view->week, $url));
+    $calendar_links[] = $base + array('title' => t('Week'), 'href' => str_replace($arg, $view->year .'-W'. $view->week, $url));
   }
   if (!empty($displays['day'])) {
-    $calendar_links[] = array('title' => t('Day'), 'href' => str_replace($arg, $view->year .'-'. $view->month .'-'. $view->day, $url));
+    $calendar_links[] = $base + array('title' => t('Day'), 'href' => str_replace($arg, $view->year .'-'. $view->month .'-'. $view->day, $url));
   }
   $vars['calendar_links'] = $calendar_links;
     

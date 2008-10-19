@@ -18,6 +18,14 @@
 class calendar_plugin_display_attachment extends views_plugin_display_attachment {
 
   /**
+   * Instead of going through the standard views_view.tpl.php, delegate this
+   * to the style handler.
+   */
+  function render() {
+    return $this->view->style_plugin->render($this->view->result);
+  }
+  
+  /**
    * Create an array of possible display periods.
    */
   function display_types($type = 'month') {

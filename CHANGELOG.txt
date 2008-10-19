@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #174580 Add rel=nofollow to back/next links.
 - #319344 Add method of limiting the number of events that display in calendar cells.
 - #290365 Add upcoming events block to default calendar so both the mini calendar and an upcoming events calendar are available blocks.
 - #289166 Change ical link in default calendar to 'all time' link instead of single period.
