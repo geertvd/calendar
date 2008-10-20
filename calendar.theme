@@ -293,6 +293,9 @@ function theme_calendar_nav($view, $link = FALSE, $format = NULL) {
   if (!empty($prev_path)) {
     $output .= l(t('‹ !period  ', array('!period' => $period)), $prev_path, array('rel' => 'nofollow'), (!empty($querystring) ? $querystring : NULL));
   }
+  else {
+    $output .= '&nbsp;';
+  }
   
   $heading = theme('calendar_nav_title', $view->calendar_type, $view, $link, $format);
   $output .= '</div><div class="date-heading"><h3>'. $heading .'</h3></div>';
@@ -302,6 +305,9 @@ function theme_calendar_nav($view, $link = FALSE, $format = NULL) {
   $period = $view->build_type != 'block' ? t('next') : '';
   if (!empty($next_path)) {
     $output .= l(t('  !period  ›', array('!period' => $period)), $next_path, array('rel' => 'nofollow'), (!empty($querystring) ? $querystring : NULL));
+  }
+  else {
+    $output .= '&nbsp;';
   }
 
   $output .= '</div></div>';
@@ -721,6 +727,10 @@ function theme_calendar_empty_day() {
 /**
  * Wrapper around views_theme_field() to properly format the dates in the view.
  * Use the usual views field formatting for all other fields.
+ * 
+ * Override the calendar's custom formating for calendar fields.
+ * This one we trim the node title to 12 chars so that it's formatted nicer.
+ * 
  */
 function theme_calendar_views_field($fieldname, $fields, $field, $node, $view, $type) {
   if (isset($node->calendar_field_theme)) {
@@ -731,6 +741,9 @@ function theme_calendar_views_field($fieldname, $fields, $field, $node, $view, $
   $calendar_fields = calendar_fields();
   if (!in_array($field['field'], array_keys($calendar_fields))) {
     $item = views_theme_field('views_handle_field', $fieldname, $fields, $field, $node, $view);
+    if ($view->calendar_type != 'day') {
+      $item = str_replace(">" . check_plain($node->title), ">" . check_plain(calendar_trim_text($node->title, 12)), $item);    
+    }
   }
   elseif ($fieldname != $node->datefield) {
     $item = '';
@@ -741,6 +754,8 @@ function theme_calendar_views_field($fieldname, $fields, $field, $node, $view, $
     }
   }
   return $item;
+
+
 }
 
 /**

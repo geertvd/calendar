@@ -91,17 +91,17 @@
   width:100%;
   position:relative;
 }
-.calendar-calendar .calendar-nav div.prev {
+.calendar-calendar .calendar-nav div.date-prev {
   text-align: left;
   width:24%;
   float:left;
 }
-.calendar-calendar .calendar-nav div.next {
+.calendar-calendar .calendar-nav div.date-next {
   text-align: right;
   width:24%;
   float:right;
 }
-.calendar-calendar .calendar-nav div.heading {
+.calendar-calendar .calendar-nav div.date-heading {
   text-align:center;
   width:50%;
   float:left;

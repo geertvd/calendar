@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- #319344 Add method of truncating title and other fields in calendar cells.
 - #174580 Add min/max year setting to Date argument and set Page Not Found outside that range.
 - #174580 Add rel=nofollow to back/next links.
 - #319344 Add method of limiting the number of events that display in calendar cells.

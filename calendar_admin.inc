@@ -411,7 +411,7 @@ function _calendar_setup_form($view_name) {
     '#title' => t('Date year range'),
     '#type' => 'textfield',
     '#default_value' => variable_get('calendar_year_range_'. $view->name, '-3:+3'),
-    '#description' => t("Set the allowable minimum and maximum year range for this argument, either a -X:+X offset from the current year, like '-3:+3' or an absolute minimum and maximum year, like '2005:2010'.  When the argument is set to a date outside the range, the page will be returned as 'Page not found (404)'."),
+    '#description' => t("Set the allowable minimum and maximum year range for this view, either a -X:+X offset from the current year, like '-3:+3' or an absolute minimum and maximum year, like '2005:2010'.  When the argument is set to a date outside the range, the page will be returned as 'Page not found (404)'."),
   );
 
   $form['calendar_empty_arg'] = array(
