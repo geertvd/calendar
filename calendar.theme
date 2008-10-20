@@ -329,7 +329,7 @@ function theme_calendar_nav_title($type, $view, $link = FALSE, $format = NULL) {
       $url = $real_url .'/'. $view->year;
       break;
     case 'month':
-      $title = date_format_date($view->min_date, 'custom', !empty($format) ? $format : 'F');
+      $title = date_format_date($view->min_date, 'custom', !empty($format) ? $format : 'F Y');
       $url = $real_url .'/'. $view->year .'/'. $view->month;
       break;
     case 'day':
@@ -337,7 +337,7 @@ function theme_calendar_nav_title($type, $view, $link = FALSE, $format = NULL) {
       $url = $real_url .'/'. $view->year .'/'. $view->month .'/'. $view->day;
       break;
     case 'week':
-    	$title = t('Week of @date', array('@date' => date_format_date($view->min_date, 'custom', !empty($format) ? $format : 'F j')));
+    	$title = t('Week of @date', array('@date' => date_format_date($view->min_date, 'custom', !empty($format) ? $format : 'F j Y')));
     	$url = $real_url .'/'. $view->year .'/'. $view->week;
     	break;
   }
