@@ -88,7 +88,12 @@ class calendar_view_plugin_style extends calendar_plugin_style {
    */
   function render() {
     // Adjust the theme to match the currently selected default.
-    $this->definition['theme'] = 'calendar_'. $this->view->granularity;
+    if ($this->view->mini) {
+      $this->definition['theme'] = 'calendar_mini';
+    }
+    else {
+      $this->definition['theme'] = 'calendar_'. $this->view->granularity;
+    }
     $this->view->hide_admin_links = TRUE;
     return theme($this->theme_functions(), $this->view, $this->options, array());
   }

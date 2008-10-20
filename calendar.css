@@ -279,6 +279,10 @@ div.date-nav a, div.date-nav h3 {
   background:#ccc;
   border-color:#ccc;
 }
+.calendar-calendar table.mini td.empty {
+  background:#fff;
+  border-color:#fff;
+}
 .calendar-calendar td div.day {
   border:1px solid #ccc;
   border-top:none;
