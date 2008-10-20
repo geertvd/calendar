@@ -1,4 +1,4 @@
-/*  calendar calendar table styles  */
+/* @group calendar */
 .calendar-calendar tr.odd, .calendar-calendar tr.even {
   background-color:#fff;
 }
@@ -212,7 +212,7 @@ table .mini-day-on a {
 /* formatting for the legend stripe and block */
 .calendar .stripe {
   height: 5px;
-  width: 100%;
+  width: 96%;
   font-size:1px;
   line-height:1px;
 }
@@ -259,52 +259,69 @@ table th.legend {
   clear:both;
 }
 
-/* background colors for the calendar cells */
-.calendar-calendar td, 
-.calendar-calendar td a {
-  color: #222244;
-  background-color: #fff;
-}
-.calendar-calendar td.sat, 
-.calendar-calendar td.sun {
-  color: #222244;
-  background-color: #eee;
-}
-.calendar-calendar td.sat a, 
-.calendar-calendar td.sun a {
-  color: #222244;
-  background-color: #eee;
-}
-.calendar-calendar td .mini-day-on {
-  color: #222244;
-  background-color:#ffc;
-}
-.calendar-calendar td .mini-day-on a {
-  color: #222244;
-  background-color:#ffc;
-}
-
-/* Set this last to override other styles, 'today' takes precedence over all */
-.calendar-calendar td.today, 
-.calendar-calendar td.today .mini-day-on {
-  color: #222244;
-  background-color: #ffcccc;
-}
-.calendar-calendar td.today a, 
-.calendar-calendar td.today .mini-day-on a {
-  color: #222244;
-  background-color: #ffcccc;
-}
-
-/* Not used by default, but available for themeing */
-.calendar-calendar td.past {
-}
-.calendar-calendar td.future {
-}
-
 /* The inner 'node' displayed in the full month view */
 .calendar-calendar td .inner div,
 .calendar-calendar td .inner div a {
   background-color:#fff;
   color:#000;
+}
+
+div.date-nav {
+  background-color:#667DAB;
+  color:#fff;
+  padding:0.2em;
+  width:auto;
+}
+div.date-nav a, div.date-nav h3 {
+  color:#fff;
+}
+.calendar-calendar th.days {
+  background-color:#9DB167;
+  color:#fff;
+  font-weight:bold;
+  border-color:#9DB167;
+}
+.calendar-calendar tr.even td.empty,
+.calendar-calendar tr.odd td.empty {
+  background:#ccc;
+  border-color:#ccc;
+}
+.calendar-calendar td div.day {
+  border:1px solid #ccc;
+  border-top:none;
+  border-right:none;
+  margin-bottom:2px;
+}
+.calendar-calendar td .inner div,
+.calendar-calendar td .inner div a {
+  background:#eee;
+}
+.calendar-calendar div.calendar {
+  border:none;
+}
+.calendar-calendar td .inner div.calendar div,
+.calendar-calendar td .inner div.calendar div a {
+  border:none;
+  background:#ffc;
+  padding:0 2px;
+}
+
+.calendar-calendar td .inner div a,
+.calendar-calendar td span.date-display-single {
+  color:#444;
+  font-weight:normal;
+  font-size:0.85em;
+}
+.calendar-calendar td span.date-display-single {
+  font-weight:bold;
+}
+.calendar-calendar td .inner div.day a {
+  color:#4b85ac;
+}
+.calendar-calendar tr.odd td.today,
+.calendar-calendar tr.even td.today {
+  background-color:#C3D6E4;
+}
+.calendar-calendar td .inner div.calendar div div.view-data-node-data-field-date-field-date-value {
+  border-bottom:1px solid #ccc;
 }
