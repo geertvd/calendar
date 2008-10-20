@@ -113,6 +113,7 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
       $this->view->calendar_colors = $this->view->display[$display_id]->handler->options['calendar_colors'];
     }
     $this->view->display_granularity = $display_granularity;
+    $this->view->calendar_type = $this->calendar_type();
     parent::attach_to($display_id);
   }
   

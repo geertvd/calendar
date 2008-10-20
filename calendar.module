@@ -328,6 +328,27 @@ function calendar_get_node_link($node, $default = NULL) {
 }
 
 /**
+ * Trim a post to a certain number of characters, removing all HTML.
+ */
+function calendar_trim_text($text, $length = 128) {
+  // remove any HTML or line breaks so these don't appear in the text
+  $text = trim(str_replace(array("\n", "\r"), ' ', strip_tags($text)));
+  $text = trim(substr($text, 0, $length));
+  $lastchar = substr($text, -1, 1);
+  // check to see if the last character in the title is a non-alphanumeric character, except for ? or !
+  // if it is strip it off so you don't get strange looking titles
+  if (preg_match('/[^0-9A-Za-z\!\?]/', $lastchar)) {
+    $text = substr($text, 0, -1);
+  }
+  // ? and ! are ok to end a title with since they make sense
+  if ($lastchar != '!' and $lastchar != '?') {
+    $text .= '...';
+  }
+
+  return $text;
+}
+
+/**
  * Implementation of hook_elements.
  * 
  * Much of the colorpicker code was adapted from the Colorpicker module.

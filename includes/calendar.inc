@@ -137,7 +137,7 @@ function calendar_build_day($curday, $view, $items) {
   $curday_date = date_format($curday, DATE_FORMAT_DATE);
   $inner = '';
   $selected = FALSE;
-  $max_events = $view->style_limit;
+  $max_events = $view->style_max_items;
   $types = array();
   $count = 0;
   foreach ($items as $date => $day) {
@@ -148,11 +148,14 @@ function calendar_build_day($curday, $view, $items) {
       foreach ($day as $hour) {
         foreach ($hour as $item) {
           $count++;
-          if (!$view->mini && ($max_events > 0 && $count <= $max_events  || $view->calendar_type == 'day'))  {
+          $types[$item->type] = $item;
+          if ($view->mini || $view->calendar_type == 'day' || $max_events > 0 && $count > $max_events) {
+            continue;
+          }
+          else {
             $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->granularity .'_node';
             $inner .= theme($theme, $item, $view);
           }
-          $types[$item->type] = $item;
         }
       }
     }

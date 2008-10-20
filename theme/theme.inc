@@ -85,6 +85,9 @@ function template_preprocess_calendar(&$vars) {
   $items = array();
   $calendar_fields = date_api_fields();
   $calendar_fields = array_keys($calendar_fields['alias']);
+  if (empty($view->style_truncated_fields)) {
+    $view->style_truncated_fields = array();
+  }
   foreach ($result as $num => $row) {
     $items[$num] = $row;
     // Store the raw date values before formatting the results.
@@ -92,6 +95,11 @@ function template_preprocess_calendar(&$vars) {
       if (in_array($key, $calendar_fields)) {
         $items[$num]->calendar_fields->$key = $value;
       }
+      // Shorten truncated fields before sending them to the row theme.
+      if (in_array($key, $view->style_truncated_fields) 
+        && $view->style_plugin->definition['handler'] == 'calendar_view_plugin_style') {
+        $row->$key = calendar_trim_text($row->$key, $view->style_truncate_length);
+      }    
     }
     foreach ($fields as $field) {
       if (!empty($field->options['exclude'])) {
@@ -109,7 +117,7 @@ function template_preprocess_calendar(&$vars) {
   
   // Massage the resulting items into formatted calendar items.
   $items = calendar_build_nodes($view, $items);
-   
+  
   // Merge in items from other sources.
   foreach (module_implements('calendar_add_items') as $module) {
     $function = $module .'_calendar_add_items';
