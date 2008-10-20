@@ -479,7 +479,7 @@ function theme_calendar_year($view, $header, $rows) {
     }
     $i++;
   }
-  $output .= theme("table", $header, $rows_out, array('class' => 'mini-row'));
+  $output .= theme("table", $header, $rows_out, array('class' => 'mini'));
   $output .= "</div></div>\n";
   return $output;
 }
