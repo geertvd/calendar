@@ -300,12 +300,18 @@ div.date-nav a, div.date-nav h3 {
 }
 
 .calendar-calendar td .inner div a,
-.calendar-calendar td span.date-display-single {
+.calendar-calendar td span.date-display-single,
+.calendar-calendar td span.date-display-start,
+.calendar-calendar td span.date-display-end,
+.calendar-calendar td span.date-display-separator {
   color:#444;
   font-weight:normal;
   font-size:0.85em;
 }
-.calendar-calendar td span.date-display-single {
+.calendar-calendar td span.date-display-single,
+.calendar-calendar td span.date-display-start,
+.calendar-calendar td span.date-display-end,
+.calendar-calendar td span.date-display-separator {
   font-weight:bold;
 }
 .calendar-calendar td .inner div.day a {
