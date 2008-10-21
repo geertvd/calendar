@@ -290,7 +290,7 @@ function calendar_date_select($view) {
  *
  * @TODO is the title desired here or does it take up too much space??
  */
-function calendar_date_select_form($view) {
+function calendar_date_select_form(&$form_state, $view) {
   $format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), array('year', 'month', 'day'));
   $form['calendar_goto'] = array(
     //'#title' => t('Calendar date'),
@@ -299,9 +299,22 @@ function calendar_date_select_form($view) {
     '#date_timezone' => date_default_timezone_name(),
     '#date_format' => $format,
     );
-  $form['date_type'] = array(
+  $form['calendar_type'] = array(
     '#type' => 'hidden',
-    '#value' => $view->date_type,
+    '#value' => $view->calendar_type,
+    );
+  $form['view_name'] = array(
+    '#type' => 'hidden',
+    '#value' => $view->name,
+    );
+  $form['view_url'] = array(
+    '#type' => 'hidden',
+    '#value' => $view->get_url(),
+    );
+  $pos = calendar_arg_position($view);  
+  $form['calendar_previous_arg'] = array(
+    '#type' => 'hidden',
+    '#value' => $view->args[$pos],
     );
   $form['submit'] = array(
     '#type' => 'submit',
@@ -310,6 +323,15 @@ function calendar_date_select_form($view) {
   return $form;
 }
 
+function calendar_arg_position($view) {
+  $pos = 0;
+  foreach ($view->argument as $argument) {
+    if ($argument->definition['handler'] == 'date_api_argument_handler') {
+      return $pos;
+    }
+    $pos++;
+  }
+}
 /**
  * Get the url for a calendar node.
  * 

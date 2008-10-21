@@ -48,8 +48,8 @@ function template_preprocess_calendar_main(&$vars) {
   $vars['calendar_links'] = $calendar_links;
     
   // If the Date Popup module is enabled, add a popup date selector.
-  if (module_exists('date_popup')) {
-    //$output = '<div class="clear-block">'. calendar_date_select($view) .'</div>';
+  if (!empty($view->calendar_popup)) {
+    $vars['calendar_popup'] = '<div class="clear-block">'. calendar_date_select($view) .'</div>';
   }
   $vars['view'] = $view;  
   $vars['mini'] = !empty($view->mini);

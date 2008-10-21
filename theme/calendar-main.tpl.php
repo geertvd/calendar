@@ -8,6 +8,7 @@
  *
  * $view: The view.
  * $calendar_links: Array of formatted links to other calendar displays - year, month, week, day.
+ * $calendar_popup: The popup calendar date selector.
  * $display_type: year, month, day, or week.
  * $mini: Whether this is a mini view.
  * $min_date_formatted: The minimum date for this calendar in the format YYYY-MM-DD HH:MM:SS.
@@ -18,6 +19,7 @@
 ?>
 
 <div class="calendar-calendar">
+  <?php if (!empty($calendar_popup)) print $calendar_popup;?>
   <?php if (empty($block)) print theme('links', $calendar_links);?>
   <?php print theme('date_navigation', $view) ?>
 </div>

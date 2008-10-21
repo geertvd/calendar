@@ -5,40 +5,28 @@
  *  
  *  Handle the date_popup calendar goto date.
  */
-function calendar_views_query_alter(&$query, &$view) {
+function calendar_views_query_alter(&$view, &$query) {
   // Check if a new date has been selected and if so redirect.
-  if (isset($_POST['calendar_goto'])) {
+  if (isset($_POST['calendar_goto']) && $_POST['view_name'] == $view->name) {
     require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_elements.inc');
     $format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), array('year', 'month', 'day'));
     $date = date_convert_from_custom($_POST['calendar_goto']['date'], $format);  
     switch ($_POST['calendar_type']) {
       case 'year':
-        $parts = array(
-          'year' => date_pad(date_part_extract($date, 'year'), 4),
-        );
+        $arg = date_pad(date_part_extract($date, 'year'), 4);
         break; 
       case 'month':
-        $parts = array(
-          'year' => date_pad(date_part_extract($date, 'year'), 4),
-          'month' => date_pad(date_part_extract($date, 'month')),
-        );
+        $arg = date_pad(date_part_extract($date, 'year'), 4) .'-'. date_pad(date_part_extract($date, 'month'));
         break; 
       case 'week':
-        $parts = array(
-          'year' => date_pad(date_part_extract($date, 'year'), 4),
-          'week' => 'W'. date_pad(date_week($date)),
-        );
+        $arg = date_pad(date_part_extract($date, 'year'), 4) .'-W'. date_pad(date_week($date));
         break; 
       default:
-        $parts = array(
-          'year' => date_pad(date_part_extract($date, 'year'), 4),
-          'month' => date_pad(date_part_extract($date, 'month')),
-          'day' => date_pad(date_part_extract($date, 'day')),
-        );
+        $arg = date_pad(date_part_extract($date, 'year'), 4) .'-'. date_pad(date_part_extract($date, 'month')) .'-'. date_pad(date_part_extract($date, 'day'));
         break; 
         
     }
-    drupal_goto($view->url .'/'. implode('/', $parts));
+    drupal_goto(str_replace($_POST['calendar_previous_arg'], $arg, $_POST['view_url']));
     drupal_exit();
   }
 }

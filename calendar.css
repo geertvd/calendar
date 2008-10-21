@@ -223,7 +223,7 @@ table.calendar-legend tr.even .stripe {
 }
 
 /* the popup date selector for jumping to a new date */
-.calendar-date-select {
+.calendar-date-select form {
   text-align:right;
   float:right;
   width:25%;
@@ -235,9 +235,10 @@ table.calendar-legend tr.even .stripe {
   padding:0;
   margin:0;
   float:right;
+  clear:both;
 }
 .calendar-date-select .description {
-  float:none;
+  float:right;
 }
 .calendar-label {
   font-weight:bold;
