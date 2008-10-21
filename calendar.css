@@ -47,7 +47,7 @@
 .calendar-calendar td {
   width: 13%; /* 14% is about 1/7 of total table width */
   min-width: 13%;
-  border: 1px solid #999;
+  border: 1px solid #ccc;
   color: #777;
   text-align: right;
   vertical-align: top;
@@ -261,19 +261,20 @@ table th.legend {
 
 /* @group calendar */
 div.date-nav {
-  background-color:#667DAB;
-  color:#fff;
+  background-color:#ccc;
+  color:#777;
   padding:0.2em;
   width:auto;
+  border:1px solid #ccc;
 }
 div.date-nav a, div.date-nav h3 {
-  color:#fff;
+  color:#777;
 }
 .calendar-calendar th.days {
-  background-color:#9DB167;
-  color:#fff;
+  background-color:#eee;
+  color:#777;
   font-weight:bold;
-  border-color:#9DB167;
+  border:1px solid #ccc;
 }
 .calendar-calendar td.empty {
   background:#ccc;
