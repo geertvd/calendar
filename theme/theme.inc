@@ -176,7 +176,9 @@ function template_preprocess_calendar_mini(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar_month($vars);
   $view = $vars['view'];
+  $view->show_title = !empty($view->show_title) ? $view->show_title : FALSE;
   $vars['show_title'] = $view->show_title;
+  $vars['view'] = $view;
 }
 
 /**

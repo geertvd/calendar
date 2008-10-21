@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Rework html of Year view so month titles will match block view month title for easier css themeing.
 - #319344 Add 'empty' class and updated css styles provided by MothersClick.com.
 - #319344 Add method of truncating title and other fields in calendar cells.
 - #174580 Add rel=nofollow to back/next links.

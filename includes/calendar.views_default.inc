@@ -16,12 +16,22 @@ $view->disabled = TRUE; /* Edit this to true to make a default view disabled ini
 $handler = $view->new_display('default', 'Defaults', 'default');
 $handler->override_option('fields', array(
   'title' => array(
-    'label' => 'Title',
+    'label' => '',
     'link_to_node' => 1,
     'exclude' => 0,
     'id' => 'title',
     'table' => 'node',
     'field' => 'title',
+    'relationship' => 'none',
+  ),
+  'changed' => array(
+    'label' => '',
+    'date_format' => 'small',
+    'custom_date_format' => '',
+    'exclude' => 0,
+    'id' => 'changed',
+    'table' => 'node',
+    'field' => 'changed',
     'relationship' => 'none',
   ),
 ));
@@ -91,9 +101,6 @@ $handler->override_option('items_per_page', 0);
 $handler->override_option('use_more', 0);
 $handler->override_option('style_plugin', 'calendar_nav');
 $handler->override_option('style_options', array(
-  'name_size' => '3',
-  'with_weekno' => '0',
-  'limit' => '5',
 ));
 
 // Calendar page.
@@ -128,7 +135,10 @@ $handler->override_option('style_plugin', 'calendar_style');
 $handler->override_option('style_options', array(
   'display_type' => 'year',
   'name_size' => '1',
-  'limit' => '5',
+  'max_items' => '0',
+  'truncated_fields' => array(
+  ),
+  'truncate_length' => '',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
@@ -148,7 +158,11 @@ $handler->override_option('style_options', array(
   'name_size' => '99',
   'with_weekno' => '1',
   'date_fields' => NULL,
-  'limit' => '5',
+  'max_items' => '3',
+  'truncated_fields' => array(
+    'node_title' => 'node_title',
+  ),
+  'truncate_length' => '12',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
@@ -166,7 +180,10 @@ $handler->override_option('style_plugin', 'calendar_style');
 $handler->override_option('style_options', array(
   'display_type' => 'day',
   'name_size' => '99',
-  'limit' => '0',
+  'max_items' => '0',
+  'truncated_fields' => array(
+  ),
+  'truncate_length' => '',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
@@ -184,7 +201,11 @@ $handler->override_option('style_plugin', 'calendar_style');
 $handler->override_option('style_options', array(
   'display_type' => 'week',
   'name_size' => '99',
-  'limit' => '5',
+  'max_items' => '0',
+  'truncated_fields' => array(
+    'node_title' => 'node_title',
+  ),
+  'truncate_length' => '12',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);

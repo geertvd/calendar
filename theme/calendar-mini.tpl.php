@@ -20,15 +20,11 @@
 
 ?>
 <div class="calendar-calendar"><div class="month-view">
+<?php if ($view->show_title): ?>
+  <?php print theme('date_navigation', $view); ?>
+<?php endif; ?> 
 <table class="mini">
   <thead>
-    <?php if ($view->show_title): ?>
-    <tr>
-      <th colspan="<?php print count($day_names); ?>">
-        <?php print theme('date_navigation', $view); ?>
-      </th>
-    </tr>
-   <?php endif; ?> 
     <tr>
       <?php foreach ($day_names as $cell): ?>
         <th class="<?php print $cell['class']; ?>">
