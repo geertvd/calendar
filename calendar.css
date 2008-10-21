@@ -118,6 +118,7 @@
   border: 1px solid gray;
   border-width: 0 0 1px 1px;
   clear:both;
+  width:1em;
 }
 
 /*  individual node container  */
