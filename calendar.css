@@ -118,6 +118,7 @@
   border: 1px solid gray;
   border-width: 0 0 1px 1px;
   clear:both;
+  width:1em;
 }
 
 /*  individual node container  */
@@ -194,13 +195,13 @@ table .mini-day-on a {
 .calendar .stripe {
   height: 5px;
   width: 96%;
-  font-size:1px;
-  line-height:1px;
+  font-size:1px !important;
+  line-height:1px !important;
 }
 .calendar .legend .stripe {
-  height:14px;
-  font-size:12px;
-  line-height:12px;
+  height:12px;
+  font-size:9px !important;
+  line-height:10px !important;
 }
  .legend table {
   width:100%;
