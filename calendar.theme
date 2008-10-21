@@ -466,9 +466,9 @@ function theme_calendar_year($view, $header, $rows) {
   foreach ($rows as $month => $month_rows) {
     $view->month = $month;
     $view->min_date = date_make_date($view->year .'-'. date_pad($view->month) .'-01 00:00:00', date_default_timezone_name());
-    $month_header = array(array('data' => theme('calendar_nav_title', 'month', $view), 'colspan' => 7));
+    $month_header = '<div class="date-nav"><div class="date-header"><h3>'. theme('calendar_nav_title', 'month', $view) .'</h3></div></div>';
     $row[] = array(
-      'data' => theme('calendar_month', 'mini', $month_header, $month_rows),
+      'data' => $month_header . theme('calendar_month', $view, $header, $month_rows),
       );
 
     // Group three mini month calendars in each year row.
@@ -745,7 +745,7 @@ function theme_calendar_views_field($fieldname, $fields, $field, $node, $view, $
   if (!in_array($field['field'], array_keys($calendar_fields))) {
     $item = views_theme_field('views_handle_field', $fieldname, $fields, $field, $node, $view);
     if ($view->calendar_type != 'day') {
-      $item = str_replace(">" . check_plain($node->title), ">" . check_plain(calendar_trim_text($node->title, 12)), $item);    
+      $item = str_replace(">" . check_plain($node->title), ' title="'. check_plain($node->title) .'">' . check_plain(calendar_trim_text($node->title, 12)), $item);    
     }
   }
   elseif ($fieldname != $node->datefield) {

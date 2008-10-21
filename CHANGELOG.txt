@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- Rework html of Year view so month titles will match block view month title for easier css themeing.
 - #323265 Add year as well as month to calendar titles.
 - #319344 Add 'empty' class and updated css styles provided by MothersClick.com.
 - #319344 Add method of truncating title and other fields in calendar cells.
