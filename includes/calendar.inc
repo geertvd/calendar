@@ -148,10 +148,7 @@ function calendar_build_day($curday, $view, $items) {
         foreach ($hour as $item) {
           $count++;
           $types[$item->type] = $item;
-          if ($view->mini || $view->calendar_type == 'day' || $max_events > 0 && $count > $max_events) {
-            continue;
-          }
-          else {
+          if (!$view->mini && ($max_events > 0 && $count <= $max_events  || $view->calendar_type == 'day')) {
             $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->granularity .'_node';
             $inner .= theme($theme, $item, $view);
           }
