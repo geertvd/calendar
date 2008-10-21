@@ -175,13 +175,13 @@ table td.mini a {
 }
 table .mini-day-on a {
   text-decoration:underline;
-  }
+}
 .calendar-calendar .mini .title {
   font-size:.8em;
-  }
+}
 .mini .calendar-calendar .week {
   font-size:.7em;
-  }
+}
 .mini-row {
   width:100%;
   border:none;
@@ -236,7 +236,9 @@ table.calendar-legend tr.even .stripe {
   margin:0;
   float:right;
 }
-
+.calendar-date-select .description {
+  float:none;
+}
 .calendar-label {
   font-weight:bold;
   display:block;
