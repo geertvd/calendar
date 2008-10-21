@@ -236,7 +236,9 @@ table.calendar-legend tr.even .stripe {
   margin:0;
   float:right;
 }
-
+.calendar-date-select .description {
+  float:none;
+}
 .calendar-label {
   font-weight:bold;
   display:block;
