@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Make some fixes to the calendar legend to be sure text added for accessibility stays invisible in all themes.
 - #321831 Make sure day view gets populated.
 - Rework html of Year view so month titles will match block view month title for easier css themeing.
 - #319344 Add 'empty' class and updated css styles provided by MothersClick.com.

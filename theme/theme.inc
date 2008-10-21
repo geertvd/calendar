@@ -382,13 +382,13 @@ function theme_calendar_stripe_legend() {
     return '';
   }
   $header = array(
-      array('class' => 'legend', 'data' => t('Item')),
-      array('class' => 'legend', 'data' => t('Key'))
+      array('class' => 'calendar-legend', 'data' => t('Item')),
+      array('class' => 'calendar-legend', 'data' => t('Key'))
       );
   foreach ((array) $GLOBALS['calendar_stripes'] as $label => $stripe) {
     $rows[] = array($label, '<div style="background-color:'. $stripe .';color:'. $stripe .'" class="stripe" title="Key: '. $label .'">Key '. $label .'</div>');
   }
-  $output = theme('table', $header, $rows, array('class' => 'mini legend'));
+  $output = theme('table', $header, $rows, array('class' => 'mini calendar-legend'));
   return $output;
 }
 
