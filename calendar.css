@@ -259,6 +259,7 @@ div.date-nav {
 }
 div.date-nav a, div.date-nav h3 {
   color:#777;
+  text-align:center;
 }
 .calendar-calendar th.days {
   background-color:#eee;
