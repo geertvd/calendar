@@ -87,25 +87,6 @@
   margin:0;
 }
 
-.calendar-calendar .calendar-nav {
-  width:100%;
-  position:relative;
-}
-.calendar-calendar .calendar-nav div.prev {
-  text-align: left;
-  width:24%;
-  float:left;
-}
-.calendar-calendar .calendar-nav div.next {
-  text-align: right;
-  width:24%;
-  float:right;
-}
-.calendar-calendar .calendar-nav div.heading {
-  text-align:center;
-  width:50%;
-  float:left;
-}
 .calendar-calendar td a {
   font-weight: bold;
   text-decoration: none;
