@@ -470,7 +470,8 @@ function calendar_block($op = 'list', $delta = 0) {
       switch ($delta) {
       case 0:
         $block['subject'] = t('Calendar Legend');
-        $block['content'] = !empty($GLOBALS['calendar_stripe_labels']) ? '<div class="calendar legend">'. theme('calendar_stripe_legend') .'</div>' : '';
+        $content = theme('calendar_stripe_legend');
+        $block['content'] = !empty($content) ? '<div class="calendar legend">'. $content .'</div>' : '';
         return $block;
       case 1:
         $block['subject'] = t('Switch Calendar');
