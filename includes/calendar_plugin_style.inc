@@ -82,9 +82,13 @@ class calendar_plugin_style extends views_plugin_style {
       $view_fields = $view_fields['name'];
       $fields = $this->display->handler->get_option('fields');
       foreach ($fields as $column => $field) {
-        if (!empty($field['multiple']) && $field['multiple']['group']) {
-          $field_name = $field['table'] .".". $field['field'];
-          $errors[] = t("The date field '@field' used by the display '@display_title' cannot be set to 'Group multiple values'.", array('@field' => $view_fields[$field_name]['label'], '@display_title' => $this->display->display_title));
+        $field_name = $field['table'] .".". $field['field'];
+        if (!empty($field['multiple'])) {
+          $cck_fields = content_fields();
+          $real_name = $view_fields[$field_name]['real_field_name'];
+          if ($cck_fields[$real_name]['multiple'] && !empty($field['multiple']['group'])) {
+            $errors[] = t("The date field '@field' used by the display '@display_title' cannot be set to 'Group multiple values'.", array('@field' => $view_fields[$field_name]['label'], '@display_title' => $this->display->display_title));
+          }
         }
       }
     }
