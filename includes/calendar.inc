@@ -252,7 +252,7 @@ function calendar_build_nodes(&$view, &$items) {
   }
   
   $view_fields      = date_api_views_fetch_fields('node', 'field');
-  $field_names = (array) array_keys($fields);
+  $field_names = (array) array_keys($fields['name']);
   $nodes = array();
   $i = 0;
   foreach ($view->argument['date_argument']->options['date_fields'] as $name) {
@@ -278,9 +278,10 @@ function calendar_build_nodes(&$view, &$items) {
       $cck_field_name = str_replace(array('_value2', '_value'), '', $field_name);
       $format = date_formatter_format(isset($data['options']) ? $data['options'] : 'default', $cck_field_name);
     }
-    elseif (!empty($view->field[$name]['date_format'])) {
-      $format = $view->field[$name]['date_format'];
-      switch ($view->field[$name]['date_format']) {
+    else {
+      $field_name = $field['field_name'];
+      $format = $view->field[$field_name]->options['date_format'];
+      switch ($format) {
         case 'long':
           $format = variable_get('date_format_long',  'l, F j, Y - H:i');
           break;
@@ -288,15 +289,12 @@ function calendar_build_nodes(&$view, &$items) {
           $format = variable_get('date_format_medium',  'D, m/d/Y - H:i');
           break;
         case 'custom':
-          $format = $view->field[$name]['date_format'];
+          $format = $view->field[$field_name]->options['custom_date_format'];
           break;
         default:
           $format = variable_get('date_format_short', 'm/d/Y - H:i');
           break;
       }
-    }
-    else {
-      $format = variable_get('date_format_short', 'm/d/Y - H:i');
     }
     foreach ($items as $pos => $item) {
       if (isset($item->calendar_fields->$alias)) {

@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #279679 Fix broken handling of date format selection.
 - Make sure popup date switcher isn't shown in the mini calendar.
 - Adjust the recent changes to the navigation header to be sure only the calendar header and not the date browser is affected.
 - Add the popup calendar date selector back into the D6 version.
