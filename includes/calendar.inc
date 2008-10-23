@@ -275,8 +275,10 @@ function calendar_build_nodes(&$view, &$items) {
         break;
     }
     if (strstr($field['type'], 'cck')) {
+      $field_name = $field['field_name'];
+      $format = $view->field[$field_name]->options['format'];
       $cck_field_name = str_replace(array('_value2', '_value'), '', $field_name);
-      $format = date_formatter_format(isset($data['options']) ? $data['options'] : 'default', $cck_field_name);
+      $format = date_formatter_format($format, $cck_field_name);
     }
     else {
       $field_name = $field['field_name'];
@@ -290,6 +292,8 @@ function calendar_build_nodes(&$view, &$items) {
           break;
         case 'custom':
           $format = $view->field[$field_name]->options['custom_date_format'];
+          break;
+        case 'time ago':
           break;
         default:
           $format = variable_get('date_format_short', 'm/d/Y - H:i');
@@ -382,11 +386,12 @@ function calendar_build_nodes(&$view, &$items) {
             $node->type = $node->node_type;
           }
 
+          $exceptions = array('format_interval', 'time ago');
           $node->label = $label;
           $node->format = $format;
-          $node->format_time = date_limit_format($format, array('hour', 'minute', 'second'));
+          $node->format_time = !in_array($node->format, $exceptions) ? date_limit_format($format, array('hour', 'minute', 'second')) : '';
           $node->url = calendar_get_node_link($node);
-
+                              
           //$node->$fromto[0] = $values[0];
           //$node->$fromto[1] = $values[1];
           
