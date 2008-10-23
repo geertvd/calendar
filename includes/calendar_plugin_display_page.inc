@@ -88,7 +88,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     $popup_options = $this->popup_options();
     $options['calendar_popup'] = array(
       'category' => 'calendar_settings',
-      'title' => theme('advanced_help_topic', 'calendar', 'settings') . t('Calendar popup'),
+      'title' => theme('advanced_help_topic', 'calendar', 'settings') . t('Date changer'),
       'value' => $popup_options[$this->get_option('calendar_popup')],
     );
   }
@@ -103,12 +103,12 @@ class calendar_plugin_display_page extends views_plugin_display_page {
        
     switch ($form_state['section']) {
       case 'calendar_popup':
-        $form['#title'] .= t('Calendar popup');
+        $form['#title'] .= t('Date changer');
         $form['calendar_popup'] = array(
           '#type' => 'radios',
           '#default_value' => $this->get_option('calendar_popup'),
           '#options' => $this->popup_options(),
-          '#desription' => t('Display a popup calendar date selector.'),
+          '#description' => t('Display a popup calendar date selector?'),
           );        
         break;
       

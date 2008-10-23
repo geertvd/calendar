@@ -32,9 +32,10 @@ class calendar_plugin_display_block extends views_plugin_display_block {
    */
   function init(&$view, &$display) {
     parent::init($view, $display);
-    if ($display->id == 'calendar_block') {
+    if (substr($display->id, 0, 14) == 'calendar_block') {
       $view->mini = TRUE;
       $view->block = TRUE;
+      $view->calendar_popup = FALSE;
     }
   }
   
