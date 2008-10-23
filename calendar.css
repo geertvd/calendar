@@ -252,14 +252,15 @@ table.calendar-legend tr.even .stripe {
   color:#000;
 }
 
-div.date-nav {
+.calendar-calendar div.date-nav {
   background-color:#ccc;
   color:#777;
   padding:0.2em;
   width:auto;
   border:1px solid #ccc;
 }
-div.date-nav a, div.date-nav h3 {
+.calendar-calendar div.date-nav a, 
+.calendar-calendar div.date-nav h3 {
   color:#777;
   text-align:center;
 }

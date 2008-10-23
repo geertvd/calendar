@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- Adjust the recent changes to the navigation header to be sure only the calendar header and not the date browser is affected.
 - #292164 Keep calendar date selector description from floating out of block in IE.
 - #298929 Fix code so that calendar legend doesn't display empty div when empty.
 - Make some fixes to the calendar legend to be sure text added for accessibility stays invisible in all themes.

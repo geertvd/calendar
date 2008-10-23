@@ -286,7 +286,7 @@ function theme_calendar_nav($view, $link = FALSE, $format = NULL) {
     $next_path = !empty($next_path) ? $_GET['q'] : '';
   }
 
-  $output  = '<div class="date-nav clear-block">';
+  $output  = '<div class="calendar-calendar"><div class="date-nav clear-block">';
   $output .= '<div class="date-prev">';
   $querystring = calendar_querystring($view, $prev_query);
   $period = $view->build_type != 'block' ? t('prev') : '';
@@ -310,7 +310,7 @@ function theme_calendar_nav($view, $link = FALSE, $format = NULL) {
     $output .= '&nbsp;';
   }
 
-  $output .= '</div></div>';
+  $output .= '</div></div></div>';
   return $output;
 }
 
