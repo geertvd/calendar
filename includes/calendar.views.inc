@@ -120,6 +120,7 @@ function calendar_views_plugins() {
         'no ui' => TRUE,
         'no remove' => TRUE,
         'uses hook menu' => TRUE,
+        'uses hook block' => FALSE,
         'use ajax' => TRUE,
         'use pager' => FALSE,
         'accept attachments' => TRUE,

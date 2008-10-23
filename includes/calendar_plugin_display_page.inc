@@ -27,15 +27,6 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     return $errors;
   }
 
-  /**
-   * Init will be called after construct, when the plugin is attached to a
-   * view and a display. 
-   */
-  function init(&$view, &$display) {
-    parent::init($view, $display);
-    $view->calendar_popup = $this->get_option('calendar_popup');
-  }
-  
   function get_style_type() { return 'calendar'; }
   
   function defaultable_sections($section = NULL) {

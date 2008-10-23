@@ -12,6 +12,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
   function init(&$view, &$display) {
     parent::init($view, $display);
     $calendar_type = $this->display->handler->get_option('calendar_type');
+    $view->calendar_popup = $this->display->handler->get_option('calendar_popup');
     $view->style_name_size = $this->options['name_size'];
     $view->style_with_weekno = $this->options['with_weekno'];
     $view->style_max_items = $this->options['max_items'];

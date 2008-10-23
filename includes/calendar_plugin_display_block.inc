@@ -26,19 +26,6 @@ class calendar_plugin_display_block extends views_plugin_display_block {
     return $errors;
   }
   
-  /**
-   * Init will be called after construct, when the plugin is attached to a
-   * view and a display. 
-   */
-  function init(&$view, &$display) {
-    parent::init($view, $display);
-    if (substr($display->id, 0, 14) == 'calendar_block') {
-      $view->mini = TRUE;
-      $view->block = TRUE;
-      $view->calendar_popup = FALSE;
-    }
-  }
-  
   function get_style_type() { return 'calendar'; }
   
   function defaultable_sections($section = NULL) {

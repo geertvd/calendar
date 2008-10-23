@@ -108,9 +108,11 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
     if (substr($display_id, 0, 14) == 'calendar_block') {
       $this->view->mini = TRUE;
       $this->view->block = TRUE;
+      $this->calendar_popup = FALSE;
     }
     elseif (substr($display_id, 0, 8) == 'calendar') {
       $this->view->calendar_colors = $this->view->display[$display_id]->handler->options['calendar_colors'];
+      $this->view->calendar_popup = $this->view->display[$display_id]->handler->options['calendar_popup'];
     }
     $this->view->display_granularity = $display_granularity;
     $this->view->calendar_type = $this->calendar_type();
