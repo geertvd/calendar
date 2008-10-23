@@ -439,6 +439,16 @@ function theme_calendar_title($granularity, $view) {
  * whole date in other places.
  */
 function theme_calendar_date_combo($node, $label, $view) {
+  switch ($node->format) {
+    case 'format_interval':
+      return theme('date_time_ago', $node->calendar_start_date, $node->calendar_end_date);
+      
+    case 'time ago':
+      $value = date_format($node->calendar_start_date, 'U');
+      return $value ? t('%time ago', array('%time' => format_interval(time() - $value, 2))) : theme('views_nodate');
+  }
+  
+  
   switch ($view->style_plugin->definition['handler']) {
     // Some of the calendar views need a smaller date format.
     case 'calendar_view_plugin_style':
@@ -463,6 +473,8 @@ function theme_calendar_date_combo($node, $label, $view) {
       $format = $node->format;
       break;
   }
+  
+  
   $date1 = theme('date_all_day', 'date1', $node->calendar_start_date, $node->calendar_end_date, $format, $node, $view);
   $date2 = theme('date_all_day', 'date2', $node->calendar_start_date, $node->calendar_end_date, $format, $node, $view);
   

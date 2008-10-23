@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Make sure 'time ago' formats will work in calendar.
 - Fix logic problem in the validation of multiple dates that use the grouped value, non-multiple dates were triggering the error.
 - #279679 Fix broken handling of date format selection.
 - Make sure popup date switcher isn't shown in the mini calendar.
