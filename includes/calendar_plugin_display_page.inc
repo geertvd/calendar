@@ -77,10 +77,11 @@ class calendar_plugin_display_page extends views_plugin_display_page {
       'value' => t('Edit'),
     );
     $popup_options = $this->popup_options();
+    $default = $this->get_option('calendar_popup');
     $options['calendar_popup'] = array(
       'category' => 'calendar_settings',
       'title' => theme('advanced_help_topic', 'calendar', 'settings') . t('Date changer'),
-      'value' => $popup_options[$this->get_option('calendar_popup')],
+      'value' => isset($default) ? $popup_options[$default] : $popup_options[0],
     );
   }
   
@@ -154,4 +155,3 @@ class calendar_plugin_display_page extends views_plugin_display_page {
   }  
 
 }
-
