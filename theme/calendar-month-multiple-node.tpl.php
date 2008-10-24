@@ -9,7 +9,7 @@
  */ 
 ?>
 <div class="view-item view-item-<?php print $view->name ?>">
-  <div class="calendar monthview" id="<?php print $node->date_id ?>">
+  <div class="calendar monthview" id="<?php print $curday ?>">
     <?php foreach ($types as $type): ?>
       <?php print theme('calendar_stripe_stripe', $type); ?>
     <?php endforeach; ?>

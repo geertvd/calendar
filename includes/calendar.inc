@@ -161,7 +161,7 @@ function calendar_build_day($curday, $view, $items) {
   }
   // we have too many events on this day. use the theme('calendar_multiple_')
   if ($max_events > 0 && $count > $max_events && $view->calendar_type != 'day' && !$view->mini) {
-    $inner = theme('calendar_multiple_node_'. $view->calendar_type, $curday_date, $count, $view, $types);
+    $inner = theme('calendar_'. $view->calendar_type .'_multiple_node', $curday_date, $count, $view, $types);
   }
   $content = theme('calendar_datebox', $curday_date, $view, $items, $selected) . $inner;
   return $content;

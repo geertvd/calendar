@@ -136,6 +136,7 @@ function template_preprocess_calendar(&$vars) {
   
   // Create the calendar day names and rows.
   $rows = calendar_build_calendar($view, $items);
+
   $vars['items'] = $items;
   $vars['rows'] = $rows;
   
@@ -161,6 +162,7 @@ function template_preprocess_calendar_month(&$vars) {
     $day_names = $rows;
     $rows = array();
   }
+  
   $vars['rows'] = $rows;
   $vars['day_names'] = $day_names;
   
@@ -330,8 +332,11 @@ function template_preprocess_calendar_month_node(&$vars) {
  * Format an calendar month node for display.
  */
 function template_preprocess_calendar_month_multiple_node(&$vars) {
+  $view = $vars['view'];
+  $curday = $vars['curday'];
+
   // get the year month and date
-  $parts = explode('-', substr($curday_date, 0, 10));
+  $parts = explode('-', substr($curday, 0, 10));
   $year = $parts[0];
   $month = intval($parts[1]);
   $day = intval($parts[2]);
@@ -363,8 +368,11 @@ function template_preprocess_calendar_week_node(&$vars) {
  * Format an calendar week node for display.
  */
 function template_preprocess_calendar_week_multiple_node(&$vars) {
+  $view = $vars['view'];
+  $curday = $vars['curday'];
+  
   // get the year month and date
-  $parts = explode('-', substr($curday_date, 0, 10));
+  $parts = explode('-', substr($curday, 0, 10));
   $year = $parts[0];
   $month = intval($parts[1]);
   $day = intval($parts[2]);
