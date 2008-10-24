@@ -186,12 +186,51 @@ function calendar_current_type($view) {
  */
 function calendar_page_url($view) {
   if ($view->build_type == 'page') {
-    return calendar_real_url($view, $view->real_args);
+    return calendar_real_url($view);
   }
   else {
     $block_identifier = isset($view->block_identifier) ? $view->block_identifier : 'mini';
     return url($_GET['q'], calendar_querystring($view, array($block_identifier => NULL)), NULL, TRUE);
   }
+}
+
+/**
+ * Figure out the URL of the calendar view we're currently looking at,
+ * adapted to various calendar types or specific date arguments.
+ * 
+ * @param $calendar_type
+ *  - if not empty, return the url of a specific calendar type.
+ * @param $date_arg
+ *  - if not empty, return the url for a view with a specific date argument.
+ * @return 
+ *   return the requested view url.
+ */
+function calendar_real_url($view, $calendar_type = NULL, $date_arg = NULL) {
+  $args = $view->args;
+  $pos = $view->date_arg_pos;
+  if (!empty($calendar_type)) {
+    switch ($calendar_type) {
+      case 'year':
+        $args[$pos] = date_pad($view->year, 4);
+        break;
+      case 'week':
+        $args[$pos] = date_pad($view->year, 4) .'-W'. date_pad($view->week);
+        break;
+      case 'day':
+        $args[$pos] = date_pad($view->year, 4) .'-'. date_pad($view->month) .'-'. date_pad($view->day);
+        break;
+      default:
+        $args[$pos] = date_pad($view->year, 4) .'-'. date_pad($view->month);
+        break;
+    }
+  }
+  elseif (!empty($date_arg)) {
+    $args[$pos] = $date_arg;
+  }
+  else {
+    $args = $view->args;
+  }
+  return $view->get_url($args);
 }
 
 /**
