@@ -127,7 +127,28 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
       }
       $i++;
     }
-    
+    foreach ($this->view->filter as $id => $filter) {
+      if ($filter->field == 'date_filter') {
+        // TODO Decide if we want to provide a date here or not.
+        // Adding this now is to prevent fatal errors later if the
+        // view is used in unexpected ways without a date being set.
+        if (empty($filter->min_date)) {
+          $value = $filter->get_default_argument();
+          $range = $filter->date_handler->arg_range($value);
+          $filter->min_date = $range[0];
+          $filter->max_date = $range[1];
+        }
+        $this->view->granularity = !empty($filter->granularity) ? $filter->granularity : $filter->options['granularity'];
+        $this->view->year = isset($filter->year) ? $filter->year : NULL;
+        $this->view->month = isset($filter->month) ? $filter->month: NULL;
+        $this->view->day = isset($filter->day) ? $filter->day : NULL;
+        $this->view->week = isset($filter->week) ? $filter->week : NULL;
+        $this->view->min_date = $filter->min_date;
+        $this->view->max_date = $filter->max_date;
+      }
+      $i++;
+    }
+       
     // Render each field into an output array.
     $items = array();
     $calendar_fields = date_api_fields();
@@ -147,7 +168,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
         }
       }
     }
-
+    
     // Massage the resulting items into formatted calendar items.
     $items = calendar_build_nodes($this->view, $items);
     

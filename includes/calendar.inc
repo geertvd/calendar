@@ -229,6 +229,7 @@ function calendar_build_nodes(&$view, &$items) {
   if (empty($view->min_date) || empty($view->max_date)) {
     return $items;
   }
+  
   // Midnights are determined based on the same timezone as the View uses
   $display_timezone = date_timezone_get($view->min_date);
   $display_timezone_name = timezone_name_get($display_timezone);
@@ -247,15 +248,25 @@ function calendar_build_nodes(&$view, &$items) {
 
   $datefields = array();
   $fields = date_api_fields();
-  foreach ($view->argument['date_argument']->options['date_fields'] as $name) {
-    $datefields[] = $fields['name'][$name]['query_name'];
+  
+  if (!empty($view->filter['date_filter'])) {
+    $date_filter = $view->filter['date_filter'];
+    foreach ($view->filter['date_filter']->options['date_fields'] as $name) {
+      $datefields[] = $fields['name'][$name]['query_name'];
+    }
+  }
+  if (!empty($view->argument['date_argument'])) {
+    $date_filter = $view->argument['date_argument'];
+    foreach ($view->argument['date_argument']->options['date_fields'] as $name) {
+      $datefields[] = $fields['name'][$name]['query_name'];
+    }
   }
   
   $view_fields      = date_api_views_fetch_fields('node', 'field');
   $field_names = (array) array_keys($fields['name']);
   $nodes = array();
   $i = 0;
-  foreach ($view->argument['date_argument']->options['date_fields'] as $name) {
+  foreach ($date_filter->options['date_fields'] as $name) {
     $field = $fields['name'][$name];
     $field_type   = strstr($field['type'], 'string') ? 'string' : 'timestamp';
     $alias        = $field['query_name'];
@@ -344,7 +355,7 @@ function calendar_build_nodes(&$view, &$items) {
         else {
           $values_display[1] = $values[1];
         }
-
+        
         // Now $values contain start and end date of a node,
         // expressed as strings in the display (local) timezone.
         // $values_utc does the same in UTC timezone.
@@ -360,6 +371,7 @@ function calendar_build_nodes(&$view, &$items) {
           date_timezone_set($date, $display_timezone);
           $max_zone_string[$display_timezone_name] = date_format($date, DATE_FORMAT_DATE);
         }
+        
         // Create a node for each date within the field's date range,
         // limited to the view's date range (regarding only day, not time).
         $now = max($min_zone_string[$display_timezone_name], substr($values_display[0], 0, 10));
@@ -372,6 +384,7 @@ function calendar_build_nodes(&$view, &$items) {
         if (empty($to)) {
           $to = $now;
         }
+                  
         // $now and $next are midnight (in display timezone) on the first day where node will occur.
         // $to is midnight on the last day where node will occur.
         // All three were limited by the min-max date range of the view.
