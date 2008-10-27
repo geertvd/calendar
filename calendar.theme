@@ -628,9 +628,14 @@ function theme_calendar_multiple_node_month($curday_date, $count, $view, $types)
   
   // mak sure the divs match the theme_calendar_node_month
   $output .= '<div class="calendar monthview">'."\n";
-  $item = "<div class='multiple-events'>". l(t('Click to see all @count events', array('@count' => $count)), $link) ."</div>";
-  foreach ($types as $type) {
-    $output .= theme('calendar_stripe_stripe', $type);
+  if ($view->style_max_items_behavior != 'more') {
+    foreach ($types as $type) {
+      $output .= theme('calendar_stripe_stripe', $type);
+    }
+    $item = "<div class='multiple-events'>". l(t('Click to see all @count events', array('@count' => $count)), $link) ."</div>";
+  }
+  else {
+    $item = '<div class="calendar-more">'. l(t('more»'), $link) .'</div>';
   }
   $output .= "<div class='view-item ". views_css_safe('view-item-'. $view->name) ."'>$item</div>\n";
   $output .= "</div>\n";
@@ -662,9 +667,14 @@ function theme_calendar_multiple_node_week($curday_date, $count, $view, $types) 
   
   // make sure the divs line up with theme_calendar_node_week
   $output .= '<div class="calendar weekview">'."\n";
-  $item = "<div class='multiple-events'>". l(t('Click to see all @count events', array('@count' => $count)), $link) ."</div>";
-  foreach ($types as $type) {
-    $output .= theme('calendar_stripe_stripe', $type);
+  if ($view->style_max_items_behavior != 'more') {
+    foreach ($types as $type) {
+      $output .= theme('calendar_stripe_stripe', $type);
+    }
+    $item = "<div class='multiple-events'>". l(t('Click to see all @count events', array('@count' => $count)), $link) ."</div>";
+  }
+  else {
+    $item = '<div class="calendar-more">'. l(t('more»'), $link) .'</div>';
   }
   $output .= "<div class='view-item ". views_css_safe('view-item-'. $view->name) ."'>$item</div>\n";
   $output .= "</div>\n";

@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- Add option to maximum items per day to either show maximum plus 'more' link or hide all and link to day.
 - #324061, #324701 Revert the calendar_colorpicker.js back to the D5 version, it got switched to the D6 version accidentally.
 - Adjust the recent changes to the navigation header to be sure only the calendar header and not the date browser is affected.
 - #292164 Keep calendar date selector description from floating out of block in IE.
