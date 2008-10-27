@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Get the links in embedded views and blocks to work correctly using a helper function date_real_url().
 - Add option to maximum items per day to either show maximum plus 'more' link or hide all and link to day.
 - Use view->date fields from either date arguments or date filters.
 - Add helper function for creating calendar urls based on type or requested argument.

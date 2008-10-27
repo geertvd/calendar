@@ -34,16 +34,16 @@ function template_preprocess_calendar_main(&$vars) {
   $calendar_links = array();
   $base = array('attributes' => array('rel' => 'nofollow'));
   if (!empty($displays['year'])) {
-    $calendar_links[] = $base + array('title' => t('Year'), 'href' => calendar_real_url($view, 'year'));
+    $calendar_links[] = $base + array('title' => t('Year'), 'href' => date_real_url($view, 'year'));
   }
   if (!empty($displays['month'])) {
-    $calendar_links[] = $base + array('title' => t('Month'), 'href' => calendar_real_url($view, 'month'));
+    $calendar_links[] = $base + array('title' => t('Month'), 'href' => date_real_url($view, 'month'));
   }
   if (!empty($displays['week'])) {
-    $calendar_links[] = $base + array('title' => t('Week'), 'href' => calendar_real_url($view, 'week'));
+    $calendar_links[] = $base + array('title' => t('Week'), 'href' => date_real_url($view, 'week'));
   }
   if (!empty($displays['day'])) {
-    $calendar_links[] = $base + array('title' => t('Day'), 'href' => calendar_real_url($view, 'day'));
+    $calendar_links[] = $base + array('title' => t('Day'), 'href' => date_real_url($view, 'day'));
   }
   $vars['calendar_links'] = $calendar_links;
     
@@ -208,7 +208,7 @@ function template_preprocess_calendar_year(&$vars) {
     $view->hide_nav = TRUE;
     $view->style_with_weekno = FALSE;
     $view->show_title = TRUE;
-    $view->url = calendar_real_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month));
+    $view->url = date_real_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month));
     $view->min_date = date_make_date($view->year .'-'. date_pad($month) .'-01 00:00:00', date_default_timezone_name());
     $view->max_date = drupal_clone($view->min_date);
     date_modify($view->max_date, '+1 month');
@@ -256,7 +256,7 @@ function template_preprocess_calendar_datebox(&$vars) {
   $view = $vars['view'];
   
   $vars['day'] = intval(substr($date, 8, 2));
-  $vars['url'] = calendar_real_url($view, NULL, $date);
+  $vars['url'] = date_real_url($view, NULL, $date);
   $vars['link'] = l($vars['day'], $vars['url']);
   $vars['granularity'] = $view->granularity;
   $vars['mini'] = $view->mini;
@@ -342,7 +342,7 @@ function template_preprocess_calendar_month_multiple_node(&$vars) {
   $day = intval($parts[2]);
   
   // create the link to the day
-  $vars['link'] = calendar_real_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month) .'-'. date_pad($day));
+  $vars['link'] = date_real_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month) .'-'. date_pad($day));
 }
 
 /**
@@ -378,7 +378,7 @@ function template_preprocess_calendar_week_multiple_node(&$vars) {
   $day = intval($parts[2]);
   
   // create the link to the day
-  $vars['link'] = calendar_real_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month) .'-'. date_pad($day));
+  $vars['link'] = date_real_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month) .'-'. date_pad($day));
 }
 
 /**
