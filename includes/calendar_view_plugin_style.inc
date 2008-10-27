@@ -16,6 +16,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     $view->style_name_size = $this->options['name_size'];
     $view->style_with_weekno = $this->options['with_weekno'];
     $view->style_max_items = $this->options['max_items'];
+    $view->style_max_items_behavior = $this->options['max_items_behavior'];
     $view->style_truncated_fields = $this->options['truncated_fields'];
     $view->style_truncate_length = $this->options['truncate_length'];
   }
@@ -27,6 +28,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     $options['name_size'] = 3;
     $options['with_weekno'] = 0;
     $options['max_items'] = 0;
+    $options['max_items_behavior'] = 'more';
     $options['truncated_fields'] = array();
     $options['truncate_length'] = 12;
   }
@@ -51,15 +53,23 @@ class calendar_view_plugin_style extends calendar_plugin_style {
       '#description' => t('Whether or not to show week numbers in the left column of calendar weeks and months.'),
       );
     $form['max_items'] = array(
-      '#title' => t('Items to show'),
+      '#title' => t('Maximum items'),
       '#type' => $calendar_type != 'day' ? 'select' : 'hidden',
       '#options' => array(0 => t('Unlimited'), 3 => t('3 items'), 5 => t('5 items'), 10 => t('10 items')),
       '#default_value' => $calendar_type != 'day' ? $this->options['max_items'] : 0,
-      '#description' => t('Maximum number of items to show in calendar cells, used to keep the calendar from expanding to a huge size when there are lots of items in one day. When there more items than this limit, a summary message with a link to the day view will be displayed instead.'),
+      '#description' => t('Maximum number of items to show in calendar cells, used to keep the calendar from expanding to a huge size when there are lots of items in one day. '),
+      );
+    $form['max_items_behavior'] = array(
+      '#title' => t('Too many items'),
+      '#type' => $calendar_type != 'day' ? 'select' : 'hidden',
+      '#options' => array('more' => t("Show maximum, add 'more' link"), 'hide' => t('Hide all, add link to day')),
+      '#default_value' => $calendar_type != 'day' ? $this->options['max_items_behavior'] : 'more',
+      '#description' => t('Behavior when there are more than the above number of items in a single day. When there more items than this limit, a link to the day view will be displayed.'),
       );
     $fields = $this->display->handler->get_option('fields');
     foreach ($fields as $field_name => $field) {
-      $options[$field['table'] .'_'. $field['field']] = $field['label'];
+      $handler = views_get_handler($field['table'], $field['field'], 'field');
+      $options[$field['table'] .'_'. $field['field']] = $handler->ui_name();
     }
     $form['truncated_fields'] = array(
       '#title' => t('Truncated fields'),

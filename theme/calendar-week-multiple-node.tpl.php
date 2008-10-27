@@ -10,12 +10,18 @@
 <div class="view-item view-item-<?php print $view->name ?>">
   <div class="calendar weekview" id="<?php print $curday ?>">
     <?php foreach ($types as $type): ?>
-      <?php print theme('calendar_stripe_stripe', $type); ?>
+      <?php if ($view->style_max_items_behavior != 'more'): ?>
+        <?php print theme('calendar_stripe_stripe', $type); ?>
+      <?php endif; ?>
     <?php endforeach; ?>
     <div class="view-item <?php print views_css_safe('view-item-'. $view->name) ?>">
-      <div class="multiple-events"> 
-        <?php print l(t('Click to see all @count events', array('@count' => $count)), $link) ?>
-      </div>    
+      <?php if ($view->style_max_items_behavior != 'more'): ?>
+        <div class="multiple-events"> 
+          <?php print l(t('Click to see all @count events', array('@count' => $count)), $link) ?>
+        </div>    
     </div>
+    <?php else: ?>
+      <div class="calendar-more"><?php print l(t('more'), $link) ?>»</div>
+    <?php endif; ?>
   </div>    
 </div>

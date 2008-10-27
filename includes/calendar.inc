@@ -161,7 +161,10 @@ function calendar_build_day($curday, $view, $items) {
   }
   // we have too many events on this day. use the theme('calendar_multiple_')
   if ($max_events > 0 && $count > $max_events && $view->calendar_type != 'day' && !$view->mini) {
-    $inner = theme('calendar_'. $view->calendar_type .'_multiple_node', $curday_date, $count, $view, $types);
+    if ($view->style_max_items_behavior == 'hide') {
+      $inner = '';
+    }
+    $inner .= theme('calendar_'. $view->calendar_type .'_multiple_node', $curday_date, $count, $view, $types);
   }
   $content = theme('calendar_datebox', $curday_date, $view, $items, $selected) . $inner;
   return $content;
@@ -262,7 +265,7 @@ function calendar_build_nodes(&$view, &$items) {
     }
   }
   
-  $view_fields      = date_api_views_fetch_fields('node', 'field');
+  $view_fields = date_api_views_fetch_fields('node', 'field');
   $field_names = (array) array_keys($fields['name']);
   $nodes = array();
   $i = 0;
@@ -285,30 +288,36 @@ function calendar_build_nodes(&$view, &$items) {
         $local_tz = 'date';
         break;
     }
-    if (strstr($field['type'], 'cck')) {
-      $field_name = $field['field_name'];
-      $format = $view->field[$field_name]->options['format'];
-      $cck_field_name = str_replace(array('_value2', '_value'), '', $field_name);
-      $format = date_formatter_format($format, $cck_field_name);
+    $field_name = $field['field_name'];
+        
+    // If there is no field for this item, just default to the site format.
+    if (!isset($view->field[$field_name])) {
+      $format = variable_get('date_format_short', 'm/d/Y - H:i');
     }
     else {
-      $field_name = $field['field_name'];
-      $format = $view->field[$field_name]->options['date_format'];
-      switch ($format) {
-        case 'long':
-          $format = variable_get('date_format_long',  'l, F j, Y - H:i');
-          break;
-        case 'medium':
-          $format = variable_get('date_format_medium',  'D, m/d/Y - H:i');
-          break;
-        case 'custom':
-          $format = $view->field[$field_name]->options['custom_date_format'];
-          break;
-        case 'time ago':
-          break;
-        default:
-          $format = variable_get('date_format_short', 'm/d/Y - H:i');
-          break;
+      if (strstr($field['type'], 'cck')) {
+        $format = $view->field[$field_name]->options['format'];
+        $cck_field_name = str_replace(array('_value2', '_value'), '', $field_name);
+        $format = date_formatter_format($format, $cck_field_name);
+      }
+      else {
+        $format = $view->field[$field_name]->options['date_format'];
+        switch ($format) {
+          case 'long':
+            $format = variable_get('date_format_long',  'l, F j, Y - H:i');
+            break;
+          case 'medium':
+            $format = variable_get('date_format_medium',  'D, m/d/Y - H:i');
+            break;
+          case 'custom':
+            $format = $view->field[$field_name]->options['custom_date_format'];
+            break;
+          case 'time ago':
+            break;
+          default:
+            $format = variable_get('date_format_short', 'm/d/Y - H:i');
+            break;
+        }
       }
     }
     foreach ($items as $pos => $item) {

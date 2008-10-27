@@ -291,6 +291,12 @@ table.calendar-legend tr.even .stripe {
   background:#ffc;
   padding:0 2px;
 }
+.calendar-calendar td .inner div.calendar div.calendar-more,
+.calendar-calendar td .inner div.calendar div.calendar-more a {
+  background:#fff;
+  text-align:right;
+  width:96%;
+}
 
 .calendar-calendar td .inner div a,
 .calendar-calendar td span.date-display-single,
