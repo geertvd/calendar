@@ -132,6 +132,7 @@ function template_preprocess_calendar(&$vars) {
 
   // Construct a formatted title for the view from the calendar type.
   $view->subtitle = theme('calendar_title', $view->granularity, $view);
+  
   $view->mini = isset($view->mini) ? $view->mini : $view->granularity == 'year';
   
   // Create the calendar day names and rows.
@@ -177,6 +178,7 @@ function template_preprocess_calendar_month(&$vars) {
 function template_preprocess_calendar_mini(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar_month($vars);
+  
   $view = $vars['view'];
   $view->show_title = !empty($view->show_title) ? $view->show_title : FALSE;
   $vars['show_title'] = $view->show_title;

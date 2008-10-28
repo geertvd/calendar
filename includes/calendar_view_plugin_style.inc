@@ -99,10 +99,13 @@ class calendar_view_plugin_style extends calendar_plugin_style {
    */
   function render() {
     // Adjust the theme to match the currently selected default.
-    if (!empty($this->view->mini)) {
+    // Only the month view needs the special 'mini' class,
+    // which is used to retrieve a different, more compact, theme.
+    if (!empty($this->view->mini) && $this->view->granularity == 'month') {
       $this->definition['theme'] = 'calendar_mini';
     }
     else {
+      $this->view->mini = FALSE;
       $this->definition['theme'] = 'calendar_'. $this->view->granularity;
     }
     $this->view->hide_admin_links = TRUE;
