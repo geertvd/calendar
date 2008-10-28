@@ -10,6 +10,13 @@
  */
 class calendar_plugin_display_block extends views_plugin_display_block {
 
+  function init(&$view, &$display) {
+    parent::init($view, $display);
+    if (!isset($this->view->block_identifier)) {
+      $this->view->block_identifier = 'mini';
+    }
+  }
+  
   /**
    * Display validation.
    */

@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Add instructions on how to do iCal import to Advanced help.
 - Add a date_embed_view() function to provide a way to embed views and have their navigation move either together or separately, and document it in Advanced help.
 - #326597 Make sure ical icon theme arguments and parameters sent to it match.
 - Get the links in embedded views and blocks to work correctly using a helper function date_real_url().
