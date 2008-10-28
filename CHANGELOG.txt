@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Had the block view identifier set too early, before we know if the block is being used, causing all views to act like blocks.
 - Only the month view needs the 'mini' theme, make sure it isn't used anywhere else.
 - Add instructions on how to do iCal import to Advanced help.
 - Add a date_embed_view() function to provide a way to embed views and have their navigation move either together or separately, and document it in Advanced help.

@@ -109,6 +109,9 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
       $this->view->mini = TRUE;
       $this->view->block = TRUE;
       $this->calendar_popup = FALSE;
+      if (!isset($this->view->block_identifier)) {
+        $this->view->block_identifier = 'mini';
+      }
     }
     elseif (substr($display_id, 0, 8) == 'calendar') {
       $this->view->calendar_colors = $this->view->display[$display_id]->handler->options['calendar_colors'];
