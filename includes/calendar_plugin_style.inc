@@ -126,13 +126,16 @@ class calendar_plugin_style extends views_plugin_style {
         $this->view->max_date = $argument->max_date;
         $this->view->min_date_date = date_format($this->view->min_date, DATE_FORMAT_DATE);
         $this->view->max_date_date = date_format($this->view->max_date, DATE_FORMAT_DATE);
+
+        // Stop after the first date argument, if there is more than one.
+        break;
       }
       $i++;
     }
     $this->view->display_types = $this->display_types();
     $keys = drupal_map_assoc(array_keys(calendar_display_types()));
     $this->view->calendar_display = $keys[$this->view->granularity];
-           
+    dsm($this->view);       
     // bring the node type into the query so we can use it in the theme
     $this->view->query->add_field('node', 'type');
       
