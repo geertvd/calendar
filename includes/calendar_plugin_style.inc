@@ -135,7 +135,7 @@ class calendar_plugin_style extends views_plugin_style {
     $this->view->display_types = $this->display_types();
     $keys = drupal_map_assoc(array_keys(calendar_display_types()));
     $this->view->calendar_display = $keys[$this->view->granularity];
-    dsm($this->view);       
+    
     // bring the node type into the query so we can use it in the theme
     $this->view->query->add_field('node', 'type');
       
