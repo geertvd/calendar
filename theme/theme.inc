@@ -137,7 +137,7 @@ function template_preprocess_calendar(&$vars) {
   
   // Create the calendar day names and rows.
   $rows = calendar_build_calendar($view, $items);
-
+  
   $vars['items'] = $items;
   $vars['rows'] = $rows;
   
@@ -156,6 +156,7 @@ function template_preprocess_calendar_month(&$vars) {
   $view = $vars['view'];
   
   $rows = $vars['rows'];
+    
   if (sizeof($rows) > 1) {
     $day_names = array_shift($rows);
   }
@@ -164,7 +165,31 @@ function template_preprocess_calendar_month(&$vars) {
     $rows = array();
   }
   
-  $vars['rows'] = $rows;
+  $month_rows = $rows;
+  foreach ($rows as $weekno => $row) {
+    foreach ($row as $day => $data) {
+      $cell = $data['data'];
+      $data = $cell['datebox'];
+      if ($cell['empty']) {
+        $data .= $cell['empty'];
+      }
+      else {
+        $data .= implode($cell['all_day']);
+        foreach ($cell['items'] as $hour => $item) {
+          $data .= implode($item);
+        }
+        $data .= $cell['link'];
+      }
+      if ($view->mini) {
+        $month_rows[$weekno][$day]['data'] = $data;
+      }
+      else {
+        $month_rows[$weekno][$day]['data'] = '<div class="inner">'. $data .'</div>';
+      }
+    }
+  }
+  
+  $vars['rows'] = $month_rows;
   $vars['day_names'] = $day_names;
   
   $vars['display_type'] = $view->granularity;
@@ -226,10 +251,21 @@ function template_preprocess_calendar_year(&$vars) {
 function template_preprocess_calendar_day(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar($vars);
-  $rows = $vars['rows'];
-  
-  $vars['day_names'] = array();
   $view = $vars['view'];
+  if (empty($vars['rows']['items']) && empty($vars['rows']['all_day'])) {
+    $vars['rows']['all_day'][] = $vars['rows']['empty'];
+  }
+  $rows = $vars['rows'];
+  $format = variable_get('date_format_short', 'm/d/Y - H:i');
+  $format_hour = str_replace(array('a', 'A'), '', date_limit_format($format, array('hour', 'minute')));
+  $format_ampm = strstr($format, 'a') ? 'a' : (strstr($format, 'A') ? 'A' : '');
+  foreach ($rows['items'] as $hour => $item) {
+    $date = date_create($rows['date'] .' '. $hour .':00:00');
+    $vars['rows']['items'][$hour] = array();
+    $vars['rows']['items'][$hour]['hour'] = date_format($date, $format_hour);
+    $vars['rows']['items'][$hour]['ampm'] = date_format($date, $format_ampm);
+    $vars['rows']['items'][$hour]['values'] = $item;    
+  }
 }
 
 /**
@@ -238,7 +274,10 @@ function template_preprocess_calendar_day(&$vars) {
 function template_preprocess_calendar_week(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar($vars);
+  
+  $view = $vars['view'];
   $rows = $vars['rows'];
+  
   if (sizeof($rows) > 1) {
     $day_names = array_shift($rows);
   }
@@ -246,7 +285,25 @@ function template_preprocess_calendar_week(&$vars) {
     $day_names = $rows;
     $rows = array();
   }
-  $vars['rows'] = $rows;
+  $week_rows = $rows;
+  foreach ($rows as $weekno => $row) {
+    foreach ($row as $day => $data) {
+      $cell = $data['data'];
+      $data = $cell['datebox'];
+      if ($cell['empty']) {
+        $data .= $cell['empty'];
+      }
+      else {
+        $data .= implode($cell['all_day']);
+        foreach ($cell['items'] as $hour => $item) {
+          $data .= implode($item);
+        }
+        $data .= $cell['link'];
+      }
+      $week_rows[$weekno][$day]['data'] = '<div class="inner">'. $data .'</div>';
+    }
+  }
+  $vars['rows'] = $week_rows;
   $vars['day_names'] = $day_names;
 }
 
@@ -262,7 +319,7 @@ function template_preprocess_calendar_datebox(&$vars) {
   $vars['link'] = l($vars['day'], $vars['url']);
   $vars['granularity'] = $view->granularity;
   $vars['mini'] = $view->mini;
-    
+  
   if ($view->mini) {
     if (!empty($vars['selected'])) {
       $vars['class'] = 'mini-day-on';
@@ -419,8 +476,14 @@ function theme_calendar_stripe_stripe($node) {
  * @param day
  *   The day to display.
  */
-function theme_calendar_empty_day() {
-  return '<div class="calendar-empty">&nbsp;</div>'."\n";
+function theme_calendar_empty_day($curday, $view) {
+  
+  if ($view->calendar_display != 'day') {
+    return '<div class="calendar-empty">&nbsp;</div>'."\n";
+  }
+  else {
+    return '<div class="calendar-dayview-empty">'. t('Empty day') .'</div>';
+  }
 }
 
 /**

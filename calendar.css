@@ -191,6 +191,7 @@ table .mini-day-on a {
   vertical-align:top;
   }
 
+
 /* formatting for the legend stripe and block */
 .calendar-calendar .stripe {
   height: 5px;
@@ -222,6 +223,40 @@ table.calendar-legend tr.even .stripe {
   line-height:1px;
 }
 
+/* formatting for the full day view */  
+.calendar-calendar td.calendar-dayview-hour {
+  width:15%;
+  font-family:serif;
+  text-align:right;
+  border:none;
+  border-top:1px #333 dotted;
+  padding-top:.25em;
+  padding-right:10px;
+}
+.calendar-calendar td.calendar-dayview-hour .calendar-hour {
+  font-size:2em;
+}
+.calendar-calendar td.calendar-dayview-hour .calendar-ampm {
+  font-size:1em;
+}
+.calendar-calendar td.calendar-dayview-items {
+  width:85%;
+  border:1px #333 dotted;
+  text-align:left;
+}
+.calendar-calendar td.calendar-dayview-items div.calendar {
+  width:auto;
+  padding:.25em;
+  margin:0;
+}
+.calendar-calendar div.calendar div.inner .calendar-dayview-empty {
+  width:100%;
+  text-align:center;
+  vertical-align:middle;
+  padding:1em 0;
+  background-color:#fff;
+}
+
 /* the popup date selector for jumping to a new date */
 .calendar-date-select form {
   text-align:right;
@@ -246,7 +281,6 @@ table.calendar-legend tr.even .stripe {
   clear:both;
 }
 
-/* @group calendar */
 .calendar-calendar div.date-nav {
   background-color:#ccc;
   color:#777;

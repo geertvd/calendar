@@ -9,7 +9,7 @@
  */
 function calendar_build_calendar($view, $items) {
   // Remove nodes outside the selected date range.
-  
+
   $values = array();
   foreach ($items as $delta => $item) {
     if (empty($item->calendar_start_date) || empty($item->calendar_end_date)) {
@@ -19,7 +19,7 @@ function calendar_build_calendar($view, $items) {
     $item_end = date_format($item->calendar_end_date, DATE_FORMAT_DATE);
     if (($item_start >= $view->min_date_date && $item_start <= $view->max_date_date)
      || ($item_end >= $view->min_date_date && $item_end <= $view->max_date_date)) {
-      $values[$item_start][$item_start][] = $item;
+      $values[$item_start][date_format($item->calendar_start_date, 'H:i:s')][] = $item;
     }
   }
   $items = $values;
@@ -31,9 +31,11 @@ function calendar_build_calendar($view, $items) {
   switch ($view->granularity) {
     case 'year':
       $rows = array();
+      $view->mini = TRUE;
       for ($i = 1; $i <= 12; $i++) {
         $rows[$i] = calendar_build_month($curday, $view, $items);
       }
+      $view->mini = FALSE;
       break;
 
     case 'month':
@@ -115,18 +117,24 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
     ($view->mini ? ' mini' : ''));
     if ($check_month && ($curday_date < $view->min_date_date || $curday_date > $view->max_date_date || date_format($curday, 'n') != $month)) {
       $class .= ' empty';
-      $content = theme('calendar_empty_day');
+      $content = array(
+        'date' => '', 
+        'datebox' => '', 
+        'empty' => theme('calendar_empty_day', $curday_date, $view), 
+        'link' => '',
+        'all_day' => array(), 
+        'items' => array(),
+        );
     }
     else {
       $content = calendar_build_day($curday, $view, $items);
     }
 
     $rows[$week][] = array(
-      'data' => $view->mini ? $content : '<div class="inner">'. $content .'</div>',
+      'data' => $content,
       'class' => $class, 'id' => $view->name . '-' . $curday_date);
     date_modify($curday, '+1 day');
   }
-
   return $rows;
 }
 
@@ -135,39 +143,57 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
  */
 function calendar_build_day($curday, $view, $items) {
   $curday_date = date_format($curday, DATE_FORMAT_DATE);
-  $inner = '';
   $selected = FALSE;
   $max_events = $view->style_max_items;
   $types = array();
+  $inner = array();
+  $all_day = array();
+  $empty = '';
+  $link = '';
   $count = 0;
   foreach ($items as $date => $day) {
     if ($date == $curday_date) {
       $count = 0;
       $selected = TRUE;
       ksort($day);
-      foreach ($day as $hour) {
+      foreach ($day as $time => $hour) {
         foreach ($hour as $item) {
           $count++;
           $types[$item->type] = $item;
           if (!$view->mini && (empty($max_events) || ($max_events > 0 && $count <= $max_events))) {
             $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->granularity .'_node';
-            $inner .= theme($theme, $item, $view);
+            if ($item->calendar_all_day) {
+              $all_day[] = theme($theme, $item, $view);
+            }
+            else {
+              $key = date_format($item->calendar_start_date, 'H');
+              $inner[$key][] = theme($theme, $item, $view);
+            }
           }
         }
       }
     }
   }
+  ksort($inner);
   if (empty($inner)) {
-    $inner = theme('calendar_empty_day');
+    $empty = theme('calendar_empty_day', $curday_date, $view);
   }
   // we have too many events on this day. use the theme('calendar_multiple_')
   if ($max_events > 0 && $count > $max_events && $view->calendar_type != 'day' && !$view->mini) {
     if ($view->style_max_items_behavior == 'hide') {
-      $inner = '';
+      $inner = array();
     }
-    $inner .= theme('calendar_'. $view->calendar_type .'_multiple_node', $curday_date, $count, $view, $types);
+    $link = theme('calendar_'. $view->calendar_type .'_multiple_node', $curday_date, $count, $view, $types);
   }
-  $content = theme('calendar_datebox', $curday_date, $view, $items, $selected) . $inner;
+  
+  $content = array(
+    'date' => $curday_date, 
+    'datebox' => theme('calendar_datebox', $curday_date, $view, $items, $selected), 
+    'empty' => $empty,
+    'link' => $link,
+    'all_day' => $all_day,
+    'items' => $inner,
+    );
   return $content;
 }
 
@@ -444,6 +470,13 @@ function calendar_build_nodes(&$view, &$items) {
           // Make date objects
           $node->calendar_start_date = date_create($node->calendar_start, timezone_open($to_zone));
           $node->calendar_end_date = date_create($node->calendar_end, timezone_open($to_zone));
+          if (date_format($node->calendar_start_date, 'H:i:s') == '00:00:00' && 
+            date_format($node->calendar_end_date, 'H:i:s') == '23:59:59') {
+            $node->calendar_all_day = TRUE;
+          }
+          else {
+            $node->calendar_all_day = FALSE;
+          }
 
           // Change string timezones into 
           // calendar_start and calendar_end are UTC dates as formatted strings

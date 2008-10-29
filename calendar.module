@@ -77,21 +77,21 @@ function calendar_theme() {
       'arguments' => array('node', 'lable', 'view'),
       ),
     'calendar_empty_day' => $base + array(
-      'arguments' => array(),
+      'arguments' => array('curday', 'view'),
       ),
-     'calendar_stripe_legend' => $base + array(
-       'arguments' => array('stripe_labels'),
-       ),
-     'calendar_stripe_stripe' => $base + array(
-       'arguments' => array('node'),
-       ),
-     'calendar_colorpicker' => $base + array(
-       'arguments' => array('element'),
-       ),
-     'calendar_colorfield' => $base + array(
-       'arguments' => array('element'),
-       ),
-     );
+    'calendar_stripe_legend' => $base + array(
+      'arguments' => array('stripe_labels'),
+      ),
+    'calendar_stripe_stripe' => $base + array(
+      'arguments' => array('node'),
+      ),
+    'calendar_colorpicker' => $base + array(
+      'arguments' => array('element'),
+      ),
+    'calendar_colorfield' => $base + array(
+      'arguments' => array('element'),
+      ),
+    );
 }
 
 /**
