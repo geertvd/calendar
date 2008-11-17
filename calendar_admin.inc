@@ -169,11 +169,14 @@ function _calendar_fields() {
             $val['table'] .'.'. $field_name .'_value2',
           );          
         }
+        if (!empty($val['content_field']['repeat'])) {
+          $related_fields[] = $val['table'] .'.'. $field_name .'_rrule';
+        }
       }
       // Get the delta value into the query.
       if (!empty($val['content_field']['multiple'])) {
-        array_push($related_fields, $val['table'] .".delta");
-        $delta_field = 'delta';
+        array_push($related_fields, $val['table'] .'.delta');
+        $delta_field = $val['table'] .'_delta';
       }
       
       // Handling for cck fromto dates
@@ -289,8 +292,19 @@ function _calendar_views_validate($type, $view, $form) {
   }
   // CCK date fields cannot use grouped handler.
   $calendar_fields = array_keys(calendar_fields());
+  
+  // Include content_views handlers as well as newer date_views handlers
+  // so this will work until views are updated.
+  $handlers = array(
+    'content_views_field_handler_group', 
+    'content_views_field_handler_first', 
+    'content_views_field_handler_last', 
+    'date_views_field_handler_group', 
+    'date_views_field_handler_first', 
+    'date_views_field_handler_last',
+    );
   foreach ($view['field'] as $delta => $field) {
-    if (in_array($field['field'], $calendar_fields) && in_array($field['handler'], array('content_views_field_handler_group', 'content_views_field_handler_first', 'content_views_field_handler_last'))) {
+    if (in_array($field['field'], $calendar_fields) && in_array($field['handler'], $handlers)) {
       form_error($form['field'][$delta]['handler'], t('Calendar CCK Date fields must be set to \'Do not group multiple values\'.'));
     }
   }

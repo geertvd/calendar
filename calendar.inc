@@ -14,14 +14,6 @@ function _calendar_views_query_alter(&$query, &$view) {
   
   $display_formats = calendar_get_formats($view);
   $calendar_fields = calendar_fields();
-  foreach ($view->field as $field) {
-    if (in_array($field['field'], array_keys($calendar_fields))) {
-      $calendar_field = $calendar_fields[$field['field']];
-      if (!empty($calendar_field['delta_field'])) {
-        $query->add_field($calendar_field['delta_field'], $calendar_field['table']);
-      }
-    }
-  }
   
   // Embedded calendar views can have additional arguments.
   if ($view->build_type == 'block' || $view->build_type == 'embed') {
@@ -440,6 +432,7 @@ function calendar_build_filter(&$query, &$view) {
   foreach ($view->field as $delta => $field) {
     $query_strings = calendar_build_field_query($query, $field);
     if (!empty($query_strings)) $queries = array_merge($queries, $query_strings);
+    $view->date_fields[] = $field;
   }
   // bring the node type into the query so we can use it in the theme
   $query->add_field('type', 'node');
@@ -537,7 +530,7 @@ function calendar_build_nodes(&$view, &$items, $display_type) {
   if (empty($view->min_date) || empty($view->max_date)) {
     return $items;
   }
-    
+   
   // Midnights are determined based on the same timezone as the View uses
   $display_timezone = date_timezone_get($view->min_date);
   $display_timezone_name = timezone_name_get($display_timezone);
@@ -597,8 +590,19 @@ function calendar_build_nodes(&$view, &$items, $display_type) {
           }
         }
 
+        // If there are multiple date fields in this calendar we may get
+        // duplicate items from the other date fields, so add a way to
+        // make sure each individual date field only gets added to the
+        // calendar one time.
+        $processed = array();
         foreach ($items as $pos => $item) {
-          if (isset($item->{$field['query_name']})) {
+          $delta = !empty($field['delta_field']) && !empty($item->{$field['delta_field']}) ? $item->{$field['delta_field']} : 0;
+          $real_field = $field['field_name'];
+          if (substr($field['type'], 0, 3) == 'cck') {
+            $real_field = str_replace(array('_value2', '_value'), '', $field['field_name']);
+          }
+          $id = 'calendar:'. $item->nid .':'. $real_field .':'. $delta;
+          if (!in_array($id, $processed) && isset($item->{$field['query_name']})) {
             
             // Create from and to date values for each item, adjusted to
             // the correct timezone.
@@ -719,7 +723,8 @@ function calendar_build_nodes(&$view, &$items, $display_type) {
                   }
                 }
               }
-
+              
+              
               // Get start and end of current day
               $start = date_format($next, DATE_FORMAT_DATETIME);
               date_modify($next, '+1 day');
@@ -746,13 +751,7 @@ function calendar_build_nodes(&$view, &$items, $display_type) {
                 unset($node);
               }
               else {
-                $delta = !empty($field['delta_field']) && !empty($item->{$field['delta_field']}) ? $item->{$field['delta_field']} : 0;
-                $real_field = $field['field_name'];
-                if (substr($field['type'], 0, 3) == 'cck') {
-                  $real_field = str_replace(array('_value2', '_value'), '', $field['field_name']);
-                }
-                $id = 'calendar:'. $item->nid .':'. $real_field .':'. $delta .':'. $pos;
-                $node->date_id = $id;
+                $node->date_id = $id .':'. $pos;
                 if ($view->build_type == 'page' && $view->calendar_type != 'year') {
                   calendar_node_stripe($view, $node, $field['query_name'], $field['query_name']);
                 }
@@ -760,6 +759,7 @@ function calendar_build_nodes(&$view, &$items, $display_type) {
                 unset($node);
               }
               date_modify($next, '+1 second');
+              $processed[] = $id;  
               $now = date_format($next, DATE_FORMAT_DATE);
             }
           }

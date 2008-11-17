@@ -804,7 +804,7 @@ function theme_calendar_date_combo($node, $label, $view) {
       $format = $node->format;
       break;
   }
-  
+   
   $date1 = theme('date_all_day', 'date1', $node->calendar_start_date, $node->calendar_end_date, $format, $node, $view);
   $date2 = theme('date_all_day', 'date2', $node->calendar_start_date, $node->calendar_end_date, $format, $node, $view);
   
