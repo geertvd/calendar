@@ -252,7 +252,7 @@ function theme_calendar_ical_field($fieldname, $fields, $field, $node, $view, $t
   // There may be more than one date field in the view and we only
   // want to put the ical field in one place.
   if (empty($datefield)) {
-    $calendar_fields = calendar_fields();
+    $calendar_fields = date_api_fields();
     foreach ($view->field as $viewfield) {
       if (in_array($viewfield['field'], array_keys($calendar_fields))) {
         $datefield = $viewfield['queryname'];

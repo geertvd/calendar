@@ -124,7 +124,11 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
         $this->view->week = isset($argument->week) ? $argument->week : NULL;
         $this->view->min_date = $argument->min_date;
         $this->view->max_date = $argument->max_date;
-        
+        if (empty($this->view->date_fields)) {
+          $this->view->date_fields = array();
+        }
+        $this->view->date_fields = array_merge($this->view->date_fields, array_keys($argument->options['date_fields']));
+                
         // Stop after the first date argument, if there is more than one.
         break;
       }
@@ -152,6 +156,10 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
           $this->view->week = isset($filter->week) ? $filter->week : NULL;
           $this->view->min_date = $filter->min_date;
           $this->view->max_date = $filter->max_date;
+          if (empty($this->view->date_fields)) {
+            $this->view->date_fields = array();
+          }
+          $this->view->date_fields = array_merge($this->view->date_fields, array_keys($filter->options['date_fields']));
           
           // Stop after the first date filter, if there is more than one.
           break;

@@ -88,9 +88,12 @@ function template_preprocess_calendar(&$vars) {
   if (empty($view->style_truncated_fields)) {
     $view->style_truncated_fields = array();
   }
+  
   foreach ($result as $num => $row) {
+    $copy = drupal_clone($row);
     $items[$num] = $row;
-    // Store the raw date values before formatting the results.
+    $items[$num]->raw = $copy;
+    
     foreach ($row as $key => $value) {
       if (in_array($key, $calendar_fields)) {
         $items[$num]->calendar_fields->$key = $value;
@@ -99,7 +102,7 @@ function template_preprocess_calendar(&$vars) {
       if (in_array($key, $view->style_truncated_fields) 
         && $view->style_plugin->definition['handler'] == 'calendar_view_plugin_style') {
         $row->$key = calendar_trim_text($row->$key, $view->style_truncate_length);
-      }    
+      }
     }
     foreach ($fields as $field) {
       if (!empty($field->options['exclude'])) {
@@ -169,6 +172,13 @@ function template_preprocess_calendar_month(&$vars) {
   foreach ($rows as $weekno => $row) {
     foreach ($row as $day => $data) {
       $cell = $data['data'];
+      
+      // If this cell is already rendered, like the weekno column,
+      // move to the next item.
+      if (!is_array($cell)) {
+        $month_rows[$weekno][$day]['data'] = $cell;
+        continue;
+      }
       $data = $cell['datebox'];
       if ($cell['empty']) {
         $data .= $cell['empty'];
@@ -215,6 +225,7 @@ function template_preprocess_calendar_mini(&$vars) {
  */
 function template_preprocess_calendar_year(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
+  $vars['view']->style_with_weekno = FALSE;
   template_preprocess_calendar($vars);
   
   // Get the url of the year view and remove the year argument from it.
@@ -233,7 +244,6 @@ function template_preprocess_calendar_year(&$vars) {
     $view->granularity = 'month';
     $view->mini = TRUE;
     $view->hide_nav = TRUE;
-    $view->style_with_weekno = FALSE;
     $view->show_title = TRUE;
     $view->url = date_real_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month));
     $view->min_date = date_make_date($view->year .'-'. date_pad($month) .'-01 00:00:00', date_default_timezone_name());
@@ -249,23 +259,103 @@ function template_preprocess_calendar_year(&$vars) {
  * Display a day view.
  */
 function template_preprocess_calendar_day(&$vars) {
+  
   // Add in all the $vars added by the main calendar preprocessor.
+  $vars['view']->style_with_weekno = FALSE;
   template_preprocess_calendar($vars);
+  
   $view = $vars['view'];
-  if (empty($vars['rows']['items']) && empty($vars['rows']['all_day'])) {
-    $vars['rows']['all_day'][] = $vars['rows']['empty'];
-  }
   $rows = $vars['rows'];
-  $format = variable_get('date_format_short', 'm/d/Y - H:i');
-  $format_hour = str_replace(array('a', 'A'), '', date_limit_format($format, array('hour', 'minute')));
-  $format_ampm = strstr($format, 'a') ? 'a' : (strstr($format, 'A') ? 'A' : '');
-  foreach ($rows['items'] as $hour => $item) {
-    $date = date_create($rows['date'] .' '. $hour .':00:00');
-    $vars['rows']['items'][$hour] = array();
-    $vars['rows']['items'][$hour]['hour'] = date_format($date, $format_hour);
-    $vars['rows']['items'][$hour]['ampm'] = date_format($date, $format_ampm);
-    $vars['rows']['items'][$hour]['values'] = $item;    
+  $grouping_field = $view->style_groupby_field;
+    
+  $columns = array();
+  
+  // Move all_day items into the right columns and render them.
+  $grouped_items = array();
+  foreach ($rows['all_day'] as $item) {
+    if (isset($item->{$grouping_field})) {
+      $column = $item->{$grouping_field};        
+      $item->{$grouping_field} = ''; // Remove the grouping field from the results.
+      if (!in_array($column, $columns)) {
+        $columns[] = $column;
+      }
+    }
+    else {
+      $column = t('Items');
+    }
+    $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->granularity .'_node';
+    $grouped_items[$column][] = theme($theme, $item, $view);
   }
+  $vars['rows']['all_day'] = $grouped_items;
+  
+  // Moved timed items into the right columns and render them.
+  $start_times = $view->style_groupby_times;
+  $show_empty_times = $view->style_show_empty_times; 
+  $end_start_time = '23:59:59';
+  $start_time = array_shift($start_times);
+  $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
+  
+  $grouped_items = array();
+  foreach ($rows['items'] as $time => $items) {
+    foreach ($items as $item) {
+      if (isset($item->{$grouping_field})) {
+        $column = $item->{$grouping_field};
+        $item->{$grouping_field} = ''; // Remove the grouping field from the results.
+        if (!in_array($column, $columns)) {
+          $columns[] = $column;
+        }
+      }
+      else {
+        $column = t('Items');
+      }
+      // Find the next time slot and fill it. Populate the skipped
+      // slots if the option to show empty times was chosen.
+      while ($time > $next_start_time && $time < $end_start_time) {
+        if ((!empty($show_empty_times)) && !array_key_exists($start_time, $grouped_items)) {
+          $grouped_items[$start_time]['values'] = array();        
+        }
+        $start_time = $next_start_time;
+        $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
+      }
+      $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->granularity .'_node';
+      $grouped_items[$start_time]['values'][$column][] = theme($theme, $item, $view);
+    }
+  }
+  
+  // Finish out the day's time values if we want to see empty times.
+  if (!empty($show_empty_times)) {
+    while ($start_time < $end_start_time) {
+      $grouped_items[$start_time]['values'] = array();        
+      $start_time = $next_start_time;
+      $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
+    }
+  }
+  
+  // Do the headers last, once we know what the actual values are.
+  $i = 0;
+  $start_times = array_keys($grouped_items);
+  foreach ($start_times as $start_time) {
+    $next_start_time = array_key_exists($i + 1, $start_times) ? $start_times[$i + 1] : '23:59:59';
+    $heading = theme('calendar_time_row_heading', $start_time, $next_start_time, $rows['date']);
+    $grouped_items[$start_time]['hour'] = $heading['hour'];
+    $grouped_items[$start_time]['ampm'] = $heading['ampm']; 
+    $i++;      
+  }
+  
+  ksort($grouped_items);
+  $vars['rows']['items'] = $grouped_items;
+  
+  if (empty($columns)) {
+    $columns = array(t('Items'));
+  }
+  $vars['columns'] = $columns;
+  if (count($columns)) {
+    $vars['column_width'] = round(90/count($columns));
+  }
+  else {
+    $vars['column_width'] = 90;
+  }
+  return;
 }
 
 /**
@@ -273,6 +363,7 @@ function template_preprocess_calendar_day(&$vars) {
  */
 function template_preprocess_calendar_week(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
+  $vars['view']->style_with_weekno = FALSE;
   template_preprocess_calendar($vars);
   
   $view = $vars['view'];
@@ -285,26 +376,69 @@ function template_preprocess_calendar_week(&$vars) {
     $day_names = $rows;
     $rows = array();
   }
-  $week_rows = $rows;
-  foreach ($rows as $weekno => $row) {
-    foreach ($row as $day => $data) {
-      $cell = $data['data'];
-      $data = $cell['datebox'];
-      if ($cell['empty']) {
-        $data .= $cell['empty'];
-      }
-      else {
-        $data .= implode($cell['all_day']);
-        foreach ($cell['items'] as $hour => $item) {
-          $data .= implode($item);
+
+  // Moved timed items into the right columns and render them.
+  $show_empty_times = $view->style_show_empty_times; 
+  $end_start_time = '23:59:59';
+  
+  $grouped_items = array();
+  $vars['rows'] = $rows[0];
+  foreach ($rows[0] as $weekno => $row) {
+    $vars['rows'][$weekno] = $row['data'];
+
+    $columns[] = $weekno;
+    $start_times = $view->style_groupby_times;
+    $start_time = array_shift($start_times);
+    $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
+    foreach ($row['data']['all_day'] as $key => $item) {
+      $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->granularity .'_node';
+      $vars['rows'][$weekno]['all_day'][$key] = theme($theme, $item, $view);
+    }
+    foreach ($row['data']['items'] as $time => $items) {
+      foreach ($items as $item) {
+        $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->granularity .'_node';
+        // Find the next time slot and fill it. Populate the skipped
+        // slots if the option to show empty times was chosen.
+        while ($time > $next_start_time && $time < $end_start_time) {
+          if (($show_empty_times) && !array_key_exists($start_time, $next_start_time, $grouped_items)) {
+            $grouped_items[$start_time]['values'][$weekno] = array();   
+          }
+          $start_time = $next_start_time;
+          $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
         }
-        $data .= $cell['link'];
+        $grouped_items[$start_time]['values'][$weekno][] = theme($theme, $item, $view);
       }
-      $week_rows[$weekno][$day]['data'] = '<div class="inner">'. $data .'</div>';
+    }
+  
+    // Finish out the day's time values if we want to see empty times.
+    if ($show_empty_times) {
+      while ($start_time < $end_start_time) {
+        if (!array_key_exists($start_time, $grouped_items)) {
+          $grouped_items[$start_time]['values'][$weekno] = array();        
+        }
+        $start_time = $next_start_time;
+        $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
+      }
     }
   }
-  $vars['rows'] = $week_rows;
+  ksort($grouped_items);
+  
+  // Do the headers last, once we know what the actual values are.
+  $i = 0;
+  $start_times = array_keys($grouped_items);
+  foreach ($start_times as $start_time) {
+    $next_start_time = array_key_exists($i + 1, $start_times) ? $start_times[$i + 1] : '23:59:59';
+    $heading = theme('calendar_time_row_heading', $start_time, $next_start_time, $row['data']['date']);
+    $grouped_items[$start_time]['hour'] = $heading['hour'];
+    $grouped_items[$start_time]['ampm'] = $heading['ampm'];       
+  }
+
+  $vars['items'] = $grouped_items;  
+  
   $vars['day_names'] = $day_names;
+  $vars['columns'] = $columns;
+  $vars['start_times'] = $view->style_groupby_times;
+  return;
 }
 
 /**
@@ -438,6 +572,36 @@ function template_preprocess_calendar_week_multiple_node(&$vars) {
   
   // create the link to the day
   $vars['link'] = date_real_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month) .'-'. date_pad($day));
+}
+
+/**
+ * Format the time row headings in the week and day view.
+ */
+function theme_calendar_time_row_heading($start_time, $next_start_time, $curday_date) {
+  static $format_hour, $format_ampm;
+  if (empty($format_hour)) {
+    $format = variable_get('date_format_short', 'm/d/Y - H:i');
+    $format_hour = str_replace(array('a', 'A'), '', date_limit_format($format, array('hour', 'minute')));
+    $format_ampm = strstr($format, 'a') ? 'a' : (strstr($format, 'A') ? 'A' : '');
+  }
+  if ($start_time == '00:00:00' && $next_start_time == '23:59:59') {
+    $hour = t('All times');
+  }
+  elseif ($start_time == '00:00:00') {
+    $date = date_create($curday_date .' '. $next_start_time);
+    $hour = t('Before @time', array('@time' => date_format($date, $format_hour)));
+  }
+  else {
+    $date = date_create($curday_date .' '. $start_time);
+    $hour = date_format($date, $format_hour);
+  }
+  if (!empty($date)) {
+    $ampm = date_format($date, $format_ampm);
+  }
+  else {
+    $ampm = '';
+  }
+  return array('hour' => $hour, 'ampm' => $ampm);
 }
 
 /**

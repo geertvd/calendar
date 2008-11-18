@@ -45,8 +45,8 @@
   background-color: #ccc;
 }
 .calendar-calendar td {
-  width: 13%; /* 14% is about 1/7 of total table width */
-  min-width: 13%;
+  width: 12%; /* 14% is about 1/7 of total table width */
+  min-width: 12%;
   border: 1px solid #ccc;
   color: #777;
   text-align: right;
@@ -54,6 +54,7 @@
   margin: 0;
   padding:0;
 }
+
 /* simplify the mini calendar by removing borders */
 .calendar-calendar .mini {
   border:none;
@@ -118,7 +119,7 @@
   border: 1px solid gray;
   border-width: 0 0 1px 1px;
   clear:both;
-  width:1em;
+  width:1.5em;
 }
 
 /*  individual node container  */
@@ -126,7 +127,7 @@
   background-color: #fff;
   border: solid 1px #ddd;
   text-align: left;
-  padding:0;
+  margin:0 .25em .25em 0;
   width: 96%;
   float:right; /* needed to keep IE from hiding the floating day number */
   clear:both;
@@ -224,8 +225,7 @@ table.calendar-legend tr.even .stripe {
 }
 
 /* formatting for the full day view */  
-.calendar-calendar td.calendar-dayview-hour {
-  width:15%;
+.calendar-calendar td.calendar-agenda-hour {
   font-family:serif;
   text-align:right;
   border:none;
@@ -233,23 +233,22 @@ table.calendar-legend tr.even .stripe {
   padding-top:.25em;
   padding-right:10px;
 }
-.calendar-calendar td.calendar-dayview-hour .calendar-hour {
+.calendar-calendar td.calendar-agenda-hour .calendar-hour {
   font-size:2em;
 }
-.calendar-calendar td.calendar-dayview-hour .calendar-ampm {
+.calendar-calendar td.calendar-agenda-hour .calendar-ampm {
   font-size:1em;
 }
-.calendar-calendar td.calendar-dayview-items {
-  width:85%;
+.calendar-calendar td.calendar-agenda-items {
   border:1px #333 dotted;
   text-align:left;
 }
-.calendar-calendar td.calendar-dayview-items div.calendar {
+.calendar-calendar td.calendar-agenda-items div.calendar {
   width:auto;
   padding:.25em;
   margin:0;
 }
-.calendar-calendar div.calendar div.inner .calendar-dayview-empty {
+.calendar-calendar div.calendar div.inner .calendar-agenda-empty {
   width:100%;
   text-align:center;
   vertical-align:middle;
@@ -327,20 +326,20 @@ table.calendar-legend tr.even .stripe {
 }
 .calendar-calendar td .inner div.calendar div.calendar-more,
 .calendar-calendar td .inner div.calendar div.calendar-more a {
+  color:#444;
   background:#fff;
   text-align:right;
   width:96%;
+  font-size:x-small;
 }
 
-.calendar-calendar td .inner div a,
-.calendar-calendar td span.date-display-single,
-.calendar-calendar td span.date-display-start,
-.calendar-calendar td span.date-display-end,
-.calendar-calendar td span.date-display-separator {
+.calendar-calendar td .inner .view-field,
+.calendar-calendar td .inner .view-field a {
   color:#444;
   font-weight:normal;
-  font-size:0.85em;
+  font-size:x-small;
 }
+
 .calendar-calendar td span.date-display-single,
 .calendar-calendar td span.date-display-start,
 .calendar-calendar td span.date-display-end,

@@ -126,7 +126,11 @@ class calendar_plugin_style extends views_plugin_style {
         $this->view->max_date = $argument->max_date;
         $this->view->min_date_date = date_format($this->view->min_date, DATE_FORMAT_DATE);
         $this->view->max_date_date = date_format($this->view->max_date, DATE_FORMAT_DATE);
-
+        if (empty($this->view->date_fields)) {
+          $this->view->date_fields = array();
+        }
+        $this->view->date_fields = array_merge($this->view->date_fields, array_keys($argument->options['date_fields']));
+        
         // Stop after the first date argument, if there is more than one.
         break;
       }

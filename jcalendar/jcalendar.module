@@ -33,6 +33,7 @@ function get_calendar_node($nid, $id) {
     if ($node = node_load($nid)) {
       if (node_access("view", $node)) {
         $node->date_id = $id;
+        $node->date_repeat_show = FALSE;
         print theme('jcalendar_view', $node);
       }
     }
