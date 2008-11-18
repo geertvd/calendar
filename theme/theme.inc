@@ -172,6 +172,13 @@ function template_preprocess_calendar_month(&$vars) {
   foreach ($rows as $weekno => $row) {
     foreach ($row as $day => $data) {
       $cell = $data['data'];
+      
+      // If this cell is already rendered, like the weekno column,
+      // move to the next item.
+      if (!is_array($cell)) {
+        $month_rows[$weekno][$day]['data'] = $cell;
+        continue;
+      }
       $data = $cell['datebox'];
       if ($cell['empty']) {
         $data .= $cell['empty'];
@@ -206,6 +213,7 @@ function template_preprocess_calendar_month(&$vars) {
 function template_preprocess_calendar_mini(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar_month($vars);
+  $vars['view']->style_with_weekno = FALSE;
   
   $view = $vars['view'];
   $view->show_title = !empty($view->show_title) ? $view->show_title : FALSE;
@@ -219,6 +227,7 @@ function template_preprocess_calendar_mini(&$vars) {
 function template_preprocess_calendar_year(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar($vars);
+  $vars['view']->style_with_weekno = FALSE;
   
   // Get the url of the year view and remove the year argument from it.
   // TODO clean this up in case there is another arg that looks like

@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #329418 Fix week number formatting.
 - Adapt processing to make sure only selected dates display in nodes, views, and calendars.
 - Improve the look of the day view by postponing the time when the item is output so we have more information in the template.
 - Had the block view identifier set too early, before we know if the block is being used, causing all views to act like blocks.
