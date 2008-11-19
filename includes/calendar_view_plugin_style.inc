@@ -28,7 +28,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     $view->style_groupby_field = $this->options['groupby_field'];
     
     // TODO make this an option setting.
-    $view->style_show_empty_times = FALSE;
+    $view->style_show_empty_times = !empty($this->options['groupby_times_custom']) ? TRUE : FALSE;
   }
   
   /**
@@ -79,7 +79,6 @@ class calendar_view_plugin_style extends calendar_plugin_style {
       '#default_value' => $calendar_type != 'day' ? $this->options['max_items_behavior'] : 'more',
       '#description' => t('Behavior when there are more than the above number of items in a single day. When there more items than this limit, a link to the day view will be displayed.'),
       );
-    $fields = $this->display->handler->get_option('fields');
     $form['groupby_times'] = array(
       '#title' => t('Time grouping'),
       '#type' => in_array($calendar_type, array('day', 'week')) ? 'select' : 'value',
@@ -93,9 +92,19 @@ class calendar_view_plugin_style extends calendar_plugin_style {
       '#default_value' => $this->options['groupby_times_custom'],
       '#description' => t("When choosing the 'custom' Time grouping option above, create custom time period groupings as a comma-separated list of 24-hour times in the format HH:MM:SS, like '00:00:00,08:00:00,18:00:00'. Be sure to start with '00:00:00'. All items after the last time will go in the final group."),
       );
+    // Create a list of fields that are available for grouping and truncation,
+    // excluding the date fields in the view from the grouping options.  
+    $field_options = array();
+    $fields = $this->display->handler->get_option('fields');
+    $date_fields = array_keys($this->date_fields());
     foreach ($fields as $field_name => $field) {
       $handler = views_get_handler($field['table'], $field['field'], 'field');
-      $field_options[$field['table'] .'_'. $field['field']] = $handler->ui_name();
+      if (!in_array($field['table'] .'.'. $field['field'], $date_fields)) {
+        $field_options[$field['table'] .'_'. $field['field']] = $handler->ui_name();
+      }
+      else {
+        $date_field_options[$field['table'] .'_'. $field['field']] = $handler->ui_name();
+      }
     }
     $form['groupby_field'] = array(
       '#title' => t('Field grouping'),
@@ -107,7 +116,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     $form['truncated_fields'] = array(
       '#title' => t('Truncated fields'),
       '#type' => in_array($calendar_type, array('month', 'week', 'day')) ? 'checkboxes' : 'value',
-      '#options' => $field_options,
+      '#options' => $field_options + $date_field_options,
       '#default_value' => $this->options['truncated_fields'],
       '#multiple' => TRUE,
       '#description' => t("Fields that should be truncated to fit in the calendar cell. For instance, change the title from 'Very Very Very Long Name' to something like 'Very Very...'."),

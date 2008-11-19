@@ -325,7 +325,9 @@ function template_preprocess_calendar_day(&$vars) {
   // Finish out the day's time values if we want to see empty times.
   if (!empty($show_empty_times)) {
     while ($start_time < $end_start_time) {
-      $grouped_items[$start_time]['values'] = array();        
+      if (!array_key_exists($start_time, $grouped_items)) {
+        $grouped_items[$start_time]['values'] = array();        
+      }
       $start_time = $next_start_time;
       $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
     }
@@ -341,7 +343,6 @@ function template_preprocess_calendar_day(&$vars) {
     $grouped_items[$start_time]['ampm'] = $heading['ampm']; 
     $i++;      
   }
-  
   ksort($grouped_items);
   $vars['rows']['items'] = $grouped_items;
   
@@ -396,16 +397,16 @@ function template_preprocess_calendar_week(&$vars) {
     }
     foreach ($row['data']['items'] as $time => $items) {
       foreach ($items as $item) {
-        $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->granularity .'_node';
         // Find the next time slot and fill it. Populate the skipped
         // slots if the option to show empty times was chosen.
         while ($time > $next_start_time && $time < $end_start_time) {
-          if (($show_empty_times) && !array_key_exists($start_time, $next_start_time, $grouped_items)) {
+          if (($show_empty_times) && !array_key_exists($start_time, $grouped_items)) {
             $grouped_items[$start_time]['values'][$weekno] = array();   
           }
           $start_time = $next_start_time;
           $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
         }
+        $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->granularity .'_node';
         $grouped_items[$start_time]['values'][$weekno][] = theme($theme, $item, $view);
       }
     }
