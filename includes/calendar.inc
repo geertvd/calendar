@@ -367,14 +367,14 @@ function calendar_build_nodes(&$view, &$items) {
         // the correct timezone.
         $values[0] = $item->calendar_fields->$fromto[0];
         $values[1] = $item->calendar_fields->$fromto[1];
-        
+                
         $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_alias) ? $item->$tz_alias : $display_timezone_name);
         $to_zone = date_get_timezone($tz_handling, isset($item->$tz_alias) ? $item->$tz_alias : $display_timezone_name);
         
-        // NOTE: Now $display_timezone determines how $item is split
-        // into one entry per day, while $to_zone determines how date is displayed.
-        // Maybe someone wants to the date fields's timezone for the day splitting,
-        // then use: $display_timezone_name = $to_zone;
+        // Now $display_timezone determines how $item is split into 
+        // one entry per day, while $to_zone determines how date is displayed.
+        // For now, use the date fields's timezone for the day splitting.
+        $display_timezone_name = $to_zone;
         $values_display = array();
         
         // Start date
@@ -405,7 +405,7 @@ function calendar_build_nodes(&$view, &$items) {
         else {
           $values_display[1] = $values[1];
         }
-        
+               
         // Now $values contain start and end date of a node,
         // expressed as strings in the display (local) timezone.
         // $values_utc does the same in UTC timezone.
@@ -485,7 +485,7 @@ function calendar_build_nodes(&$view, &$items) {
           date_modify($next, '+1 day');
           date_modify($next, '-1 second');
           $end = date_format($next, DATE_FORMAT_DATETIME);
-
+          
           // Get intersection of current day and the node value's duration (as strings in $to_zone timezone)
           $node->calendar_start = $values[0] < $start ? $start : $values[0];
           $node->calendar_end = !empty($values[1]) ? ($values[1] > $end ? $end : $values[1]) : $node->calendar_start;
