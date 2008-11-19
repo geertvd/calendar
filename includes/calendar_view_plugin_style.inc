@@ -19,6 +19,16 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     $view->style_max_items_behavior = $this->options['max_items_behavior'];
     $view->style_truncated_fields = $this->options['truncated_fields'];
     $view->style_truncate_length = $this->options['truncate_length'];
+    if (!empty($this->options['groupby_times_custom'])) {
+      $view->style_groupby_times = explode(',', $this->options['groupby_times_custom']);
+    }
+    else {
+      $view->style_groupby_times = calendar_groupby_times($this->options['groupby_times']);
+    }
+    $view->style_groupby_field = $this->options['groupby_field'];
+    
+    // TODO make this an option setting.
+    $view->style_show_empty_times = FALSE;
   }
   
   /**
@@ -31,6 +41,9 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     $options['max_items_behavior'] = 'more';
     $options['truncated_fields'] = array();
     $options['truncate_length'] = 12;
+    $options['groupby_times'] = 'hour';
+    $options['groupby_times_custom'] = '';
+    $options['groupby_field'] = '';
   }
 
   /**
@@ -41,53 +54,77 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     $form['name_size'] = array(
       '#title' => t('Calendar day of week names'),
       '#default_value' => $this->options['name_size'],
-      '#type' => 'radios',
+      '#type' => in_array($calendar_type, array('year', 'month', 'week')) ? 'radios' : 'value',
       '#options' => array(1 => t('First letter of name'), 2 => t('First two letters of name'), 3 => t('Abbreviated name'), 99 => t('Full name')),
       '#description' => t('The way day of week names should be displayed in a calendar.'),
       );
     $form['with_weekno'] = array(
       '#title' => t('Show week numbers'),
       '#default_value' => $this->options['with_weekno'],
-      '#type' => $calendar_type != 'day' ? 'radios' : 'hidden',
+      '#type' => in_array($calendar_type, array('month')) ? 'radios' : 'value',
       '#options' => array(0 => t('No'), 1 => t('Yes')),
       '#description' => t('Whether or not to show week numbers in the left column of calendar weeks and months.'),
       );
     $form['max_items'] = array(
       '#title' => t('Maximum items'),
-      '#type' => $calendar_type != 'day' ? 'select' : 'hidden',
+      '#type' => in_array($calendar_type, array('month')) ? 'select' : 'value',
       '#options' => array(0 => t('Unlimited'), 3 => t('3 items'), 5 => t('5 items'), 10 => t('10 items')),
       '#default_value' => $calendar_type != 'day' ? $this->options['max_items'] : 0,
       '#description' => t('Maximum number of items to show in calendar cells, used to keep the calendar from expanding to a huge size when there are lots of items in one day. '),
       );
     $form['max_items_behavior'] = array(
       '#title' => t('Too many items'),
-      '#type' => $calendar_type != 'day' ? 'select' : 'hidden',
+      '#type' => in_array($calendar_type, array('month')) ? 'select' : 'value',
       '#options' => array('more' => t("Show maximum, add 'more' link"), 'hide' => t('Hide all, add link to day')),
       '#default_value' => $calendar_type != 'day' ? $this->options['max_items_behavior'] : 'more',
       '#description' => t('Behavior when there are more than the above number of items in a single day. When there more items than this limit, a link to the day view will be displayed.'),
       );
     $fields = $this->display->handler->get_option('fields');
+    $form['groupby_times'] = array(
+      '#title' => t('Time grouping'),
+      '#type' => in_array($calendar_type, array('day', 'week')) ? 'select' : 'value',
+      '#default_value' => $this->options['groupby_times'],
+      '#description' => t("Group items together into time periods based on their start time."),
+      '#options' => array('' => t('None'), 'hour' => t('Hour'), 'half' => t('Half hour'), 'custom' => t('Custom')),
+      );
+    $form['groupby_times_custom'] = array(
+      '#title' => t('Custom time grouping'),
+      '#type' => in_array($calendar_type, array('day', 'week')) ? 'textarea' : 'value',
+      '#default_value' => $this->options['groupby_times_custom'],
+      '#description' => t("When choosing the 'custom' Time grouping option above, create custom time period groupings as a comma-separated list of 24-hour times in the format HH:MM:SS, like '00:00:00,08:00:00,18:00:00'. Be sure to start with '00:00:00'. All items after the last time will go in the final group."),
+      );
     foreach ($fields as $field_name => $field) {
       $handler = views_get_handler($field['table'], $field['field'], 'field');
-      $options[$field['table'] .'_'. $field['field']] = $handler->ui_name();
+      $field_options[$field['table'] .'_'. $field['field']] = $handler->ui_name();
     }
+    $form['groupby_field'] = array(
+      '#title' => t('Field grouping'),
+      '#type' => in_array($calendar_type, array('day')) ? 'select' : 'value',
+      '#default_value' => $this->options['groupby_field'],
+      '#description' => t("Optionally group items into columns by a field value, for instance select the content type to show items for each content type in their own column, or use a location field to organize items into columns by location."),
+      '#options' => array('' => '') + $field_options,
+      );
     $form['truncated_fields'] = array(
       '#title' => t('Truncated fields'),
-      '#type' => 'checkboxes',
-      '#options' => $options,
+      '#type' => in_array($calendar_type, array('month', 'week', 'day')) ? 'checkboxes' : 'value',
+      '#options' => $field_options,
       '#default_value' => $this->options['truncated_fields'],
       '#multiple' => TRUE,
       '#description' => t("Fields that should be truncated to fit in the calendar cell. For instance, change the title from 'Very Very Very Long Name' to something like 'Very Very...'."),
       );
     $form['truncate_length'] = array(
       '#title' => t('Truncate length'),
-      '#type' => 'textfield',
+      '#type' => in_array($calendar_type, array('month', 'week', 'day')) ? 'textfield' : 'value',
       '#default_value' => $this->options['truncate_length'],
       '#description' => t("Maximum number of characters to leave in truncated fields."),
       '#maxlength' => 4,
       '#size' => 4,
       );
-
+    foreach ($form as $key => $value) {
+      if ($value['#type'] == 'value') {
+        $form[$key]['#value'] = $value['#default_value'];
+      }
+    }
   }
 
   function options_submit($form, &$form_state) {
