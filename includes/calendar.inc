@@ -161,8 +161,8 @@ function calendar_build_day($curday, $view, $items) {
           $count++;
           $types[$item->type] = $item;
           if (!$view->mini && (empty($max_events) || ($max_events > 0 && $count <= $max_events))) {
-            // Theme the item here unless this is a 'Day' view.
-            // Day views need to do more processing before rendering
+            // Theme the item here unless this is a 'Day' or 'Week' view.
+            // Day and week views need to do more processing before rendering
             // the item, so just past them the unrendered item.
             $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->granularity .'_node';
             if ($item->calendar_all_day) {

@@ -450,7 +450,8 @@ function template_preprocess_calendar_datebox(&$vars) {
   $view = $vars['view'];
   
   $vars['day'] = intval(substr($date, 8, 2));
-  $vars['url'] = date_real_url($view, NULL, $date);
+  $force_view_url = !empty($view->block) ? TRUE : FALSE;
+  $vars['url'] = date_real_url($view, NULL, $date, $force_view_url);
   $vars['link'] = l($vars['day'], $vars['url']);
   $vars['granularity'] = $view->granularity;
   $vars['mini'] = $view->mini;
