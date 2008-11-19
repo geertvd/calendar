@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- Set day-splitting timezone to be sure it will split days using the time displayed in the calendar.
 - Adapt processing to make sure only selected dates display in nodes, views, and calendars.
 - Add option to maximum items per day to either show maximum plus 'more' link or hide all and link to day.
 - #324061, #324701 Revert the calendar_colorpicker.js back to the D5 version, it got switched to the D6 version accidentally.

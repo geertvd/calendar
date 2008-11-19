@@ -410,12 +410,12 @@ function calendar_untranslated_days() {
  */
 function calendar_build_filter(&$query, &$view) {
   $now = date_now();
-
   if ($query->calendar_type == 'week' && calendar_part_is_valid($query->week, 'week')) {
     $range = date_week_range($query->week, $query->year);
     $date = $range[0];
     $max_date = $range[1];
-  } else {
+  } 
+  else {
     $month = calendar_part_is_valid($query->month, 'month') ? $query->month : 1;
     $day   = calendar_part_is_valid($query->day, 'day') ? $query->day : 1;
     $year  = calendar_part_is_valid($query->year, 'year') ? $query->year : date_format($now, 'Y');
@@ -434,6 +434,7 @@ function calendar_build_filter(&$query, &$view) {
     if (!empty($query_strings)) $queries = array_merge($queries, $query_strings);
     $view->date_fields[] = $field;
   }
+  
   // bring the node type into the query so we can use it in the theme
   $query->add_field('type', 'node');
   if ($queries) $query->add_where(implode(" OR ", $queries));
@@ -614,10 +615,10 @@ function calendar_build_nodes(&$view, &$items, $display_type) {
             $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_alias) ? $item->$tz_alias : $display_timezone_name);
             $to_zone = date_get_timezone($tz_handling, isset($item->$tz_alias) ? $item->$tz_alias : $display_timezone_name);
             
-            // NOTE: Now $display_timezone determines how $item is split
-            // into one entry per day, while $to_zone determines how date is displayed.
-            // Maybe someone wants to the date fields's timezone for the day splitting,
-            // then use: $display_timezone_name = $to_zone;
+            // Now $display_timezone determines how $item is split into 
+            // one entry per day, while $to_zone determines how date is displayed.
+            // For now, use the date fields's timezone for the day splitting.
+            $display_timezone_name = $to_zone;
             $values_display = array();
             
             // Start date
