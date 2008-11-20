@@ -100,25 +100,26 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
     // If this is not the right display to show, 
     // don't attach it, just exit.
     if ($view_granularity != $display_granularity) {
+      unset($this->display);
       return;
     }
     
     // See if we're attaching to a block rather than a page.
-    $this->view->parent_id = $display_id;
+    $this->view->date_info->parent_id = $display_id;
     if (substr($display_id, 0, 14) == 'calendar_block') {
-      $this->view->mini = TRUE;
-      $this->view->block = TRUE;
+      $this->view->date_info->mini = TRUE;
+      $this->view->date_info->block = TRUE;
       $this->calendar_popup = FALSE;
-      if (!isset($this->view->block_identifier)) {
-        $this->view->block_identifier = 'mini';
+      if (!isset($this->view->date_info->block_identifier)) {
+        $this->view->date_info->block_identifier = 'mini';
       }
     }
     elseif (substr($display_id, 0, 8) == 'calendar') {
-      $this->view->calendar_colors = $this->view->display[$display_id]->handler->options['calendar_colors'];
-      $this->view->calendar_popup = $this->view->display[$display_id]->handler->options['calendar_popup'];
+      $this->view->date_info->calendar_colors = $this->view->display[$display_id]->handler->options['calendar_colors'];
+      $this->view->date_info->calendar_popup = $this->view->display[$display_id]->handler->options['calendar_popup'];
     }
-    $this->view->display_granularity = $display_granularity;
-    $this->view->calendar_type = $this->calendar_type();
+    $this->view->date_info->display_granularity = $display_granularity;
+    $this->view->date_info->calendar_type = $this->calendar_type();
     parent::attach_to($display_id);
   }
   

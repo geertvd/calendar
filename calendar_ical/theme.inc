@@ -38,11 +38,11 @@ function template_preprocess_calendar_view_ical(&$vars) {
     node_invoke_nodeapi($node, 'ical item');
 
     $event = array();
-    $event['summary'] = strip_tags($node->{$view->summary_field});
+    $event['summary'] = strip_tags($node->{$view->date_info->summary_field});
     $event['start'] = $node->calendar_start_date;
     $event['end'] = $node->calendar_end_date;
-    $event['location'] = !empty($node->{$view->location_field}) ? $node->{$view->location_field} : '';
-    $event['description'] = !empty($node->{$view->description_field}) ? $node->{$view->description_field} : '';
+    $event['location'] = !empty($node->{$view->date_info->location_field}) ? $node->{$view->date_info->location_field} : '';
+    $event['description'] = !empty($node->{$view->date_info->description_field}) ? $node->{$view->date_info->description_field} : '';
     $event['url'] = !empty($node->url) ? $node->url : (is_numeric($node->nid) ? url("node/$node->nid", array('absolute' => TRUE)) : $node->nid);
     $event['uid'] = !empty($node->date_id) ? $node->date_id : $event['url'];
     $events[$event['uid']] = $event;

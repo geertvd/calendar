@@ -60,7 +60,7 @@ function calendar_ical_calendar_add_items($view) {
   $feeds = calendar_ical_add_feeds($view);
   foreach ($feeds as $feed) {
     if (!empty($feed->calendar_start) && !empty($feed->calendar_end)) {
-      if ($feed->calendar_start >= date_format($view->min_date, DATE_FORMAT_DATETIME) && $feed->calendar_end <= date_format($view->max_date, DATE_FORMAT_DATETIME)) {
+      if ($feed->calendar_start >= date_format($view->date_info->min_date, DATE_FORMAT_DATETIME) && $feed->calendar_end <= date_format($view->date_info->max_date, DATE_FORMAT_DATETIME)) {
         // We have to add a calendar start and end object to the feed,
         // the cached date objects will not work correctly.
         $feed->calendar_start_date = date_make_date($feed->calendar_start, $feed->timezone);
@@ -216,13 +216,13 @@ function theme_calendar_ical_node($node, $view) {
   $node->title = html_entity_decode(check_plain($node->title), ENT-QUOTES);
   $node->teaser = check_markup($node->teaser);
 
-  if ($view->calendar_display == 'calendar') {
+  if ($view->date_info->calendar_display == 'calendar') {
     // Remote nodes may come in with lengthy descriptions that won't fit
     // in small boxes of year, month, and week calendars.
-    if ($view->date_type != 'day') {
+    if ($view->date_info->date_type != 'day') {
       $node->teaser = '';
     }
-    $theme = 'calendar_node_'. $view->date_type;
+    $theme = 'calendar_node_'. $view->date_info->date_type;
     return theme($theme, $node, $view);
   }
   else {

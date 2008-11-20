@@ -12,23 +12,23 @@ class calendar_view_plugin_style extends calendar_plugin_style {
   function init(&$view, &$display) {
     parent::init($view, $display);
     $calendar_type = $this->display->handler->get_option('calendar_type');
-    $view->calendar_popup = $this->display->handler->get_option('calendar_popup');
-    $view->style_name_size = $this->options['name_size'];
-    $view->style_with_weekno = $this->options['with_weekno'];
-    $view->style_max_items = $this->options['max_items'];
-    $view->style_max_items_behavior = $this->options['max_items_behavior'];
-    $view->style_truncated_fields = $this->options['truncated_fields'];
-    $view->style_truncate_length = $this->options['truncate_length'];
+    $view->date_info->calendar_popup = $this->display->handler->get_option('calendar_popup');
+    $view->date_info->style_name_size = $this->options['name_size'];
+    $view->date_info->style_with_weekno = $this->options['with_weekno'];
+    $view->date_info->style_max_items = $this->options['max_items'];
+    $view->date_info->style_max_items_behavior = $this->options['max_items_behavior'];
+    $view->date_info->style_truncated_fields = $this->options['truncated_fields'];
+    $view->date_info->style_truncate_length = $this->options['truncate_length'];
     if (!empty($this->options['groupby_times_custom'])) {
-      $view->style_groupby_times = explode(',', $this->options['groupby_times_custom']);
+      $view->date_info->style_groupby_times = explode(',', $this->options['groupby_times_custom']);
     }
     else {
-      $view->style_groupby_times = calendar_groupby_times($this->options['groupby_times']);
+      $view->date_info->style_groupby_times = calendar_groupby_times($this->options['groupby_times']);
     }
-    $view->style_groupby_field = $this->options['groupby_field'];
+    $view->date_info->style_groupby_field = $this->options['groupby_field'];
     
     // TODO make this an option setting.
-    $view->style_show_empty_times = !empty($this->options['groupby_times_custom']) ? TRUE : FALSE;
+    $view->date_info->style_show_empty_times = !empty($this->options['groupby_times_custom']) ? TRUE : FALSE;
   }
   
   /**
@@ -147,14 +147,14 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     // Adjust the theme to match the currently selected default.
     // Only the month view needs the special 'mini' class,
     // which is used to retrieve a different, more compact, theme.
-    if (!empty($this->view->mini) && $this->view->granularity == 'month') {
+    if (!empty($this->view->date_info->mini) && $this->view->date_info->granularity == 'month') {
       $this->definition['theme'] = 'calendar_mini';
     }
     else {
-      $this->view->mini = FALSE;
-      $this->definition['theme'] = 'calendar_'. $this->view->granularity;
+      $this->view->date_info->mini = FALSE;
+      $this->definition['theme'] = 'calendar_'. $this->view->date_info->granularity;
     }
-    $this->view->hide_admin_links = TRUE;
+    $this->view->date_info->hide_admin_links = TRUE;
     return theme($this->theme_functions(), $this->view, $this->options, array());
   }
 }

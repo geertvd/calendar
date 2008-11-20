@@ -97,9 +97,9 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
     // Transfer the style options to the view object so they
     // can be easily accessed in the theme.
     $style_options = $this->options;
-    $this->view->summary_field = $style_options['summary_field'];
-    $this->view->description_field = $style_options['description_field'];
-    $this->view->location_field = $style_options['location_field'];
+    $this->view->date_info->summary_field = $style_options['summary_field'];
+    $this->view->date_info->description_field = $style_options['description_field'];
+    $this->view->date_info->location_field = $style_options['location_field'];
     
     // Evaluate our argument values and figure out which 
     // calendar display we need to create.
@@ -115,19 +115,19 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
           $argument->min_date = $range[0];
           $argument->max_date = $range[1];
         }
-        $this->view->granularity = !empty($argument->granularity) ? $argument->granularity : $argument->options['granularity'];
-        $this->view->date_arg = !empty($this->view->args) ? $this->view->args[$argument->position] : '';
-        $this->view->date_arg_pos = $i;
-        $this->view->year = isset($argument->year) ? $argument->year : NULL;
-        $this->view->month = isset($argument->month) ? $argument->month: NULL;
-        $this->view->day = isset($argument->day) ? $argument->day : NULL;
-        $this->view->week = isset($argument->week) ? $argument->week : NULL;
-        $this->view->min_date = $argument->min_date;
-        $this->view->max_date = $argument->max_date;
-        if (empty($this->view->date_fields)) {
-          $this->view->date_fields = array();
+        $this->view->date_info->granularity = !empty($argument->granularity) ? $argument->granularity : $argument->options['granularity'];
+        $this->view->date_info->date_arg = !empty($this->view->args) ? $this->view->args[$argument->position] : '';
+        $this->view->date_info->date_arg_pos = $i;
+        $this->view->date_info->year = isset($argument->year) ? $argument->year : NULL;
+        $this->view->date_info->month = isset($argument->month) ? $argument->month: NULL;
+        $this->view->date_info->day = isset($argument->day) ? $argument->day : NULL;
+        $this->view->date_info->week = isset($argument->week) ? $argument->week : NULL;
+        $this->view->date_info->min_date = $argument->min_date;
+        $this->view->date_info->max_date = $argument->max_date;
+        if (empty($this->view->date_info->date_fields)) {
+          $this->view->date_info->date_fields = array();
         }
-        $this->view->date_fields = array_merge($this->view->date_fields, array_keys($argument->options['date_fields']));
+        $this->view->date_info->date_fields = array_merge($this->view->date_info->date_fields, array_keys($argument->options['date_fields']));
                 
         // Stop after the first date argument, if there is more than one.
         break;
@@ -137,7 +137,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
     
     // The ical display might have date filters instead of arguments.
     // If we missed getting a min date from date arguments, try date filters.
-    if (empty($this->view->min_date)) {
+    if (empty($this->view->date_info->min_date)) {
       foreach ($this->view->filter as $id => $filter) {
         if ($filter->field == 'date_filter') {
           // TODO Decide if we want to provide a date here or not.
@@ -149,17 +149,17 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
             $filter->min_date = $range[0];
             $filter->max_date = $range[1];
           }
-          $this->view->granularity = !empty($filter->granularity) ? $filter->granularity : $filter->options['granularity'];
-          $this->view->year = isset($filter->year) ? $filter->year : NULL;
-          $this->view->month = isset($filter->month) ? $filter->month: NULL;
-          $this->view->day = isset($filter->day) ? $filter->day : NULL;
-          $this->view->week = isset($filter->week) ? $filter->week : NULL;
-          $this->view->min_date = $filter->min_date;
-          $this->view->max_date = $filter->max_date;
-          if (empty($this->view->date_fields)) {
-            $this->view->date_fields = array();
+          $this->view->date_info->granularity = !empty($filter->granularity) ? $filter->granularity : $filter->options['granularity'];
+          $this->view->date_info->year = isset($filter->year) ? $filter->year : NULL;
+          $this->view->date_info->month = isset($filter->month) ? $filter->month: NULL;
+          $this->view->date_info->day = isset($filter->day) ? $filter->day : NULL;
+          $this->view->date_info->week = isset($filter->week) ? $filter->week : NULL;
+          $this->view->date_info->min_date = $filter->min_date;
+          $this->view->date_info->max_date = $filter->max_date;
+          if (empty($this->view->date_info->date_fields)) {
+            $this->view->date_info->date_fields = array();
           }
-          $this->view->date_fields = array_merge($this->view->date_fields, array_keys($filter->options['date_fields']));
+          $this->view->date_info->date_fields = array_merge($this->view->date_info->date_fields, array_keys($filter->options['date_fields']));
           
           // Stop after the first date filter, if there is more than one.
           break;

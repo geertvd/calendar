@@ -165,8 +165,8 @@ function calendar_display_types() {
  */
 function calendar_current_type($view) {
   if (!is_object($view) || !isset($view->argument) || !is_array($view->argument)) {
-    if (!empty($view->default_display)) {
-      return $view->default_display;
+    if (!empty($view->date_info->default_display)) {
+      return $view->date_info->default_display;
     }
     return FALSE;
   }
@@ -204,7 +204,7 @@ function calendar_node_stripe($view, &$node, $query_name, $delta, $stripe = NULL
   $type_names = node_get_types('names');
   $type = $node->raw->node_type;
   
-  $colors = isset($view->calendar_colors) ? $view->calendar_colors : array();
+  $colors = isset($view->date_info->calendar_colors) ? $view->date_info->calendar_colors : array();
   if (!$label && array_key_exists($type, $type_names)) {
     $label = $type_names[$type];
   }
@@ -262,13 +262,13 @@ function calendar_date_select_form(&$form_state, $view) {
   $form['calendar_goto'] = array(
     //'#title' => t('Calendar date'),
     '#type' => module_exists('date_popup') ? 'date_popup' : 'date_select',
-    '#default_value' => date_format($view->min_date, 'Y-m-d'),
+    '#default_value' => date_format($view->date_info->min_date, 'Y-m-d'),
     '#date_timezone' => date_default_timezone_name(),
     '#date_format' => $format,
     );
   $form['calendar_type'] = array(
     '#type' => 'hidden',
-    '#value' => $view->calendar_type,
+    '#value' => $view->date_info->calendar_type,
     );
   $form['view_name'] = array(
     '#type' => 'hidden',

@@ -9,7 +9,7 @@
  */
 function calendar_build_calendar($view, $items) {
   // Remove nodes outside the selected date range.
-
+ 
   $values = array();
   foreach ($items as $delta => $item) {
     if (empty($item->calendar_start_date) || empty($item->calendar_end_date)) {
@@ -17,25 +17,25 @@ function calendar_build_calendar($view, $items) {
     }
     $item_start = date_format($item->calendar_start_date, DATE_FORMAT_DATE);
     $item_end = date_format($item->calendar_end_date, DATE_FORMAT_DATE);
-    if (($item_start >= $view->min_date_date && $item_start <= $view->max_date_date)
-     || ($item_end >= $view->min_date_date && $item_end <= $view->max_date_date)) {
-      $values[$item_start][date_format($item->calendar_start_date, 'H:i:s')][] = $item;
+    if (($item_start >= $view->date_info->min_date_date && $item_start <= $view->date_info->max_date_date)
+     || ($item_end >= $view->date_info->min_date_date && $item_end <= $view->date_info->max_date_date)) {
+       $values[$item_start][date_format($item->calendar_start_date, 'H:i:s')][] = $item;
     }
   }
   $items = $values;
   ksort($items);
   
   $rows = array();
-  $curday = drupal_clone($view->min_date);
+  $curday = drupal_clone($view->date_info->min_date);
   
-  switch ($view->granularity) {
+  switch ($view->date_info->granularity) {
     case 'year':
       $rows = array();
-      $view->mini = TRUE;
+      $view->date_info->mini = TRUE;
       for ($i = 1; $i <= 12; $i++) {
         $rows[$i] = calendar_build_month($curday, $view, $items);
       }
-      $view->mini = FALSE;
+      $view->date_info->mini = FALSE;
       break;
 
     case 'month':
@@ -69,7 +69,7 @@ function calendar_build_month(&$curday, $view, $items) {
     $rows = array_merge($rows, calendar_build_week($curday, $view, $items, TRUE));
     $curday_date = date_format($curday, DATE_FORMAT_DATE);
     $curday_month = date_format($curday, 'n');
-  } while ($curday_month == $month && $curday_date <= $view->max_date_date);
+  } while ($curday_month == $month && $curday_date <= $view->date_info->max_date_date);
 
   // Merge the day names in as the first row.
   $rows = array_merge(array(calendar_week_header($view)), $rows);
@@ -94,10 +94,10 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
     
   // If we're displaying the week number, add it as the
   // first cell in the week.
-  if (!empty($view->style_with_weekno) && !in_array($view->granularity, array('day', 'week'))) {
-    $url = $view->get_path() .'/'. $view->year .'-W'. $week;
-    if (!empty($view->display_types['week'])) {
-      $weekno = l($week, $url, array('query' => !empty($view->append) ? $view->append : ''));
+  if (!empty($view->date_info->style_with_weekno) && !in_array($view->date_info->granularity, array('day', 'week'))) {
+    $url = $view->get_path() .'/'. $view->date_info->year .'-W'. $week;
+    if (!empty($view->date_info->display_types['week'])) {
+      $weekno = l($week, $url, array('query' => !empty($view->date_info->append) ? $view->date_info->append : ''));
     }
     else { 
       // Do not link week numbers, if Week views are disabled.
@@ -114,8 +114,8 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
     ($curday_date == $today ? ' today' : '') .
     ($curday_date < $today ? ' past' : '') .
     ($curday_date > $today ? ' future' : '') .
-    ($view->mini ? ' mini' : ''));
-    if ($check_month && ($curday_date < $view->min_date_date || $curday_date > $view->max_date_date || date_format($curday, 'n') != $month)) {
+    ($view->date_info->mini ? ' mini' : ''));
+    if ($check_month && ($curday_date < $view->date_info->min_date_date || $curday_date > $view->date_info->max_date_date || date_format($curday, 'n') != $month)) {
       $class .= ' empty';
       $content = array(
         'date' => '', 
@@ -144,7 +144,7 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
 function calendar_build_day($curday, $view, $items) {
   $curday_date = date_format($curday, DATE_FORMAT_DATE);
   $selected = FALSE;
-  $max_events = $view->style_max_items;
+  $max_events = $view->date_info->style_max_items;
   $types = array();
   $inner = array();
   $all_day = array();
@@ -157,20 +157,20 @@ function calendar_build_day($curday, $view, $items) {
       $selected = TRUE;
       ksort($day);
       foreach ($day as $time => $hour) {
-        foreach ($hour as $item) {
+        foreach ($hour as $key => $item) {
           $count++;
           $types[$item->type] = $item;
-          if (!$view->mini && (empty($max_events) || ($max_events > 0 && $count <= $max_events))) {
+          if (!$view->date_info->mini && (empty($max_events) || ($max_events > 0 && $count <= $max_events))) {
             // Theme the item here unless this is a 'Day' or 'Week' view.
             // Day and week views need to do more processing before rendering
             // the item, so just past them the unrendered item.
-            $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->granularity .'_node';
+            $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_info->granularity .'_node';
             if ($item->calendar_all_day) {
-              $all_day[] = in_array($view->calendar_type, array('day', 'week')) ? $item : theme($theme, $item, $view);
+              $all_day[] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, $item, $view);
             }
             else {
               $key = date_format($item->calendar_start_date, 'H:i:s');
-              $inner[$key][] = in_array($view->calendar_type, array('day', 'week')) ? $item : theme($theme, $item, $view);
+              $inner[$key][] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, $item, $view);
             }
           }
         }
@@ -182,11 +182,11 @@ function calendar_build_day($curday, $view, $items) {
     $empty = theme('calendar_empty_day', $curday_date, $view);
   }
   // we have too many events on this day. use the theme('calendar_multiple_')
-  if ($max_events > 0 && $count > $max_events && $view->calendar_type != 'day' && !$view->mini) {
-    if ($view->style_max_items_behavior == 'hide') {
+  if ($max_events > 0 && $count > $max_events && $view->date_info->calendar_type != 'day' && !$view->date_info->mini) {
+    if ($view->date_info->style_max_items_behavior == 'hide') {
       $inner = array();
     }
-    $link = theme('calendar_'. $view->calendar_type .'_multiple_node', $curday_date, $count, $view, $types);
+    $link = theme('calendar_'. $view->date_info->calendar_type .'_multiple_node', $curday_date, $count, $view, $types);
   }
   
   $content = array(
@@ -207,8 +207,8 @@ function calendar_build_day($curday, $view, $items) {
  * @return array with weekday table header data
  */
 function calendar_week_header($view) {
-  $len = isset($view->style_name_size) ? $view->style_name_size : (!empty($view->mini) ? 1 : 3);
-  $with_week = !empty($view->style_with_weekno);
+  $len = isset($view->date_info->style_name_size) ? $view->date_info->style_name_size : (!empty($view->date_info->mini) ? 1 : 3);
+  $with_week = !empty($view->date_info->style_with_weekno);
   
   // create week header
   $untranslated_days = calendar_untranslated_days();
@@ -259,24 +259,25 @@ function calendar_untranslated_days() {
  * and date field.
  */
 function calendar_build_nodes(&$view, &$items) {
-  if (empty($view->min_date) || empty($view->max_date)) {
+  
+  if (empty($view->date_info->min_date) || empty($view->date_info->max_date)) {
     return $items;
   }
   
   // Midnights are determined based on the same timezone as the View uses
-  $display_timezone = date_timezone_get($view->min_date);
+  $display_timezone = date_timezone_get($view->date_info->min_date);
   $display_timezone_name = timezone_name_get($display_timezone);
   
   // Translate the view min and max dates to UTC values
   // so we can compare UTC dates to the view range.
-  $min_utc = drupal_clone($view->min_date);
+  $min_utc = drupal_clone($view->date_info->min_date);
   date_timezone_set($min_utc, timezone_open('UTC'));
-  $max_utc = drupal_clone($view->max_date);
+  $max_utc = drupal_clone($view->date_info->max_date);
   date_timezone_set($max_utc, timezone_open('UTC'));
   $min_zone_string = array(); // Will cache $min_utc-strings in various timezones 
   $max_zone_string = array();
 
-  $view->nodes_per_page = 0;
+  $view->date_info->nodes_per_page = 0;
   $type_names = node_get_types('names');
 
   $datefields = array();
@@ -414,10 +415,10 @@ function calendar_build_nodes(&$view, &$items) {
         // $display_timezone. Cache in $min_zone_string and $max_zone_string,
         // since many items or fields typically use the samee timezone.
         if (!isset($min_zone_string[$display_timezone_name])) {
-          $date = drupal_clone($view->min_date);
+          $date = drupal_clone($view->date_info->min_date);
           date_timezone_set($date, $display_timezone);
           $min_zone_string[$display_timezone_name] = date_format($date, DATE_FORMAT_DATE);
-          $date = drupal_clone($view->max_date);
+          $date = drupal_clone($view->date_info->max_date);
           date_timezone_set($date, $display_timezone);
           $max_zone_string[$display_timezone_name] = date_format($date, DATE_FORMAT_DATE);
         }

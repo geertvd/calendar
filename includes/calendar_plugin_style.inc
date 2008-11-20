@@ -12,7 +12,7 @@ class calendar_plugin_style extends views_plugin_style {
    */
   function init(&$view, &$display) {
     parent::init($view, $display);
-    $view->display_types = $this->display_types();
+    $view->date_info->display_types = $this->display_types();
   }
     
   function display_types($granularity = NULL, $option_type = 'names') {
@@ -115,30 +115,30 @@ class calendar_plugin_style extends views_plugin_style {
           $argument->min_date = $range[0];
           $argument->max_date = $range[1];
         }
-        $this->view->granularity = !empty($argument->granularity) ? $argument->granularity : $argument->options['granularity'];
-        $this->view->date_arg = !empty($this->view->args) ? $this->view->args[$argument->position] : '';
-        $this->view->date_arg_pos = $i;
-        $this->view->year = isset($argument->year) ? $argument->year : NULL;
-        $this->view->month = isset($argument->month) ? $argument->month: NULL;
-        $this->view->day = isset($argument->day) ? $argument->day : NULL;
-        $this->view->week = isset($argument->week) ? $argument->week : NULL;
-        $this->view->min_date = $argument->min_date;
-        $this->view->max_date = $argument->max_date;
-        $this->view->min_date_date = date_format($this->view->min_date, DATE_FORMAT_DATE);
-        $this->view->max_date_date = date_format($this->view->max_date, DATE_FORMAT_DATE);
-        if (empty($this->view->date_fields)) {
-          $this->view->date_fields = array();
+        $this->view->date_info->granularity = !empty($argument->granularity) ? $argument->granularity : $argument->options['granularity'];
+        $this->view->date_info->date_arg = !empty($this->view->args) ? $this->view->args[$argument->position] : '';
+        $this->view->date_info->date_arg_pos = $i;
+        $this->view->date_info->year = isset($argument->year) ? $argument->year : NULL;
+        $this->view->date_info->month = isset($argument->month) ? $argument->month: NULL;
+        $this->view->date_info->day = isset($argument->day) ? $argument->day : NULL;
+        $this->view->date_info->week = isset($argument->week) ? $argument->week : NULL;
+        $this->view->date_info->min_date = $argument->min_date;
+        $this->view->date_info->max_date = $argument->max_date;
+        $this->view->date_info->min_date_date = date_format($this->view->date_info->min_date, DATE_FORMAT_DATE);
+        $this->view->date_info->max_date_date = date_format($this->view->date_info->max_date, DATE_FORMAT_DATE);
+        if (empty($this->view->date_info->date_fields)) {
+          $this->view->date_info->date_fields = array();
         }
-        $this->view->date_fields = array_merge($this->view->date_fields, array_keys($argument->options['date_fields']));
+        $this->view->date_info->date_fields = array_merge($this->view->date_info->date_fields, array_keys($argument->options['date_fields']));
         
         // Stop after the first date argument, if there is more than one.
         break;
       }
       $i++;
     }
-    $this->view->display_types = $this->display_types();
+    $this->view->date_info->display_types = $this->display_types();
     $keys = drupal_map_assoc(array_keys(calendar_display_types()));
-    $this->view->calendar_display = $keys[$this->view->granularity];
+    $this->view->date_info->calendar_display = $keys[$this->view->date_info->granularity];
     
     // bring the node type into the query so we can use it in the theme
     $this->view->query->add_field('node', 'type');
