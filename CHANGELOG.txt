@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Make default calendar view configurable so we can create default calendars for specific date fields.
 - Rename values added to views to avoid name clashes and keep all date values together.
 - #329153 Make sure day link in calendar mini block goes to full day view.
 - Set day-splitting timezone to be sure it will split days using the time displayed in the calendar.

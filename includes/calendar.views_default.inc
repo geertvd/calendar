@@ -1,81 +1,157 @@
 <?php
 //$Id$
+/**
+ * Set up so it can be used as an API to create default calendars for
+ * specific date fields.
+ * 
+ * Use variable_set() to establish criteria for default calendars.
+ * Set the variable in custom modules or in settings. 
+ * 
+ * Example: Add a new default calendar to custom
+ * calendars that are already configured:
+ *  
+ * $options = variable_get('calendar_default_view_options', array());
+ * $option = array(
+ *   'name' => 'example_event',
+ *   'description' => 'An example event calendar for the date field.',
+ *   'path' => 'example_event',
+ *   'types' => array('example_content_type'),
+ *   'date_fields' => array('field_example_date'),
+ *   );
+ * $options[] = $option;
+ * variable_set('calendar_default_view_options', $options);
+ * 
+*/
 function calendar_views_default_views() {
+  $views = array();
+  
+  // Construct the default view with default options.
+  $view = calendar_views_construct();
+  $views[$view->name] = $view;
+  
+  // Then see if there are any custom calendars to be created 
+  // using variable_get().
+  $calendar_options = variable_get('calendar_default_view_options', array());
+  foreach ((array) $calendar_options as $calendar_option) {
+    $view = calendar_views_construct($calendar_option);
+    $views[$view->name] = $view;
+  }
+  return $views;
+}
 
-$view = new view;
-$view->name = 'calendar';
-$view->description = 'A multi-dimensional calendar view with back/next navigation.';
-$view->tag = 'Calendar';
-$view->view_php = '';
-$view->base_table = 'node';
-$view->is_cacheable = FALSE;
-$view->api_version = 2;
-$view->disabled = TRUE; /* Edit this to true to make a default view disabled initially */
+/**
+ * 
+ * Construct a default calendar to match specified options.
+ * Views calls it without options, so the basic 
+ * default view will use the default values.
+ * 
+ * @param $options: an optional array of options to 
+ * create default calendars.
+ * 
+ * Possible options include:
+ * @param string $name:           
+ *   The view name, if empty, defaults to 'calendar'.
+ * @param string $description:           
+ *   The view description, if empty, defaults to generic description.
+ * @param string $path:           
+ *   The view url, if empty, defaults to 'calendar'.
+ * @param array  $types:          
+ *   Array of content types to limit the calendar to those types.  
+ *   If empty, defaults to no type filter.
+ * @param array  $date_fields:    
+ *   Date fields used to filter the calendar.
+ *   If empty, defaults to array('changed') for node.changed.
+ * @param array  $display_fields: 
+ *   Fields to display in the calendar.
+ *   If empty, defaults to title and date fields.
+ * 
+ * @return the default calendar array.
+ */
+function calendar_views_construct($options = NULL) {
+$name = NULL;
+$description = NULL;
+$path = NULL;
+$types = NULL;
+$date_fields = NULL;
+$display_fields = NULL;
+  
+if (empty($options)) {
+  $disabled = TRUE;
+}
+else {
+  $disabled = FALSE;
+  extract($options);
+}
+if (empty($name)) {
+  $name = 'calendar';
+}
+if (empty($description)) {
+  $description = 'A multi-dimensional calendar view with back/next navigation.';
+}
+if (empty($path)) {
+  $path = 'calendar';
+}
+if (empty($types)) {
+  $types = array('page', 'story');
+}
+if (empty($date_fields)) {
+  $date_fields = array('changed');
+}
 
-// Defaults.
-$handler = $view->new_display('default', 'Defaults', 'default');
-$handler->override_option('fields', array(
-  'title' => array(
-    'label' => '',
-    'link_to_node' => 1,
-    'exclude' => 0,
-    'id' => 'title',
-    'table' => 'node',
-    'field' => 'title',
-    'relationship' => 'none',
-  ),
-  'changed' => array(
-    'label' => '',
-    'date_format' => 'small',
-    'custom_date_format' => '',
-    'exclude' => 0,
-    'id' => 'changed',
-    'table' => 'node',
-    'field' => 'changed',
-    'relationship' => 'none',
-  ),
-));
-$handler->override_option('arguments', array(
-  'date_argument' => array(
-    'default_action' => 'default',
-    'style_plugin' => 'default_summary',
-    'style_options' => array(),
-    'wildcard' => 'all',
-    'wildcard_substitution' => 'All',
-    'title' => '',
-    'default_argument_type' => 'date',
-    'default_argument' => '',
-    'validate_type' => 'none',
-    'validate_fail' => 'not found',
-    'date_fields' => array(
-      'node.changed' => 'node.changed',
-    ),
-    'date_method' => 'OR',
-    'granularity' => 'month',
-    'id' => 'date_argument',
-    'table' => 'node',
-    'field' => 'date_argument',
-    'relationship' => 'none',
-    'default_argument_user' => 0,
-    'default_argument_fixed' => '',
-    'default_argument_php' => '',
-    'validate_argument_node_type' => array(
-      'page' => 0,
-      'story' => 0,
-    ),
-    'validate_argument_node_access' => 0,
-    'validate_argument_nid_type' => 'nid',
-    'validate_argument_vocabulary' => array(
-    ),
-    'validate_argument_type' => 'tid',
-    'validate_argument_php' => '',
-    'override' => array(
-      'button' => 'Override',
-    ),
-    'default_options_div_prefix' => '',
-  ),
-));
-$handler->override_option('filters', array(
+// Can handle core node date fields or CCK date fields.
+
+$fields = array();
+$alias_fields = $date_fields;
+foreach ($date_fields as $key => $field_name) {
+  if (substr($field_name, 0, 6) == 'field_') {
+    $table = 'node_data_'. $field_name;
+    $alias_fields[$key] = $field_name .'_value';
+  }
+  else {
+    $table = 'node';
+    $alias_fields[$key] = $field_name;
+  }
+  $alias = $table .'.'. $field_name .'_value';
+  $fields[$alias] = $alias;
+}
+
+// Set up fields section with some of the basic options.
+// Won't handle all possible options, but should cover
+// the main ones needed for Drupal core and CCK fields.
+
+if (empty($display_fields)) {
+  $display_fields = array('title' => array());
+  foreach ($date_fields as $field) {
+    $display_fields[$field] = array();
+  }
+}
+
+foreach ($display_fields as $key => $value) {
+  $cck_field = substr($key, 0, 6) == 'field_' ? TRUE : FALSE;
+  $date_field = $cck_field && in_array($key, $date_fields) ? TRUE : FALSE;
+  $display_fields[$key]['label'] = '';
+  $display_fields[$key]['link_to_node'] = $key == 'title' ? 1 : 0;
+  $display_fields[$key]['exclude'] = 0;
+  $display_fields[$key]['id'] = $date_field ? $key .'_value' : $key;
+  $display_fields[$key]['field'] = $date_field ? $key .'_value' : $key;
+  $display_fields[$key]['table'] = $cck_field ? 'node_data_'. $key : 'node';
+  $display_fields[$key]['relationship'] = 'none';
+  if (in_array($key, array('changed'))) {
+    $display_fields[$key]['date_format'] = 'small';
+  }
+  elseif ($cck_field) {
+    $display_fields[$key]['label_type'] = 'widget';
+    $display_fields[$key]['format'] = 'default';
+    $display_fields[$key]['multiple'] = array(
+      'group' => 0,
+      'multiple_number' => '',
+      'multiple_from' => '',
+      'multiple_reversed' => 0,
+      );
+  }
+}
+
+$filters = array(
   'status' => array(
     'operator' => '=',
     'value' => 1,
@@ -90,7 +166,77 @@ $handler->override_option('filters', array(
     'field' => 'status',
     'relationship' => 'none',
   ),
+);
+if (!empty($types)) {
+  $filters += array(
+    'type' => array(
+    'operator' => 'in',
+    'value' => drupal_map_assoc($types),
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+    ),
+    'id' => 'type',
+    'table' => 'node',
+    'field' => 'type',
+    'relationship' => 'none',
+  ),
+  );
+}
+
+$view = new view;
+$view->name = $name;
+$view->description = $description;
+$view->tag = 'Calendar';
+$view->view_php = '';
+$view->base_table = 'node';
+$view->is_cacheable = FALSE;
+$view->api_version = 2;
+$view->disabled = $disabled; /* Edit this to true to make a default view disabled initially */
+
+// Defaults.
+$handler = $view->new_display('default', 'Defaults', 'default');
+$handler->override_option('fields', $display_fields);
+
+$handler->override_option('arguments', array(
+  'date_argument' => array(
+    'default_action' => 'default',
+    'style_plugin' => 'default_summary',
+    'style_options' => array(),
+    'wildcard' => 'all',
+    'wildcard_substitution' => 'All',
+    'title' => '',
+    'default_argument_type' => 'date',
+    'default_argument' => '',
+    'validate_type' => 'none',
+    'validate_fail' => 'not found',
+    'date_fields' => $fields,
+    'year_range' => '-3:+3',
+    'date_method' => 'OR',
+    'granularity' => 'month',
+    'id' => 'date_argument',
+    'table' => 'node',
+    'field' => 'date_argument',
+    'relationship' => 'none',
+    'default_argument_user' => 0,
+    'default_argument_fixed' => '',
+    'default_argument_php' => '',
+    'validate_argument_node_type' => array(),
+    'validate_argument_node_access' => 0,
+    'validate_argument_nid_type' => 'nid',
+    'validate_argument_vocabulary' => array(
+    ),
+    'validate_argument_type' => 'tid',
+    'validate_argument_php' => '',
+    'override' => array(
+      'button' => 'Override',
+    ),
+    'default_options_div_prefix' => '',
+  ),
 ));
+$handler->override_option('filters', $filters);
 $handler->override_option('access', array(
   'type' => 'none',
   'role' => array(),
@@ -106,7 +252,7 @@ $handler->override_option('style_options', array(
 // Calendar page.
 $handler = $view->new_display('calendar', 'Calendar page', 'calendar_1');
 $handler->override_option('style_options', array());
-$handler->override_option('path', 'calendar');
+$handler->override_option('path', $path);
 $handler->override_option('menu', array(
   'type' => 'none',
   'title' => '',
@@ -136,8 +282,7 @@ $handler->override_option('style_options', array(
   'display_type' => 'year',
   'name_size' => '1',
   'max_items' => '0',
-  'truncated_fields' => array(
-  ),
+  'truncated_fields' => array(),
   'truncate_length' => '',
 ));
 $handler->override_option('attachment_position', 'after');
@@ -178,12 +323,15 @@ $handler->override_option('calendar_type', 'month');
 $handler = $view->new_display('calendar_period', 'Day view', 'calendar_period_3');
 $handler->override_option('style_plugin', 'calendar_style');
 $handler->override_option('style_options', array(
-  'display_type' => 'day',
   'name_size' => '99',
-  'max_items' => '0',
-  'truncated_fields' => array(
-  ),
-  'truncate_length' => '',
+  'with_weekno' => 0,
+  'max_items' => 0,
+  'max_items_behavior' => 'more',
+  'groupby_times' => 'hour',
+  'groupby_times_custom' => '',
+  'groupby_field' => '',
+  'truncated_fields' => array(),
+  'truncate_length' => '20',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
@@ -199,13 +347,15 @@ $handler->override_option('calendar_type', 'day');
 $handler = $view->new_display('calendar_period', 'Week view', 'calendar_period_4');
 $handler->override_option('style_plugin', 'calendar_style');
 $handler->override_option('style_options', array(
-  'display_type' => 'week',
   'name_size' => '99',
+  'with_weekno' => 0,
   'max_items' => '0',
-  'truncated_fields' => array(
-    'node_title' => 'node_title',
-  ),
-  'truncate_length' => '12',
+  'max_items_behavior' => 'more',
+  'groupby_times' => 'hour',
+  'groupby_times_custom' => '',
+  'groupby_field' => '',
+  'truncated_fields' => array(),
+  'truncate_length' => '20',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
@@ -239,24 +389,7 @@ $handler->override_option('calendar_type', 'month');
 if (module_exists('calendar_ical')) {
 $handler = $view->new_display('calendar_ical', 'iCal feed', 'calendar_ical_1');
 $handler->override_option('arguments', array());
-$handler->override_option('filters', array(
-  'status' => array(
-    'operator' => '=',
-    'value' => 1,
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'status',
-    'table' => 'node',
-    'field' => 'status',
-    'relationship' => 'none',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-  ),
+$handler->override_option('filters', $filters + array(
   'date_filter' => array(
     'operator' => '>=',
     'value' => array(
@@ -272,9 +405,7 @@ $handler->override_option('filters', array(
       'operator' => FALSE,
       'label' => '',
     ),
-    'date_fields' => array(
-      'node.changed' => 'node.changed',
-    ),
+    'date_fields' => $fields,
     'granularity' => 'day',
     'form_type' => 'date_select',
     'default_date' => 'now',
@@ -293,11 +424,11 @@ $handler->override_option('style_options', array(
   'mission_description' => FALSE,
   'description' => '',
   'summary_field' => 'node_title',
-  'description_field' => 'node_revisions_body',
+  'description_field' => '',
   'location_field' => '',
 ));
 $handler->override_option('row_plugin', '');
-$handler->override_option('path', 'calendar/ical');
+$handler->override_option('path', $path .'/ical');
 $handler->override_option('menu', array(
   'type' => 'none',
   'title' => '',
@@ -320,21 +451,7 @@ $handler->override_option('sitename_title', FALSE);
 // Upcoming events block.
 $handler = $view->new_display('block', 'Upcoming', 'block_1');
 $handler->override_option('arguments', array());
-$handler->override_option('filters', array(
-  'status' => array(
-    'operator' => '=',
-    'value' => 1,
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'id' => 'status',
-    'table' => 'node',
-    'field' => 'status',
-    'relationship' => 'none',
-  ),
+$handler->override_option('filters', $filters + array(
   'date_filter' => array(
     'operator' => '>=',
     'value' => array(
@@ -354,9 +471,7 @@ $handler->override_option('filters', array(
       'optional' => 1,
       'remember' => 0,
     ),
-    'date_fields' => array(
-      'node.changed' => 'node.changed',
-    ),
+    'date_fields' => $fields,
     'granularity' => 'day',
     'form_type' => 'date_select',
     'default_date' => 'now',
@@ -380,7 +495,5 @@ $handler->override_option('style_options', array(
 $handler->override_option('block_description', 'Upcoming');
 $handler->override_option('block_caching', -1);
 
-
-  $views[$view->name] = $view;
-  return $views;
+return $view;
 }
