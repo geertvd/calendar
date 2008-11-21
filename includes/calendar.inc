@@ -515,6 +515,7 @@ function calendar_build_nodes(&$view, &$items) {
           }
           else {
             calendar_node_stripe($view, $node, $alias, $alias);
+            calendar_node_taxonomy_stripe($view, $node, $alias, $alias);
             $node->date_id = $id .':'. $pos;
 
             $nodes[] = $node;

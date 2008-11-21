@@ -191,20 +191,21 @@ function calendar_current_type($view) {
  * @param $stripe - the hex code for this stripe.
  * @param $label - the label to give this stripe.
  * 
- * TODO this is still too hard-wired to node types.
- * Come back later and make it possible to use taxonomy terms or other
- * values as stripe keys.
- * 
- * TODO Need to add in hook so ical and other modules can add things to the legend.
- * 
  * TODO Reconsider use of $GLOBALS as a method of triggering the legend, there
  * may be a better way.
  */
 function calendar_node_stripe($view, &$node, $query_name, $delta, $stripe = NULL, $label = '') {
+  $colors = isset($view->date_info->calendar_colors) ? $view->date_info->calendar_colors : array();
+  if (empty($colors)) {
+    return;
+  }
+
   $type_names = node_get_types('names');
   $type = $node->raw->node_type;
-  
-  $colors = isset($view->date_info->calendar_colors) ? $view->date_info->calendar_colors : array();
+  if(!(isset($node->stripe))){
+    $node->stripe = array();
+    $node->stripe_label = array();
+  }  
   if (!$label && array_key_exists($type, $type_names)) {
     $label = $type_names[$type];
   }
@@ -216,11 +217,59 @@ function calendar_node_stripe($view, &$node, $query_name, $delta, $stripe = NULL
       $stripe = '';
     }
   }
-  $node->stripe = $stripe;
-  $node->stripe_label = $label;
-  $GLOBALS['calendar_stripe_labels'][$type] = array('stripe' => $stripe, 'label' => $label);
+
+  $node->stripe[] = $stripe;
+  $node->stripe_label[] = $label;
+  $GLOBALS['calendar_stripe_labels'][][$type] = array('stripe' => $stripe, 'label' => $label);
   return $stripe;
 }
+
+ /**
+ * Create a stripe based on a taxonomy term.
+ *
+ * @param $node - the node object
+ * @param $query_name - the views queryname for this date field
+ * @param $delta - the delta for this field, used to distinguish fields that appear more than once in the calendar
+ * @param $stripe - the hex code for this stripe.
+ * @param $label - the label to give this stripe.
+ * 
+ * TODO Reconsider use of $GLOBALS as a method of triggering the legend, there
+ * may be a better way.
+ */
+
+function calendar_node_taxonomy_stripe($view, &$node, $query_name, $delta, $stripe = NULL, $label = '') {
+  $colors_taxonomy = isset($view->date_info->calendar_colors_taxonomy) ? $view->date_info->calendar_colors_taxonomy : array();
+  if (empty($colors_taxonomy)) {
+    return;
+  }
+  
+  // Rename the vid added by Views to the normal name that 
+  // taxonomy will expect, it's in the raw results.
+  $node->vid = $node->raw->node_vid;
+  $terms_for_node = taxonomy_node_get_terms($node);
+  if(!(isset($node->stripe))){
+    $node->stripe = array();
+    $node->stripe_label = array();
+  }
+  if (count($terms_for_node)){
+    foreach($terms_for_node as $term_for_node){
+      if (!array_key_exists($term_for_node->tid, $colors_taxonomy)) {
+        continue;
+      }
+      $stripe = $colors_taxonomy[$term_for_node->tid];
+      $stripe_label = $term_for_node->name;
+      $node->stripe[] = $stripe;
+      $node->stripe_label[] = $stripe_label;
+      $GLOBALS['calendar_stripe_labels'][][$term_for_node->tid] = array('stripe' => $stripe, 'label' => $stripe_label);
+    }
+  }
+  else {
+    $node->stripe[] = '';
+    $node->stripe_label[] = '';
+  } 
+  return;
+}
+
 
 /**
  * Helper function to figure out a group gid to use in blocks.

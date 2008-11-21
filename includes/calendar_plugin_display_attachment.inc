@@ -43,32 +43,15 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
     return $default;    
   }
   
+
   /**
-   * Display validation.
+   * Inspect argument and view information to see which calendar
+   * period we should show. The argument tells us what to use
+   * if there is no value, the view args tell us what to use
+   * if there are values.
    */
-  function validate() {
-    $errors = parent::validate();
+  function display_granularity($display_id) {
     
-    $arguments = $this->display->handler->get_option('arguments');
-    if (!in_array('date_argument', array_keys($arguments))) {
-      $errors[] = t("The Calendar period display '@display_title' will not work without a Date argument.", array('@display_title' => $this->definition['title']));      
-    }
-    elseif ($arguments['date_argument']['default_action'] != 'default' || $arguments['date_argument']['default_argument_type'] != 'date') {
-      $errors[] = t("The Date argument @title in this view must be set up to provide a default value set to the current date.", array('@title' => $arguments['date_argument']['title']));      
-    }
-    return $errors;
-  }
-  
-  /**
-   * Attach only the appropriate displays for the current argument.
-   */
-  function attach_to($display_id) {
-    // Inspect argument and view information to see which calendar
-    // period we should show. The argument tells us what to use
-    // if there is no value, the view args tell us what to use
-    // if there are values.
-    
-    $display_granularity = $this->calendar_type();
     $arguments = $this->view->get_items('argument', $display_id);
     $wildcard = '';
     $argument = '';
@@ -96,6 +79,33 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
     else {
       $view_granularity = $default_granularity;
     }
+    return $view_granularity;
+  }
+  
+  /**
+   * Display validation.
+   */
+  function validate() {
+    $errors = parent::validate();
+    
+    $arguments = $this->display->handler->get_option('arguments');
+    if (!in_array('date_argument', array_keys($arguments))) {
+      $errors[] = t("A Calendar period display will not work without a Date argument.");      
+    }
+    elseif ($arguments['date_argument']['default_action'] != 'default' || $arguments['date_argument']['default_argument_type'] != 'date') {
+      $errors[] = t("The Date argument @title in this view must be set up to provide a default value set to the current date.", array('@title' => $arguments['date_argument']['title']));      
+    }
+
+    return $errors;
+  }
+  
+  /**
+   * Attach only the appropriate displays for the current argument.
+   */
+  function attach_to($display_id) {
+    
+    $display_granularity = $this->calendar_type();
+    $view_granularity = $this->display_granularity($display_id);
     
     // If this is not the right display to show, 
     // don't attach it, just exit.
@@ -104,23 +114,40 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
       return;
     }
     
-    // See if we're attaching to a block rather than a page.
     $this->view->date_info->parent_id = $display_id;
+
+    // See if we're attaching to a block rather than a page.
     if (substr($display_id, 0, 14) == 'calendar_block') {
       $this->view->date_info->mini = TRUE;
       $this->view->date_info->block = TRUE;
-      $this->calendar_popup = FALSE;
+      $this->date_info->calendar_popup = FALSE;
       if (!isset($this->view->date_info->block_identifier)) {
         $this->view->date_info->block_identifier = 'mini';
       }
     }
-    elseif (substr($display_id, 0, 8) == 'calendar') {
+    elseif (substr($display_id, 0, 9) == 'calendar_') {
       $this->view->date_info->calendar_colors = $this->view->display[$display_id]->handler->options['calendar_colors'];
+      $this->view->date_info->calendar_colors_taxonomy = $this->view->display[$display_id]->handler->options['calendar_colors_taxonomy'];
       $this->view->date_info->calendar_popup = $this->view->display[$display_id]->handler->options['calendar_popup'];
-    }
-    $this->view->date_info->display_granularity = $display_granularity;
-    $this->view->date_info->calendar_type = $this->calendar_type();
+    }  
+    
     parent::attach_to($display_id);
+  }
+
+  function pre_execute() {
+    
+    $this->view->date_info->display_granularity = $this->calendar_type();
+    $this->view->date_info->calendar_type = $this->calendar_type();
+  }
+  
+  function query() {
+    // If we are using legend colors based on taxonomy, make sure the 
+    // node vid field is added to the query so the theme can use it.
+    if (!empty($this->view->date_info->calendar_colors_taxonomy)) {
+      if (empty($this->additional_fields)) $this->additional_fields = array(); 
+      $this->view->query->add_field('node', 'vid');
+    }
+    parent::query();    
   }
   
   /**

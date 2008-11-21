@@ -6,11 +6,19 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+New Features:
+=============
+- Update day and week view to use new configurable, agenda-style calendar views grouped by hour.
+- By hotspoons: #337004 Add settings to display calendar legend colors based on taxonomy.
+- By MothersClick.com: #319344 Add updated css styles, settings to truncate titles in calendar cells 
+  and limit the number of events that display in calendar cells.
 - Make default calendar view configurable so we can create default calendars for specific date fields.
+
+Other:
+======
 - Rename values added to views to avoid name clashes and keep all date values together.
 - #329153 Make sure day link in calendar mini block goes to full day view.
 - Set day-splitting timezone to be sure it will split days using the time displayed in the calendar.
-- Add configurable, agenda-style calendar views for day and week.
 - #329418 Fix week number formatting.
 - Adapt processing to make sure only selected dates display in nodes, views, and calendars.
 - Improve the look of the day view by postponing the time when the item is output so we have more information in the template.
@@ -35,10 +43,7 @@ Version 2.0 dev
 - Make some fixes to the calendar legend to be sure text added for accessibility stays invisible in all themes.
 - #321831 Make sure day view gets populated.
 - Rework html of Year view so month titles will match block view month title for easier css themeing.
-- #319344 Add 'empty' class and updated css styles provided by MothersClick.com.
-- #319344 Add method of truncating title and other fields in calendar cells.
 - #174580 Add rel=nofollow to back/next links.
-- #319344 Add method of limiting the number of events that display in calendar cells.
 - #290365 Add upcoming events block to default calendar so both the mini calendar and an upcoming events calendar are available blocks.
 - #289166 Change ical link in default calendar to 'all time' link instead of single period.
 - #315843 Make sure there is validation to keep you from trying to group multiple date values in the calendar.

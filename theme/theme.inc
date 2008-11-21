@@ -618,10 +618,16 @@ function theme_calendar_stripe_legend() {
       array('class' => 'calendar-legend', 'data' => t('Item')),
       array('class' => 'calendar-legend', 'data' => t('Key'))
       );
+  $rows = array();
+  $output = '';    
   foreach ((array) $GLOBALS['calendar_stripes'] as $label => $stripe) {
-    $rows[] = array($label, '<div style="background-color:'. $stripe .';color:'. $stripe .'" class="stripe" title="Key: '. $label .'">Key '. $label .'</div>');
+    if($stripe){
+      $rows[] = array($label, '<div style="background-color:'. $stripe .';color:'. $stripe .'" class="stripe" title="Key: '. $label .'">&nbsp;</div>');
+    }
   }
-  $output = theme('table', $header, $rows, array('class' => 'mini calendar-legend'));
+  if (!empty($rows)) {
+    $output .= theme('table', $header, $rows, array('class' => 'mini calendar-legend'));
+  }
   return $output;
 }
 
@@ -633,8 +639,17 @@ function theme_calendar_stripe_stripe($node) {
   if (empty($node->stripe)) {
     return;
   }
-  $GLOBALS['calendar_stripes'][$node->stripe_label] = $node->stripe;
-  return '<div style="background-color:'. $node->stripe .';color:'. $node->stripe .'" class="stripe" title="Key: '. $node->stripe_label .'">Key '. $node->stripe_label .'</div>'."\n";
+  $output = '';
+  //$GLOBALS['calendar_stripes'][$node->stripe_label] = $node->stripe;
+  if(is_array($node->stripe_label)){
+    foreach($node->stripe_label as $k => $stripe_label){
+      if($stripe_label){
+        $GLOBALS['calendar_stripes'][$stripe_label] = $node->stripe[$k];
+        $output.= '<div style="background-color:'. $node->stripe[$k] .';color:'. $node->stripe[$k] .'" class="stripe" title="Key: '. $node->stripe_label[$k] .'">&nbsp;</div>'."\n";
+      }
+    }
+  }
+  return $output;
 }
 
 /**
