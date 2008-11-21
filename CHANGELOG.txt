@@ -6,13 +6,20 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+Version 2.0 rc5
+=================
+
 New Features:
 =============
 - Update day and week view to use new configurable, agenda-style calendar views grouped by hour.
-- By hotspoons: #337004 Add settings to display calendar legend colors based on taxonomy.
-- By MothersClick.com: #319344 Add updated css styles, settings to truncate titles in calendar cells 
+- #337004 By hotspoons: Add settings to display calendar legend colors based on taxonomy.
+- #319344 By MothersClick.com: Add updated css styles, settings to truncate titles in calendar cells 
   and limit the number of events that display in calendar cells.
 - Make default calendar view configurable so we can create default calendars for specific date fields.
+- Add a date_embed_view() function to provide a way to embed views and have their navigation move 
+  either together or separately, and document it in Advanced help.
+- Start building Advanced help instructions, including how to do iCal import using Feed API.
+- #290365 Add upcoming events block to default calendar.
 
 Other:
 ======
@@ -24,8 +31,6 @@ Other:
 - Improve the look of the day view by postponing the time when the item is output so we have more information in the template.
 - Had the block view identifier set too early, before we know if the block is being used, causing all views to act like blocks.
 - Only the month view needs the 'mini' theme, make sure it isn't used anywhere else.
-- Add instructions on how to do iCal import to Advanced help.
-- Add a date_embed_view() function to provide a way to embed views and have their navigation move either together or separately, and document it in Advanced help.
 - #326597 Make sure ical icon theme arguments and parameters sent to it match.
 - Get the links in embedded views and blocks to work correctly using a helper function date_real_url().
 - Add option to maximum items per day to either show maximum plus 'more' link or hide all and link to day.
@@ -37,18 +42,17 @@ Other:
 - #279679 Fix broken handling of date format selection.
 - Make sure popup date switcher isn't shown in the mini calendar.
 - Adjust the recent changes to the navigation header to be sure only the calendar header and not the date browser is affected.
-- Add the popup calendar date selector back into the D6 version.
 - #292164 Keep calendar date selector description from floating out of block in IE.
 - #298929 Fix code so that calendar legend doesn't display empty div when empty.
 - Make some fixes to the calendar legend to be sure text added for accessibility stays invisible in all themes.
 - #321831 Make sure day view gets populated.
 - Rework html of Year view so month titles will match block view month title for easier css themeing.
 - #174580 Add rel=nofollow to back/next links.
-- #290365 Add upcoming events block to default calendar so both the mini calendar and an upcoming events calendar are available blocks.
 - #289166 Change ical link in default calendar to 'all time' link instead of single period.
 - #315843 Make sure there is validation to keep you from trying to group multiple date values in the calendar.
+- Add the popup calendar date selector back into the D6 version.
 
-Version 2.0 rc3
+Version 2.0 rc4
 =================
 
 - Change the jcalendar code to use the new display_ids.

@@ -5,7 +5,6 @@
  * Much of the colorpicker code was adapted from the Colorpicker module.
  * That module has no stable release yet nor any D6 branch.
  */
-
 /*
  *  Bind the colorpicker event to the form element
  */

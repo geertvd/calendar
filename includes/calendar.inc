@@ -9,7 +9,6 @@
  */
 function calendar_build_calendar($view, $items) {
   // Remove nodes outside the selected date range.
- 
   $values = array();
   foreach ($items as $delta => $item) {
     if (empty($item->calendar_start_date) || empty($item->calendar_end_date)) {
