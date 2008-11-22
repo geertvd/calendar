@@ -69,31 +69,31 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     parent::options_summary($categories, $options);
 
     $categories['calendar_settings'] = array(
-      'title' => t('Calendar settings'),
+      'title' => theme('advanced_help_topic', 'calendar', 'settings') . t('Calendar settings'),
     );
     
     $colors = $this->get_option('calendar_colors');
     $colors_taxonomy = $this->get_option('calendar_colors_taxonomy');
     $options['calendar_colors'] = array(
       'category' => 'calendar_settings',
-      'title' => theme('advanced_help_topic', 'calendar', 'settings') . t('Legend Content Types'),
+      'title' => t('Legend Content Types'),
       'value' => t('Edit'),
     );
     $options['calendar_colors_vocabulary'] = array(
       'category' => 'calendar_settings',
-      'title' => theme('advanced_help_topic', 'calendar', 'settings') . t('Legend Vocabularies'),
+      'title' => t('Legend Vocabularies'),
       'value' => t('Edit'),
     );
     $options['calendar_colors_taxonomy'] = array(
       'category' => 'calendar_settings',
-      'title' => theme('advanced_help_topic', 'calendar', 'settings') . t('Legend Terms'),
+      'title' => t('Legend Terms'),
       'value' => t('Edit'),
     );
     $popup_options = $this->popup_options();
     $default = $this->get_option('calendar_popup');
     $options['calendar_popup'] = array(
       'category' => 'calendar_settings',
-      'title' => theme('advanced_help_topic', 'calendar', 'settings') . t('Date changer'),
+      'title' => t('Date changer'),
       'value' => isset($default) ? $popup_options[$default] : $popup_options[0],
     );
   }
