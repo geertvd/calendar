@@ -166,12 +166,15 @@ class calendar_plugin_display_page extends views_plugin_display_page {
         break;
 
       case 'calendar_colors_taxonomy':
-        //$taxonomies = taxonomy_get_vocabularies();
-        $taxonomies = $this->get_option('calendar_colors_vocabulary');
+        $taxonomies = (array) $this->get_option('calendar_colors_vocabulary');
         $colors_taxonomy = $this->get_option('calendar_colors_taxonomy');
         $form['#title'] .= t('Taxonomy Legend Colors');
+        $form['calendar_colors_taxonomy']['#prefix'] = '';
+        if (empty($taxonomies)) {
+          $form['calendar_colors_taxonomy']['#prefix'] .= t('<div class="form-item warning">Please select Legend vocabularies first!</div>');
+        }
+        $form['calendar_colors_taxonomy']['#prefix'] .= t('<div class="form-item"><label>Taxonomy Terms</label><p>Set a hex color value (like #ffffff) to use in the calendar legend for each taxonomy term. Terms with empty values will have no stripe in the calendar and will not be added to the legend.</p></div>');
         $form['calendar_colors_taxonomy']['#tree'] = TRUE;
-        $form['calendar_colors_taxonomy']['#prefix'] = t('<div class="form-item"><label>Taxonomy Terms</label><p>Set a hex color value (like #ffffff) to use in the calendar legend for each taxonomy term. Terms with empty values will have no stripe in the calendar and will not be added to the legend.</p></div>');
         $form['calendar_colors_taxonomy']['colorpicker'] = array(
           '#type' => 'calendar_colorpicker',
           '#prefix' => '<div class="clear-block"><div style="float:left">',
@@ -211,7 +214,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
         $this->set_option($form_state['section'], $form_state['values'][$form_state['section']]['color']);
         break;
       case 'calendar_colors_vocabulary':
-        $this->set_option($form_state['section'], $form_state['values'][$form_state['section']]);
+        $this->set_option($form_state['section'], array_filter($form_state['values'][$form_state['section']]));
         break;
     }
   }  
