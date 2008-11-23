@@ -746,6 +746,7 @@ function theme_calendar_empty_day() {
  * 
  */
 function theme_calendar_views_field($fieldname, $fields, $field, $node, $view, $type) {
+  $length = variable_get('calendar_truncate_length_'. $view->name, '');
   if (isset($node->calendar_field_theme)) {
     $theme = $node->calendar_field_theme;
     return theme($theme, $fieldname, $fields, $field, $node, $view, $type);
@@ -754,8 +755,8 @@ function theme_calendar_views_field($fieldname, $fields, $field, $node, $view, $
   $calendar_fields = calendar_fields();
   if (!in_array($field['field'], array_keys($calendar_fields))) {
     $item = views_theme_field('views_handle_field', $fieldname, $fields, $field, $node, $view);
-    if ($view->calendar_type != 'day') {
-      $item = str_replace(">" . check_plain($node->title), ' title="'. check_plain($node->title) .'">' . check_plain(calendar_trim_text($node->title, 12)), $item);    
+    if ($view->calendar_type != 'day' && !empty($length)) {
+      $item = str_replace(">" . check_plain($node->title), ' title="'. check_plain($node->title) .'">' . check_plain(calendar_trim_text($node->title, $length)), $item);    
     }
   }
   elseif ($fieldname != $node->datefield) {

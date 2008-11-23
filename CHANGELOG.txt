@@ -4,6 +4,8 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- #337209 Add configuration option for new function to truncate long text in calendar cells.
+
 Version 5.2.4
 ===============
 

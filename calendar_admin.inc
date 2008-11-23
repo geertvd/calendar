@@ -390,6 +390,14 @@ function _calendar_setup_form($view_name) {
     '#default_value' => variable_get('calendar_limit_behavior_'. $view->name, 'more'),
     '#description' => t('Behavior when there are more than the above number of items in a single day. When there more items than this limit, a link to the day view will be displayed.'),
     );
+  $form['truncate_length'] = array(
+    '#title' => t('Truncate length'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('calendar_truncate_length_'. $view->name, ''),
+    '#description' => t("Truncate size for titles in month and week view so things fit better into the calendar cell. For instance, change the title from 'Very Very Very Long Name' to something like 'Very Very...'."),
+    '#maxlength' => 4,
+    '#size' => 4,
+    );
 
   $display_options = array('calendar' => t('Calendar'), 'table' => t('Table'), 'teasers' => t('Teasers'), 'nodes' => t('Full Nodes'), 'list' => t('List'), '' => t('None'));
   $display_format = variable_get('calendar_display_format_'. $view->name, array('year' => 'calendar', 'month' => 'calendar', 'week' => 'calendar', 'day' => 'calendar', 'block' => 'calendar'));
@@ -547,6 +555,7 @@ function _calendar_setup_form_submit($form_id, $form_values) {
   }
   variable_set('calendar_weekno_'. $view_name, check_plain($form_values['calendar_weekno']));
   variable_set('calendar_popup_'. $view_name, check_plain($form_values['calendar_popup']));
+  variable_set('calendar_truncate_length_'. $view_name, check_plain($form_values['calendar_truncate_length']));
   variable_set('calendar_display_format_'. $view_name, $display_format);
   drupal_set_message(t('Calendar settings have been updated.'));
 }
