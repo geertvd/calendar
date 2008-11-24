@@ -35,7 +35,7 @@ function template_preprocess_calendar_view_ical(&$vars) {
   foreach ($items as $node) {
     // Allow modules to affect item fields
     node_invoke_nodeapi($node, 'ical item');
-
+    unset($node->view);
     $event = array();
     $event['summary'] = strip_tags($node->{$view->date_info->summary_field});
     $event['start'] = $node->calendar_start_date;
