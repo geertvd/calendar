@@ -603,7 +603,7 @@ function calendar_build_nodes(&$view, &$items, $display_type) {
             $real_field = str_replace(array('_value2', '_value'), '', $field['field_name']);
           }
           $id = 'calendar:'. $item->nid .':'. $real_field .':'. $delta;
-          if (!in_array($id, $processed) && isset($item->{$field['query_name']})) {
+          if (!in_array($id, $processed) && isset($item->{$field['query_name']}) && isset($item->{$fromto_alias[0]})) {
             
             // Create from and to date values for each item, adjusted to
             // the correct timezone.

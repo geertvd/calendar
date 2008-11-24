@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- #336567 Add extra test for valid values to date processing to avoid fatal error on empty property.
 - #337209 Add configuration option for new function to truncate long text in calendar cells.
 
 Version 5.2.4
