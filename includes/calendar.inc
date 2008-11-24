@@ -8,6 +8,7 @@
  * @return themed table
  */
 function calendar_build_calendar($view, $items) {
+  
   // Remove nodes outside the selected date range.
   $values = array();
   foreach ($items as $delta => $item) {
@@ -143,7 +144,7 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
 function calendar_build_day($curday, $view, $items) {
   $curday_date = date_format($curday, DATE_FORMAT_DATE);
   $selected = FALSE;
-  $max_events = $view->date_info->style_max_items;
+  $max_events = !empty($view->date_info->style_max_items) ? $view->date_info->style_max_items : 0;
   $types = array();
   $inner = array();
   $all_day = array();

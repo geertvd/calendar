@@ -32,6 +32,7 @@ function calendar_views_default_views() {
   // Then see if there are any custom calendars to be created 
   // using variable_get().
   $calendar_options = variable_get('calendar_default_view_options', array());
+  //$calendar_options = array();
   foreach ((array) $calendar_options as $calendar_option) {
     $view = calendar_views_construct($calendar_option);
     $views[$view->name] = $view;
@@ -280,8 +281,8 @@ $handler = $view->new_display('calendar_period', 'Year view', 'calendar_period_1
 $handler->override_option('style_plugin', 'calendar_style');
 $handler->override_option('style_options', array(
   'display_type' => 'year',
-  'name_size' => '1',
-  'max_items' => '0',
+  'name_size' => 1,
+  'max_items' => 0,
   'truncated_fields' => array(),
   'truncate_length' => '',
 ));
@@ -303,11 +304,9 @@ $handler->override_option('style_options', array(
   'name_size' => '99',
   'with_weekno' => '1',
   'date_fields' => NULL,
-  'max_items' => '3',
-  'truncated_fields' => array(
-    'node_title' => 'node_title',
-  ),
-  'truncate_length' => '12',
+  'max_items' => 0,
+  'truncated_fields' => array(),
+  'truncate_length' => '',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
@@ -349,7 +348,7 @@ $handler->override_option('style_plugin', 'calendar_style');
 $handler->override_option('style_options', array(
   'name_size' => '99',
   'with_weekno' => 0,
-  'max_items' => '0',
+  'max_items' => 0,
   'max_items_behavior' => 'more',
   'groupby_times' => 'hour',
   'groupby_times_custom' => '',
