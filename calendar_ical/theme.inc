@@ -33,7 +33,6 @@ function template_preprocess_calendar_view_ical(&$vars) {
   
   $events = array();
   foreach ($items as $node) {
-    
     // Allow modules to affect item fields
     node_invoke_nodeapi($node, 'ical item');
 

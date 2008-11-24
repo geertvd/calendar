@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Remove deprecated iCal code left over from old method of importing feeds.
 - #337665 Fix bad variable name that kept month titles from showing.
 - #337664 Add warning message when selecting terms if no vocabulary has been set yet.
 - #337646 We only need a single Advanced Help icon for Calendar settings.
