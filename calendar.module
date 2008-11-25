@@ -413,6 +413,15 @@ function calendar_groupby_times($type = '') {
 }
 
 /**
+ * Define some error messages.
+ */
+function calendar_errors($error) {
+  switch ($error) {
+    case 'missing_argument_default':
+      return t("The Date argument in this view must be set up to provide a default value set to the current date. Edit the argument, find 'Action to take if argument is not present.', choose 'Provide default argument', then select 'Current date'.");
+  }
+}
+/**
  * Implementation of hook_elements.
  * 
  * Much of the colorpicker code was adapted from the Colorpicker module.

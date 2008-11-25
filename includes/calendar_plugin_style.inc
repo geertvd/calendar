@@ -69,10 +69,16 @@ class calendar_plugin_style extends views_plugin_style {
     
     $arguments = $this->display->handler->get_option('arguments');
     if (!in_array('date_argument', array_keys($arguments))) {
-      $errors[$style] = t("The @style style requires a Date argument.", array('@style' => $style));      
+      if (empty($this->view->date_info->arg_missing)) {
+        $errors[$style] = t("The @style style requires a Date argument.", array('@style' => $style));      
+      }
+      $this->view->date_info->arg_missing = TRUE;
     }
     elseif ($arguments['date_argument']['default_action'] != 'default' || $arguments['date_argument']['default_argument_type'] != 'date') {
-      $errors[] = t("The Date argument @title in this view must be set up to provide a default value set to the current date.", array('@title' => $arguments['date_argument']['title']));      
+      if (empty($this->view->date_info->arg_missing_default)) {
+        $errors[] = calendar_errors('missing_argument_default');      
+      }
+      $this->view->date_info->arg_missing_default = TRUE;
     }
      
     // Make sure date fields are not set up to 'Group multiple values' 

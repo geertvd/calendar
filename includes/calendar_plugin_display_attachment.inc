@@ -90,10 +90,16 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
     
     $arguments = $this->display->handler->get_option('arguments');
     if (!in_array('date_argument', array_keys($arguments))) {
-      $errors[] = t("A Calendar period display will not work without a Date argument.");      
+      if (empty($this->view->date_info->arg_missing)) {
+        $errors[] = t("A Calendar period display will not work without a Date argument."); 
+      }
+      $this->view->date_info->arg_missing = TRUE;     
     }
     elseif ($arguments['date_argument']['default_action'] != 'default' || $arguments['date_argument']['default_argument_type'] != 'date') {
-      $errors[] = t("The Date argument @title in this view must be set up to provide a default value set to the current date.", array('@title' => $arguments['date_argument']['title']));      
+      if (empty($this->view->date_info->arg_missing_default)) {
+        $errors[] = calendar_errors('missing_argument_default');
+      }
+      $this->view->date_info->arg_missing_default = TRUE;
     }
 
     return $errors;

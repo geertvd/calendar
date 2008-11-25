@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Consolidate error messages about missing Date arguments so we don't get the message repeated, and add more info about how to fix.
 - #337635 Make sure max_items defaults to unlimited.
 - Remove deprecated iCal code left over from old method of importing feeds.
 - #337665 Fix bad variable name that kept month titles from showing.

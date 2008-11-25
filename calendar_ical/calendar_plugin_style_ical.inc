@@ -91,6 +91,51 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
       
   }
 
+   /**
+   * Style validation.
+   */
+  function validate() {
+    $errors = parent::validate();
+    
+    $style = $this->display->display_options['style_plugin'];
+    
+    $arguments = $this->display->handler->get_option('arguments');
+    $filters = $this->display->handler->get_option('filters');
+    
+    if (!array_key_exists('date_argument', $arguments) && !array_key_exists('date_filter', $filters)) {
+      if (empty($this->view->date_info->arg_missing)) {
+        $errors[$style] = t("The @style style requires a Date argument or a Date filter.", array('@style' => $style));      
+      }
+      $this->view->date_info->arg_missing = TRUE;
+    }
+    if (array_key_exists('date_argument', $arguments) && 
+    ($arguments['date_argument']['default_action'] != 'default' || $arguments['date_argument']['default_argument_type'] != 'date')) {
+      if (empty($this->view->date_info->arg_missing_default)) {
+        $errors[] = calendar_errors('missing_argument_default');      
+      }
+      $this->view->date_info->arg_missing_default = TRUE;
+    }
+     
+    // Make sure date fields are not set up to 'Group multiple values' 
+    // in the calendar style.
+    if ($style == 'calendar_style') {
+      $view_fields = date_api_fields('node');
+      $view_fields = $view_fields['name'];
+      $fields = $this->display->handler->get_option('fields');
+      foreach ($fields as $column => $field) {
+        $field_name = $field['table'] .".". $field['field'];
+        if (!empty($field['multiple'])) {
+          $cck_fields = content_fields();
+          $real_name = $view_fields[$field_name]['real_field_name'];
+          if ($cck_fields[$real_name]['multiple'] && !empty($field['multiple']['group'])) {
+            $errors[] = t("The date field '@field' used by the display '@display_title' cannot be set to 'Group multiple values'.", array('@field' => $view_fields[$field_name]['label'], '@display_title' => $this->display->display_title));
+          }
+        }
+      }
+    }
+    return $errors;
+  }
+ 
   function render() {
     require_once('./'. drupal_get_path('module', 'calendar') .'/includes/calendar.inc');
     
