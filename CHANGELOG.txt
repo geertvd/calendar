@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #338515 Initialize $date_field_options to avoid error when editing style.
 - Consolidate error messages about missing Date arguments so we don't get the message repeated, and add more info about how to fix.
 - #337635 Make sure max_items defaults to unlimited.
 - Remove deprecated iCal code left over from old method of importing feeds.

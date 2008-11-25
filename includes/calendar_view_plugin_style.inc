@@ -95,6 +95,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     // Create a list of fields that are available for grouping and truncation,
     // excluding the date fields in the view from the grouping options.  
     $field_options = array();
+    $date_field_options = array();
     $fields = $this->display->handler->get_option('fields');
     $date_fields = array_keys($this->date_fields());
     foreach ($fields as $field_name => $field) {
