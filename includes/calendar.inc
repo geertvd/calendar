@@ -8,7 +8,6 @@
  * @return themed table
  */
 function calendar_build_calendar($view, $items) {
-  
   // Remove nodes outside the selected date range.
   $values = array();
   foreach ($items as $delta => $item) {
@@ -170,7 +169,7 @@ function calendar_build_day($curday, $view, $items) {
             }
             else {
               $key = date_format($item->calendar_start_date, 'H:i:s');
-              $inner[$key][] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, $item, $view);
+              $inner[substr($key, 0, 2)][] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, $item, $view);
             }
           }
         }
@@ -188,7 +187,7 @@ function calendar_build_day($curday, $view, $items) {
     }
     $link = theme('calendar_'. $view->date_info->calendar_type .'_multiple_node', $curday_date, $count, $view, $types);
   }
-  
+    
   $content = array(
     'date' => $curday_date, 
     'datebox' => theme('calendar_datebox', $curday_date, $view, $items, $selected), 
@@ -259,7 +258,6 @@ function calendar_untranslated_days() {
  * and date field.
  */
 function calendar_build_nodes(&$view, &$items) {
-  
   if (empty($view->date_info->min_date) || empty($view->date_info->max_date)) {
     return $items;
   }
