@@ -6,6 +6,8 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Fix field name code in default view, don't add '_value' to core fields!
+- Make sure default view doesn't make any assumptions about available content types.
 - #337635 Make sure Views doesn't limit the calendar results to 10 items in the calendar style.
 - #338515 Initialize $date_field_options to avoid error when editing style.
 - Consolidate error messages about missing Date arguments so we don't get the message repeated, and add more info about how to fix.

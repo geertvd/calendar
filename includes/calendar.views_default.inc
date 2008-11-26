@@ -96,12 +96,15 @@ if (empty($path)) {
   $path = 'calendar';
 }
 if (empty($types)) {
-  $types = array('page', 'story');
+  $types = array();
 }
 if (empty($date_fields)) {
   $date_fields = array('changed');
 }
-
+$colors = array();
+foreach ($types as $type) {
+  $colors[$type] = '#ffffff';
+}
 // Can handle core node date fields or CCK date fields.
 
 $fields = array();
@@ -110,12 +113,13 @@ foreach ($date_fields as $key => $field_name) {
   if (substr($field_name, 0, 6) == 'field_') {
     $table = 'node_data_'. $field_name;
     $alias_fields[$key] = $field_name .'_value';
+    $alias = $table .'.'. $field_name .'_value';
   }
   else {
     $table = 'node';
     $alias_fields[$key] = $field_name;
+    $alias = $table .'.'. $field_name;
   }
-  $alias = $table .'.'. $field_name .'_value';
   $fields[$alias] = $alias;
 }
 
@@ -268,10 +272,7 @@ $handler->override_option('tab_options', array(
   'title' => '',
   'weight' => 0,
 ));
-$handler->override_option('calendar_colors', array(
-  'page' => '#ffff66',
-  'story' => '#668cff',
-));
+$handler->override_option('calendar_colors', array($colors));
 
 // Calendar block.
 $handler = $view->new_display('calendar_block', 'Calendar block', 'calendar_block_1');
