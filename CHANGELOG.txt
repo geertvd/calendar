@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- Set calendar item font size at a higher level to make sure all sub-elements pick it up and make it easier to override in the theme.
 - #336567 Add extra test for valid values to date processing to avoid fatal error on empty property.
 - #337209 Add configuration option for new function to truncate long text in calendar cells.
 
