@@ -29,6 +29,9 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     
     // TODO make this an option setting.
     $view->date_info->style_show_empty_times = !empty($this->options['groupby_times_custom']) ? TRUE : FALSE;
+    
+    // Make sure views does't try to limit the number of items in this view.
+    $this->view->pager['items_per_page'] = 0;
   }
   
   /**
@@ -40,7 +43,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     $options['max_items'] = 0;
     $options['max_items_behavior'] = 'more';
     $options['truncated_fields'] = array();
-    $options['truncate_length'] = 12;
+    $options['truncate_length'] = '';
     $options['groupby_times'] = 'hour';
     $options['groupby_times_custom'] = '';
     $options['groupby_field'] = '';
@@ -140,8 +143,8 @@ class calendar_view_plugin_style extends calendar_plugin_style {
   function options_submit($form, &$form_state) {
     $form_state['values']['style_options']['truncated_fields'] = array_filter($form_state['values']['style_options']['truncated_fields']);
   }
-    
-   /**
+
+  /**
    * Render the calendar attachment style.
    */
   function render() {
