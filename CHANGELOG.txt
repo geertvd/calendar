@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Set calendar item font size at a higher level to make sure all sub-elements pick it up and make it easier to override in the theme.
 - Make sure node stripes aren't created when there is no stripe color set.
 - Don't truncate fields if there is no truncate value.
 - Fix field name code in default view, don't add '_value' to core fields!

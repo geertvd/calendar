@@ -196,7 +196,7 @@ table .mini-day-on a {
 /* formatting for the legend stripe and block */
 .calendar-calendar .stripe {
   height: 5px;
-  width: 96%;
+  width: auto;
   font-size:1px !important;
   line-height:1px !important;
 }
@@ -315,8 +315,11 @@ table.calendar-legend tr.even .stripe {
 .calendar-calendar td .inner div a {
   background:#eee;
 }
+/* Set small font size for all items in calendar div, themes can override this. */
+/* Use x-small instead of em to avoid multiplying effect in nested items. */
 .calendar-calendar div.calendar {
   border:none;
+  font-size:x-small;
 }
 .calendar-calendar td .inner div.calendar div,
 .calendar-calendar td .inner div.calendar div a {
@@ -329,15 +332,11 @@ table.calendar-legend tr.even .stripe {
   color:#444;
   background:#fff;
   text-align:right;
-  width:96%;
-  font-size:x-small;
 }
-
 .calendar-calendar td .inner .view-field,
 .calendar-calendar td .inner .view-field a {
   color:#444;
   font-weight:normal;
-  font-size:x-small;
 }
 
 .calendar-calendar td span.date-display-single,
