@@ -141,7 +141,8 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
   }
 
   function pre_execute() {
-    
+    // Make sure parent function is called so things like items per page get set.
+    parent::pre_execute();
     $this->view->date_info->display_granularity = $this->calendar_type();
     $this->view->date_info->calendar_type = $this->calendar_type();
   }
