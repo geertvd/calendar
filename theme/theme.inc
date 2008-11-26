@@ -99,7 +99,7 @@ function template_preprocess_calendar(&$vars) {
         $items[$num]->calendar_fields->$key = $value;
       }
       // Shorten truncated fields before sending them to the row theme.
-      if (in_array($key, $view->date_info->style_truncated_fields) 
+      if (in_array($key, $view->date_info->style_truncated_fields) && !empty($view->date_info->style_truncate_length) 
         && $view->style_plugin->definition['handler'] == 'calendar_view_plugin_style') {
         $row->$key = calendar_trim_text($row->$key, $view->date_info->style_truncate_length);
       }

@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Don't truncate fields if there is no truncate value.
 - Fix field name code in default view, don't add '_value' to core fields!
 - Make sure default view doesn't make any assumptions about available content types.
 - #337635 Make sure Views doesn't limit the calendar results to 10 items in the calendar style.
