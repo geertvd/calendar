@@ -636,7 +636,7 @@ function theme_calendar_stripe_legend() {
  * Add key value to text, then hide it with css for accessibility to screen readers
  */
 function theme_calendar_stripe_stripe($node) {
-  if (empty($node->stripe)) {
+  if (empty($node->stripe) || (count($node->stripe) && empty($node->stripe[0]))) {
     return;
   }
   $output = '';
