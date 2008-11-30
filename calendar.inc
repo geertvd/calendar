@@ -474,7 +474,7 @@ function calendar_build_field_query(&$query, $field) {
 
     if ($tz_handling == 'date') {
       $date_handler->local_timezone_field = $fields['tz_field'];
-      $date_handler->local_offset_field = $fields['offset_field'];
+      $date_handler->offset_field = $fields['offset_field'];
     }
 
     // Figure out where this field is in the query's field array
