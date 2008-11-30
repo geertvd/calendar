@@ -169,7 +169,7 @@ function calendar_build_day($curday, $view, $items) {
             }
             else {
               $key = date_format($item->calendar_start_date, 'H:i:s');
-              $inner[substr($key, 0, 2)][] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, $item, $view);
+              $inner[$key][] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, $item, $view);
             }
           }
         }
