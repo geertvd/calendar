@@ -306,16 +306,8 @@ function calendar_build_nodes(&$view, &$items) {
     $tz_handling  = $field['tz_handling'];
     $label        = isset($view->field[$name]) ? $view->field[$name]['label'] : $field['field_name'];
     $tz_alias     = str_replace('.', '_', $field['timezone_field']);
-    $db_tz = 'UTC';
-    $local_tz = date_default_timezone_name();
-    switch ($field['tz_handling']) {
-      case 'none':
-        $db_tz = date_default_timezone_name();
-        break;
-      case 'date':
-        $local_tz = 'date';
-        break;
-    }
+    $db_tz        = date_get_timezone_db($field['tz_handling']);
+    $local_tz     = date_get_timezone($field['tz_handling'], 'date');
     $field_name = $field['field_name'];
         
     // If there is no field for this item, just default to the site format.

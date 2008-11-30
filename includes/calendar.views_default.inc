@@ -33,9 +33,6 @@ function calendar_views_default_views() {
   // using variable_get().
   $calendar_options = variable_get('calendar_default_view_options', array());
   
-  // TODO For some reason this occasionally bombs if Calendar iCal is installed.
-  // Need to figure out why before allowing this option.
-  $calendar_options = array();
   foreach ((array) $calendar_options as $calendar_option) {
     $view = calendar_views_construct($calendar_option);
     $views[$view->name] = $view;
