@@ -468,25 +468,13 @@ function calendar_build_field_query(&$query, $field) {
     $tz_handling  = $this_field['tz_handling'];
     $date_handler = new date_sql_handler();
     $date_handler->construct($field_type);
-          
-    switch ($tz_handling) {
-      case 'date' :
-        $date_handler->db_timezone = 'UTC';
-        $date_handler->local_timezone_field = $fields['tz_field'];
-        $date_handler->local_offset_field = $fields['offset_field'];
-        break;
-      // 'None' doesn't actually use UTC, but we've set the db timezone
-      // to UTC so setting the local timezone to UTC will accomplish
-      // what we want to accomplish - do no timezone conversion.
-      case 'none':
-      case 'utc':
-        $date_handler->db_timezone = 'UTC';
-        $date_handler->local_timezone = 'UTC';
-        break;
-      default :
-        $date_handler->db_timezone = 'UTC';
-        $date_handler->local_timezone = date_default_timezone_name();
-        break;
+      
+    $date_handler->db_timezone = date_get_timezone_db($tz_handling);
+    $date_handler->local_timezone = date_get_timezone($tz_handling, date_default_timezone_name());
+
+    if ($tz_handling == 'date') {
+      $date_handler->local_timezone_field = $fields['tz_field'];
+      $date_handler->local_offset_field = $fields['offset_field'];
     }
 
     // Figure out where this field is in the query's field array
