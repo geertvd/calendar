@@ -192,7 +192,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
             $form['calendar_colors_taxonomy']['color'][$term->tid] = array(
 	            '#title' => t($term->name),
 	            '#type' => 'calendar_colorfield',
-	            '#default_value' => isset($colors_taxonomy[$term->tid]) ? $colors_taxonomy[$term->tid] : '',
+	            '#default_value' => isset($colors_taxonomy[$term->tid]) ? $colors_taxonomy[$term->tid] : '#ffffff',
 	            '#calendar_colorpicker' => 'calendar-colors-taxonomy-colorpicker',
 	            '#prefix' => '<div style="float:left;margin-right:10px">',
 	            '#suffix' => '</div>',
