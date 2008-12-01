@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- Make sure paragraphs buried in calendar cells use padding, not margins, for separation so the background color doesn't come through.
 - #338237 Replace 'local_offset_field' with 'offset_field' in date handler.
 - Get rid of hard-coded 'UTC' for database values in favor of consistently using date_get_timezone_db().
 - Set calendar item font size at a higher level to make sure all sub-elements pick it up and make it easier to override in the theme.
