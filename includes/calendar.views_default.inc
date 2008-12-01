@@ -146,7 +146,7 @@ foreach ($display_fields as $key => $value) {
   }
   elseif ($cck_field) {
     $display_fields[$key]['label_type'] = 'widget';
-    $display_fields[$key]['format'] = 'default';
+    $display_fields[$key]['format'] = 'time';
     $display_fields[$key]['multiple'] = array(
       'group' => 0,
       'multiple_number' => '',

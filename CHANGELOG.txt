@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #303714 Make sure calendar obeys the date format chosen in the view now that the Date module has a 'time' format available.
 - #340604 See taxonomy color stripes with #ffffff to be sure the colorpicker works right.
 - #340215 Fix broken method of setting the key for start times.
 - Get rid of hard-coded 'UTC' for database values in favor of consistently using date_get_timezone_db().

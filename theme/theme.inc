@@ -114,6 +114,7 @@ function template_preprocess_calendar(&$vars) {
       }
     }
   }
+  
   $vars['display_type'] = $view->date_info->granularity;
   $vars['min_date_formatted'] = date_format($view->date_info->min_date, DATE_FORMAT_DATETIME);
   $vars['max_date_formatted'] = date_format($view->date_info->max_date, DATE_FORMAT_DATETIME);
@@ -494,9 +495,6 @@ function template_preprocess_calendar_node(&$vars) {
             break;
         }
       }
-      if ($field_alias == $node->datefield) {
-        $data = theme('calendar_date_combo', $node, $field->options['label'], $view);
-      }
       $fields[$field_alias] = array(
         'id' => views_css_safe($field_alias),
         'label' => $label,
@@ -682,81 +680,6 @@ function theme_calendar_title($granularity, $view) {
     case 'week':
     	return t('Week of @date', array('@date' => date_format_date($view->date_info->min_date, 'custom', 'F j')));
   }
-}
-
-/**
- * Format a from/to date in the calendar view.
- *
- * Alter the display as appropriate for the type of view.
- * We can fine-tune the display to show only the time in 
- * the calendar month and week cells but the
- * whole date in other places.
- */
-function theme_calendar_date_combo($node, $label, $view) {
-  switch ($node->format) {
-    case 'format_interval':
-      return theme('date_time_ago', $node->calendar_start_date, $node->calendar_end_date);
-      
-    case 'time ago':
-      $value = date_format($node->calendar_start_date, 'U');
-      return $value ? t('%time ago', array('%time' => format_interval(time() - $value, 2))) : theme('views_nodate');
-  }
-  
-  
-  switch ($view->style_plugin->definition['handler']) {
-    // Some of the calendar views need a smaller date format.
-    case 'calendar_view_plugin_style':
-      switch ($view->date_info->calendar_display) {
-        case 'year':
-          // We don't display individual dates in the calendar year view.
-          return;
-        case 'week':
-        case 'month':
-          // No room for a label or the full date in these small
-          // displays, show only the time.
-          $format = $node->format_time;
-          $label = '';
-          break;
-        case 'day':
-          $format = $node->format;
-          break;
-      }
-      break;
-    // For non-calendar views, like lists and tables, show the entire date.
-    default:
-      $format = $node->format;
-      break;
-  }
-  
-  
-  $date1 = theme('date_all_day', 'date1', $node->calendar_start_date, $node->calendar_end_date, $format, $node, $view);
-  $date2 = theme('date_all_day', 'date2', $node->calendar_start_date, $node->calendar_end_date, $format, $node, $view);
-  
-  // No date values, display nothing.
-  if (empty($date1) && empty($date2)) {
-    $output = '';
-  }
-  // From and To dates match or there is no To date,
-  // display a complete single date.
-  elseif ($date1 == $date2 || empty($date2)) {
-    $output = '<span class="date-display-single">'. $date1 .'</span>';
-  }
-  // Full date format, same day, different times, don't repeat the date
-  // but show both From and To times.
-  elseif (date_format($node->calendar_start_date, $node->format_time) != date_format($node->calendar_end_date, $node->format_time) && $format != $node->format_time) {
-    $date_format = date_limit_format($format, array('year', 'month', 'day'));
-    $output = '<span class="date-display-single">'. date_format($node->calendar_start_date, $date_format).'</span> '.
-      '<span class="date-display-start">'. date_format($node->calendar_start_date, $node->format_time) .'</span>'.
-      '<span class="date-display-separator"> - </span>'.
-      '<span class="date-display-end">'. date_format($node->calendar_end_date, $node->format_time) .'</span>';
-  }
-  // Time format only or different days, display both in their entirety.
-  else {
-    $output = '<span class="date-display-start">'. $date1 .'</span>'.
-      '<span class="date-display-separator"> - </span>'.
-      '<span class="date-display-end">'. $date2 .'</span>';
-  }
-  return $output;
 }
 
 /** @} End of addtogroup themeable */

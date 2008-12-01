@@ -150,6 +150,7 @@ function calendar_build_day($curday, $view, $items) {
   $empty = '';
   $link = '';
   $count = 0;
+
   foreach ($items as $date => $day) {
     if ($date == $curday_date) {
       $count = 0;
