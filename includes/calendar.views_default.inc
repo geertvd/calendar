@@ -331,7 +331,7 @@ $handler->override_option('style_options', array(
   'groupby_times_custom' => '',
   'groupby_field' => '',
   'truncated_fields' => array(),
-  'truncate_length' => '20',
+  'truncate_length' => '',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
@@ -355,7 +355,7 @@ $handler->override_option('style_options', array(
   'groupby_times_custom' => '',
   'groupby_field' => '',
   'truncated_fields' => array(),
-  'truncate_length' => '20',
+  'truncate_length' => '',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
