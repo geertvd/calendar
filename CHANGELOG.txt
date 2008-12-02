@@ -6,6 +6,9 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+Version 2.0 rc6
+=================
+
 - All day events were getting dropped.
 - #341202, #339457, #337952, #329128, #337787, #341203, Fix repeating and multiple date displays. 
 - #303714 Make sure calendar obeys the date format chosen in the view now that the Date module has a 'time' format available.
