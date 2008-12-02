@@ -12,7 +12,7 @@
  * @todo - control of the stripe color is not yet implemented.
  */
 function _calendar_ical_setup_form($view_name) {
-  include_once(drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
+  require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
 
   $form = array();
   $view = views_get_view($view_name);
@@ -54,7 +54,7 @@ function _calendar_ical_setup_form($view_name) {
         '#type' => 'textarea',
         '#rows' => 2,
         '#default_value' => $feed['url'],
-        '#description' => t('The external feed url or internal file path and name. Change \'webcal://\' to \'http://\'.'),
+        '#description' => t("The external feed url or internal file path and name. Change 'webcal://' to 'http://'."),
       ),
      'calendar_colorpicker' => array(
         '#type' => 'calendar_colorpicker',
@@ -64,7 +64,7 @@ function _calendar_ical_setup_form($view_name) {
         '#type' => 'calendar_colorfield',
         '#default_value' => isset($feed['stripe']) ? $feed['stripe'] : '#ffffff',
         '#calendar_colorpicker' => $view_name .'-'. $delta .'-calendar-colorpicker',
-        '#description' => t('The hex color value (like #ffffff) to use for this feed\'s calendar stripe.'),
+        '#description' => t("The hex color value (like #ffffff) to use for this feed's calendar stripe."),
        ),
     );
   }

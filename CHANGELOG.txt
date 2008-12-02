@@ -6,6 +6,113 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+Version 2.0 rc6
+=================
+
+- All day events were getting dropped.
+- #341202, #339457, #337952, #329128, #337787, #341203, Fix repeating and multiple date displays. 
+- #303714 Make sure calendar obeys the date format chosen in the view now that the Date module has a 'time' format available.
+- #340604 Seed taxonomy color stripes with #ffffff to be sure the colorpicker works right.
+- #340215 Fix broken method of setting the key for start times.
+- Get rid of hard-coded 'UTC' for database values in favor of consistently using date_get_timezone_db().
+- Make sure parent pre_execute() function is called so things like items per page get set.
+- Set calendar item font size at a higher level to make sure all sub-elements pick it up and make it easier to override in the theme.
+- Make sure node stripes aren't created when there is no stripe color set.
+- Don't truncate fields if there is no truncate value.
+- Fix field name code in default view, don't add '_value' to core fields!
+- Make sure default view doesn't make any assumptions about available content types.
+- #337635 Make sure Views doesn't limit the calendar results to 10 items in the calendar style.
+- #338515 Initialize $date_field_options to avoid error when editing style.
+- Consolidate error messages about missing Date arguments so we don't get the message repeated, and add more info about how to fix.
+- #337635 Make sure max_items defaults to unlimited.
+- Remove deprecated iCal code left over from old method of importing feeds.
+- #337665 Fix bad variable name that kept month titles from showing.
+- #337664 Add warning message when selecting terms if no vocabulary has been set yet.
+- #337646 We only need a single Advanced Help icon for Calendar settings.
+
+Version 2.0 rc5
+=================
+
+New Features:
+=============
+- Update day and week view to use new configurable, agenda-style calendar views grouped by hour.
+- #337004 By hotspoons: Add settings to display calendar legend colors based on taxonomy.
+- #319344 By MothersClick.com: Add updated css styles, settings to truncate titles in calendar cells 
+  and limit the number of events that display in calendar cells.
+- Make default calendar view configurable so we can create default calendars for specific date fields.
+- Add a date_embed_view() function to provide a way to embed views and have their navigation move 
+  either together or separately, and document it in Advanced help.
+- Start building Advanced help instructions, including how to do iCal import using Feed API.
+- #290365 Add upcoming events block to default calendar.
+
+Other:
+======
+- Rename values added to views to avoid name clashes and keep all date values together.
+- #329153 Make sure day link in calendar mini block goes to full day view.
+- Set day-splitting timezone to be sure it will split days using the time displayed in the calendar.
+- #329418 Fix week number formatting.
+- Adapt processing to make sure only selected dates display in nodes, views, and calendars.
+- Improve the look of the day view by postponing the time when the item is output so we have more information in the template.
+- Had the block view identifier set too early, before we know if the block is being used, causing all views to act like blocks.
+- Only the month view needs the 'mini' theme, make sure it isn't used anywhere else.
+- #326597 Make sure ical icon theme arguments and parameters sent to it match.
+- Get the links in embedded views and blocks to work correctly using a helper function date_real_url().
+- Add option to maximum items per day to either show maximum plus 'more' link or hide all and link to day.
+- Use view->date fields from either date arguments or date filters.
+- Add helper function for creating calendar urls based on type or requested argument.
+- Fix undefined index in new Date popup calendar option.
+- Make sure 'time ago' formats will work in calendar.
+- Fix logic problem in the validation of multiple dates that use the grouped value, non-multiple dates were triggering the error.
+- #279679 Fix broken handling of date format selection.
+- Make sure popup date switcher isn't shown in the mini calendar.
+- Adjust the recent changes to the navigation header to be sure only the calendar header and not the date browser is affected.
+- #292164 Keep calendar date selector description from floating out of block in IE.
+- #298929 Fix code so that calendar legend doesn't display empty div when empty.
+- Make some fixes to the calendar legend to be sure text added for accessibility stays invisible in all themes.
+- #321831 Make sure day view gets populated.
+- Rework html of Year view so month titles will match block view month title for easier css themeing.
+- #174580 Add rel=nofollow to back/next links.
+- #289166 Change ical link in default calendar to 'all time' link instead of single period.
+- #315843 Make sure there is validation to keep you from trying to group multiple date values in the calendar.
+- Add the popup calendar date selector back into the D6 version.
+
+Version 2.0 rc4
+=================
+
+- Change the jcalendar code to use the new display_ids.
+- Make it possible to expose the calendar parts in the UI. To make this work better, combine year, month, day, and week handlers into a single handler.
+- #311485 Make sure mini calendar has the right number of columns if using week number.
+- #317660 Hard code line feeds in ical export to be sure they come through correctly in all systems.
+- Start adding in Advanced help for the calendar.
+- Move the colorpicker js info to the plugin so it isn't loaded everywhere.
+- #314682 Add missing url() in jcalendar js code.
+- #315955 Translation cleanup.
+- Get colorpicker working in the Views UI again. I'm not loading the js in the best place, but at least it works now.
+- Get rid of deprecated theme for ical output that is not being used in current code.
+- #307544 Get rid of extra line feed at end of ical description and make sure template works correctly.
+- #312170 Fix misplaced parenthesis in jCalendar theme.
+- #313161 Use date_id as iCal UID to be sure it is unique.
+- #303537 Display:relative should be position:relative.
+- #313538 Fix color typo in calendar.css.
+- #309608, #309253 Get rid of attempt to simplify the navigation query, it is too easily broken. 
+- #309391 Now that the Views fatal error for missing display handlers is fixed, add the ical display back.
+
+Version 2.0 rc2
+=================
+
+- #301414 Revert http://drupal.org/cvs?commit=133523, wrong way to fix that.
+- #308372 Make ical display handlers are removed from views display table when Calendar iCal is disabled.
+- Eliminate query for navigation display.
+- Calendar ical theme was in the wrong folder, move it to the ical folder.
+- #303000 The calendar ical feed was deeply sub-classed and wasn't working right, rewrite it to not require so many other classes.
+- #294469 Get rid of redundant timezone conversion that showed dates without timezone conversion in UTC.
+- #303999 Correct theme paths for Views themes.
+- #304762 Add missing folders for translations.
+- Update to new Views2 API. Now requires latest versions of Views and CCK, and files have been re-arranged.
+- Replace all include_once() with require_once().
+- #301324 Rework calendar date selector to use site short date format.
+- Fix css for week number to be sure it stays small in all browsers.
+
 Version 2.0 rc1
 =================
 
