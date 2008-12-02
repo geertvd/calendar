@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #341202, #339457, #337952, #329128, #337787, #341203, Fix repeating and multiple date displays. 
 - #303714 Make sure calendar obeys the date format chosen in the view now that the Date module has a 'time' format available.
 - #340604 Seed taxonomy color stripes with #ffffff to be sure the colorpicker works right.
 - #340215 Fix broken method of setting the key for start times.

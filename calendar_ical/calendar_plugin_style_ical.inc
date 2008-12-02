@@ -169,10 +169,6 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
         $this->view->date_info->week = isset($argument->week) ? $argument->week : NULL;
         $this->view->date_info->min_date = $argument->min_date;
         $this->view->date_info->max_date = $argument->max_date;
-        if (empty($this->view->date_info->date_fields)) {
-          $this->view->date_info->date_fields = array();
-        }
-        $this->view->date_info->date_fields = array_merge($this->view->date_info->date_fields, array_keys($argument->options['date_fields']));
                 
         // Stop after the first date argument, if there is more than one.
         break;

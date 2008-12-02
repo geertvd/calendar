@@ -64,7 +64,9 @@ class calendar_plugin_style extends views_plugin_style {
    */
   function validate() {
     $errors = parent::validate();
-    
+    if (empty($this->display->display_options['style_plugin'])) {
+      return $errors;
+    }
     $style = $this->display->display_options['style_plugin'];
     
     $arguments = $this->display->handler->get_option('arguments');
@@ -132,10 +134,6 @@ class calendar_plugin_style extends views_plugin_style {
         $this->view->date_info->max_date = $argument->max_date;
         $this->view->date_info->min_date_date = date_format($this->view->date_info->min_date, DATE_FORMAT_DATE);
         $this->view->date_info->max_date_date = date_format($this->view->date_info->max_date, DATE_FORMAT_DATE);
-        if (empty($this->view->date_info->date_fields)) {
-          $this->view->date_info->date_fields = array();
-        }
-        $this->view->date_info->date_fields = array_merge($this->view->date_info->date_fields, array_keys($argument->options['date_fields']));
         
         // Stop after the first date argument, if there is more than one.
         break;

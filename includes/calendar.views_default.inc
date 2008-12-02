@@ -106,6 +106,9 @@ foreach ($types as $type) {
 
 $fields = array();
 $alias_fields = $date_fields;
+$sort_fields = array();
+$upcoming_fields = array();
+
 foreach ($date_fields as $key => $field_name) {
   if (substr($field_name, 0, 6) == 'field_') {
     $table = 'node_data_'. $field_name;
@@ -118,6 +121,16 @@ foreach ($date_fields as $key => $field_name) {
     $alias = $table .'.'. $field_name;
   }
   $fields[$alias] = $alias;
+  
+  // Add a sort for each date field:
+  $sort_fields[$field_name] = array(
+    'order' => 'ASC',
+    'delta' => '-1',
+    'id' => $field_name,
+    'table' =>  $table,
+    'field' => $field_name,
+    'relationship' => 'none',
+  );
 }
 
 // Set up fields section with some of the basic options.
@@ -154,6 +167,9 @@ foreach ($display_fields as $key => $value) {
       'multiple_reversed' => 0,
       );
   }
+  // Upcoming and iCal fields should display the whole date, not just time.
+  $upcoming_fields[$key] = $display_fields[$key];
+  $upcoming_fields[$key]['format'] = 'default';
 }
 
 $filters = array(
@@ -172,6 +188,7 @@ $filters = array(
     'relationship' => 'none',
   ),
 );
+// Limit to types provided:
 if (!empty($types)) {
   $filters += array(
     'type' => array(
@@ -190,6 +207,37 @@ if (!empty($types)) {
   ),
   );
 }
+// Filters for Upcoming and iCal views:
+$upcoming_filters = $filters + array(
+  'date_filter' => array(
+    'operator' => '>=',
+    'value' => array(
+      'value' => NULL,
+      'min' => NULL,
+      'max' => NULL,
+      'default_date' => 'now',
+      'default_to_date' => '',
+    ),
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+    ),
+    'date_fields' => $fields,
+    'granularity' => 'day',
+    'form_type' => 'date_select',
+    'default_date' => 'now',
+    'default_to_date' => '',
+    'id' => 'date_filter',
+    'table' => 'node',
+    'field' => 'date_filter',
+    'override' => array(
+      'button' => 'Use default',
+    ),
+    'relationship' => 'none',
+  ),
+);
 
 $view = new view;
 $view->name = $name;
@@ -204,6 +252,7 @@ $view->disabled = $disabled; /* Edit this to true to make a default view disable
 // Defaults.
 $handler = $view->new_display('default', 'Defaults', 'default');
 $handler->override_option('fields', $display_fields);
+$handler->override_option('sorts', $sort_fields);
 
 $handler->override_option('arguments', array(
   'date_argument' => array(
@@ -389,36 +438,7 @@ $handler->override_option('calendar_type', 'month');
 if (module_exists('calendar_ical')) {
 $handler = $view->new_display('calendar_ical', 'iCal feed', 'calendar_ical_1');
 $handler->override_option('arguments', array());
-$handler->override_option('filters', $filters + array(
-  'date_filter' => array(
-    'operator' => '>=',
-    'value' => array(
-      'value' => NULL,
-      'min' => NULL,
-      'max' => NULL,
-      'default_date' => 'now',
-      'default_to_date' => '',
-    ),
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'date_fields' => $fields,
-    'granularity' => 'day',
-    'form_type' => 'date_select',
-    'default_date' => 'now',
-    'default_to_date' => '',
-    'id' => 'date_filter',
-    'table' => 'node',
-    'field' => 'date_filter',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-    'relationship' => 'none',
-  ),
-));
+$handler->override_option('filters', $upcoming_filters);
 $handler->override_option('style_plugin', 'ical');
 $handler->override_option('style_options', array(
   'mission_description' => FALSE,
@@ -450,41 +470,9 @@ $handler->override_option('sitename_title', FALSE);
 
 // Upcoming events block.
 $handler = $view->new_display('block', 'Upcoming', 'block_1');
+$handler->override_option('fields', $upcoming_fields);
 $handler->override_option('arguments', array());
-$handler->override_option('filters', $filters + array(
-  'date_filter' => array(
-    'operator' => '>=',
-    'value' => array(
-      'value' => NULL,
-      'min' => NULL,
-      'max' => NULL,
-      'default_date' => 'now',
-      'default_to_date' => '',
-    ),
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => 'date_filter_op',
-      'label' => 'Date:',
-      'use_operator' => 1,
-      'identifier' => 'date_filter',
-      'optional' => 1,
-      'remember' => 0,
-    ),
-    'date_fields' => $fields,
-    'granularity' => 'day',
-    'form_type' => 'date_select',
-    'default_date' => 'now',
-    'default_to_date' => '',
-    'id' => 'date_filter',
-    'table' => 'node',
-    'field' => 'date_filter',
-    'override' => array(
-      'button' => 'Use default',
-    ),
-    'relationship' => 'none',
-  ),
-));
+$handler->override_option('filters', $upcoming_filters);
 $handler->override_option('use_more', 1);
 $handler->override_option('items_per_page', 5);
 $handler->override_option('style_plugin', 'list');
