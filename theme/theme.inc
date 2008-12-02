@@ -173,7 +173,7 @@ function template_preprocess_calendar_month(&$vars) {
   foreach ($rows as $weekno => $row) {
     foreach ($row as $day => $data) {
       $cell = $data['data'];
-      
+            
       // If this cell is already rendered, like the weekno column,
       // move to the next item.
       if (!is_array($cell)) {

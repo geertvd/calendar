@@ -178,7 +178,7 @@ function calendar_build_day($curday, $view, $items) {
     }
   }
   ksort($inner);
-  if (empty($inner)) {
+  if (empty($inner) && empty($all_day)) {
     $empty = theme('calendar_empty_day', $curday_date, $view);
   }
   // we have too many events on this day. use the theme('calendar_multiple_')
