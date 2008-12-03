@@ -631,17 +631,15 @@ function theme_calendar_stripe_legend() {
 
 /**
  * Format node stripes
- * Add key value to text, then hide it with css for accessibility to screen readers
  */
 function theme_calendar_stripe_stripe($node) {
-  if (empty($node->stripe) || (count($node->stripe) && empty($node->stripe[0]))) {
+  if (empty($node->stripe) || (!count($node->stripe))) {
     return;
   }
   $output = '';
-  //$GLOBALS['calendar_stripes'][$node->stripe_label] = $node->stripe;
   if(is_array($node->stripe_label)){
     foreach($node->stripe_label as $k => $stripe_label){
-      if($stripe_label){
+      if(!empty($node->stripe[$k]) && !empty($stripe_label)) {
         $GLOBALS['calendar_stripes'][$stripe_label] = $node->stripe[$k];
         $output.= '<div style="background-color:'. $node->stripe[$k] .';color:'. $node->stripe[$k] .'" class="stripe" title="Key: '. $node->stripe_label[$k] .'">&nbsp;</div>'."\n";
       }

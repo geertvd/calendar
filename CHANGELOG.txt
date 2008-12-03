@@ -6,6 +6,8 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Fix some logic in stripe labels that was showing empty content type stripes and missing taxonomy stripes.
+
 Version 2.0 rc6
 =================
 
