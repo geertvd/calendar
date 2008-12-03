@@ -226,9 +226,9 @@ function template_preprocess_calendar_mini(&$vars) {
  */
 function template_preprocess_calendar_year(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
-  $vars['view']->style_with_weekno = FALSE;
+  $vars['view']->date_info->style_with_weekno = FALSE;
   template_preprocess_calendar($vars);
-  
+    
   // Get the url of the year view and remove the year argument from it.
   // TODO clean this up in case there is another arg that looks like
   // the year to make sure only the year gets removed.
@@ -254,6 +254,8 @@ function template_preprocess_calendar_year(&$vars) {
     $months[$month] = theme('calendar_mini', $view, $vars['options'], $month_rows);
   }
   $vars['months'] = $months;
+  $vars['view']->date_info->hide_nav = FALSE;
+  
 }
 
 /**

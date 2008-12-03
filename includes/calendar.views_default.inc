@@ -114,11 +114,13 @@ foreach ($date_fields as $key => $field_name) {
     $table = 'node_data_'. $field_name;
     $alias_fields[$key] = $field_name .'_value';
     $alias = $table .'.'. $field_name .'_value';
+    $cck_field = TRUE;
   }
   else {
     $table = 'node';
     $alias_fields[$key] = $field_name;
     $alias = $table .'.'. $field_name;
+    $cck_field = FALSE;
   }
   $fields[$alias] = $alias;
   
@@ -126,9 +128,9 @@ foreach ($date_fields as $key => $field_name) {
   $sort_fields[$field_name] = array(
     'order' => 'ASC',
     'delta' => '-1',
-    'id' => $field_name,
+    'id' => $field_name . ($cck_field ? '_value' : ''),
     'table' =>  $table,
-    'field' => $field_name,
+    'field' => $field_name . ($cck_field ? '_value' : ''),
     'relationship' => 'none',
   );
 }
