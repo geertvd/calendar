@@ -463,7 +463,7 @@ function calendar_block($op = 'list', $delta = 0) {
   switch ($op) {
     case 'list' :
       $blocks[0]['info'] = t('Calendar Legend.');
-      $blocks[1]['info'] = t('Switch Calendar.');
+      $blocks[1]['info'] = t('Calendar Switcher.');
       return $blocks;
       break;
     case 'view' :
@@ -474,7 +474,7 @@ function calendar_block($op = 'list', $delta = 0) {
         $block['content'] = !empty($content) ? '<div class="calendar legend">'. $content .'</div>' : '';
         return $block;
       case 1:
-        $block['subject'] = t('Switch Calendar');
+        $block['subject'] = t('Calendar Switcher');
         $block['content'] = $GLOBALS['calendar_is_calendar'] ? drupal_get_form('calendar_switch_view') : '';
         return $block;
       }
