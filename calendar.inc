@@ -49,10 +49,23 @@ function _calendar_views_query_alter(&$query, &$view) {
     }
   }
 
-  // If no arguments are provided, default to current month view.
+  // If no arguments are provided, and this is not the ical view,
+  // default to current month view.
   if (empty($view->args) || !calendar_is_calendar_arg($view)) {
-  	$query->calendar_type = 'month';
-    foreach ($view->argument as $delta => $argument) {
+    // See what type of view the ical view is looking for from the args.
+    if (is_array($view->args) && in_array('ical', $view->args)) {
+      foreach ($view->args as $delta => $arg) {
+        if ($arg == 'ical') {
+          $pos = $delta - 1;
+          break;
+        }
+      }
+      $query->calendar_type = str_replace('calendar_', '', $view->argument[$pos]['type']);
+    }
+    else {
+      $query->calendar_type = 'month';
+    }
+  	foreach ($view->argument as $delta => $argument) {
       if ($argument['type'] == 'calendar_year' && !$view->args[$delta]) {
         $view->args[$delta] = date_format($now, 'Y');
         calendar_filter_year($query, date_format($now, 'Y'));
@@ -118,6 +131,7 @@ function _calendar_views_query_alter(&$query, &$view) {
   if (!$query->calendar_finished) {
     calendar_build_filter($query, $view);
   }
+  
   $view->calendar_type = $query->calendar_type;
   $view->year = $query->year;
   $view->month = $query->month;
@@ -426,7 +440,7 @@ function calendar_build_filter(&$query, &$view) {
   }
   $query->min_date = $date;
   $query->max_date = $max_date;
-
+  
   // find all datetime fields in this view and add filters for them to the query
   $queries = array();
   foreach ($view->field as $delta => $field) {
