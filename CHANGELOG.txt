@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- #312407 Fix title of Week view.
 - #324480 Rename calendar blocks so they show up together in block list.
 - #304103 Get rid of stripe name to match the way it is now done in the D6 version.
 - Make sure the ical defaults to the right view, it was always showing the month view.

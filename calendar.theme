@@ -210,7 +210,7 @@ function theme_calendar_page_title($view, $items, $output) {
       unset($args[$delta]);
     }
   }
-  $last_arg = array_pop($args);
+  $last_arg = str_replace('W', '', array_pop($args));
   return theme('calendar_arg_title', strtoupper($view->calendar_type), $last_arg, $last_arg);
   switch ($view->build_type) {
     case 'page':
