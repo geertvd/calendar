@@ -133,7 +133,7 @@ function calendar_ical_add_feeds($view, $refresh = FALSE) {
             $granularity = $value['DTSTART']['type'] == 'DATE' ? array('year', 'month', 'day') : array('year', 'month', 'day', 'hour', 'minute', 'second');
             $node->format_time = variable_get('calendar_time_format_'. $view->name, 'H:i');
             $node->format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), $granularity) . $show_tz;
-            $node->all_day = $value['DTSTART']['all_day'];
+            $node->all_day = $value['all_day'];
             $node->stripe = $feed['stripe'];
             $node->stripe_label = $feed['name'];
             $node->remote = TRUE;
