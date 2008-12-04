@@ -59,14 +59,20 @@ function calendar_ical_calendar_add_items($view) {
 
   $items = array();
   $feeds = calendar_ical_add_feeds($view);
+  
+  $min = date_format($view->min_date, DATE_FORMAT_DATETIME);
+  $max = date_format($view->max_date, DATE_FORMAT_DATETIME);
+  
   foreach ($feeds as $feed) {
     if (!empty($feed->calendar_start) && !empty($feed->calendar_end)) {
       if ($feed->calendar_start >= date_format($view->min_date, DATE_FORMAT_DATETIME) && $feed->calendar_end <= date_format($view->max_date, DATE_FORMAT_DATETIME)) {
-        // We have to add a calendar start and end object to the feed,
-        // the cached date objects will not work correctly.
-        $feed->calendar_start_date = date_make_date($feed->calendar_start, $feed->timezone);
-        $feed->calendar_end_date = date_make_date($feed->calendar_end, $feed->timezone);
-        $items[] = $feed;
+        if (($feed->calendar_start >= $min  && $feed->calendar_end <= $max) || ($feed->calendar_start >= $min && $feed->all_day == 1)){
+          // We have to add a calendar start and end object to the feed,
+          // the cached date objects will not work correctly.
+          $feed->calendar_start_date = date_make_date($feed->calendar_start, $feed->timezone);
+          $feed->calendar_end_date = date_make_date($feed->calendar_end, $feed->timezone);
+          $items[] = $feed;
+        }
       }
     }
   }
