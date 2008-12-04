@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- #336024 Fix navigation for Date selector when other arguments are used.
 - #312362 Add location to ical import.
 - #310893 Permormance improvements for ical feed.
 - #312418 Fix all_day event marker in ical import.
