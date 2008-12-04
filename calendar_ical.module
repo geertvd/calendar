@@ -314,18 +314,20 @@ function theme_calendar_ical_feed($view, $items, $type) {
   include_once('./'. drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
   include_once('./'. drupal_get_path('module', 'calendar') .'/calendar.inc');
   $items = calendar_build_nodes($view, $items, $display_formats[$view->calendar_type]);
-  foreach ($items as $node) {
-    $event = array();
-    // Allow modules to affect item fields
-    node_invoke_nodeapi($node, 'ical item');
-    $event['start'] = $node->calendar_start_date;
-    $event['end'] = $node->calendar_end_date;
-    $event['location'] = $node->calendar_location;
-    $event['summary'] = $node->title;
-    $event['description'] = $node->teaser;
-    $event['url'] = $node->url ? $node->url : calendar_get_node_link($node);
-    $event['uid'] = !empty($node->date_id) ? $node->date_id : $event['url'];
-    $events[] = $event;
+  foreach ($items as $time) {
+    foreach ($time as $node) {
+      $event = array();
+      // Allow modules to affect item fields
+      node_invoke_nodeapi($node, 'ical item');
+      $event['start'] = $node->calendar_start_date;
+      $event['end'] = $node->calendar_end_date;
+      $event['location'] = $node->calendar_location;
+      $event['summary'] = $node->title;
+      $event['description'] = $node->teaser;
+      $event['url'] = $node->url ? $node->url : calendar_get_node_link($node);
+      $event['uid'] = !empty($node->date_id) ? $node->date_id : $event['url'];
+      $events[] = $event;
+    }
   }
   
   $headertitle = filter_xss_admin(views_get_title($view, 'page'));
