@@ -1,0 +1,458 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Calendar\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-10-21 09:03+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Pieter Edelman <p.edelman@gmx.net>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Dutch\n"
+"X-Poedit-Country: NETHERLANDS\n"
+"X-Poedit-Basepath: calendar\n"
+"X-Poedit-KeywordsList: t\n"
+"X-Poedit-SearchPath-0: calendar\n"
+
+#: calendar/calendar_ical.module:20
+msgid "iCal"
+msgstr "iCal"
+
+#: calendar/calendar_ical.module:21
+msgid "iCal setup."
+msgstr "iCal-setup."
+
+#: calendar/calendar_ical.module:80
+#: calendar/calendar_ical.module:164
+#: calendar/calendar_ical.module:180
+msgid "Calendar: iCal Feed"
+msgstr "Kalender: iCal-feed"
+
+#: calendar/calendar_ical.module:182
+msgid "Add this as the last argument to a calendar view to provide an iCal feed of the view."
+msgstr "Voeg dit als laatste argument toe aan een kalender-View voor een iCal-feed van de weergave."
+
+#: calendar/calendar_ical.module:296
+msgid "Add to calendar"
+msgstr "Toevoegen aan kalender"
+
+#: calendar/calendar_ical.module:359
+msgid "Dates"
+msgstr "Data"
+
+#: calendar/calendar.module:15
+msgid "<p>View complete documentation at !link.</p>"
+msgstr "<p>Bekijk de volledige documentatie op !link.</p>"
+
+#: calendar/calendar.module:35
+msgid "Calendar Setup"
+msgstr "Kalender-setup"
+
+#: calendar/calendar.module:36
+msgid "Customize calendar settings options."
+msgstr "Pas de opties voor kalenderinstellingen aan."
+
+#: calendar/calendar.module:53
+msgid "Setup"
+msgstr "Setup"
+
+#: calendar/calendar.module:62
+msgid "Legend"
+msgstr "Legenda"
+
+#: calendar/calendar.module:464
+msgid "Calendar Legend."
+msgstr "Kalenderlegenda"
+
+#: calendar/calendar.module:465
+msgid "Switch Calendar."
+msgstr "Wissel kalender."
+
+#: calendar/calendar.module:471
+msgid "Calendar Legend"
+msgstr "Kalenderlegenda"
+
+#: calendar/calendar.module:475
+msgid "Switch Calendar"
+msgstr "Wissel kalender"
+
+#: calendar/calendar.module:488
+#: calendar/calendar_admin.inc:18
+#: calendar/calendar_admin.inc:366
+#: calendar/calendar_admin.inc:519
+#: calendar/calendar_admin.inc:570
+#: calendar/calendar_admin.inc:582
+msgid "Calendar"
+msgstr "Kalender"
+
+#: calendar/calendar.module:489
+#: calendar/calendar_admin.inc:366
+msgid "List"
+msgstr "Lijst"
+
+#: calendar/calendar.module:490
+#: calendar/calendar_admin.inc:366
+msgid "Teasers"
+msgstr "Voorproefjes"
+
+#: calendar/calendar.module:491
+msgid "Nodes"
+msgstr "Nodes"
+
+#: calendar/calendar.module:492
+#: calendar/calendar_admin.inc:366
+msgid "Table"
+msgstr "Tabel"
+
+#: calendar/calendar.module:505
+msgid "Switch"
+msgstr "Wisselen"
+
+#: calendar/calendar.module:953
+msgid "Change date"
+msgstr "Verander de datum"
+
+#: calendar/calendar.module:1010
+msgid " is not a valid hex color"
+msgstr " is geen juiste hexadecimale kleur"
+
+#: calendar/jcalendar/jcalendar.module:18
+msgid "Creates a popup for calendar dates."
+msgstr "Maakt een pop-up voor kalenderdata."
+
+#: calendar/jcalendar/jcalendar.module:82
+msgid "more"
+msgstr "meer"
+
+#: calendar/calendar_admin.inc:259
+msgid "The Calendar View requires at least one date field."
+msgstr "De kalender-View vereist minstens een datumveld."
+
+#: calendar/calendar_admin.inc:267
+msgid "You can only set on Default Sort on one field."
+msgstr "Standaard volgorde kan maar voor een veld ingesteld worden."
+
+#: calendar/calendar_admin.inc:281
+msgid "Calendar arguments must be set to 'Display All Values'."
+msgstr "Kalender-argumenten moeten ingesteld worden op 'Alle Waarden Weergeven'."
+
+#: calendar/calendar_admin.inc:288
+msgid "The Calendar requires as arguments Calendar: Year, Calendar: Month, and Calendar: Day, or Calendar: Year and Calendar: Week"
+msgstr "De Kalender vereist de argumenten Kalender: Jaar, Kalender: Maand en Kalender: Dag, of Kalender: Jaar en Kalender: Week"
+
+#: calendar/calendar_admin.inc:294
+msgid "Calendar CCK Date fields must be set to 'Do not group multiple values'."
+msgstr "CCK-Datum-velden voor de Kalender moeten ingesteld worden op 'Meerdere waarden niet groeperen'."
+
+#: calendar/calendar_admin.inc:331
+msgid "Time format"
+msgstr "Tijdformaat"
+
+#: calendar/calendar_admin.inc:335
+msgid "The format to use for the time-only date display."
+msgstr "Het te gebruiken formaat voor het weergeven van alleen de tijd."
+
+#: calendar/calendar_admin.inc:338
+msgid "Mini day name size"
+msgstr "Grootte van minidagnaam"
+
+#: calendar/calendar_admin.inc:341
+#: calendar/calendar_admin.inc:348
+msgid "First letter of name"
+msgstr "Eerste letter van de naam"
+
+#: calendar/calendar_admin.inc:341
+#: calendar/calendar_admin.inc:348
+msgid "First two letters of name"
+msgstr "Eerste twee letters van de naam"
+
+#: calendar/calendar_admin.inc:341
+#: calendar/calendar_admin.inc:348
+msgid "Abbreviated name"
+msgstr "Afgekorte naam"
+
+#: calendar/calendar_admin.inc:341
+#: calendar/calendar_admin.inc:348
+msgid "Full name"
+msgstr "Volledige naam"
+
+#: calendar/calendar_admin.inc:342
+msgid "The way day of week names should be displayed in a mini calendar."
+msgstr "De manier waarop de namen van dagen in de minikalender weergegeven moeten worden"
+
+#: calendar/calendar_admin.inc:345
+msgid "Full day name size"
+msgstr "Grootte van de naam voor de volledige dag"
+
+#: calendar/calendar_admin.inc:349
+msgid "The way day of week names should be displayed in a full size calendar."
+msgstr "De manier waarop de namen van dagen in een volledige kalender weergegeven moeten worden."
+
+#: calendar/calendar_admin.inc:352
+msgid "Show week numbers"
+msgstr "Toon de weeknummers"
+
+#: calendar/calendar_admin.inc:354
+#: calendar/calendar_admin.inc:361
+msgid "No"
+msgstr "Nee"
+
+#: calendar/calendar_admin.inc:354
+#: calendar/calendar_admin.inc:361
+msgid "Yes"
+msgstr "Ja"
+
+#: calendar/calendar_admin.inc:356
+msgid "Whether or not to display a clickable week number link on the left side of each calendar week."
+msgstr "Bepaalt of er een aanklikbaar weeknummer getoond word aan de linkerkant van elke kalenderweek"
+
+#: calendar/calendar_admin.inc:359
+msgid "Popup date selector"
+msgstr "Datum selecteren via pop-up"
+
+#: calendar/calendar_admin.inc:363
+msgid "Whether or not to display a popup date selector to change the calendar period. (Only works when the Date Popup module is enabled.)"
+msgstr "Bepaalt of er een pop-up gebruikt wordt om de datum te selecteren. (Werkt alleen als de Date Popup-module is aangezet.)"
+
+#: calendar/calendar_admin.inc:366
+msgid "Full Nodes"
+msgstr "Volledige nodes"
+
+#: calendar/calendar_admin.inc:366
+msgid "None"
+msgstr "Geen"
+
+#: calendar/calendar_admin.inc:370
+msgid "Display options"
+msgstr "Weergaveopties"
+
+#: calendar/calendar_admin.inc:371
+msgid "Choose the way the calendar entries should be displayed. Selecting 'None' will hide links to that option."
+msgstr "Kies hoe kalenderitems weergegeven moeten worden. De optie 'Geen' verbergt de links naar die optie."
+
+#: calendar/calendar_admin.inc:374
+msgid "Year display"
+msgstr "Jaarweergave"
+
+#: calendar/calendar_admin.inc:380
+msgid "Month display"
+msgstr "Maandweergave"
+
+#: calendar/calendar_admin.inc:386
+msgid "Week display"
+msgstr "Weekweergave"
+
+#: calendar/calendar_admin.inc:392
+msgid "Day display"
+msgstr "Dagweergave"
+
+#: calendar/calendar_admin.inc:398
+msgid "Block display"
+msgstr "Blokweergave"
+
+#: calendar/calendar_admin.inc:404
+msgid "Wildcard argument"
+msgstr "Jokerargument"
+
+#: calendar/calendar_admin.inc:407
+msgid "A character or short text string to use for empty calendar arguments. For instance, 'all' would create the url 2007/12/all to show all days in December of 2007. Note that non-ASCII characters will not display correctly in urls."
+msgstr "Een karakter of korte tekst voor lege kalenderargumenten. Bij bijvoorbeeld 'alle' wordt de URL 2007/12/alle gebruik om alle dagen in december 2007 te tonen. Opmerking: niet-ASCII-karakter worden niet goed weergegeven in URL's."
+
+#: calendar/calendar_admin.inc:415
+#: calendar/calendar_admin.inc:464
+#: calendar/calendar_ical_admin.inc:92
+msgid "Submit"
+msgstr "Insturen"
+
+#: calendar/calendar_admin.inc:428
+msgid "<h3>Content Type</h3><p>Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Types with empty values will have no stripe in the calendar and will not be added to the legend.</p>"
+msgstr "<h3>Inhoudstype</h3><p>Gebruik een hexadecimale kleurenwaarde (zoals #ffffff) voor elk inhoudstype in de legenda. Types met lege waarden hebben geen gekleurde band in de kalender en worden niet toegevoegd aan de legenda.</p>"
+
+#: calendar/calendar_admin.inc:436
+msgid "Legend colors"
+msgstr "Legendakleuren"
+
+#: calendar/calendar_admin.inc:501
+msgid "Calendar settings have been updated."
+msgstr "De kalenderinstellingen zijn bijgewerkt."
+
+#: calendar/calendar_admin.inc:510
+msgid "Calendar legend settings have been updated."
+msgstr "De instellingen voor de kalenderlegenda zijn bijgewerkt."
+
+#: calendar/calendar_admin.inc:540
+msgid "Calendar: Year"
+msgstr "Kalender: Jaar"
+
+#: calendar/calendar_admin.inc:542
+msgid "Filter by the calendar year (YYYY)."
+msgstr "Filter op kalenderjaar (YYYY)."
+
+#: calendar/calendar_admin.inc:545
+msgid "Calendar: Month"
+msgstr "Kalender: Maand"
+
+#: calendar/calendar_admin.inc:547
+msgid "Filter by the calendar month (1-12). Place this argument after a 'Year' argument."
+msgstr "Filter op de kalendermaand (1-12). Plaats dit argument na het Jaar-argument."
+
+#: calendar/calendar_admin.inc:550
+msgid "Calendar: Day"
+msgstr "Kalender: Dag"
+
+#: calendar/calendar_admin.inc:552
+msgid "Filter by the calendar day (1-31). Place this argument after a 'Year' and a 'Month' argument."
+msgstr "Filter op de kalenderdag (1-31). Plaats dit argument na een Jaar- en Maand-argument."
+
+#: calendar/calendar_admin.inc:555
+msgid "Calendar: Week"
+msgstr "Kalender: Week"
+
+#: calendar/calendar_admin.inc:557
+msgid "Filter by the week number (1-52). Place this argument after a 'Year' argument and use a 'W' in front of the week number in the url."
+msgstr "Filter op weeknummer (1-52). Plaats dit argument na een Jaar-argument en zet een 'W' voor het weeknummer in de URL."
+
+#: calendar/calendar_admin.inc:565
+#: calendar/calendar_admin.inc:578
+msgid "calendar"
+msgstr "kalender"
+
+#: calendar/calendar_admin.inc:566
+msgid "Calendar view of any date field, add a date field to the view to use it."
+msgstr "Kalender-view van een willekeurig datumveld, voeg een datumveld aan de view toe om deze te gebruiken."
+
+#: calendar/calendar_ical_admin.inc:28
+msgid "Expire iCal cache"
+msgstr "Vervaltijd voor iCal-feeds"
+
+#: calendar/calendar_ical_admin.inc:30
+msgid "iCal feeds are cached to improve performance. Set an expiration time for cached feeds."
+msgstr "iCal-feeds worden gecached om de prestaties te verbeteren. Stel een vervaltijd in voor gecachede feeds."
+
+#: calendar/calendar_ical_admin.inc:36
+msgid "iCal Feeds"
+msgstr "iCal-feeds"
+
+#: calendar/calendar_ical_admin.inc:37
+msgid "Use this section to set up iCal feeds that should be displayed in this calendar. They will be shown along with any internal items that match the calendar criteria."
+msgstr "Gebruik deze sectie om iCal-feeds in te stellen die in kalender weergegeven moeten worden. Deze worden getoond samen met alle iterne items die aan de kalendercriteria voldoen."
+
+#: calendar/calendar_ical_admin.inc:46
+msgid "Feed @delta"
+msgstr "Feed @delta"
+
+#: calendar/calendar_ical_admin.inc:50
+msgid "Feed type"
+msgstr "Feed-type"
+
+#: calendar/calendar_ical_admin.inc:55
+msgid "Name"
+msgstr "Naam"
+
+#: calendar/calendar_ical_admin.inc:58
+msgid "The name of a feed to include in this calendar."
+msgstr "De naam van een feed die aan deze kalender toegeveogd moet worden."
+
+#: calendar/calendar_ical_admin.inc:61
+msgid "iCal url"
+msgstr "iCal-URL"
+
+#: calendar/calendar_ical_admin.inc:65
+msgid "The ical url, either an external feed url or internal file path and name. Change 'webcal://' to 'http://'."
+msgstr "De iCal-URL. Dit kan een externe feed-URL zijn of een intern bestandspad met naam. Verander 'webcal://' in 'http://'."
+
+#: calendar/calendar_ical_admin.inc:68
+msgid "Default link"
+msgstr "Standaard link"
+
+#: calendar/calendar_ical_admin.inc:72
+msgid "A url to use to link back to ical items without a url, generally the public link to the calendar these items are coming from."
+msgstr "Een URL om terug te linken naar iCal-items zonder URL, in het algemeen de publieke link naar de kalender waar deze items vandaan komen."
+
+#: calendar/calendar_ical_admin.inc:76
+msgid "Stripe color"
+msgstr "Bandkleur"
+
+#: calendar/calendar_ical_admin.inc:82
+msgid "The hex color value (like #ffffff) to use for this feed's calendar stripe."
+msgstr "De hexadecimale kleurenwaarde (zoals #ffffff) voor de kalenderbanden van deze feed."
+
+#: calendar/calendar.theme:253
+#: calendar/calendar.theme:329
+msgid "Week of @date"
+msgstr "Week van @date"
+
+#: calendar/calendar.theme:292
+msgid "prev"
+msgstr "vorige"
+
+#: calendar/calendar.theme:293
+msgid "&lt;!period  "
+msgstr ""
+
+#: calendar/calendar.theme:300
+msgid "next"
+msgstr "volgende"
+
+#: calendar/calendar.theme:301
+msgid "  !period&gt;"
+msgstr ""
+
+#: calendar/calendar.theme:367
+#: calendar/calendar.theme:387
+msgid "Year"
+msgstr "Jaar"
+
+#: calendar/calendar.theme:370
+#: calendar/calendar.theme:391
+msgid "Month"
+msgstr "Maand"
+
+#: calendar/calendar.theme:373
+#: calendar/calendar.theme:395
+msgid "Week"
+msgstr "Week"
+
+#: calendar/calendar.theme:376
+#: calendar/calendar.theme:399
+msgid "Day"
+msgstr "Dag"
+
+#: calendar/calendar.theme:420
+msgid "Item"
+msgstr "Item"
+
+#: calendar/calendar.theme:421
+msgid "Key"
+msgstr "Sleutel"
+
+#: calendar/calendar.install:26
+#: calendar/calendar.install:35
+msgid "Calendar requirements"
+msgstr "Calendar-vereisten"
+
+#: calendar/calendar.install:27
+msgid "The Calendar module requires a more current version of the Date API. Please check for a newer version."
+msgstr "De Calendar-module vereist een recentere versie van de Date-API."
+
+#: calendar/calendar.install:36
+msgid "The Calendar module requires the latest version of the Date API, be sure you are installing the latest versions of both modules."
+msgstr "De Calendar-module vereist de nieuwste versie van de Date-API, zorg ervoor dat u van beide modules de meest recente versie installeert."
+
+#, fuzzy
+#~ msgid "calendar_ical"
+#~ msgstr "kalender"
+
+#, fuzzy
+#~ msgid "Calendar iCal"
+#~ msgstr "Kalender: Dag"
+
+#, fuzzy
+#~ msgid "jcalendar"
+#~ msgstr "kalender"
+
+#, fuzzy
+#~ msgid "Calendar Popup"
+#~ msgstr "Kalender"
+
