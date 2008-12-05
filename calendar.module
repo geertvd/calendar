@@ -267,7 +267,12 @@ function calendar_views_query_alter(&$query, &$view) {
     $parts = $view->args;
     require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_elements.inc');
     $format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), array('year', 'month', 'day'));
-    $date = date_convert_from_custom($_POST['calendar_goto']['date'], $format);  
+    if (!empty($_POST['calendar_goto']['date'])) {
+      $date = date_convert_from_custom($_POST['calendar_goto']['date'], $format);  
+    }
+    else {
+      $date = date_convert($_POST['calendar_goto'], DATE_ARRAY, DATE_DATETIME);
+    }
     switch ($_POST['calendar_type']) {
       case 'year':
         $parts[$pos[0]] = date_pad(date_part_extract($date, 'year'), 4);
@@ -938,6 +943,7 @@ function calendar_date_select_form($view) {
     '#default_value' => date_format($view->min_date, DATE_FORMAT_DATE),
     '#date_timezone' => date_default_timezone_name(),
     '#date_format' => $format,
+    '#date_label_position' => 'none',
     );
   $form['calendar_type'] = array(
     '#type' => 'hidden',
