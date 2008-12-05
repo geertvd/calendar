@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- #342932 Fix broken ical export, only the day export was working correctly.
 - #336018 Add Dutch translation.
 - Fix the calendar date selector so it works correctly as a select list when the Date Popup module is turned off.
 - #336533 Make sure overridden calendar view info is not overridden by default info.

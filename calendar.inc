@@ -53,11 +53,17 @@ function _calendar_views_query_alter(&$query, &$view) {
   // default to current month view.
   if (empty($view->args) || !calendar_is_calendar_arg($view)) {
     // See what type of view the ical view is looking for from the args.
+    // Find the position of the last non-empty arugment.
     if (is_array($view->args) && in_array('ical', $view->args)) {
+      $pos = 0;
       foreach ($view->args as $delta => $arg) {
         if ($arg == 'ical') {
-          $pos = $delta - 1;
+          // It was the previous argument, back up one position.
+          $pos--;
           break;
+        }
+        elseif ($arg != CALENDAR_EMPTY_ARG) {
+          $pos++;
         }
       }
       $query->calendar_type = str_replace('calendar_', '', $view->argument[$pos]['type']);
@@ -65,7 +71,7 @@ function _calendar_views_query_alter(&$query, &$view) {
     else {
       $query->calendar_type = 'month';
     }
-  	foreach ($view->argument as $delta => $argument) {
+    foreach ($view->argument as $delta => $argument) {
       if ($argument['type'] == 'calendar_year' && !$view->args[$delta]) {
         $view->args[$delta] = date_format($now, 'Y');
         calendar_filter_year($query, date_format($now, 'Y'));
