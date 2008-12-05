@@ -310,9 +310,6 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
   for ($i = 0; $i < 7; $i++) {
     $curday_date = date_format($curday, DATE_FORMAT_DATE);
     $class = strtolower($weekdays[$i] .
-    ($curday_date == $today ? ' today' : '') .
-    ($curday_date < $today ? ' past' : '') .
-    ($curday_date > $today ? ' future' : '') .
     ($view->mini ? ' mini' : ''));
     if ($check_month && ($curday_date < $view->min_date_date || $curday_date > $view->max_date_date || date_format($curday, 'n') != $month)) {
       $class .= ' empty';
@@ -320,6 +317,7 @@ function calendar_build_week(&$curday, $view, $items, $params, $check_month = FA
     }
     else {
       $content = calendar_build_day($curday, $view, $items, $params);
+      $class .= ($curday_date == $today ? ' today' : '') .  ($curday_date < $today ? ' past' : '') . ($curday_date > $today ? ' future' : '');
     }
 
     $rows[$week][] = array(
