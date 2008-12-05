@@ -36,38 +36,6 @@ function _calendar_info() {
   $calendar_views = array();
   $calendar_types = calendar_view_types();
   $calendar_fields = calendar_fields();
-  $result = db_query("SELECT vid, name FROM {view_view} ORDER BY name");
-  while ($v = db_fetch_object($result)) {
-    $view = views_get_view($v->vid);
-    $additions = array();
-    $additions['vid'] = $view->vid;
-    $additions['name'] = $view->name;
-    $additions['url'] = $view->url;
-    $additions['args'] = array();
-    foreach ((array) $view->field as $delta => $field) {
-      if (in_array($field['field'], array_keys($calendar_fields))) {
-        $additions['fields'][$delta] = $field['id'];
-      }
-    }
-    if (!empty($additions['fields'])) {
-      $additions['page'] = array_key_exists($view->page_type, $calendar_types);
-      $additions['block'] = array_key_exists($view->block_type, $calendar_types);
-      $additions['embed'] = $additions['page'] || $additions['block'];
-    }
-    else {
-      $additions['page'] = FALSE;
-      $additions['block'] = FALSE;
-      $additions['embed'] = FALSE;
-    }
-    foreach ((array) $view->argument as $delta => $argument) {
-      if (in_array($argument['type'], calendar_args())) {
-        $additions['args'][$delta] = $argument['id'];
-      }
-    }
-    if (!empty($additions['args']) || $additions['page'] || $additions['block']) {
-      $calendar_views[$view->name] = $additions;
-    }
-  }
   views_load_cache();
   foreach (_views_get_default_views() as $view) {
     if (empty($view->disabled)) {
@@ -99,6 +67,38 @@ function _calendar_info() {
       if (!empty($additions['args']) || $additions['page'] || $additions['block']) {
         $calendar_views[$view->name] = $additions;
       }
+    }
+  }
+  $result = db_query("SELECT vid, name FROM {view_view} ORDER BY name");
+  while ($v = db_fetch_object($result)) {
+    $view = views_get_view($v->vid);
+    $additions = array();
+    $additions['vid'] = $view->vid;
+    $additions['name'] = $view->name;
+    $additions['url'] = $view->url;
+    $additions['args'] = array();
+    foreach ((array) $view->field as $delta => $field) {
+      if (in_array($field['field'], array_keys($calendar_fields))) {
+        $additions['fields'][$delta] = $field['id'];
+      }
+    }
+    if (!empty($additions['fields'])) {
+      $additions['page'] = array_key_exists($view->page_type, $calendar_types);
+      $additions['block'] = array_key_exists($view->block_type, $calendar_types);
+      $additions['embed'] = $additions['page'] || $additions['block'];
+    }
+    else {
+      $additions['page'] = FALSE;
+      $additions['block'] = FALSE;
+      $additions['embed'] = FALSE;
+    }
+    foreach ((array) $view->argument as $delta => $argument) {
+      if (in_array($argument['type'], calendar_args())) {
+        $additions['args'][$delta] = $argument['id'];
+      }
+    }
+    if (!empty($additions['args']) || $additions['page'] || $additions['block']) {
+      $calendar_views[$view->name] = $additions;
     }
   }
   cache_set($cid, 'cache_views', serialize($calendar_views));

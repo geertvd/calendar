@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- #336533 Make sure overridden calendar view info is not overridden by default info.
 - #327221 Don't add 'today' class in empty blocks.
 
 Version 5.2.5
