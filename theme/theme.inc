@@ -314,7 +314,7 @@ function template_preprocess_calendar_day(&$vars) {
       }
       // Find the next time slot and fill it. Populate the skipped
       // slots if the option to show empty times was chosen.
-      while ($time > $next_start_time && $time < $end_start_time) {
+      while ($time >= $next_start_time && $time < $end_start_time) {
         if ((!empty($show_empty_times)) && !array_key_exists($start_time, $grouped_items)) {
           $grouped_items[$start_time]['values'] = array();        
         }
@@ -403,7 +403,7 @@ function template_preprocess_calendar_week(&$vars) {
       foreach ($items as $item) {
         // Find the next time slot and fill it. Populate the skipped
         // slots if the option to show empty times was chosen.
-        while ($time > $next_start_time && $time < $end_start_time) {
+        while ($time >= $next_start_time && $time < $end_start_time) {
           if (($show_empty_times) && !array_key_exists($start_time, $grouped_items)) {
             $grouped_items[$start_time]['values'][$weekno] = array();   
           }
