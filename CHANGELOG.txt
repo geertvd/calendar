@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #343090 'Today' highlighting got lost in last round of theme changes, restore it.
 - #340215 Make sure day and week time slots are checking >= instead of >.
 - #327221 Don't add 'today' class in empty blocks.
 - #341964 Get missing back/next links back in year view (needs fix in Date module, too).
