@@ -57,11 +57,11 @@ class calendar_plugin_display_page extends views_plugin_display_page {
   
   function option_definition () {
     $options = parent::option_definition();
-    $options['calendar_colors'] = array();
-    $options['calendar_colors_vocabulary'] = array();
-    $options['calendar_colors_taxonomy'] = array();
-    $options['calendar_popup'] = 0;
-    $options['style_plugin'] = 'calendar_nav';
+    $options['calendar_colors'] = array('default' => array());
+    $options['calendar_colors_vocabulary'] = array('default' => array());
+    $options['calendar_colors_taxonomy'] = array('default' => array());
+    $options['calendar_popup'] = array('default' => 0);
+    $options['style_plugin'] = array('default' => 'calendar_nav');
     return $options;
   }
 
