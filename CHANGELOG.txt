@@ -6,6 +6,13 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #342119 Make sure calendar_type option is in expected format, maybe this was causing the translation problems?
+- #343090 'Today' highlighting got lost in last round of theme changes, restore it.
+- #340215 Make sure day and week time slots are checking >= instead of >.
+- #327221 Don't add 'today' class in empty blocks.
+- #341964 Get missing back/next links back in year view (needs fix in Date module, too).
+- Fix some logic in stripe labels that was showing empty content type stripes and missing taxonomy stripes.
+
 Version 2.0 rc6
 =================
 

@@ -61,7 +61,7 @@ class calendar_plugin_display_block extends views_plugin_display_block {
   function option_definition () {
     $options = parent::option_definition();
 
-    $options['style_plugin'] = 'calendar_nav';
+    $options['style_plugin'] = array('default' => 'calendar_nav');
     return $options;
   }
 

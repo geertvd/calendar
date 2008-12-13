@@ -352,6 +352,7 @@ table.calendar-legend tr.even .stripe {
 .calendar-calendar td .inner div.day a {
   color:#4b85ac;
 }
+.calendar-calendar tr td.today,
 .calendar-calendar tr.odd td.today,
 .calendar-calendar tr.even td.today {
   background-color:#C3D6E4;
