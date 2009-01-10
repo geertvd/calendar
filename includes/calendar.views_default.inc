@@ -69,6 +69,7 @@ function calendar_views_default_views() {
  * @return the default calendar array.
  */
 function calendar_views_construct($options = NULL) {
+
 $name = NULL;
 $description = NULL;
 $path = NULL;
@@ -99,8 +100,10 @@ if (empty($date_fields)) {
   $date_fields = array('changed');
 }
 $colors = array();
-foreach ($types as $type) {
-  $colors[$type] = '#ffffff';
+$date_link_type = '';
+foreach ($types as $type => $label) {
+  $colors[0][$type] = '#ffffff';
+  $date_link_type = $type;
 }
 // Can handle core node date fields or CCK date fields.
 
@@ -299,6 +302,12 @@ $handler->override_option('access', array(
   'perm' => '',
 ));
 $handler->override_option('title', 'Calendar');
+if (!empty($header)) {
+  $handler->override_option('header', $header);
+  // The only format we can be sure of is filtered.
+  $handler->override_option('header_format', '1');
+}
+$handler->override_option('header_empty', 1);
 $handler->override_option('items_per_page', 0);
 $handler->override_option('use_more', 0);
 $handler->override_option('style_plugin', 'calendar_nav');
@@ -321,7 +330,10 @@ $handler->override_option('tab_options', array(
   'weight' => 0,
 ));
 $handler->override_option('calendar_colors', array($colors));
-
+$handler->override_option('calendar_colors_vocabulary', array());
+$handler->override_option('calendar_colors_taxonomy', array());
+$handler->override_option('calendar_popup', 0);
+$handler->override_option('calendar_date_link', $date_link_type);
 // Calendar block.
 $handler = $view->new_display('calendar_block', 'Calendar block', 'calendar_block_1');
 $handler->override_option('style_options', array());

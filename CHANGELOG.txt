@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Add option to link calendar to content type, and add link to calendar to node, and link to node/add to calendar.
 - #342119 Make sure calendar_type option is in expected format, maybe this was causing the translation problems?
 - #343090 'Today' highlighting got lost in last round of theme changes, restore it.
 - #340215 Make sure day and week time slots are checking >= instead of >.

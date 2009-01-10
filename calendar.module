@@ -485,3 +485,21 @@ function theme_calendar_colorfield($element) {
   $output .= '<input type="text" name="'. $element['#name'] .'" id="'. $element['#id'] .'" '. $maxlength . $size .' value="'. check_plain($element['#value']) .'"'. drupal_attributes($element['#attributes']) .' />';
   return theme('form_element', $element, $output);
 }
+
+/**
+ * Add link to calendar to nodes.
+ * 
+ * Controlled by value of 'calendar_date_link' in the view.
+ */
+function calendar_link($type, $object, $teaser = FALSE) {
+  if ($type == 'node' && !$teaser) {
+    $path = variable_get('calendar_date_link_'. $object->type, NULL);
+    if (!empty($path)) {
+      return array('calendar_link' => array(
+        'title' => t('Calendar'),
+        'href' => $path,
+        'attributes' => array('title' => t('View the calendar.')),
+        ));
+    }
+  }
+}

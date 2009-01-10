@@ -12,7 +12,6 @@ class calendar_view_plugin_style extends calendar_plugin_style {
   function init(&$view, &$display) {
     parent::init($view, $display);
     $calendar_type = $this->display->handler->get_option('calendar_type');
-    $view->date_info->calendar_popup = $this->display->handler->get_option('calendar_popup');
     $view->date_info->style_name_size = $this->options['name_size'];
     $view->date_info->style_with_weekno = $this->options['with_weekno'];
     $view->date_info->style_max_items = $this->options['max_items'];
@@ -32,6 +31,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     
     // Make sure views does't try to limit the number of items in this view.
     $this->view->pager['items_per_page'] = 0;
+    
   }
   
   /**

@@ -61,6 +61,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     $options['calendar_colors_vocabulary'] = array('default' => array());
     $options['calendar_colors_taxonomy'] = array('default' => array());
     $options['calendar_popup'] = array('default' => 0);
+    $options['calendar_date_link'] = array('default' => '');
     $options['style_plugin'] = array('default' => 'calendar_nav');
     return $options;
   }
@@ -102,6 +103,13 @@ class calendar_plugin_display_page extends views_plugin_display_page {
       'title' => t('Date changer'),
       'value' => isset($default) ? $popup_options[$default] : $popup_options[0],
     );
+    $default = $this->get_option('calendar_date_link');
+    $options['calendar_date_link'] = array(
+      'category' => 'calendar_settings',
+      'title' => t('Add new date link'),
+      'value' => !empty($default) ? node_get_types('name', $default) : '',
+    );
+
   }
   
   function popup_options() {
@@ -123,6 +131,16 @@ class calendar_plugin_display_page extends views_plugin_display_page {
           );        
         break;
       
+      case 'calendar_date_link':
+        $form['#title'] .= t('Add new date link');
+        $form['calendar_date_link'] = array(
+          '#type' => 'radios',
+          '#default_value' => $this->get_option('calendar_date_link'),
+          '#options' => array('' => t('No link')) + node_get_types('names'),
+          '#description' => t('Display a link to add a new date of the specified content type. Displayed only to users with appropriate permissions.'),
+          );        
+        break;
+
       case 'calendar_colors':
         $method =  'types';
         // TODO Move the embedded styles other than the color into a stylesheet.
@@ -221,6 +239,10 @@ class calendar_plugin_display_page extends views_plugin_display_page {
         break;
       case 'calendar_colors_vocabulary':
         $this->set_option($form_state['section'], array_filter($form_state['values'][$form_state['section']]));
+        break;
+      case 'calendar_date_link':
+        $this->set_option($form_state['section'], ($form_state['values'][$form_state['section']]));
+        variable_set('calendar_date_link_'. $form_state['values']['calendar_date_link'], $this->display->handler->get_option('path'));
         break;
     }
   }  

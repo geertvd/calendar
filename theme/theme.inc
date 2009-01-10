@@ -51,6 +51,20 @@ function template_preprocess_calendar_main(&$vars) {
   if (!empty($view->date_info->calendar_popup)) {
     $vars['calendar_popup'] = '<div class="clear-block">'. calendar_date_select($view) .'</div>';
   }
+  
+  // If an 'Add new ... link is provided, add it here.
+  // the query will bring the user back here after adding the node.
+  if (!empty($view->date_info->calendar_date_link) && user_access('create '. $view->date_info->calendar_date_link .' content')) {
+    $name = node_get_types('name', $view->date_info->calendar_date_link);
+    $href = 'node/add/'. $view->date_info->calendar_date_link;
+    $query = 'destination='. $view->date_info->url;    
+    $vars['calendar_links'][] = $base + array(
+      'title' => t('Add+'), 
+      'href' => $href, 
+      'query' => $query,
+      );
+  }
+  
   $vars['view'] = $view;  
   $vars['mini'] = !empty($view->date_info->mini);
   $vars['block'] = !empty($view->date_info->block);
@@ -681,5 +695,4 @@ function theme_calendar_title($granularity, $view) {
     	return t('Week of @date', array('@date' => date_format_date($view->date_info->min_date, 'custom', 'F j')));
   }
 }
-
 /** @} End of addtogroup themeable */
