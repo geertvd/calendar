@@ -60,12 +60,14 @@ function jcalendar_menu() {
 * @return unknown as of yet.
 */
 function jcalendar_views_pre_view(&$view, &$display_id) {
-  if (substr($display_id, 0, 8) == 'calendar') {
-    $path = drupal_get_path('module', 'jcalendar');
-    drupal_add_js('var var_path = '. drupal_to_js(base_path() . $path) .";", 'inline');
-    drupal_add_js('var var_base_path = '. drupal_to_js((base_path())) .";", 'inline');
-    drupal_add_js($path .'/jcalendar.js');
-    drupal_add_css($path .'/jcalendar.css');
+  foreach ($view->display as $display) {
+    if ($display->display_plugin == 'calendar') {
+      $path = drupal_get_path('module', 'jcalendar');
+      drupal_add_js('var var_path = '. drupal_to_js(base_path() . $path) .";", 'inline');
+      drupal_add_js('var var_base_path = '. drupal_to_js((base_path())) .";", 'inline');
+      drupal_add_js($path .'/jcalendar.js');
+      drupal_add_css($path .'/jcalendar.css');
+    }
   }
 }
 
