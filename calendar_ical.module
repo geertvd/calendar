@@ -364,9 +364,10 @@ function theme_calendar_ical_node($node, $view) {
   }
   else {
     // Create a pseudo node view for this item.
+    $field = array();
     $output  = '<div class="node">';
     $output .= '<h2>'. l($node->title, $node->url) .'</h2>';
-    $output .= '<div>'. theme('calendar_date_combo', $node, $node->format, t('Dates'), $view)  .'</div>';
+    $output .= '<div>'. theme('calendar_date_combo', $field, $node, $node->format, t('Dates'), $view)  .'</div>';
     $output .= '<div class="content">'. $node->teaser .'</div>';
     $output .= '</div>';
     return $output;
@@ -412,7 +413,7 @@ function theme_calendar_ical_field($fieldname, $fields, $field, $node, $view, $t
   }
 
   if ($fieldname == $datefield) {
-    return theme('calendar_date_combo', $node, '', $view);
+    return theme('calendar_date_combo', $field, $node, '', $view);
   }
 
   switch ($field['fullname']) {

@@ -764,7 +764,7 @@ function theme_calendar_views_field($fieldname, $fields, $field, $node, $view, $
   }
   else {
     if (!empty($node->$fieldname)) {
-      $item = theme('calendar_date_combo', $node, $field['label'], $view);
+      $item = theme('calendar_date_combo', $field, $node, $field['label'], $view);
     }
   }
   return $item;
@@ -780,7 +780,7 @@ function theme_calendar_views_field($fieldname, $fields, $field, $node, $view, $
  * the calendar month and week cells but the
  * whole date in other places.
  */
-function theme_calendar_date_combo($node, $label, $view) {
+function theme_calendar_date_combo($field, $node, $label, $view) {
   switch ($view->calendar_display) {
     // Some of the calendar views need a smaller date format.
     case 'calendar':
@@ -806,8 +806,8 @@ function theme_calendar_date_combo($node, $label, $view) {
       break;
   }
    
-  $date1 = theme('date_all_day', 'date1', $node->calendar_start_date, $node->calendar_end_date, $format, $node, $view);
-  $date2 = theme('date_all_day', 'date2', $node->calendar_start_date, $node->calendar_end_date, $format, $node, $view);
+  $date1 = theme('date_all_day', $field, 'date1', $node->calendar_start_date, $node->calendar_end_date, $format, $node, $view);
+  $date2 = theme('date_all_day', $field, 'date2', $node->calendar_start_date, $node->calendar_end_date, $format, $node, $view);
   
   // No date values, display nothing.
   if (empty($date1) && empty($date2)) {
