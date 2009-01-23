@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Allow removal of displays, still no UI since they can't go on other views.
 - Don't try to set date argument when another argument precedes it.
 - #349409 Fix jcalendar popup.
 - Add option to link calendar to content type, and add link to calendar to node, and link to node/add to calendar.
