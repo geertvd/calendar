@@ -124,7 +124,7 @@ class calendar_plugin_style extends views_plugin_style {
           $argument->max_date = $range[1];
         }
         $this->view->date_info->granularity = !empty($argument->granularity) ? $argument->granularity : $argument->options['granularity'];
-        $this->view->date_info->date_arg = !empty($this->view->args) ? $this->view->args[$argument->position] : '';
+        $this->view->date_info->date_arg = !empty($this->view->args) && count($this->view->args) > $argument->position ? $this->view->args[$argument->position] : '';
         $this->view->date_info->date_arg_pos = $i;
         $this->view->date_info->year = isset($argument->year) ? $argument->year : NULL;
         $this->view->date_info->month = isset($argument->month) ? $argument->month: NULL;
