@@ -44,6 +44,7 @@ function template_preprocess_calendar_view_ical(&$vars) {
     // Allow modules to affect item fields
     node_invoke_nodeapi($node, 'ical item');
     unset($node->view);
+    $rrule_field = str_replace(array('_value2', '_value'), '_rrule', $node->datefield);
     $event = array();
     $event['summary'] = strip_tags($node->$summary_field);
     $event['start'] = $node->calendar_start_date;
@@ -52,6 +53,7 @@ function template_preprocess_calendar_view_ical(&$vars) {
     $event['location'] = !empty($location_field) && !empty($node->$location_field) ? $node->$location_field : '';
     $event['url'] = !empty($node->url) ? $node->url : (is_numeric($node->nid) ? url("node/$node->nid", array('absolute' => TRUE)) : $node->nid);
     $event['uid'] = !empty($node->date_id) ? $node->date_id : $event['url'];
+    $event['rrule'] = !empty($rrule_field) && !empty($node->$rrule_field) ? $node->$rrule_field : '';
     $events[$event['uid']] = $event;
   }
   

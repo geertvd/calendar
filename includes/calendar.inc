@@ -307,8 +307,9 @@ function calendar_build_nodes(&$view, &$items) {
     $tz_alias     = str_replace('.', '_', $field['timezone_field']);
     $db_tz        = date_get_timezone_db($field['tz_handling']);
     $local_tz     = date_get_timezone($field['tz_handling'], 'date');
-    $field_name = $field['field_name'];
-        
+    $field_name   = $field['field_name'];
+    $rrule_field  = str_replace(array('_value2', '_value'), '_rrule', $alias);
+            
     // If there is no field for this item, just default to the site format.
     if (!isset($view->field[$field_name])) {
       $format = variable_get('date_format_short', 'm/d/Y - H:i');
@@ -345,11 +346,22 @@ function calendar_build_nodes(&$view, &$items) {
     // make sure each individual date field only gets added to the
     // calendar one time.
     $processed = array();
+    $rrule_processed = array();
     foreach ($items as $pos => $item) {
       $delta = !empty($field['delta_field']) && !empty($item->{$field['delta_field']}) ? $item->{$field['delta_field']} : 0;
       $real_field = $field_name;
       if (substr($field['type'], 0, 3) == 'cck') {
         $real_field = str_replace(array('_value2', '_value'), '', $field_name);
+      }
+      
+      // When creating iCal feeds for repeating dates, display only the first one.
+      if (strstr($view->current_display, '_ical') && !empty($rrule_field) && !empty($item->$rrule_field)) {
+        if (!in_array($rrule_field, $rrule_processed)) {
+          $rrule_processed[] = $rrule_field;
+        }
+        else {
+          continue;
+        }
       }
       $id = 'calendar:'. $item->nid .':'. $real_field .':'. $delta;
       if (!in_array($id, $processed) && isset($item->calendar_fields->$alias)) {

@@ -45,7 +45,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
    */
   function options(&$options) {
     parent::options($options);
-    $options['summary_field'] = 'node_title';
+    $options['summary_field'] = 'title';
     $options['description_field'] = '';
     $options['location_field'] = '';
     $options['fields'] = array();
@@ -72,8 +72,9 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
     $form['summary_field'] = array(
       '#type' => 'select',
       '#title' => t('Title'),
-      '#default_value' => !empty($this->options['summary_field']) ? $this->options['summary_field'] : 'node_title',
+      '#default_value' => !empty($this->options['summary_field']) ? $this->options['summary_field'] : 'title',
       '#options' => $options,
+      '#required' => TRUE,
       );
     $form['description_field'] = array(
       '#type' => 'select',
@@ -115,6 +116,9 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
       $this->view->date_info->arg_missing_default = TRUE;
     }
      
+    if (empty($this->options['summary_field'])) {
+      $errors[] = $errors[$style] = t("The @style style requires a Title field for the iCal export.", array('@style' => $style));
+    }
     // Make sure date fields are not set up to 'Group multiple values' 
     // in the calendar style.
     if ($style == 'calendar_style') {
