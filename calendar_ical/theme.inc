@@ -32,16 +32,24 @@ function template_preprocess_calendar_view_ical(&$vars) {
   require_once('./'. drupal_get_path('module', 'calendar') .'/includes/calendar.inc');
   
   $events = array();
+  // Get the alias name for each of our data fields.
+  foreach ($view->field as $field) {
+    foreach (array('summary_field', 'description_field', 'location_field') as $data) {
+      if ($field->field == $view->date_info->$data) {
+        $$data = $field->field_alias;
+      }
+    }
+  }
   foreach ($items as $node) {
     // Allow modules to affect item fields
     node_invoke_nodeapi($node, 'ical item');
     unset($node->view);
     $event = array();
-    $event['summary'] = strip_tags($node->{$view->date_info->summary_field});
+    $event['summary'] = strip_tags($node->$summary_field);
     $event['start'] = $node->calendar_start_date;
     $event['end'] = $node->calendar_end_date;
-    $event['location'] = !empty($node->{$view->date_info->location_field}) ? $node->{$view->date_info->location_field} : '';
-    $event['description'] = !empty($node->{$view->date_info->description_field}) ? $node->{$view->date_info->description_field} : '';
+    $event['description'] = !empty($description_field) && !empty($node->$description_field) ? $node->$description_field : '';
+    $event['location'] = !empty($location_field) && !empty($node->$location_field) ? $node->$location_field : '';
     $event['url'] = !empty($node->url) ? $node->url : (is_numeric($node->nid) ? url("node/$node->nid", array('absolute' => TRUE)) : $node->nid);
     $event['uid'] = !empty($node->date_id) ? $node->date_id : $event['url'];
     $events[$event['uid']] = $event;

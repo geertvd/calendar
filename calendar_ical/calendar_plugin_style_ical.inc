@@ -65,8 +65,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
     $options = array('' => '');
     foreach ($this->options['fields'] as $field) {
       $handler = views_get_handler($field['table'], $field['field'], 'field');
-      $alias = $field['table'] .'_'. $field['field'];
-      $options[$alias] = $handler->ui_name();
+      $options[$field['field']] = $handler->ui_name();
     }
     $form['#prefix'] = t('<div class="form-item">Map the View fields to the values they should represent in the iCal feed.</div>');
     
