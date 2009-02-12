@@ -19,12 +19,22 @@ if (Drupal.jsEnabled) {
       // Locate Popup
       var offset = $(this).offset();
       // Check position with window width.
-      var offset_left = offset.left;
+      var offset_left = offset.left + 5;
       if ($(window).width() < $('#calpopup').width() + offset.left) {
-        offset_left = $(window).width() - $('#calpopup').width() - 5;
+        offset_left -= $('#calpopup').width() + 5;
+        if (offset_left < 0) {
+          offset_left = 0;
+        }
+      }
+      var offset_top = offset.top + 25;
+      if ($(window).height() < $('#calpopup').height() + offset_top) {
+        offset_top -= $('#calpopup').height() + 25;
+	if (offset_top < 0) {
+          offset_top = 0;
+        }
       }
       $('#calpopup').css('left', offset_left);
-      $('#calpopup').css('top', offset.top + 25);
+      $('#calpopup').css('top', offset_top);
       
       // Show Popup
       $('#calpopup').fadeIn('slow');
