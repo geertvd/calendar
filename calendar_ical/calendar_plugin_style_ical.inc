@@ -185,7 +185,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
           // Adding this now is to prevent fatal errors later if the
           // view is used in unexpected ways without a date being set.
           if (empty($filter->min_date)) {
-            $value = $filter->get_default_argument();
+            $value = $filter->default_value('value');
             $range = $filter->date_handler->arg_range($value);
             $filter->min_date = $range[0];
             $filter->max_date = $range[1];

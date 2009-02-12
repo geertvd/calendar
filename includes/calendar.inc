@@ -353,6 +353,7 @@ function calendar_build_nodes(&$view, &$items) {
       }
       $id = 'calendar:'. $item->nid .':'. $real_field .':'. $delta;
       if (!in_array($id, $processed) && isset($item->calendar_fields->$alias)) {
+        
         // Create from and to date values for each item, adjusted to
         // the correct timezone.
         $values[0] = $item->calendar_fields->$fromto[0];
@@ -417,6 +418,7 @@ function calendar_build_nodes(&$view, &$items) {
         $now = max($min_zone_string[$display_timezone_name], substr($values_display[0], 0, 10));
         $to  = min($max_zone_string[$display_timezone_name], substr($values_display[1], 0, 10));
         $next = date_make_date($now, $display_timezone);
+        
         if ($display_timezone_name != $to_zone) {
           // Make $start and $end (derived from $node) use the timezone $to_zone, just as $values[..] do
           date_timezone_set($next, timezone_open($to_zone));
