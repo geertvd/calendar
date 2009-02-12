@@ -42,7 +42,7 @@ if (Drupal.jsEnabled) {
       // fill the div with data
       $.ajax({
         type: "GET",
-        url: var_base_path + "jcalendar/getnode/"+nid+"/"+ids,
+        url: var_base_path + "?q=jcalendar/getnode/"+nid+"/"+ids,
         success: function(msg){
           domCallback(msg);
         }

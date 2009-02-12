@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- #369573 Fix jCalendar popup when used without clean urls.
 - #310633 Rework 'all day' logic to correctly handle increments.
 - #342932 Fix broken ical export, only the day export was working correctly.
 - #336018 Add Dutch translation.
