@@ -29,7 +29,7 @@ if (Drupal.jsEnabled) {
       var offset_top = offset.top + 25;
       if ($(window).height() < $('#calpopup').height() + offset_top) {
         offset_top -= $('#calpopup').height() + 25;
-	if (offset_top < 0) {
+	      if (offset_top < 0) {
           offset_top = 0;
         }
       }
@@ -53,7 +53,7 @@ if (Drupal.jsEnabled) {
       // fill the div with data
       $.ajax({
         type: "GET",
-        url: var_base_path + "jcalendar/getnode/"+nid+"/"+ids,
+        url: var_base_path + "?q=jcalendar/getnode/"+nid+"/"+ids,
         success: function(msg){
           domCallback(msg);
         }

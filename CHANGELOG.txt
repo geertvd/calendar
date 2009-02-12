@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #369573 Fix jCalendar popup when used without clean urls.
 - #367627 Fit jCalendar popup into window better.
 - #368632 Fix repeating date iCal export: show date only one time and add RRULE to export.
 - #332273 Use field alias in iCal location and description fields to avoid problems with CCK table optimization.
