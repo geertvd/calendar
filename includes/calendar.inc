@@ -504,6 +504,12 @@ function calendar_build_nodes(&$view, &$items) {
           else {
             $node->calendar_all_day = FALSE;
           }
+          
+          // Flag all day values specifically set in date.
+          $all_day_field = str_replace(array('_value2', '_value'), '_all_day', $node->datefield);
+          if (!empty($all_day_field) && !empty($item->$all_day_field)) {
+            $node->calendar_all_day = TRUE;
+          }
 
           // Change string timezones into 
           // calendar_start and calendar_end are UTC dates as formatted strings
@@ -524,6 +530,7 @@ function calendar_build_nodes(&$view, &$items) {
             $nodes[] = $node;
             unset($node);
           }
+          
           date_modify($next, '+1 second');
           $processed[] = $id;  
           $now = date_format($next, DATE_FORMAT_DATE);
