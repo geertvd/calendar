@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #341841 Add 'has-events' and 'has-no-events' classes for easier themeing.
 - Make sure there is a sane defualt value for the iCal summary field to avoid theme errors.
 - #364770 Add new date link needs to convert underscore to hyphen.
 - #370092 Add all-day checkbox to date field and use it in calendar.

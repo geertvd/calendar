@@ -360,3 +360,9 @@ table.calendar-legend tr.even .stripe {
 .calendar-calendar td .inner div.calendar div div.view-data-node-data-field-date-field-date-value {
   border-bottom:1px solid #ccc;
 }
+
+/* The following are not used by default but are available for themes */
+.calendar-calendar td.past {}
+.calendar-calendar td.future {}
+.calendar-calendar td.has-events {}
+.calendar-calendar td.has-no-events {}

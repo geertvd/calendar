@@ -124,7 +124,10 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
     }
     else {
       $content = calendar_build_day($curday, $view, $items);
-      $class .= ($curday_date == $today ? ' today' : '') .  ($curday_date < $today ? ' past' : '') . ($curday_date > $today ? ' future' : '');
+      $class .= ($curday_date == $today ? ' today' : '') .
+        ($curday_date < $today ? ' past' : '') .
+        ($curday_date > $today ? ' future' : '') .
+        (empty($items[$curday_date]) ? ' has-no-events' : ' has-events');
     }
     
     $rows[$week][] = array(
