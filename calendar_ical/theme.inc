@@ -40,7 +40,15 @@ function template_preprocess_calendar_view_ical(&$vars) {
       }
     }
   }
+  // A summary field is required, default to the title.
+  if (empty($summary_field) || $summary_field == 'node_title') {
+    $summary_field = 'title';
+  }
   foreach ($items as $node) {
+    // We cannot process an event that is missing the summary info.
+    if (empty($node->$summary_field)) {
+      continue;
+    }
     // Allow modules to affect item fields
     node_invoke_nodeapi($node, 'ical item');
     unset($node->view);
