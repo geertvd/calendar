@@ -161,7 +161,7 @@ function calendar_build_day($curday, $view, $items) {
         foreach ($hour as $key => $item) {
           $count++;
           $types[$item->type] = $item;
-          if (!$view->date_info->mini && (empty($max_events) || ($max_events > 0 && $count <= $max_events))) {
+          if (!$view->date_info->mini && ($max_events == CALENDAR_SHOW_ALL || $count <= $max_events || ($count > 0 && $max_events == CALENDAR_HIDE_ALL))) {
             // Theme the item here unless this is a 'Day' or 'Week' view.
             // Day and week views need to do more processing before rendering
             // the item, so just past them the unrendered item.
@@ -182,9 +182,10 @@ function calendar_build_day($curday, $view, $items) {
   if (empty($inner) && empty($all_day)) {
     $empty = theme('calendar_empty_day', $curday_date, $view);
   }
-  // we have too many events on this day. use the theme('calendar_multiple_')
-  if ($max_events > 0 && $count > $max_events && $view->date_info->calendar_type != 'day' && !$view->date_info->mini) {
-    if ($view->date_info->style_max_items_behavior == 'hide') {
+  // We have hidden events on this day, use the theme('calendar_multiple_') to show a link.
+  if ($max_events != CALENDAR_SHOW_ALL && $count > 0 && $count > $max_events && $view->date_info->calendar_type != 'day' && !$view->date_info->mini) {
+    if ($view->date_info->style_max_items_behavior == 'hide' || $max_events == CALENDAR_HIDE_ALL) {
+      $all_day = array();
       $inner = array();
     }
     $link = theme('calendar_'. $view->date_info->calendar_type .'_multiple_node', $curday_date, $count, $view, $types);

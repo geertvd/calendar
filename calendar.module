@@ -1,5 +1,7 @@
 <?php
 // $Id$
+define('CALENDAR_SHOW_ALL', 0);
+define('CALENDAR_HIDE_ALL', -1);
 
 /**
  * Implementation of hook_views_api().

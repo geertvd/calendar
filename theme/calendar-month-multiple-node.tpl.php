@@ -6,7 +6,7 @@
  * 
  * 
  * @see template_preprocess_calendar_month_multiple_node.
- */ 
+ */
 ?>
 <div class="view-item view-item-<?php print $view->name ?>">
   <div class="calendar monthview" id="<?php print $curday ?>">
