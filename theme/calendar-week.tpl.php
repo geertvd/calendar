@@ -33,7 +33,7 @@
 <table>
   <thead>
     <tr>
-      <th class="calendar-agenda-hour"><?php t('Time'); ?></th>
+      <th class="calendar-agenda-hour"><?php print $by_hour_count > 0 ? t('Time') : ''; ?></th>
       <?php foreach ($day_names as $cell): ?>
         <th class="<?php print $cell['class']; ?>">
           <?php print $cell['data']; ?>
@@ -43,8 +43,8 @@
   </thead>
   <tbody>
     <tr>
-      <td class="calendar-agenda-hour">
-         <span class="calendar-hour"><?php print t('All day'); ?></span>
+      <td class="<?php print $agenda_hour_class ?>">
+         <span class="calendar-hour"><?php print $by_hour_count > 0 ? t('All day') : ''; ?></span>
        </td>
       <?php foreach ($rows as $day): ?>
        <td class="calendar-agenda-items">

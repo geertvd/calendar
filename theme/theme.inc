@@ -284,8 +284,18 @@ function template_preprocess_calendar_day(&$vars) {
   $view = $vars['view'];
   $rows = $vars['rows'];
   
+  $item_count = 0;
+  $by_hour_count = 0;
   $grouping_field = $view->date_info->style_groupby_field;
-    
+  
+  // If we're not grouping by time, move all items into the 'all day' array.
+  if (empty($view->date_info->style_groupby_times)) {
+    foreach ($rows['items'] as $item) {
+      $rows['all_day'] += $item;
+    }
+    $rows['items'] = array();
+  }
+        
   $columns = array();
   
   // Move all_day items into the right columns and render them.
@@ -303,6 +313,7 @@ function template_preprocess_calendar_day(&$vars) {
     }
     $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_info->granularity .'_node';
     $grouped_items[$column][] = theme($theme, $item, $view);
+    $item_count++;
   }
   $vars['rows']['all_day'] = $grouped_items;
   
@@ -337,6 +348,8 @@ function template_preprocess_calendar_day(&$vars) {
       }
       $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_info->granularity .'_node';
       $grouped_items[$start_time]['values'][$column][] = theme($theme, $item, $view);
+      $item_count++;
+      $by_hour_count++;
     }
   }
   
@@ -368,12 +381,24 @@ function template_preprocess_calendar_day(&$vars) {
     $columns = array(t('Items'));
   }
   $vars['columns'] = $columns;
+  
+  $vars['agenda_hour_class'] = 'calendar-agenda-hour';
+  $first_column_width = 10;
+  
+  if (empty($view->date_info->style_groupby_times)) {
+    $vars['agenda_hour_class'] .= ' calendar-agenda-no-hours';
+    $first_column_width = 1;
+  }
+  
+  $vars['first_column_width'] = $first_column_width;
   if (count($columns)) {
-    $vars['column_width'] = round(90/count($columns));
+    $vars['column_width'] = round((100 - $first_column_width)/count($columns));
   }
   else {
-    $vars['column_width'] = 90;
+    $vars['column_width'] = (100 - $first_column_width);
   }
+  $vars['item_count'] = $item_count;
+  $vars['by_hour_count'] = $by_hour_count;
   return;
 }
 
@@ -387,6 +412,8 @@ function template_preprocess_calendar_week(&$vars) {
   
   $view = $vars['view'];
   $rows = $vars['rows'];
+  $item_count = 0;
+  $by_hour_count = 0;
   
   if (sizeof($rows) > 1) {
     $day_names = array_shift($rows);
@@ -395,7 +422,7 @@ function template_preprocess_calendar_week(&$vars) {
     $day_names = $rows;
     $rows = array();
   }
-
+  
   // Moved timed items into the right columns and render them.
   $show_empty_times = $view->date_info->style_show_empty_times; 
   $end_start_time = '23:59:59';
@@ -404,7 +431,15 @@ function template_preprocess_calendar_week(&$vars) {
   $vars['rows'] = $rows[0];
   foreach ($rows[0] as $weekno => $row) {
     $vars['rows'][$weekno] = $row['data'];
-
+    
+    // If we're not grouping by time, move all items into the 'all day' array.
+    if (empty($view->date_info->style_groupby_times)) {
+      foreach ($row['data']['items'] as $item) {
+        $row['data']['all_day'] += $item;
+      }
+      $row['data']['items'] = array();
+    }
+    
     $columns[] = $weekno;
     $start_times = $view->date_info->style_groupby_times;
     $start_time = array_shift($start_times);
@@ -412,6 +447,7 @@ function template_preprocess_calendar_week(&$vars) {
     foreach ($row['data']['all_day'] as $key => $item) {
       $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_info->granularity .'_node';
       $vars['rows'][$weekno]['all_day'][$key] = theme($theme, $item, $view);
+      $item_count++;
     }
     foreach ($row['data']['items'] as $time => $items) {
       foreach ($items as $item) {
@@ -426,6 +462,8 @@ function template_preprocess_calendar_week(&$vars) {
         }
         $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_info->granularity .'_node';
         $grouped_items[$start_time]['values'][$weekno][] = theme($theme, $item, $view);
+        $item_count++; 
+        $by_hour_count++; 
       }
     }
   
@@ -457,6 +495,16 @@ function template_preprocess_calendar_week(&$vars) {
   $vars['day_names'] = $day_names;
   $vars['columns'] = $columns;
   $vars['start_times'] = $view->date_info->style_groupby_times;
+  
+  $vars['agenda_hour_class'] = 'calendar-agenda-hour';
+  $first_column_width = 10;
+  
+  if (empty($view->date_info->style_groupby_times)) {
+    $vars['agenda_hour_class'] .= ' calendar-agenda-no-hours';
+    $first_column_width = 1;
+  }
+  $vars['item_count'] = $item_count;
+  $vars['by_hour_count'] = $by_hour_count;
   return;
 }
 

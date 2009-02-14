@@ -29,19 +29,16 @@
  * evenly over the remaining 90% of the table.
  */
 //dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_formatted);
-//dsm($columns);
-//dsm($rows);
 ?>
-
 <div class="calendar-calendar"><div class="day-view">
 <table>
   <thead>
-    <col width="10%"></col>
+    <col width="<?php print $first_column_width?>"></col>
     <?php foreach ($columns as $column): ?>
     <col width="<?php print $column_width; ?>%"></col>
     <?php endforeach; ?>
     <tr>
-      <th class="calendar-dayview-hour"><?php t('Time'); ?></th>
+      <th class="calendar-dayview-hour"><?php print $by_hour_count > 0 ? t('Time') : ''; ?></th>
       <?php foreach ($columns as $column): ?>
       <th class="calendar-agenda-items"><?php print $column; ?></th>
       <?php endforeach; ?>
@@ -49,8 +46,8 @@
   </thead>
   <tbody>
     <tr>
-      <td class="calendar-agenda-hour">
-         <span class="calendar-hour"><?php print t('All day'); ?></span>
+      <td class="<?php print $agenda_hour_class ?>">
+         <span class="calendar-hour"><?php print $by_hour_count > 0 ? t('All day') : ''; ?></span>
        </td>
       <?php foreach ($columns as $column): ?>
        <td class="calendar-agenda-items">
