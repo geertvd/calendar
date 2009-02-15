@@ -720,7 +720,7 @@ function theme_calendar_stripe_stripe($node) {
  */
 function theme_calendar_empty_day($curday, $view) {
   
-  if ($view->date_info->calendar_display != 'day') {
+  if ($view->date_info->calendar_type != 'day') {
     return '<div class="calendar-empty">&nbsp;</div>'."\n";
   }
   else {

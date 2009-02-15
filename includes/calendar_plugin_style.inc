@@ -142,7 +142,7 @@ class calendar_plugin_style extends views_plugin_style {
     }
     $this->view->date_info->display_types = $this->display_types();
     $keys = drupal_map_assoc(array_keys(calendar_display_types()));
-    $this->view->date_info->calendar_display = $keys[$this->view->date_info->granularity];
+    $this->view->date_info->calendar_type = $keys[$this->view->date_info->granularity];
     
     // bring the node type into the query so we can use it in the theme
     $this->view->query->add_field('node', 'type');
