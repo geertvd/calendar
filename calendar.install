@@ -163,6 +163,14 @@ function calendar_update_6000() {
  */
 function calendar_update_6001() {
   $ret = array();
+  // don't attempt to upgrade if views is not yet upgraded.
+  if (drupal_get_installed_schema_version('views', TRUE) < 6000) {
+    $ret = array();
+    drupal_set_message(t('Calendar module cannot be updated until after Views has been updated. Please return to <a href="@update-php">update.php</a> and run the remaining updates.', array('@update-php' => base_path() .'update.php?op=selection')), 'warning', FALSE);
+    $ret['#abort'] = array('success' => FALSE, 'query' => t('calendar.module has updates, but cannot be updated until views.module is updated first.'));
+    
+    return $ret;
+  }
   if (!module_exists('calendar_ical')) {
     $ret[] = update_sql("DELETE FROM {views_display} WHERE display_plugin = 'ical'");
   }
@@ -171,6 +179,14 @@ function calendar_update_6001() {
 
 function calendar_update_6002() {
   $ret = array();
+  // don't attempt to upgrade if views is not yet upgraded.
+  if (drupal_get_installed_schema_version('views', TRUE) < 6000) {
+    $ret = array();
+    drupal_set_message(t('Calendar module cannot be updated until after Views has been updated. Please return to <a href="@update-php">update.php</a> and run the remaining updates.', array('@update-php' => base_path() .'update.php?op=selection')), 'warning', FALSE);
+    $ret['#abort'] = array('success' => FALSE, 'query' => t('calendar.module has updates, but cannot be updated until views.module is updated first.'));
+    
+    return $ret;
+  }
   $periods = array(
     'calendar_month' => 'calendar_period_1',
     'calendar_year' => 'calendar_period_2',
