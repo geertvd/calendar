@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+#338253 Re-work date_t() to create a more robust method of handling translations of abbreviations and other short strings.
 - Add more description text to the ical description and location fields to clarify that you have to add fields to the view.
 - #368632 Make sure iCal exports handle multi-day dates correctly.
 - Clean up inconsistent use of calendar_display and calendar_type to use only calendar_type.
