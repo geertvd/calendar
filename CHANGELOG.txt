@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #368632 Make sure iCal exports handle multi-day dates correctly.
 - Clean up inconsistent use of calendar_display and calendar_type to use only calendar_type.
 - #365113 Remove agenda hour column when not grouping by hour.
 - #357019 Add method to hide all items and show only count or 'more' link.

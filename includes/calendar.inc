@@ -294,13 +294,13 @@ function calendar_build_nodes(&$view, &$items) {
       $datefields[] = $fields['name'][$name]['query_name'];
     }
   }
-  
+
   $view_fields = date_api_views_fetch_fields('node', 'field');
   $field_names = (array) array_keys($fields['name']);
   $nodes = array();
   $i = 0;
   foreach ($date_filter->options['date_fields'] as $name) {
-    $field = $fields['name'][$name];
+    $field        = $fields['name'][$name];
     $field_type   = strstr($field['type'], 'string') ? 'string' : 'timestamp';
     $alias        = $field['query_name'];
     $field_name   = $field['field_name'];
@@ -313,6 +313,13 @@ function calendar_build_nodes(&$view, &$items) {
     $field_name   = $field['field_name'];
     $rrule_field  = str_replace(array('_value2', '_value'), '_rrule', $alias);
             
+    // Set a flag to tell us if individual multi-day dates need to be 
+    // split into separate nodes.
+    $split_dates = TRUE;
+    if (strstr($view->current_display, '_ical')) {
+      $split_dates = FALSE;
+    }
+    
     // If there is no field for this item, just default to the site format.
     if (!isset($view->field[$field_name])) {
       $format = variable_get('date_format_short', 'm/d/Y - H:i');
@@ -357,7 +364,10 @@ function calendar_build_nodes(&$view, &$items) {
         $real_field = str_replace(array('_value2', '_value'), '', $field_name);
       }
       
-      // When creating iCal feeds for repeating dates, display only the first one.
+      $id = 'calendar:'. $item->nid .':'. $real_field .':'. $delta;
+      
+      // When creating iCal feeds for repeating dates we don't want all
+      // the multiple values, send only the first value.
       if (strstr($view->current_display, '_ical') && !empty($rrule_field) && !empty($item->$rrule_field)) {
         if (!in_array($rrule_field, $rrule_processed)) {
           $rrule_processed[] = $rrule_field;
@@ -366,7 +376,7 @@ function calendar_build_nodes(&$view, &$items) {
           continue;
         }
       }
-      $id = 'calendar:'. $item->nid .':'. $real_field .':'. $delta;
+      
       if (!in_array($id, $processed) && isset($item->calendar_fields->$alias)) {
         
         // Create from and to date values for each item, adjusted to
@@ -487,16 +497,24 @@ function calendar_build_nodes(&$view, &$items) {
             }
           }
 
-          // Get start and end of current day
-          $start = date_format($next, DATE_FORMAT_DATETIME);
-          date_modify($next, '+1 day');
-          date_modify($next, '-1 second');
-          $end = date_format($next, DATE_FORMAT_DATETIME);
+          // If we don't deconstruct dates into individual date parts, 
+          // use date values as-is.
+          if (!$split_dates) {
+            $node->calendar_start = $values[0];
+            $node->calendar_end = $values[1];
+          }
+          // Split dates get intersection of current day and the node 
+          // value's duration (as strings in $to_zone timezone)
+          else {
+           // Get start and end of current day
+            $start = date_format($next, DATE_FORMAT_DATETIME);
+            date_modify($next, '+1 day');
+            date_modify($next, '-1 second');
+            $end = date_format($next, DATE_FORMAT_DATETIME);
+            $node->calendar_start = $values[0] < $start ? $start : $values[0];
+            $node->calendar_end = !empty($values[1]) ? ($values[1] > $end ? $end : $values[1]) : $node->calendar_start;
+          }
           
-          // Get intersection of current day and the node value's duration (as strings in $to_zone timezone)
-          $node->calendar_start = $values[0] < $start ? $start : $values[0];
-          $node->calendar_end = !empty($values[1]) ? ($values[1] > $end ? $end : $values[1]) : $node->calendar_start;
-
           // Make date objects
           $node->calendar_start_date = date_create($node->calendar_start, timezone_open($to_zone));
           $node->calendar_end_date = date_create($node->calendar_end, timezone_open($to_zone));
@@ -533,10 +551,14 @@ function calendar_build_nodes(&$view, &$items) {
             $nodes[] = $node;
             unset($node);
           }
-          
-          date_modify($next, '+1 second');
-          $processed[] = $id;  
-          $now = date_format($next, DATE_FORMAT_DATE);
+          $processed[] = $id;
+          if ($split_dates) {
+            date_modify($next, '+1 second');
+            $now = date_format($next, DATE_FORMAT_DATE);
+          }
+          else {
+            break;
+          }
         }
       }
     }
