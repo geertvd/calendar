@@ -67,7 +67,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
       $handler = views_get_handler($field['table'], $field['field'], 'field');
       $options[$field['field']] = $handler->ui_name();
     }
-    $form['#prefix'] = t('<div class="form-item">Map the View fields to the values they should represent in the iCal feed.</div>');
+    $form['#prefix'] = '<div class="form-item">'. t("Map the View fields to the values they should represent in the iCal feed. Only fields that have been added to the view are available to use in this way. You can add additional fields to the view and mark them 'Exclude from display' if you only want them in the iCal feed.") .'</div>';
     
     $form['summary_field'] = array(
       '#type' => 'select',

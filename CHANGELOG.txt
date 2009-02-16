@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Add more description text to the ical description and location fields to clarify that you have to add fields to the view.
 - #368632 Make sure iCal exports handle multi-day dates correctly.
 - Clean up inconsistent use of calendar_display and calendar_type to use only calendar_type.
 - #365113 Remove agenda hour column when not grouping by hour.
