@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #372625 Reset year granularity after processing months on year view now that Views has changed processing order, also omit deprecated themes, we now use date_nav_title. 
 - #345077 Make sure duplicate copies of the date field each get to theme the raw, unaltered, data.
 - #338253 Re-work date_t() to create a more robust method of handling translations of abbreviations and other short strings.
 - Add more description text to the ical description and location fields to clarify that you have to add fields to the view.

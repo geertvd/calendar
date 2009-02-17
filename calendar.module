@@ -72,9 +72,6 @@ function calendar_theme() {
       'arguments' => array(
         'date' => NULL, 'view' => NULL, 'items' => NULL, 'selected' => NULL),
       ),
-    'calendar_title' => $base + array(
-      'arguments' => array('date_type' => NULL, 'view' => NULL),
-      ),
     'calendar_date_combo' => $base + array(
       'arguments' => array('node', 'lable', 'view'),
       ),

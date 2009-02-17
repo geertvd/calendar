@@ -16,9 +16,6 @@ function template_preprocess_calendar_main(&$vars) {
   $vars['max_date_formatted'] = date_format($view->date_info->max_date, DATE_FORMAT_DATETIME);
   $view->date_info->mini = isset($view->date_info->mini) ? $view->date_info->mini : $view->date_info->granularity == 'year';
   
-  // Construct a formatted title for the view from the calendar type.
-  $view->date_info->subtitle = theme('calendar_title', $view->date_info->granularity, $view);
-  
   // Create the links to other displays.
   $now = date_now();
   $url = $view->get_url();
@@ -149,9 +146,6 @@ function template_preprocess_calendar(&$vars) {
     }
   }
 
-  // Construct a formatted title for the view from the calendar type.
-  $view->date_info->subtitle = theme('calendar_title', $view->date_info->granularity, $view);
-  
   $view->date_info->mini = isset($view->date_info->mini) ? $view->date_info->mini : $view->date_info->granularity == 'year';
   
   // Create the calendar day names and rows.
@@ -270,6 +264,7 @@ function template_preprocess_calendar_year(&$vars) {
   }
   $vars['months'] = $months;
   $vars['view']->date_info->hide_nav = FALSE;
+  $vars['view']->date_info->granularity = 'year';
   
 }
 
@@ -729,19 +724,4 @@ function theme_calendar_empty_day($curday, $view) {
   }
 }
 
-/**
- * Theme the calendar title
- */
-function theme_calendar_title($granularity, $view) {
-  switch ($granularity) {
-    case 'year':
-      return $view->date_info->year;
-    case 'month':
-      return date_format_date($view->date_info->min_date, 'custom', 'F');
-    case 'day':
-      return date_format_date($view->date_info->min_date, 'custom', 'l, F j Y');
-    case 'week':
-    	return t('Week of @date', array('@date' => date_format_date($view->date_info->min_date, 'custom', 'F j')));
-  }
-}
 /** @} End of addtogroup themeable */
