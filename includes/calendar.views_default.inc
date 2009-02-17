@@ -347,8 +347,6 @@ $handler->override_option('style_options', array(
   'display_type' => 'year',
   'name_size' => 1,
   'max_items' => 0,
-  'truncated_fields' => array(),
-  'truncate_length' => '',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
@@ -369,8 +367,6 @@ $handler->override_option('style_options', array(
   'with_weekno' => '1',
   'date_fields' => NULL,
   'max_items' => 0,
-  'truncated_fields' => array(),
-  'truncate_length' => '',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
@@ -393,8 +389,6 @@ $handler->override_option('style_options', array(
   'groupby_times' => 'hour',
   'groupby_times_custom' => '',
   'groupby_field' => '',
-  'truncated_fields' => array(),
-  'truncate_length' => '',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
@@ -417,8 +411,6 @@ $handler->override_option('style_options', array(
   'groupby_times' => 'hour',
   'groupby_times_custom' => '',
   'groupby_field' => '',
-  'truncated_fields' => array(),
-  'truncate_length' => '',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);

@@ -17,8 +17,6 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     $view->date_info->style_with_weekno = $this->options['with_weekno'];
     $view->date_info->style_max_items = $this->options['max_items'];
     $view->date_info->style_max_items_behavior = $this->options['max_items_behavior'];
-    $view->date_info->style_truncated_fields = $this->options['truncated_fields'];
-    $view->date_info->style_truncate_length = $this->options['truncate_length'];
     if (!empty($this->options['groupby_times_custom'])) {
       $view->date_info->style_groupby_times = explode(',', $this->options['groupby_times_custom']);
     }
@@ -43,8 +41,6 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     $options['with_weekno'] = 0;
     $options['max_items'] = 0;
     $options['max_items_behavior'] = 'more';
-    $options['truncated_fields'] = array();
-    $options['truncate_length'] = '';
     $options['groupby_times'] = 'hour';
     $options['groupby_times_custom'] = '';
     $options['groupby_field'] = '';
@@ -117,22 +113,6 @@ class calendar_view_plugin_style extends calendar_plugin_style {
       '#default_value' => $this->options['groupby_field'],
       '#description' => t("Optionally group items into columns by a field value, for instance select the content type to show items for each content type in their own column, or use a location field to organize items into columns by location."),
       '#options' => array('' => '') + $field_options,
-      );
-    $form['truncated_fields'] = array(
-      '#title' => t('Truncated fields'),
-      '#type' => in_array($calendar_type, array('month', 'week', 'day')) ? 'checkboxes' : 'value',
-      '#options' => $field_options + $date_field_options,
-      '#default_value' => $this->options['truncated_fields'],
-      '#multiple' => TRUE,
-      '#description' => t("Fields that should be truncated to fit in the calendar cell. For instance, change the title from 'Very Very Very Long Name' to something like 'Very Very...'."),
-      );
-    $form['truncate_length'] = array(
-      '#title' => t('Truncate length'),
-      '#type' => in_array($calendar_type, array('month', 'week', 'day')) ? 'textfield' : 'value',
-      '#default_value' => $this->options['truncate_length'],
-      '#description' => t("Maximum number of characters to leave in truncated fields."),
-      '#maxlength' => 4,
-      '#size' => 4,
       );
     foreach ($form as $key => $value) {
       if ($value['#type'] == 'value') {

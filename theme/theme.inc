@@ -96,9 +96,6 @@ function template_preprocess_calendar(&$vars) {
   $items = array();
   $calendar_fields = date_api_fields();
   $calendar_fields = array_keys($calendar_fields['alias']);
-  if (empty($view->date_info->style_truncated_fields)) {
-    $view->date_info->style_truncated_fields = array();
-  }
   
   foreach ($result as $num => $row) {
     $copy = drupal_clone($row);
@@ -108,11 +105,6 @@ function template_preprocess_calendar(&$vars) {
     foreach ($row as $key => $value) {
       if (in_array($key, $calendar_fields)) {
         $items[$num]->calendar_fields->$key = $value;
-      }
-      // Shorten truncated fields before sending them to the row theme.
-      if (in_array($key, $view->date_info->style_truncated_fields) && !empty($view->date_info->style_truncate_length) 
-        && $view->style_plugin->definition['handler'] == 'calendar_view_plugin_style') {
-        $row->$key = calendar_trim_text($row->$key, $view->date_info->style_truncate_length);
       }
     }
     foreach ($fields as $field) {
