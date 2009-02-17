@@ -3,18 +3,18 @@
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  calendar_ical.views.inc,v 1.1.2.2 2008/09/06 10:00:45 karens
-#  calendar_ical_admin.inc,v 1.1.2.1 2008/09/05 11:03:42 karens
-#  calendar_plugin_display_ical.inc,v 1.1.2.1 2008/09/05 11:03:42 karens
-#  calendar_plugin_style_ical.inc,v 1.1.2.1 2008/09/05 11:03:42 karens
-#  calendar_ical.module,v 1.1.2.1 2008/09/05 11:03:42 karens
+#  calendar_ical.views.inc,v 1.1.2.6 2009/02/16 23:46:22 karens
+#  calendar_ical_admin.inc,v 1.1.2.2 2008/10/02 20:23:49 karens
+#  calendar_plugin_display_ical.inc,v 1.1.2.5 2008/11/25 16:12:36 karens
+#  calendar_plugin_style_ical.inc,v 1.1.2.13 2009/02/16 11:39:37 karens
+#  calendar_ical.module,v 1.1.2.6 2008/11/24 15:48:15 karens
 #  calendar_ical.info,v 1.1.2.1 2008/09/05 11:03:42 karens
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2008-09-06 16:19-0500\n"
+"POT-Creation-Date: 2009-02-17 05:03-0600\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -23,19 +23,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: calendar_ical.views.inc:36;47
+#: calendar_ical.views.inc:30;42;64
 msgid "iCal feed"
 msgstr ""
 
-#: calendar_ical.views.inc:37
+#: calendar_ical.views.inc:31
 msgid "Display the view as an iCal feed."
 msgstr ""
 
-#: calendar_ical.views.inc:73
-msgid "iCal Feed"
-msgstr ""
-
-#: calendar_ical.views.inc:74
+#: calendar_ical.views.inc:65
 msgid "Generates an iCal feed from a view."
 msgstr ""
 
@@ -87,36 +83,72 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
-#: calendar_plugin_display_ical.inc:20
+#: calendar_plugin_display_ical.inc:81
+msgid "iCal settings"
+msgstr ""
+
+#: calendar_plugin_display_ical.inc:85
+msgid "Using the site name"
+msgstr ""
+
+#: calendar_plugin_display_ical.inc:93
+msgid "Multiple displays"
+msgstr ""
+
+#: calendar_plugin_display_ical.inc:103
+msgid "None"
+msgstr ""
+
+#: calendar_plugin_display_ical.inc:108;135
+msgid "Attach to"
+msgstr ""
+
+#: calendar_plugin_display_ical.inc:127
+msgid "Use the site name for the title"
+msgstr ""
+
+#: calendar_plugin_display_ical.inc:144
+msgid "The ical icon will be shown only on the selected displays."
+msgstr ""
+
+#: calendar_plugin_display_ical.inc:150
 msgid "This view will be displayed by visiting this path on your site. It is recommended that the path be something like \"path/%/%/ical\", putting one % in the path for each argument you have defined in the view."
 msgstr ""
 
+#: calendar_plugin_display_ical.inc:203
+msgid "A Calendar period display will not work without a Date argument or a Date filter."
+msgstr ""
+
 #: calendar_plugin_style_ical.inc:70
-msgid "<div class=\"form-item\">Map the View fields to the values they should represent in the iCal feed.</div>"
+msgid "Map the View fields to the values they should represent in the iCal feed. Only fields that have been added to the view are available to use in this way. You can add additional fields to the view and mark them 'Exclude from display' if you only want them in the iCal feed."
 msgstr ""
 
 #: calendar_plugin_style_ical.inc:74
 msgid "Title"
 msgstr ""
 
-#: calendar_plugin_style_ical.inc:80
+#: calendar_plugin_style_ical.inc:81
 msgid "Description"
 msgstr ""
 
-#: calendar_plugin_style_ical.inc:86
+#: calendar_plugin_style_ical.inc:87
 msgid "Location"
 msgstr ""
 
-#: calendar_ical.module:79
-msgid "Calendar: iCal Feed"
+#: calendar_plugin_style_ical.inc:107
+msgid "The @style style requires a Date argument or a Date filter."
 msgstr ""
 
-#: calendar_ical.module:206;206
+#: calendar_plugin_style_ical.inc:120
+msgid "The @style style requires a Title field for the iCal export."
+msgstr ""
+
+#: calendar_plugin_style_ical.inc:134
+msgid "The date field '@field' used by the display '@display_title' cannot be set to 'Group multiple values'."
+msgstr ""
+
+#: calendar_ical.module:29;29
 msgid "Add to calendar"
-msgstr ""
-
-#: calendar_ical.module:268
-msgid "Dates"
 msgstr ""
 
 #: calendar_ical.module:0
