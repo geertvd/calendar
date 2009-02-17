@@ -123,8 +123,9 @@ function template_preprocess_calendar(&$vars) {
         unset($items[$num]->{$field->field_alias});
       }
       elseif (!empty($field) && is_object($field)) {
-        $field_output = $field->theme($row);
-        $items[$num]->{$field->field_alias} = $field_output;
+        // Theme the copy instead of the original row so duplicate date
+        // fields each get a fresh copy of the original data to theme.
+        $items[$num]->{$field->field_alias} = $field->theme($copy);
       }
     }
   }

@@ -457,6 +457,7 @@ function calendar_build_nodes(&$view, &$items) {
         // All three were limited by the min-max date range of the view.
         while ($now <= $to) {
           $node = drupal_clone($item);
+          
           // Make sure the pseudo node has the same properties a
           // regular node would have.
           if (isset($node->node_title) && !isset($node->title)) {
