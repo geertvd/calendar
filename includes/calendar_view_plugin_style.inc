@@ -121,10 +121,6 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     }
   }
 
-  function options_submit($form, &$form_state) {
-    $form_state['values']['style_options']['truncated_fields'] = array_filter($form_state['values']['style_options']['truncated_fields']);
-  }
-
   /**
    * Render the calendar attachment style.
    */
