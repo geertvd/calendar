@@ -198,7 +198,7 @@ if (!empty($types)) {
   $filters += array(
     'type' => array(
     'operator' => 'in',
-    'value' => drupal_map_assoc($types),
+    'value' => drupal_map_assoc(array_keys($types)),
     'group' => '0',
     'exposed' => FALSE,
     'expose' => array(
@@ -486,6 +486,7 @@ $handler->override_option('style_options', array(
   'grouping' => '',
   'type' => 'ul',
 ));
+$handler->override_option('title', 'Upcoming');
 $handler->override_option('block_description', 'Upcoming');
 $handler->override_option('block_caching', -1);
 
