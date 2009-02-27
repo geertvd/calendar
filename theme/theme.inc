@@ -89,7 +89,7 @@ function template_preprocess_calendar(&$vars) {
   $handler  = $view->style_plugin;
 
   $fields   = $view->field;
-  
+    
   // Render each field into an output array. We have to do the rendering
   // here because we don't apppear to have full access to the view 
   // handlers in the theme functions.
@@ -107,14 +107,16 @@ function template_preprocess_calendar(&$vars) {
         $items[$num]->calendar_fields->$key = $value;
       }
     }
-    foreach ($fields as $field) {
+    foreach ($fields as $name => $field) {
+      // Some fields, like the node edit and delete links, have no alias.
+      $field_alias = $field->field_alias != 'unknown' ? $field->field_alias : $name; 
       if (!empty($field->options['exclude'])) {
-        unset($items[$num]->{$field->field_alias});
+        if (isset($items[$num]->{$field_alias})) unset($items[$num]->{$field_alias});
       }
       elseif (!empty($field) && is_object($field)) {
         // Theme the copy instead of the original row so duplicate date
         // fields each get a fresh copy of the original data to theme.
-        $items[$num]->{$field->field_alias} = $field->theme($copy);
+        $items[$num]->{$field_alias} = $field->theme($copy);
       }
     }
   }
@@ -530,8 +532,9 @@ function template_preprocess_calendar_node(&$vars) {
   $node = $vars['node'];
   $view = $vars['view'];
   $fields = array();
-  foreach ($view->field as $field) {
-    $field_alias = $field->field_alias;
+  foreach ($view->field as $name => $field) {
+    // Some fields, like the node edit and delete links, have no alias.
+    $field_alias = $field->field_alias != 'unknown' ? $field->field_alias : $name; 
     if (!empty($node->$field_alias)) {
       $data = $node->$field_alias;
       $label = $field->options['label'];

@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #377760 Fix alias handling for node edit and delete links.
 - Fix the way the node type filter was configured in the default view.
 - Get rid of truncated field display options, Views now handles that.
 - #372625 Reset year granularity after processing months on year view now that Views has changed processing order, also omit deprecated themes, we now use date_nav_title. 

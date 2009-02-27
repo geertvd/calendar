@@ -33,10 +33,12 @@ function template_preprocess_calendar_view_ical(&$vars) {
   
   $events = array();
   // Get the alias name for each of our data fields.
-  foreach ($view->field as $field) {
+  foreach ($view->field as $name => $field) {
+    // Some fields, like the node edit and delete links, have no alias.
+    $field_alias = $field->field_alias != 'unknown' ? $field->field_alias : $name; 
     foreach (array('summary_field', 'description_field', 'location_field') as $data) {
       if ($field->field == $view->date_info->$data) {
-        $$data = $field->field_alias;
+        $$data = $field_alias;
       }
     }
   }
