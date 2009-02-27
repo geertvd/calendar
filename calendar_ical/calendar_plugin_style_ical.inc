@@ -226,7 +226,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
       }
       foreach ($this->view->field as $name => $field) {
         // Some fields, like the node edit and delete links, have no alias.
-        $field_alias = $field->field_alias != 'unknown' ? $field_alias : $name; 
+        $field_alias = $field->field_alias != 'unknown' ? $field->field_alias : $name; 
         if (!empty($field) && is_object($field)) {
           $field_output = $field->theme($row);
           $items[$num]->{$field_alias} = $field_output;
