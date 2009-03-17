@@ -476,3 +476,20 @@ function calendar_link($type, $object, $teaser = FALSE) {
     }
   }
 }
+
+/**
+ * Callback to remove a default calendar from the system.
+ */
+function calendar_remove($view_name) {
+  // Remove any variable that creates a default view with this name.
+  $calendar_options = variable_get('calendar_default_view_options', array());
+  if (array_key_exists($view_name, $calendar_options)) {
+    unset($calendar_options[$view_name]);
+  }
+  variable_set('calendar_default_view_options', $calendar_options);
+  // Delete it from the database, if stored there.
+  if ($view = views_get_view($view_name)) {
+    $view->delete();
+  }
+  views_invalidate_cache();
+}
