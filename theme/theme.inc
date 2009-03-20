@@ -94,7 +94,7 @@ function template_preprocess_calendar(&$vars) {
   // here because we don't apppear to have full access to the view 
   // handlers in the theme functions.
   $items = array();
-  $calendar_fields = date_api_fields();
+  $calendar_fields = date_api_fields($this->view->base_table);
   $calendar_fields = array_keys($calendar_fields['alias']);
   
   foreach ($result as $num => $row) {

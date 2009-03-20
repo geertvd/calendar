@@ -122,7 +122,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
     // Make sure date fields are not set up to 'Group multiple values' 
     // in the calendar style.
     if ($style == 'calendar_style') {
-      $view_fields = date_api_fields('node');
+      $view_fields = date_api_fields($this->view->base_table);
       $view_fields = $view_fields['name'];
       $fields = $this->display->handler->get_option('fields');
       foreach ($fields as $column => $field) {
@@ -214,7 +214,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
        
     // Render each field into an output array.
     $items = array();
-    $calendar_fields = date_api_fields();
+    $calendar_fields = date_api_fields($this->view->base_table);
     $calendar_fields = array_keys($calendar_fields['alias']);
     foreach ($this->view->result as $num => $row) {
       $items[$num] = $row;
