@@ -281,7 +281,7 @@ function calendar_build_nodes(&$view, &$items) {
   $type_names = node_get_types('names');
 
   $datefields = array();
-  $fields = date_api_fields($this->view->base_table);
+  $fields = date_api_fields($view->base_table);
   if (!empty($view->filter['date_filter'])) {
     $date_filter = $view->filter['date_filter'];
     foreach ($view->filter['date_filter']->options['date_fields'] as $name) {

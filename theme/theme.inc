@@ -94,7 +94,7 @@ function template_preprocess_calendar(&$vars) {
   // here because we don't apppear to have full access to the view 
   // handlers in the theme functions.
   $items = array();
-  $calendar_fields = date_api_fields($this->view->base_table);
+  $calendar_fields = date_api_fields($view->base_table);
   $calendar_fields = array_keys($calendar_fields['alias']);
   
   foreach ($result as $num => $row) {
@@ -280,8 +280,11 @@ function template_preprocess_calendar_day(&$vars) {
   
   // If we're not grouping by time, move all items into the 'all day' array.
   if (empty($view->date_info->style_groupby_times)) {
-    foreach ($rows['items'] as $item) {
-      $rows['all_day'] += $item;
+    // Items are already grouped into times, so we need to process each time-group.
+    foreach ($rows['items'] as $time => $items) {
+      foreach($items as $item) {
+        $rows['all_day'][] = $item;
+      }
     }
     $rows['items'] = array();
   }
