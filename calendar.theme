@@ -622,6 +622,7 @@ function theme_calendar_multiple_node_month($curday_date, $count, $view, $types)
   $year = $parts[0];
   $month = intval($parts[1]);
   $day = intval($parts[2]);
+  $max_events = variable_get('calendar_limit_'. $view->name, 5);
   
   // create the link to the day
   $link = $view->real_url .'/'. date_pad($year, 4) .'/'. date_pad($month) .'/'. date_pad($day);
@@ -634,7 +635,7 @@ function theme_calendar_multiple_node_month($curday_date, $count, $view, $types)
     }
     $item = "<div class='multiple-events'>". l(t('Click to see all @count events', array('@count' => $count)), $link) ."</div>";
   }
-  else {
+  elseif ($count > 0) {
     $item = '<div class="calendar-more">'. l(t('more»'), $link) .'</div>';
   }
   $output .= "<div class='view-item ". views_css_safe('view-item-'. $view->name) ."'>$item</div>\n";

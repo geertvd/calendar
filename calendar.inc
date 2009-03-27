@@ -356,7 +356,7 @@ function calendar_build_day($curday, $view, $items, $params) {
       foreach ($day as $time) {
         foreach ($time as $item) {
           $count++;
-          if (!$view->mini && ($max_events > 0 && $count <= $max_events  || $view->calendar_type == 'day'))  {
+          if (!$view->mini && ($max_events == 0 || ($max_events > 0 && $count <= $max_events)  || $view->calendar_type == 'day'))  {
             $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_node_'. $view->calendar_type;
             $inner .= theme($theme, $item, $view);
           }
@@ -369,7 +369,7 @@ function calendar_build_day($curday, $view, $items, $params) {
     $inner = theme('calendar_empty_day');
   }
   // we have too many events on this day. use the theme('calendar_multiple_')
-  if ($max_events > 0 && $count > $max_events && $view->calendar_type != 'day' && !$view->mini) {
+  if (!$view->mini && ($max_events == 0 || ( $max_events > 0 && $count <= $max_events ) || $view->calendar_type == 'day'))  {
     if ($view->style_max_items_behavior == 'hide') {
       $inner = '';
     }
