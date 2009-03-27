@@ -362,7 +362,7 @@ function calendar_build_day($curday, $view, $items, $params) {
       }
     }
   }
-  if (empty($inner)) {
+  if (empty($inner) && !$view->mini) {
     $inner = theme('calendar_empty_day');
   }
   // we have too many events on this day. use the theme('calendar_multiple_')
