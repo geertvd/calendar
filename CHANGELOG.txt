@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- #344789 Block view was wrong when displayed on 'week' view of calendar.
 - #372771 Don't add empty day div to mini calendar.
 - #369573 Fix jCalendar popup when used without clean urls.
 - #310633 Rework 'all day' logic to correctly handle increments.

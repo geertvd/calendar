@@ -44,11 +44,14 @@ function _calendar_views_query_alter(&$query, &$view) {
           elseif ($argument['type'] == 'calendar_day') {
             calendar_filter_day($query, $view->args[$delta]);
           }
+          elseif ($argument['type'] == 'calendar_week') {
+            calendar_filter_week($query, $view->args[$delta]);
+          }
         }
       }
     }
   }
-
+  
   // If no arguments are provided, and this is not the ical view,
   // default to current month view.
   if (empty($view->args) || !calendar_is_calendar_arg($view)) {
@@ -76,7 +79,7 @@ function _calendar_views_query_alter(&$query, &$view) {
         $view->args[$delta] = date_format($now, 'Y');
         calendar_filter_year($query, date_format($now, 'Y'));
       }
-      elseif ($argument['type'] == 'calendar_month' && !$view->args[$delta]) {
+      elseif (($argument['type'] == 'calendar_month' || $argument['type'] == 'calendar_week') && !$view->args[$delta]) {
         $view->args[$delta] = date_format($now, 'm');
         calendar_filter_month($query, date_format($now, 'm'));
       }
@@ -84,7 +87,7 @@ function _calendar_views_query_alter(&$query, &$view) {
         $view->args[$delta] = CALENDAR_EMPTY_ARG;
       }
       else {
-        $view->args[$delta] = $view->real_args[$delta];
+        $view->args[$delta] = !empty($view->real_args[$delta]) ? $view->real_args[$delta] : CALENDAR_EMPTY_ARG;
       }
     }
     // Default arguments are real arguments, too.
