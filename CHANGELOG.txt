@@ -4,6 +4,9 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+Version 5.2.6
+===============
+
 - #349265 Fix broken logic when display unlimited events option was used.
 - #344789 Block view was wrong when displayed on 'week' view of calendar.
 - #372771 Don't add empty day div to mini calendar.
