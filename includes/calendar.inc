@@ -381,9 +381,9 @@ function calendar_build_nodes(&$view, &$items) {
         
         // Create from and to date values for each item, adjusted to
         // the correct timezone.
-        $values[0] = $item->calendar_fields->$fromto[0];
-        $values[1] = $item->calendar_fields->$fromto[1];
-                
+        $values[0] = !empty($item->calendar_fields->$fromto[0]) ? $item->calendar_fields->$fromto[0] : $item->calendar_fields->$alias;
+        $values[1] = !empty($item->calendar_fields->$fromto[1]) ? $item->calendar_fields->$fromto[1] : $item->calendar_fields->$alias;
+               
         $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_alias) ? $item->$tz_alias : $display_timezone_name);
         $to_zone = date_get_timezone($tz_handling, isset($item->$tz_alias) ? $item->$tz_alias : $display_timezone_name);
         

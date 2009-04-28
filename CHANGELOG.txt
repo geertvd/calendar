@@ -6,6 +6,8 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #389294 Avoid errors when date argument or filter is not available as a date field.
+
 Version 6.2.1
 =============
 - #385886 Add handling for non-node date fields.
