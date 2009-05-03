@@ -369,7 +369,7 @@ function calendar_build_day($curday, $view, $items, $params) {
     $inner = theme('calendar_empty_day');
   }
   // we have too many events on this day. use the theme('calendar_multiple_')
-  if (!$view->mini && ($max_events == 0 || ( $max_events > 0 && $count <= $max_events ) || $view->calendar_type == 'day'))  {
+  if (!$view->mini && !($max_events == 0 || ( $max_events > 0 && $count <= $max_events ) || $view->calendar_type == 'day'))  {
     if ($view->style_max_items_behavior == 'hide') {
       $inner = '';
     }

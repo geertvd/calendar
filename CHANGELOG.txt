@@ -4,6 +4,8 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- #427996 Calendar more link logic was reversed.
+
 Version 5.2.6
 ===============
 
