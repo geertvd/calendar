@@ -4,6 +4,7 @@ Views Calendar 5.x
 Version 5.2 dev
 ===============
 
+- #444526 Fix typo in variable name for calendar truncation.
 - #427996 Calendar more link logic was reversed.
 
 Version 5.2.6

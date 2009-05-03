@@ -390,7 +390,7 @@ function _calendar_setup_form($view_name) {
     '#default_value' => variable_get('calendar_limit_behavior_'. $view->name, 'more'),
     '#description' => t('Behavior when there are more than the above number of items in a single day. When there more items than this limit, a link to the day view will be displayed.'),
     );
-  $form['truncate_length'] = array(
+  $form['calendar_truncate_length'] = array(
     '#title' => t('Truncate length'),
     '#type' => 'textfield',
     '#default_value' => variable_get('calendar_truncate_length_'. $view->name, ''),
