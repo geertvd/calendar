@@ -325,6 +325,10 @@ function theme_calendar_ical_feed($view, $items, $type) {
       $event = array();
       // Allow modules to affect item fields
       node_invoke_nodeapi($node, 'ical item');
+      if (!$node->remote) {
+        $real_node = node_load($node->nid);
+        $node->teaser = $real_node->teaser;
+      }
       $event['start'] = $node->calendar_start_date;
       $event['end'] = $node->calendar_end_date;
       $event['location'] = $node->calendar_location;
