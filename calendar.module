@@ -547,8 +547,10 @@ function calendar_real_url($view, $args) {
       $bump++;
     }
   }
+  // Add in any arguments before the calendar starts.
+  $start_cal = array_shift(calendar_arg_positions($view));
   foreach ($args as $delta => $arg) {
-    if (!in_array($delta + $bump, calendar_arg_positions($view)) && !empty($arg)) {
+    if ($delta < $start_cal && !empty($arg)) {
       array_push($parts, $arg);
     }
   }
