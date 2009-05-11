@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #452690 Avoid errors when some date fields are empty (usually when there are multiple date fields in view.)
 - #389294 Avoid errors when date argument or filter is not available as a date field.
 
 Version 6.2.1

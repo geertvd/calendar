@@ -263,7 +263,6 @@ function calendar_build_nodes(&$view, &$items) {
   if (empty($view->date_info->min_date) || empty($view->date_info->max_date)) {
     return $items;
   }
-  
   // Midnights are determined based on the same timezone as the View uses
   $display_timezone = date_timezone_get($view->date_info->min_date);
   $display_timezone_name = timezone_name_get($display_timezone);
@@ -350,7 +349,7 @@ function calendar_build_nodes(&$view, &$items) {
         }
       }
     }
-    
+     
     // If there are multiple date fields in this calendar we may get
     // duplicate items from the other date fields, so add a way to
     // make sure each individual date field only gets added to the
@@ -377,7 +376,7 @@ function calendar_build_nodes(&$view, &$items) {
         }
       }
       
-      if (!in_array($id, $processed) && isset($item->calendar_fields->$alias)) {
+      if (!in_array($id, $processed) && !empty($item->calendar_fields->$alias)) {
         
         // Create from and to date values for each item, adjusted to
         // the correct timezone.
