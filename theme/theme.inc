@@ -81,7 +81,7 @@ function template_preprocess_calendar(&$vars) {
   
   // Make sure we only run through this function one time.
   if (!empty($view->date_info->calendar_processed)) {
-    //return;
+    return;
   }
     
   $result   = (array) $view->result;
