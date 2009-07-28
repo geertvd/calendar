@@ -87,6 +87,6 @@ function jcalendar_theme() {
  */
 function theme_jcalendar_view($node) {
   $output = node_view($node, TRUE);
-  $output .= '<div id="nodelink">'. l(t('more'), calendar_get_node_link($node)) .'</div>';
+  $output .= '<div id="nodelink">'. l(t('more', array(), $node->language), calendar_get_node_link($node)) .'</div>';
   return $output;
 }
