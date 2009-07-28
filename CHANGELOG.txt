@@ -6,6 +6,8 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #429446 Col element must not be in thead.
+- #506944 Localize more link in jcalendar popup.
 - #389294 Require the date field in calendar style, needed to identify what cell the date belongs in.
 - #452690 Avoid errors when some date fields are empty (usually when there are multiple date fields in view.)
 - #389294 Avoid errors when date argument or filter is not available as a date field.

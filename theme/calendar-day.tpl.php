@@ -32,8 +32,8 @@
 ?>
 <div class="calendar-calendar"><div class="day-view">
 <table>
+  <col width="<?php print $first_column_width?>"></col>
   <thead>
-    <col width="<?php print $first_column_width?>"></col>
     <?php foreach ($columns as $column): ?>
     <col width="<?php print $column_width; ?>%"></col>
     <?php endforeach; ?>
