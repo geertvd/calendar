@@ -6,6 +6,8 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+Version 6.2.2
+=============
 - #429446 Col element must not be in thead.
 - #506944 Localize more link in jcalendar popup.
 - #529826 Add check_plain().
