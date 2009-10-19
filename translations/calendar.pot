@@ -24,14 +24,13 @@
 #  calendar-week-multiple-node.tpl.php,v 1.1.2.4 2008/11/20 12:29:14 karens
 #  calendar-day.tpl.php,v 1.7.2.9 2009/07/28 21:50:50 karens
 #  calendar-week.tpl.php,v 1.5.2.6 2009/02/16 23:46:22 karens
-#  calendar.install,v 1.13.2.11 2009/03/17 18:03:36 karens
 #  theme.inc,v 1.10.2.72 2009/07/02 14:42:08 karens
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2009-10-16 13:35+0200\n"
+"POT-Creation-Date: 2009-10-19 14:31+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -39,19 +38,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
-
-
-#: (duplicate) calendar.install:26 ;35 
-msgid "Calendar requirements"
-msgstr ""
-
-#: (duplicate) calendar.install:27 
-msgid "The Calendar module requires a more current version of the Date API. Please check for a newer version."
-msgstr ""
-
-#: (duplicate) calendar.install:36 
-msgid "The Calendar module requires the latest version of the Date API, be sure you are installing the latest versions of both modules."
-msgstr ""
 
 #: calendar.module:28
 msgid "<p>View complete documentation at !link.</p>"
