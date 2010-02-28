@@ -3,34 +3,15 @@
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  calendar.module,v 1.121.2.38 2009/03/17 18:03:36 karens
+#  calendar.module,v 1.121.2.35 2009/02/14 16:51:50 karens
 #  calendar.info,v 1.8 2008/04/23 23:42:53 karens
-#  calendar.views.inc,v 1.1.2.9 2009/01/23 21:05:41 karens
-#  calendar.install,v 1.13.2.11 2009/03/17 18:03:36 karens
-#  calendar_ical.info,v 1.1.2.1 2008/09/05 11:03:42 karens
-#  jcalendar.info,v 1.1.4.2 2008/06/23 14:55:01 karens
-#  calendar_ical.views.inc,v 1.1.2.6 2009/02/16 23:46:22 karens
-#  calendar_ical_admin.inc,v 1.1.2.2 2008/10/02 20:23:49 karens
-#  calendar_plugin_display_ical.inc,v 1.1.2.5 2008/11/25 16:12:36 karens
-#  calendar_view_plugin_style.inc,v 1.1.2.19 2009/02/17 18:09:35 karens
-#  calendar_plugin_style_ical.inc,v 1.1.2.17 2009/04/28 22:47:29 karens
-#  calendar_plugin_style.inc,v 1.1.2.15 2009/05/11 23:52:15 karens
-#  calendar_ical.module,v 1.1.2.6 2008/11/24 15:48:15 karens
-#  calendar_plugin_display_attachment.inc,v 1.1.2.17 2009/03/17 18:03:36 karens
-#  calendar_plugin_display_page.inc,v 1.1.2.20 2009/07/24 19:44:09 karens
-#  calendar_plugin_display_block.inc,v 1.1.2.10 2008/12/06 14:56:15 karens
-#  jcalendar.module,v 1.1.4.16 2009/07/28 21:38:07 karens
-#  calendar-month-multiple-node.tpl.php,v 1.1.2.5 2009/02/14 16:51:50 karens
-#  calendar-week-multiple-node.tpl.php,v 1.1.2.4 2008/11/20 12:29:14 karens
-#  calendar-day.tpl.php,v 1.7.2.9 2009/07/28 21:50:50 karens
-#  calendar-week.tpl.php,v 1.5.2.6 2009/02/16 23:46:22 karens
-#  theme.inc,v 1.10.2.72 2009/07/02 14:42:08 karens
+#  calendar.install,v 1.13.2.10 2009/02/15 13:39:01 karens
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2009-10-19 14:31+0200\n"
+"POT-Creation-Date: 2009-02-17 05:01-0600\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -43,55 +24,59 @@ msgstr ""
 msgid "<p>View complete documentation at !link.</p>"
 msgstr ""
 
-#: calendar.module:138
+#: calendar.module:141
 msgid "Calendar Legend."
 msgstr ""
 
-#: calendar.module:144
+#: calendar.module:147
 msgid "Calendar Legend"
 msgstr ""
 
-#: calendar.module:156
+#: calendar.module:159
 msgid "Year"
 msgstr ""
 
-#: calendar.module:156
+#: calendar.module:159
 msgid "Month"
 msgstr ""
 
-#: calendar.module:156
+#: calendar.module:159
 msgid "Day"
 msgstr ""
 
-#: calendar.module:156
+#: calendar.module:159
 msgid "Week"
 msgstr ""
 
-#: calendar.module:336
+#: calendar.module:339
 msgid "Change date"
 msgstr ""
 
-#: calendar.module:394
+#: calendar.module:423
 msgid "The Date argument in this view must be set up to provide a default value set to the current date. Edit the argument, find 'Action to take if argument is not present.', choose 'Provide default argument', then select 'Current date'."
 msgstr ""
 
-#: calendar.module:431
+#: calendar.module:460
 msgid " is not a valid hex color"
 msgstr ""
 
-#: calendar.module:472 calendar.info:0 includes/calendar.views.inc:195
+#: calendar.module:501 calendar.info:0
 msgid "Calendar"
 msgstr ""
 
-#: calendar.module:474
+#: calendar.module:503
 msgid "View the calendar."
 msgstr ""
 
-#: calendar.install:147;170;186
+#: calendar.module:0
+msgid "calendar"
+msgstr ""
+
+#: calendar.install:146;169;185
 msgid "Calendar module cannot be updated until after Views has been updated. Please return to <a href=\"@update-php\">update.php</a> and run the remaining updates."
 msgstr ""
 
-#: calendar.install:148;171;187
+#: calendar.install:147;170;186
 msgid "calendar.module has updates, but cannot be updated until views.module is updated first."
 msgstr ""
 
@@ -111,451 +96,7 @@ msgstr ""
 msgid "Views plugin to display views containing dates as Calendars."
 msgstr ""
 
-#: calendar.info:0 calendar_ical/calendar_ical.info:0 jcalendar/jcalendar.info:0
+#: calendar.info:0
 msgid "Date/Time"
-msgstr ""
-
-#: calendar_ical/calendar_ical.views.inc:30;42;64
-msgid "iCal feed"
-msgstr ""
-
-#: calendar_ical/calendar_ical.views.inc:31
-msgid "Display the view as an iCal feed."
-msgstr ""
-
-#: calendar_ical/calendar_ical.views.inc:65
-msgid "Generates an iCal feed from a view."
-msgstr ""
-
-#: calendar_ical/calendar_ical_admin.inc:22
-msgid "Expire iCal cache"
-msgstr ""
-
-#: calendar_ical/calendar_ical_admin.inc:24
-msgid "iCal feeds are cached to improve performance. Set an expiration time for cached feeds."
-msgstr ""
-
-#: calendar_ical/calendar_ical_admin.inc:30
-msgid "iCal Feeds"
-msgstr ""
-
-#: calendar_ical/calendar_ical_admin.inc:31
-msgid "Use this section to set up iCal feeds that should be displayed in this calendar. They will be shown along with any internal items that match the calendar criteria."
-msgstr ""
-
-#: calendar_ical/calendar_ical_admin.inc:42
-msgid "Feed type"
-msgstr ""
-
-#: calendar_ical/calendar_ical_admin.inc:47
-msgid "Name"
-msgstr ""
-
-#: calendar_ical/calendar_ical_admin.inc:50
-msgid "The name of a feed to include in this calendar."
-msgstr ""
-
-#: calendar_ical/calendar_ical_admin.inc:53
-msgid "Url"
-msgstr ""
-
-#: calendar_ical/calendar_ical_admin.inc:57
-msgid "The external feed url or internal file path and name. Change 'webcal://' to 'http://'."
-msgstr ""
-
-#: calendar_ical/calendar_ical_admin.inc:61
-msgid "Stripe color"
-msgstr ""
-
-#: calendar_ical/calendar_ical_admin.inc:67
-msgid "The hex color value (like #ffffff) to use for this feed's calendar stripe."
-msgstr ""
-
-#: calendar_ical/calendar_ical_admin.inc:77
-msgid "Submit"
-msgstr ""
-
-#: calendar_ical/calendar_plugin_display_ical.inc:81
-msgid "iCal settings"
-msgstr ""
-
-#: calendar_ical/calendar_plugin_display_ical.inc:85
-msgid "Using the site name"
-msgstr ""
-
-#: calendar_ical/calendar_plugin_display_ical.inc:93
-msgid "Multiple displays"
-msgstr ""
-
-#: calendar_ical/calendar_plugin_display_ical.inc:103 includes/calendar_view_plugin_style.inc:87
-msgid "None"
-msgstr ""
-
-#: calendar_ical/calendar_plugin_display_ical.inc:108;135
-msgid "Attach to"
-msgstr ""
-
-#: calendar_ical/calendar_plugin_display_ical.inc:127
-msgid "Use the site name for the title"
-msgstr ""
-
-#: calendar_ical/calendar_plugin_display_ical.inc:144
-msgid "The ical icon will be shown only on the selected displays."
-msgstr ""
-
-#: calendar_ical/calendar_plugin_display_ical.inc:150
-msgid "This view will be displayed by visiting this path on your site. It is recommended that the path be something like \"path/%/%/ical\", putting one % in the path for each argument you have defined in the view."
-msgstr ""
-
-#: calendar_ical/calendar_plugin_display_ical.inc:203
-msgid "A Calendar period display will not work without a Date argument or a Date filter."
-msgstr ""
-
-#: calendar_ical/calendar_plugin_style_ical.inc:70
-msgid "Map the View fields to the values they should represent in the iCal feed. Only fields that have been added to the view are available to use in this way. You can add additional fields to the view and mark them 'Exclude from display' if you only want them in the iCal feed."
-msgstr ""
-
-#: calendar_ical/calendar_plugin_style_ical.inc:74
-msgid "Title"
-msgstr ""
-
-#: calendar_ical/calendar_plugin_style_ical.inc:81
-msgid "Description"
-msgstr ""
-
-#: calendar_ical/calendar_plugin_style_ical.inc:87
-msgid "Location"
-msgstr ""
-
-#: calendar_ical/calendar_plugin_style_ical.inc:107
-msgid "The @style style requires a Date argument or a Date filter."
-msgstr ""
-
-#: calendar_ical/calendar_plugin_style_ical.inc:120
-msgid "The @style style requires a Title field for the iCal export."
-msgstr ""
-
-#: calendar_ical/calendar_plugin_style_ical.inc:134 includes/calendar_plugin_style.inc:106
-msgid "The date field '@field' used by the display '@display_title' cannot be set to 'Group multiple values'."
-msgstr ""
-
-#: calendar_ical/calendar_ical.module:29;29
-msgid "Add to calendar"
-msgstr ""
-
-#: calendar_ical/calendar_ical.info:0
-msgid "Calendar iCal"
-msgstr ""
-
-#: calendar_ical/calendar_ical.info:0
-msgid "Adds ical functionality to Calendar views."
-msgstr ""
-
-#: includes/calendar.views.inc:114;127
-msgid "Calendar page"
-msgstr ""
-
-#: includes/calendar.views.inc:115
-msgid "Calendar page. Attach Calendar period attachments to this page, set to show the year, month, day, and week views."
-msgstr ""
-
-#: includes/calendar.views.inc:136;149
-msgid "Calendar block"
-msgstr ""
-
-#: includes/calendar.views.inc:137
-msgid "Calendar page. Attach a Calendar period attachment to this block, set to show the year, month, day, or week view."
-msgstr ""
-
-#: includes/calendar.views.inc:154 includes/calendar_plugin_display_attachment.inc:185;224
-msgid "Calendar period"
-msgstr ""
-
-#: includes/calendar.views.inc:155
-msgid "An attachment for a Year, Month, Day, or Week calendar display, using any style you choose. Attach to a Calendar page and/or a Calendar block."
-msgstr ""
-
-#: includes/calendar.views.inc:165
-msgid "Calendar page year, month, week, or day view"
-msgstr ""
-
-#: includes/calendar.views.inc:180
-msgid "Calendar navigation"
-msgstr ""
-
-#: includes/calendar.views.inc:181
-msgid "Creates back/next navigation and calendar links."
-msgstr ""
-
-#: includes/calendar.views.inc:196
-msgid "Displays Views results in a calendar."
-msgstr ""
-
-#: includes/calendar_plugin_display_attachment.inc:94
-msgid "A Calendar period display will not work without a Date argument."
-msgstr ""
-
-#: includes/calendar_plugin_display_attachment.inc:188
-msgid "Select the calendar time period for this display."
-msgstr ""
-
-#: includes/calendar_plugin_display_attachment.inc:219 includes/calendar_plugin_display_page.inc:79
-msgid "Calendar settings"
-msgstr ""
-
-#: includes/calendar_plugin_display_block.inc:26
-msgid "The Calendar period display '@display_title' will not work without a Date argument."
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:22
-msgid "The Calendar display '@display_title' will not work without a Date argument."
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:86
-msgid "Legend Content Types"
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:87;92;97
-msgid "Edit"
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:91
-msgid "Legend Vocabularies"
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:96
-msgid "Legend Terms"
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:103;125
-msgid "Date changer"
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:109;135
-msgid "Add new date link"
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:116 includes/calendar_view_plugin_style.inc:65
-msgid "No"
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:116 includes/calendar_view_plugin_style.inc:65
-msgid "Yes"
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:130
-msgid "Display a popup calendar date selector?"
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:139
-msgid "No link"
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:140
-msgid "Display a link to add a new date of the specified content type. Displayed only to users with appropriate permissions."
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:147
-msgid "Content Type Legend Colors"
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:149
-msgid "<div class=\"form-item\"><label>Content Type</label><p>Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Types with empty values will have no stripe in the calendar and will not be added to the legend.</p></div>"
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:182
-msgid "Vocabulary Legend Types"
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:189
-msgid "<div class=\"form-item\"><label>Vocabularies</label>Select vocabularies to use for setting calendar legend colors by taxonomy term. This works best for vocabularies with only a limited number of possible terms.</div>"
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:195
-msgid "Taxonomy Legend Colors"
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:198
-msgid "<div class=\"form-item warning\">Please select Legend vocabularies first!</div>"
-msgstr ""
-
-#: includes/calendar_plugin_display_page.inc:200
-msgid "<div class=\"form-item\"><label>Taxonomy Terms</label><p>Set a hex color value (like #ffffff) to use in the calendar legend for each taxonomy term. Terms with empty values will have no stripe in the calendar and will not be added to the legend.</p></div>"
-msgstr ""
-
-#: includes/calendar_plugin_style.inc:75
-msgid "The @style style requires a Date argument."
-msgstr ""
-
-#: includes/calendar_plugin_style.inc:114
-msgid "The date argument date fields must be added to this query. You can exclude them if you do not want them displayed in the calendar."
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:55
-msgid "Calendar day of week names"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:58
-msgid "First letter of name"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:58
-msgid "First two letters of name"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:58
-msgid "Abbreviated name"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:58
-msgid "Full name"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:59
-msgid "The way day of week names should be displayed in a calendar."
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:62
-msgid "Show week numbers"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:66
-msgid "Whether or not to show week numbers in the left column of calendar weeks and months."
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:69
-msgid "Maximum items"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:71
-msgid "Unlimited"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:71
-msgid "No items"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:71
-msgid "3 items"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:71
-msgid "5 items"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:71
-msgid "10 items"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:73
-msgid "Maximum number of items to show in calendar cells, used to keep the calendar from expanding to a huge size when there are lots of items in one day. "
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:76
-msgid "Too many items"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:78
-msgid "Show maximum, add 'more' link"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:78
-msgid "Hide all, add link to day"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:80
-msgid "Behavior when there are more than the above number of items in a single day. When there more items than this limit, a link to the day view will be displayed."
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:83
-msgid "Time grouping"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:86
-msgid "Group items together into time periods based on their start time."
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:87
-msgid "Hour"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:87
-msgid "Half hour"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:87
-msgid "Custom"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:90
-msgid "Custom time grouping"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:93
-msgid "When choosing the 'custom' Time grouping option above, create custom time period groupings as a comma-separated list of 24-hour times in the format HH:MM:SS, like '00:00:00,08:00:00,18:00:00'. Be sure to start with '00:00:00'. All items after the last time will go in the final group."
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:111
-msgid "Field grouping"
-msgstr ""
-
-#: includes/calendar_view_plugin_style.inc:114
-msgid "Optionally group items into columns by a field value, for instance select the content type to show items for each content type in their own column, or use a location field to organize items into columns by location."
-msgstr ""
-
-#: jcalendar/jcalendar.module:18
-msgid "Creates a popup for calendar dates."
-msgstr ""
-
-#: jcalendar/jcalendar.module:90 theme/calendar-month-multiple-node.tpl.php:25 theme/calendar-week-multiple-node.tpl.php:24
-msgid "more"
-msgstr ""
-
-#: jcalendar/jcalendar.module:48
-msgid "Get Calendar Node"
-msgstr ""
-
-#: jcalendar/jcalendar.info:0
-msgid "Calendar Popup"
-msgstr ""
-
-#: jcalendar/jcalendar.info:0
-msgid "Replaces the links to calendar items with a javascript popup that gracefully regresses if javascript is not enabled"
-msgstr ""
-
-#: theme/calendar-day.tpl.php:41 theme/calendar-week.tpl.php:36
-msgid "Time"
-msgstr ""
-
-#: theme/calendar-month-multiple-node.tpl.php:21 theme/calendar-week-multiple-node.tpl.php:20
-msgid "Click to see all @count events"
-msgstr ""
-
-#: theme/theme.inc:59
-msgid "Add+"
-msgstr ""
-
-#: theme/theme.inc:305;331;374
-msgid "Items"
-msgstr ""
-
-#: theme/theme.inc:647
-msgid "All times"
-msgstr ""
-
-#: theme/theme.inc:651
-msgid "Before @time"
-msgstr ""
-
-#: theme/theme.inc:674
-msgid "Item"
-msgstr ""
-
-#: theme/theme.inc:675
-msgid "Key"
-msgstr ""
-
-#: theme/theme.inc:721
-msgid "Empty day"
 msgstr ""
 

@@ -235,10 +235,14 @@ table.calendar-legend tr.even .stripe {
   border:none;
   border-top:1px #333 dotted;
   padding-top:.25em;
-  padding-right:10px;
+  width:1%;
+}
+.calendar-calendar td.calendar-agenda-no-hours {
+  min-width:1%;
 }
 .calendar-calendar td.calendar-agenda-hour .calendar-hour {
-  font-size:2em;
+  font-size:1.2em;
+  font-weight:bold;
 }
 .calendar-calendar td.calendar-agenda-hour .calendar-ampm {
   font-size:1em;
@@ -360,3 +364,9 @@ table.calendar-legend tr.even .stripe {
 .calendar-calendar td .inner div.calendar div div.view-data-node-data-field-date-field-date-value {
   border-bottom:1px solid #ccc;
 }
+
+/* The following are not used by default but are available for themes */
+.calendar-calendar td.past {}
+.calendar-calendar td.future {}
+.calendar-calendar td.has-events {}
+.calendar-calendar td.has-no-events {}

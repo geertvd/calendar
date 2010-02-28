@@ -6,6 +6,52 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+Version 6.2.2
+=============
+- #429446 Col element must not be in thead.
+- #506944 Localize more link in jcalendar popup.
+- #529826 Add check_plain().
+- #489722 Remove mistake that caused year calendar to process endlessly.
+- #389294 Require the date field in calendar style, needed to identify what cell the date belongs in.
+- #452690 Avoid errors when some date fields are empty (usually when there are multiple date fields in view.)
+- #389294 Avoid errors when date argument or filter is not available as a date field.
+- #454958 Calendar patch was broken in ical.
+- #444526 Fix typo in variable name for calendar translation.
+- #427996 More link logic was reversed.
+- #389294 Avoid errors when date argument or filter is not available as date field.
+
+Version 6.2.1
+=============
+- #385886 Add handling for non-node date fields.
+- #360967 Add method for deleting a custom default calendar.
+
+Version 6.2.0
+=============
+- #377760 Fix alias handling for node edit and delete links.
+- Fix the way the node type filter was configured in the default view.
+- Get rid of truncated field display options, Views now handles that.
+- #372625 Reset year granularity after processing months on year view now that Views has changed processing order, also omit deprecated themes, we now use date_nav_title. 
+- #345077 Make sure duplicate copies of the date field each get to theme the raw, unaltered, data.
+- #338253 Re-work date_t() to create a more robust method of handling translations of abbreviations and other short strings.
+- Add more description text to the ical description and location fields to clarify that you have to add fields to the view.
+- #368632 Make sure iCal exports handle multi-day dates correctly.
+- Clean up inconsistent use of calendar_display and calendar_type to use only calendar_type.
+- #365113 Remove agenda hour column when not grouping by hour.
+- #357019 Add method to hide all items and show only count or 'more' link.
+- #350229 Make sure Calendar doesn't get updated before Views.
+- #341841 Add 'has-events' and 'has-no-events' classes for easier themeing.
+- Make sure there is a sane defualt value for the iCal summary field to avoid theme errors.
+- #364770 Add new date link needs to convert underscore to hyphen.
+- #370092 Add all-day checkbox to date field and use it in calendar.
+- #369573 Fix jCalendar popup when used without clean urls.
+- #367627 Fit jCalendar popup into window better.
+- #368632 Fix repeating date iCal export: show date only one time and add RRULE to export.
+- #332273 Use field alias in iCal location and description fields to avoid problems with CCK table optimization.
+- #328097 Fix some small problems found while researching this issue. The main fix was in the Date filter.
+- Allow removal of displays, still no UI since they can't go on other views.
+- Don't try to set date argument when another argument precedes it.
+- #349409 Fix jcalendar popup.
+- Add option to link calendar to content type, and add link to calendar to node, and link to node/add to calendar.
 - #342119 Make sure calendar_type option is in expected format, maybe this was causing the translation problems?
 - #343090 'Today' highlighting got lost in last round of theme changes, restore it.
 - #340215 Make sure day and week time slots are checking >= instead of >.

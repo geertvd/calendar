@@ -5,5 +5,5 @@ dependencies[] = views
 dependencies[] = date_api
 dependencies[] = date_timezone
 package = Date/Time
-core = 6.x
+core = 7.x
 

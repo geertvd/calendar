@@ -1,9 +1,12 @@
 <?php
-//$Id$
 /**
  * @file
- * Install File
+ * Install, update and uninstall functions for the calendar module.
+ *
  */
+
+//$Id$
+
 /**
  * Implementation of hook_requirements().
  * Added to be sure the Date API version matches this code so invalid
@@ -29,7 +32,7 @@ function calendar_requirements($phase) {
           );
       }
       break;
-     case 'install':
+    case 'install':
       if (variable_get('date_api_version', 0) < $required_version) {
         $requirements['calendar_api_version'] = array(
           'title' => $t('Calendar requirements'),
@@ -69,21 +72,28 @@ function calendar_disable() {
  */
 function calendar_uninstall() {
   $ret = array();
+  variable_del('calendar_default_view_options');
   $displays = array(
-    'calendar', 
-    'calendar_attachment', 
-    'calendar_year', 
-    'calendar_day', 
-    'calendar_month', 
-    'calendar_week', 
-    'calendar_block', 
+    'calendar',
+    'calendar_attachment',
+    'calendar_year',
+    'calendar_day',
+    'calendar_month',
+    'calendar_week',
+    'calendar_block',
     'calendar_block_view',
     'calendar_ical',
     );
-  $result = db_query("SELECT DISTINCT vid FROM {views_display} WHERE display_plugin IN ('". implode("','", $displays) ."')");
-  while($row = db_fetch_array($result)) {
+  $result = db_query("SELECT DISTINCT vid FROM {views_display} WHERE display_plugin IN ('" . implode("','", $displays) . "')");
+  while ($row = db_fetch_array($result)) {
     db_query("DELETE FROM {views_view} WHERE vid = %d", $row['vid']);
+    db_delete('views_view')
+    ->condition('vid', $row['vid'])
+  ->execute();
     db_query("DELETE FROM {views_display} WHERE vid = %d", $row['vid']);
+    db_delete('views_display')
+    ->condition('vid', $row['vid'])
+  ->execute();
   }
   db_query("DELETE FROM {cache_views}");
   return $ret;
@@ -101,6 +111,12 @@ function calendar_install() {
   module_enable(array('date_timezone'));
   // Make sure this module loads after date_api.
   db_query("UPDATE {system} SET weight = 1 WHERE name = 'calendar'");
+  db_update('system')
+  ->fields(array(
+    'weight' =>
+  ))
+  ->condition('name',  )
+  ->execute();
   db_query("DELETE FROM {cache_views}");
   return $ret;
 }
@@ -126,6 +142,10 @@ function calendar_update_5001() {
   return $ret;
 }
 
+/**
+ * @todo Please insert a Doxygen style comment for this hook_update_N.
+ *
+ */
 function calendar_update_5200() {
   $ret = array();
   module_enable(array('date_api'));
@@ -138,13 +158,29 @@ function calendar_update_5200() {
 
 // No longer track views info in variables now that
 // Views 2 has settings we can use.
+/**
+ * @todo Please insert a Doxygen style comment for this hook_update_N.
+ *
+ */
 function calendar_update_6000() {
   $ret = array();
+  // don't attempt to upgrade if views is not yet upgraded.
+  if (drupal_get_installed_schema_version('views', TRUE) < 6000) {
+    $ret = array();
+    drupal_set_message(t('Calendar module cannot be updated until after Views has been updated. Please return to <a href="@update-php">update.php</a> and run the remaining updates.', array('@update-php' => base_path() . 'update.php?op=selection')), 'warning', FALSE);
+    $ret['#abort'] = array('success' => FALSE, 'query' => t('calendar.module has updates, but cannot be updated until views.module is updated first.'));
+
+    return $ret;
+  }
+
   variable_del('calendar_empty_arg');
-  
+
   // Can't use variable_del because we don't have a reliable
   // way to find the old view names.
   db_query("DELETE FROM {variable} WHERE name LIKE 'calendar_%'");
+  db_delete('variable')
+    ->condition('name LIKE ' calendar_ %,  )
+  ->execute();
   cache_clear_all('variables', 'cache');
   return $ret;
 }
@@ -154,14 +190,34 @@ function calendar_update_6000() {
  */
 function calendar_update_6001() {
   $ret = array();
+  // don't attempt to upgrade if views is not yet upgraded.
+  if (drupal_get_installed_schema_version('views', TRUE) < 6000) {
+    $ret = array();
+    drupal_set_message(t('Calendar module cannot be updated until after Views has been updated. Please return to <a href="@update-php">update.php</a> and run the remaining updates.', array('@update-php' => base_path() . 'update.php?op=selection')), 'warning', FALSE);
+    $ret['#abort'] = array('success' => FALSE, 'query' => t('calendar.module has updates, but cannot be updated until views.module is updated first.'));
+
+    return $ret;
+  }
   if (!module_exists('calendar_ical')) {
     $ret[] = update_sql("DELETE FROM {views_display} WHERE display_plugin = 'ical'");
   }
   return $ret;
 }
 
+/**
+ * @todo Please insert a Doxygen style comment for this hook_update_N.
+ *
+ */
 function calendar_update_6002() {
   $ret = array();
+  // don't attempt to upgrade if views is not yet upgraded.
+  if (drupal_get_installed_schema_version('views', TRUE) < 6000) {
+    $ret = array();
+    drupal_set_message(t('Calendar module cannot be updated until after Views has been updated. Please return to <a href="@update-php">update.php</a> and run the remaining updates.', array('@update-php' => base_path() . 'update.php?op=selection')), 'warning', FALSE);
+    $ret['#abort'] = array('success' => FALSE, 'query' => t('calendar.module has updates, but cannot be updated until views.module is updated first.'));
+
+    return $ret;
+  }
   $periods = array(
     'calendar_month' => 'calendar_period_1',
     'calendar_year' => 'calendar_period_2',
@@ -187,11 +243,28 @@ function calendar_update_6002() {
       $row['display_plugin'] = 'calendar_period';
       $row['display_options'] = serialize($options);
       db_query("UPDATE {views_display} SET id='%s', display_plugin='%s', display_options='%s' WHERE id='%s'", $row['id'], $row['display_plugin'], $row['display_options'], $id);
+      db_update('views_display')
+  ->fields(array(
+    'id' => $row['id'],
+    'display_plugin' => $row['display_plugin'],
+    'display_options' => $row['display_options'],
+  ))
+  ->condition('id', $id)
+  ->execute();
     }
     elseif ($row['display_plugin'] == 'calendar' || $row['display_plugin'] == 'calendar_block') {
-      db_query("UPDATE {views_display} SET id='%s' WHERE id='%s'", $row['id'] .'_1', $row['id']);      
+      db_query("UPDATE {views_display} SET id='%s' WHERE id='%s'", $row['id'] . '_1', $row['id']);
+      db_update('views_display')
+  ->fields(array(
+    'id' => $row['id'] . '_1',
+  ))
+  ->condition('id', $row['id'])
+  ->execute();
     }
     db_query("DELETE FROM {views_object_cache} WHERE name = '%s'", $row['name']);
+    db_delete('views_object_cache')
+    ->condition('name', $row['name'])
+  ->execute();
   }
   views_invalidate_cache();
   $ret[] = array('success' => TRUE, 'query' => 'Updated calendar displays to use new handlers.');

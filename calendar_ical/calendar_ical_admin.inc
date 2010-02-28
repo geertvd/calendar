@@ -12,15 +12,15 @@
  * @todo - control of the stripe color is not yet implemented.
  */
 function _calendar_ical_setup_form($view_name) {
-  require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_ical.inc');
+  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_api') . '/date_api_ical.inc';
 
   $form = array();
   $view = views_get_view($view_name);
 
   $period = drupal_map_assoc(array(0, 3600, 10800, 21600, 32400, 43200, 86400, 172800, 259200, 604800, 1209600, 2419200, 4838400, 9676800), 'format_interval');
-  $form['calendar_ical_expire_'. $view->name] = array(
+  $form['calendar_ical_expire_' . $view->name] = array(
     '#type' => 'select', '#title' => t('Expire iCal cache'),
-    '#default_value' => variable_get('calendar_ical_expire_'. $view->name, 9676800), '#options' => $period,
+    '#default_value' => variable_get('calendar_ical_expire_' . $view->name, 9676800), '#options' => $period,
     '#description' => t('iCal feeds are cached to improve performance. Set an expiration time for cached feeds.')
     );
 
@@ -35,7 +35,7 @@ function _calendar_ical_setup_form($view_name) {
     );
 
   // One empty input form will be added after any existing items.
-  $view_feeds = array_merge((array) variable_get('calendar_feeds_'. $view->name, $empty_feed), $empty_feed);
+  $view_feeds = array_merge((array) variable_get('calendar_feeds_' . $view->name, $empty_feed), $empty_feed);
   foreach ($view_feeds as $delta => $feed) {
     $form[$view->name][$delta] = array(
       'type' => array(
@@ -63,7 +63,7 @@ function _calendar_ical_setup_form($view_name) {
       'stripe' => array(
         '#type' => 'calendar_colorfield',
         '#default_value' => isset($feed['stripe']) ? $feed['stripe'] : '#ffffff',
-        '#calendar_colorpicker' => $view_name .'-'. $delta .'-calendar-colorpicker',
+        '#calendar_colorpicker' => $view_name . '-' . $delta . '-calendar-colorpicker',
         '#description' => t("The hex color value (like #ffffff) to use for this feed's calendar stripe."),
        ),
     );
@@ -85,8 +85,8 @@ function _calendar_ical_setup_form($view_name) {
 function calendar_ical_setup_form_submit($form_id, $form_values) {
   $view_name = $form_values['view_name'];
   foreach ($form_values as $value_name => $value) {
-    if ($value_name == 'calendar_ical_expire_'. $view_name) {
-      variable_set('calendar_ical_expire_'. $view_name,  $value);
+    if ($value_name == 'calendar_ical_expire_' . $view_name) {
+      variable_set('calendar_ical_expire_' . $view_name,   $value);
     }
     elseif (is_array($value)) {
       foreach ($value as $delta => $item) {
@@ -108,8 +108,8 @@ function calendar_ical_setup_form_submit($form_id, $form_values) {
 
         }
       }
-      variable_set('calendar_feeds_'. $value_name, $value);
-     }
+      variable_set('calendar_feeds_' . $value_name, $value);
+    }
   }
-  cache_clear_all('calendar_feeds_'. $view->name, calendar_ical_cache(), TRUE);
+  cache_clear_all('calendar_feeds_' . $view->name, calendar_ical_cache(), TRUE);
 }
