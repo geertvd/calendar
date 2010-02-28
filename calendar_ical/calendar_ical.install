@@ -1,5 +1,6 @@
 <?php
 // $Id$
+
 /**
  * @file
  * Install, update and uninstall functions for the calendar_ical module.
@@ -10,13 +11,12 @@
  * Implementation of hook_install().
  */
 function calendar_ical_install() {
-  db_query("UPDATE {system} SET weight = 1 WHERE name = 'calendar_ical'");
   db_update('system')
-  ->fields(array(
-    'weight' =>
-  ))
-  ->condition('name',  )
-  ->execute();
+    ->fields(array(
+      'weight' => 1
+    ))
+    ->condition('name',  'calendar_ical')
+    ->execute();
 }
 
 /**
@@ -41,50 +41,6 @@ function calendar_ical_disable() {
   db_query("DELETE FROM {cache_views}");
 }
 
-/**
- * @todo Please insert a Doxygen style comment for this hook_update_N.
- *
- */
-function calendar_ical_update_1() {
-  $ret = array();
-  $ret[] = update_sql("UPDATE {system} SET weight = 1 WHERE name = 'calendar_ical'");
-  if (db_table_exists('cache_calendar_ical')) {
-    $ret[] = update_sql("INSERT INTO {cache} (cid, data, expire, created, headers) SELECT cid, data, expire, created, headers FROM {cache_calendar_ical}");
-    $ret[] = update_sql('DROP TABLE {cache_calendar_ical}');
-  }
-  return $ret;
-}
-
-/**
- * @todo Please insert a Doxygen style comment for this hook_update_N.
- *
- */
-function calendar_ical_update_6000() {
-  $ret = array();
-  $result = db_query("SELECT * FROM {views_display} d LEFT JOIN {views_view} v ON d.vid = v.vid");
-  drupal_load('module', 'views');
-  while ($row = db_fetch_array($result)) {
-    if ($row['display_plugin'] == 'ical') {
-      $options = unserialize($row['display_options']);
-      $options['displays'] = array('calendar_1' => 'calendar_1', 'default' => 0, 'calendar_block_1' => 'calendar_block_1');
-      $row['display_plugin'] = 'calendar_period';
-      $row['display_options'] = serialize($options);
-      db_query("UPDATE {views_display} SET id='%s', display_plugin='%s', display_options='%s' WHERE id='%s'", 'calendar_ical_1', 'calendar_ical', $row['display_options'], $row['id']);
-      db_update('views_display')
-  ->fields(array(
-    'id' => 'calendar_ical_1',
-    'display_plugin' => 'calendar_ical',
-    'display_options' => $row['display_options'],
-  ))
-  ->condition('id', $row['id'])
-  ->execute();
-      db_query("DELETE FROM {views_object_cache} WHERE name = '%s'", $row['name']);
-      db_delete('views_object_cache')
-    ->condition('name', $row['name'])
-  ->execute();
-    }
-  }
-  $ret[] = array('success' => TRUE, 'query' => 'Updated calendar ical displays to use new handlers and ids.');
-  views_invalidate_cache();
-  return $ret;
+function calendar_ical_update_last_removed() {
+  return 6000;
 }
