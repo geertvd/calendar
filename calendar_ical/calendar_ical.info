@@ -6,9 +6,6 @@ dependencies[] = date_api
 dependencies[] = calendar
 package = Date/Time
 core = 7.x
-
-
-
 files[] = calendar-view-ical.tpl.php
 files[] = calendar_ical.install
 files[] = calendar_ical.module
