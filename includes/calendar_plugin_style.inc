@@ -96,7 +96,7 @@ class calendar_plugin_style extends views_plugin_style {
       $view_fields = $view_fields['name'];
       $fields = $this->display->handler->get_option('fields');
       foreach ($fields as $column => $field) {
-        $field_name = $field['table'] .".". $field['field'];
+        $field_name = $field['table'] . "." . $field['field'];
         if (!empty($field['multiple']) && array_key_exists($field_name, $view_fields)) {
           $cck_fields = content_fields();
           $real_name = $view_fields[$field_name]['real_field_name'];
@@ -111,7 +111,7 @@ class calendar_plugin_style extends views_plugin_style {
 
   function query() {
     
-    require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
+    require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_api') . '/date_api_sql.inc');
         
     $style_options = $this->view->style_plugin->options;
     

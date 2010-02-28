@@ -102,7 +102,7 @@ class calendar_plugin_display_ical extends views_plugin_display_page {
     if (count($displays) > 1) {
       $attach_to = t('Multiple displays');
     }
-    else if (count($displays) == 1) {
+    elseif (count($displays) == 1) {
       $display = array_shift($displays);
       if (!empty($this->view->display[$display])) {
         $attach_to = $this->view->display[$display]->display_title;

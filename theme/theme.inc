@@ -58,7 +58,7 @@ function template_preprocess_calendar_main(&$vars) {
   // If an 'Add new ... link is provided, add it here.
   // the query will bring the user back here after adding the node.
   if (!empty($view->date_info->calendar_date_link) && user_access('create ' . $view->date_info->calendar_date_link . ' content')) {
-    $name = node_get_types('name', $view->date_info->calendar_date_link);
+    $name = node_type_get_name($view->date_info->calendar_date_link);
     $href = 'node/add/' . str_replace('_', '-', $view->date_info->calendar_date_link);
     $query = 'destination=' . $view->date_info->url;    
     $vars['calendar_links'][] = $base + array(
@@ -104,7 +104,7 @@ function template_preprocess_calendar(&$vars) {
   $calendar_fields = array_keys($calendar_fields['alias']);
   
   foreach ($result as $num => $row) {
-    $copy = drupal_clone($row);
+    $copy = clone($row);
     $items[$num] = $row;
     $items[$num]->raw = $copy;
     
@@ -246,7 +246,7 @@ function template_preprocess_calendar_year(&$vars) {
     
   // Construct a calendar for each month, adjusting the $view passed 
   // to the theme so it will produce the right results.  
-  $view = drupal_clone($vars['view']);
+  $view = clone($vars['view']);
   $rows = $vars['rows'];
   $months = array();
   foreach ($rows as $month => $month_rows) {
@@ -257,7 +257,7 @@ function template_preprocess_calendar_year(&$vars) {
     $view->date_info->show_title = TRUE;
     $view->date_info->url = date_real_url($view, NULL, date_pad($year, 4) . '-' . date_pad($month));
     $view->date_info->min_date = date_make_date($view->date_info->year . '-' . date_pad($month) . '-01 00:00:00', date_default_timezone_name());
-    $view->date_info->max_date = drupal_clone($view->date_info->min_date);
+    $view->date_info->max_date = clone($view->date_info->min_date);
     date_modify($view->date_info->max_date, '+1 month');
     date_modify($view->date_info->max_date, '-1 second');
     $months[$month] = theme('calendar_mini', $view, $vars['options'], $month_rows);
@@ -288,7 +288,7 @@ function template_preprocess_calendar_day(&$vars) {
   if (empty($view->date_info->style_groupby_times)) {
     // Items are already grouped into times, so we need to process each time-group.
     foreach ($rows['items'] as $time => $items) {
-      foreach($items as $item) {
+      foreach ($items as $item) {
         $rows['all_day'][] = $item;
       }
     }
@@ -611,7 +611,7 @@ function template_preprocess_calendar_day_node(&$vars) {
   $node = $vars['node'];
   // Remote items may have a teaser to show.
   if (!empty($node->remote) && !empty($node->teaser)) {
-    $fields['teaser'] = '<div class="content">' . ($node->teaser) ."</div>\n";
+    $fields['teaser'] = '<div class="content">' . ($node->teaser) . "</div>\n";
   }
 }
 
@@ -702,10 +702,10 @@ function theme_calendar_stripe_stripe($node) {
   }
   $output = '';
   if (is_array($node->stripe_label)) {
-    foreach($node->stripe_label as $k => $stripe_label) {
+    foreach ($node->stripe_label as $k => $stripe_label) {
       if (!empty($node->stripe[$k]) && !empty($stripe_label)) {
         $GLOBALS['calendar_stripes'][$stripe_label] = $node->stripe[$k];
-        $output.= '<div style="background-color:' . $node->stripe[$k] . ';color:' . $node->stripe[$k] . '" class="stripe" title="Key: ' . $node->stripe_label[$k] . '">&nbsp;</div>' ."\n";
+        $output .= '<div style="background-color:' . $node->stripe[$k] . ';color:' . $node->stripe[$k] . '" class="stripe" title="Key: ' . $node->stripe_label[$k] . '">&nbsp;</div>' . "\n";
       }
     }
   }
@@ -721,7 +721,7 @@ function theme_calendar_stripe_stripe($node) {
 function theme_calendar_empty_day($curday, $view) {
   
   if ($view->date_info->calendar_type != 'day') {
-    return '<div class="calendar-empty">&nbsp;</div>' ."\n";
+    return '<div class="calendar-empty">&nbsp;</div>' . "\n";
   }
   else {
     return '<div class="calendar-dayview-empty">' . t('Empty day') . '</div>';

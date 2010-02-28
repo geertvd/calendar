@@ -40,7 +40,7 @@ function calendar_init() {
 
 function calendar_theme() {
   $path = drupal_get_path('module', 'calendar');
-  require_once "./$path/theme/theme.inc";
+  require_once(DRUPAL_ROOT ."/$path/theme/theme.inc");
 
   $base = array(
     'file' => 'theme.inc',
@@ -126,26 +126,27 @@ function calendar_part_is_valid($value, $type) {
     case 'week':
       if ($value < 0 || $value > 53) return FALSE;
   }
-  return true;
+  return TRUE;
 }
 
 /**
- *  implementation of hook_block()
+ *  implementation of hook_block_list()
  */
-function calendar_block($op = 'list', $delta = 0) {
-  switch ($op) {
-    case 'list' :
-      $blocks[0]['info'] = t('Calendar Legend.');
-      return $blocks;
-      break;
-    case 'view' :
-      switch ($delta) {
-      case 0:
-        $block['subject'] = t('Calendar Legend');
-        $content = theme('calendar_stripe_legend');
-        $block['content'] = !empty($content) ? '<div class="calendar legend">' . $content . '</div>' : '';
-        return $block;
-    }
+function calendar_block_list($delta = 0) {
+  $blocks[0]['info'] = t('Calendar Legend.');
+  return $blocks;
+}
+
+/**
+ *  implementation of hook_block_view()
+ */
+function calendar_block_view($delta = 0) {
+  switch ($delta) {
+    case 0:
+      $block['subject'] = t('Calendar Legend');
+      $content = theme('calendar_stripe_legend');
+      $block['content'] = !empty($content) ? '<div class="calendar legend">' . $content . '</div>' : '';
+      return $block;
   }
 }
 
@@ -199,7 +200,7 @@ function calendar_node_stripe($view, &$node, $query_name, $delta, $stripe = NULL
     return;
   }
 
-  $type_names = node_get_types('names');
+  $type_names = node_type_get_names();
   $type = $node->raw->node_type;
   if (!(isset($node->stripe))) {
     $node->stripe = array();
@@ -251,7 +252,7 @@ function calendar_node_taxonomy_stripe($view, &$node, $query_name, $delta, $stri
     $node->stripe_label = array();
   }
   if (count($terms_for_node)) {
-    foreach($terms_for_node as $term_for_node) {
+    foreach ($terms_for_node as $term_for_node) {
       if (!array_key_exists($term_for_node->tid, $colors_taxonomy)) {
         continue;
       }
@@ -414,7 +415,7 @@ function calendar_elements() {
   // a textfield to associate with the Farbtastic colorpicker
   $type['calendar_colorfield'] = array(
     '#attributes' => array('class' => 'calendar_colorfield'), 
-	  '#input' => TRUE,
+    '#input' => TRUE,
 	  '#validate' => array('calendar_validate_hex_color' => array())
   );
   return $type;
@@ -428,7 +429,7 @@ function calendar_validate_hex_color($element) {
     return;
   }
   if (!preg_match('/^#(?:(?:[a-f\d]{3}) {1,2})$/i', $element['#value'])) {
-    form_error($element, "'". check_plain($element['#value']) ."'". t(' is not a valid hex color'));
+    form_error($element, "'" . check_plain($element['#value']) . "'" . t(' is not a valid hex color'));
   }
   else {
     form_set_value($element, $element['#value']);
@@ -450,7 +451,7 @@ function theme_calendar_colorpicker($element) {
  */
 function theme_calendar_colorfield($element) {
   $size = isset($element['#size']) ? ' size="' . $element['#size'] . '"' : '';
-  $maxlength = isset($element['#maxlength']) ?  'maxlength="' .$element['#maxlength'] . '"' : '';
+  $maxlength = isset($element['#maxlength']) ?  'maxlength="' . $element['#maxlength'] . '"' : '';
   $output = '';
   if (isset($element['#calendar_colorpicker'])) {
     $element['#attributes']['class'] .= ' edit-' . str_replace("_", "-", $element['#calendar_colorpicker']);

@@ -117,15 +117,15 @@ $upcoming_fields = array();
 
 foreach ($date_fields as $key => $field_name) {
   if (substr($field_name, 0, 6) == 'field_') {
-    $table = 'node_data_'. $field_name;
-    $alias_fields[$key] = $field_name .'_value';
-    $alias = $table .'.'. $field_name .'_value';
+    $table = 'node_data_' . $field_name;
+    $alias_fields[$key] = $field_name . '_value';
+    $alias = $table . '.' . $field_name . '_value';
     $cck_field = TRUE;
   }
   else {
     $table = 'node';
     $alias_fields[$key] = $field_name;
-    $alias = $table .'.'. $field_name;
+    $alias = $table . '.' . $field_name;
     $cck_field = FALSE;
   }
   $fields[$alias] = $alias;
@@ -158,9 +158,9 @@ foreach ($display_fields as $key => $value) {
   $display_fields[$key]['label'] = '';
   $display_fields[$key]['link_to_node'] = $key == 'title' ? 1 : 0;
   $display_fields[$key]['exclude'] = 0;
-  $display_fields[$key]['id'] = $date_field ? $key .'_value' : $key;
-  $display_fields[$key]['field'] = $date_field ? $key .'_value' : $key;
-  $display_fields[$key]['table'] = $cck_field ? 'node_data_'. $key : 'node';
+  $display_fields[$key]['id'] = $date_field ? $key . '_value' : $key;
+  $display_fields[$key]['field'] = $date_field ? $key . '_value' : $key;
+  $display_fields[$key]['table'] = $cck_field ? 'node_data_' . $key : 'node';
   $display_fields[$key]['relationship'] = 'none';
   if (in_array($key, array('changed'))) {
     $display_fields[$key]['date_format'] = 'small';
@@ -456,7 +456,7 @@ $handler->override_option('style_options', array(
   'location_field' => '',
 ));
 $handler->override_option('row_plugin', '');
-$handler->override_option('path', $path .'/ical');
+$handler->override_option('path', $path . '/ical');
 $handler->override_option('menu', array(
   'type' => 'none',
   'title' => '',

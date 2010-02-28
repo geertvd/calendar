@@ -79,7 +79,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
       '#type' => in_array($calendar_type, array('month')) ? 'select' : 'value',
       '#options' => array(0 => t('Unlimited'), 3 => t('3 items'), 5 => t('5 items'), 10 => t('10 items')),
       '#default_value' => $calendar_type != 'day' ? $this->options['max_items'] : 0,
-      '#description' => t('Maximum number of items to show in calendar cells, used to keep the calendar from expanding to a huge size when there are lots of items in one day. '),
+      '#description' => t('Maximum number of items to show in calendar cells, used to keep the calendar from expanding to a huge size when there are lots of items in one day.'),
       );
     $form['max_items_behavior'] = array(
       '#title' => t('Too many items'),
@@ -109,11 +109,11 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     $date_fields = array_keys($this->date_fields());
     foreach ($fields as $field_name => $field) {
       $handler = views_get_handler($field['table'], $field['field'], 'field');
-      if (!in_array($field['table'] .'.'. $field['field'], $date_fields)) {
-        $field_options[$field['table'] .'_'. $field['field']] = $handler->ui_name();
+      if (!in_array($field['table'] . '.' . $field['field'], $date_fields)) {
+        $field_options[$field['table'] . '_' . $field['field']] = $handler->ui_name();
       }
       else {
-        $date_field_options[$field['table'] .'_'. $field['field']] = $handler->ui_name();
+        $date_field_options[$field['table'] . '_' . $field['field']] = $handler->ui_name();
       }
     }
     $form['groupby_field'] = array(
@@ -162,7 +162,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     }
     else {
       $this->view->date_info->mini = FALSE;
-      $this->definition['theme'] = 'calendar_'. $this->view->date_info->granularity;
+      $this->definition['theme'] = 'calendar_' . $this->view->date_info->granularity;
     }
     $this->view->date_info->hide_admin_links = TRUE;
     return theme($this->theme_functions(), $this->view, $this->options, array());

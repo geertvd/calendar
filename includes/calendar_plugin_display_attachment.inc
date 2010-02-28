@@ -78,7 +78,7 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
       $view_granularity = $default_granularity;
     }
     elseif (!empty($argument)) {
-      require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
+      require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_api') . '/date_api_sql.inc');
       $date_handler = new date_sql_handler();
       $view_granularity = $date_handler->arg_granularity($argument);
     }
@@ -177,7 +177,7 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
   /**
    * Add custom option definitions.
    */
-  function option_definition () {
+  function option_definition() {
     $options = parent::option_definition();
     $options['calendar_type'] = array('default' => $this->calendar_type());
     return $options;
@@ -237,7 +237,7 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
    * Take away the option to change these values.
    */
   function defaultable_sections($section = NULL) {
-    if (in_array($section, array('inherit_argments', 'inherit_filters', 'attachment_position',))) {
+    if (in_array($section, array('inherit_argments', 'inherit_filters', 'attachment_position'))) {
       return FALSE;
     }
     return parent::defaultable_sections($section);

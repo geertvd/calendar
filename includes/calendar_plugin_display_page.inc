@@ -61,7 +61,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     $display->display_options['defaults']['items_per_page'] = FALSE;
   } 
   
-  function option_definition () {
+  function option_definition() {
     $options = parent::option_definition();
     $options['calendar_colors'] = array('default' => array());
     $options['calendar_colors_vocabulary'] = array('default' => array());
@@ -144,7 +144,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
 
         switch ($method) {
           case 'types':
-            $color_types = node_get_types('names');
+            $color_types = node_type_get_names();
             break;
         }
         foreach ($color_types as $key => $name) {

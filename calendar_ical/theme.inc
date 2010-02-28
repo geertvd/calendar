@@ -1,5 +1,11 @@
 <?php
 // $Id$
+
+/**
+ * @file
+ * Theme files for Calendar iCal.
+ */
+
 /**
  * Preprocess an ical feed
  */
@@ -52,7 +58,8 @@ function template_preprocess_calendar_view_ical(&$vars) {
       continue;
     }
     // Allow modules to affect item fields
-    node_invoke_nodeapi($node, 'ical item');
+    module_invoke_all('node_ical item', $node);
+    
     unset($node->view);
     $rrule_field = str_replace(array('_value2', '_value'), '_rrule', $node->datefield);
     $event = array();
