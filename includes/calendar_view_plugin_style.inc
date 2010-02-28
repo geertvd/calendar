@@ -1,5 +1,11 @@
 <?php
 // $Id$
+
+/**
+ * @file
+ * Views calendar style plugin for the Calendar module.
+ */
+
 /**
  * Style plugin to render the year, month, week, or day calendar view.
  */

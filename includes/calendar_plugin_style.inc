@@ -1,5 +1,11 @@
 <?php
 // $Id$
+
+/**
+ * @file
+ * Views navigation style plugin for the Calendar module.
+ */
+
 /**
  * Style plugin to create the calendar navigation and links.
  * 
@@ -105,7 +111,7 @@ class calendar_plugin_style extends views_plugin_style {
 
   function query() {
     
-    require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
+    require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
         
     $style_options = $this->view->style_plugin->options;
     

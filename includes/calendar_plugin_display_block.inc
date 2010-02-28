@@ -1,5 +1,11 @@
 <?php
 // $Id$
+
+/**
+ * @file
+ * Views block plugin for the Calendar module.
+ */
+
 /**
  * The plugin that handles a calendar block.
  * 

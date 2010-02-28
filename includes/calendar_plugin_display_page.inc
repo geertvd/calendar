@@ -1,5 +1,11 @@
 <?php
 // $Id$
+
+/**
+ * @file
+ * Views page plugin for the Calendar module.
+ */
+
 /**
  * The plugin that handles a full calendar page.
  * 
@@ -186,9 +192,9 @@ class calendar_plugin_display_page extends views_plugin_display_page {
           '#prefix' => '<div class="clear-block"><div style="float:left">',
           '#suffix' => '</div>',
         );
-        foreach ($taxonomies as $vid => $taxonomy){
+        foreach ($taxonomies as $vid => $taxonomy) {
           $vocab = taxonomy_get_tree($vid);
-          foreach ($vocab as $tid => $term){
+          foreach ($vocab as $tid => $term) {
             $form['calendar_colors_taxonomy']['color'][$term->tid] = array(
 	            '#title' => t($term->name),
 	            '#type' => 'calendar_colorfield',

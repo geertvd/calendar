@@ -1,10 +1,16 @@
 <?php
 // $Id$
+
+/**
+ * @file
+ * Theme functions for the Calendar module.
+ */
+
 /**
  * Display a calendar navigation and links
  */
 function template_preprocess_calendar_main(&$vars) {
-  require_once('./'. drupal_get_path('module', 'calendar') .'/includes/calendar.inc');
+  require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'calendar') .'/includes/calendar.inc');
   $view     = $vars['view'];
     
   $result   = (array) $view->result;
@@ -76,7 +82,7 @@ function template_preprocess_calendar_main(&$vars) {
  * views and the template takes care of displaying links to related views.
  */
 function template_preprocess_calendar(&$vars) {
-  require_once('./'. drupal_get_path('module', 'calendar') .'/includes/calendar.inc');
+  require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'calendar') .'/includes/calendar.inc');
   $view     = $vars['view'];
   
   // Make sure we only run through this function one time.
@@ -677,7 +683,7 @@ function theme_calendar_stripe_legend() {
   $rows = array();
   $output = '';    
   foreach ((array) $GLOBALS['calendar_stripes'] as $label => $stripe) {
-    if($stripe){
+    if ($stripe) {
       $rows[] = array($label, '<div style="background-color:'. $stripe .';color:'. $stripe .'" class="stripe" title="Key: '. $label .'">&nbsp;</div>');
     }
   }
@@ -695,9 +701,9 @@ function theme_calendar_stripe_stripe($node) {
     return;
   }
   $output = '';
-  if(is_array($node->stripe_label)){
-    foreach($node->stripe_label as $k => $stripe_label){
-      if(!empty($node->stripe[$k]) && !empty($stripe_label)) {
+  if (is_array($node->stripe_label)) {
+    foreach($node->stripe_label as $k => $stripe_label) {
+      if (!empty($node->stripe[$k]) && !empty($stripe_label)) {
         $GLOBALS['calendar_stripes'][$stripe_label] = $node->stripe[$k];
         $output.= '<div style="background-color:'. $node->stripe[$k] .';color:'. $node->stripe[$k] .'" class="stripe" title="Key: '. $node->stripe_label[$k] .'">&nbsp;</div>'."\n";
       }

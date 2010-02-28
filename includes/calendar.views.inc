@@ -1,5 +1,5 @@
 <?php
-//$Id$
+// $Id$
 /**
  *  Implementation of hook_views_query()
  *  
@@ -8,7 +8,7 @@
 function calendar_views_query_alter(&$view, &$query) {
   // Check if a new date has been selected and if so redirect.
   if (isset($_POST['calendar_goto']) && $_POST['view_name'] == $view->name) {
-    require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_elements.inc');
+    require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_api') .'/date_api_elements.inc');
     $format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), array('year', 'month', 'day'));
     $date = date_convert_from_custom($_POST['calendar_goto']['date'], $format);  
     switch ($_POST['calendar_type']) {

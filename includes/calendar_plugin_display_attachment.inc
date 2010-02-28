@@ -1,5 +1,11 @@
 <?php
 // $Id$
+
+/**
+ * @file
+ * Views display plugin for the Calendar module.
+ */
+
 /**
  * The plugin that handles calendar attachment displays.
  * 
@@ -72,7 +78,7 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
       $view_granularity = $default_granularity;
     }
     elseif (!empty($argument)) {
-      require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
+      require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
       $date_handler = new date_sql_handler();
       $view_granularity = $date_handler->arg_granularity($argument);
     }

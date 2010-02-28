@@ -1,5 +1,11 @@
 <?php
 // $Id$
+
+/**
+ * @file
+ * Views style plugin for the Calendar iCal module.
+ */
+
 /**
  * Default style plugin to render an iCal feed.
  */

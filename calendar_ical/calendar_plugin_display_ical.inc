@@ -1,5 +1,11 @@
 <?php
 // $Id$
+
+/**
+ * @file
+ * Views display plugin for the Calendar iCal module.
+ */
+
 /**
  * The plugin that handles a feed, such as RSS or atom.
  *

@@ -1,5 +1,11 @@
 <?php
-//$Id$
+// $Id$
+
+/**
+ * @file
+ * Default views for the Calendar module.
+ */
+
 /**
  * Set up so it can be used as an API to create default calendars for
  * specific date fields.

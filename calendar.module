@@ -35,7 +35,7 @@ function calendar_init() {
   // even though it isn't needed everywhere.
   drupal_add_css('misc/farbtastic/farbtastic.css');
 
-  require_once('./'. drupal_get_path('module', 'calendar') .'/theme/theme.inc');
+  require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'calendar') .'/theme/theme.inc');
 }
 
 function calendar_theme() {
@@ -109,22 +109,22 @@ function calendar_offset($field_name) {
  */
 function calendar_part_is_valid($value, $type) {
   if ( !preg_match('/^[0-9]*$/', $value) ) {
-    return false;
+    return FALSE;
   }
   $value = intval($value);
-  if ($value <= 0) return false;
+  if ($value <= 0) return FALSE;
   switch ($type) {
     case 'year':
-      if ($value < DATE_MIN_YEAR) return false;
+      if ($value < DATE_MIN_YEAR) return FALSE;
       break;
     case 'month':
-      if ($value < 0 || $value > 12) return false;
+      if ($value < 0 || $value > 12) return FALSE;
       break;
     case 'day':
-      if ($value < 0 || $value > 31) return false;
+      if ($value < 0 || $value > 31) return FALSE;
       break;
     case 'week':
-      if ($value < 0 || $value > 53) return false;
+      if ($value < 0 || $value > 53) return FALSE;
   }
   return true;
 }
@@ -201,7 +201,7 @@ function calendar_node_stripe($view, &$node, $query_name, $delta, $stripe = NULL
 
   $type_names = node_get_types('names');
   $type = $node->raw->node_type;
-  if(!(isset($node->stripe))){
+  if (!(isset($node->stripe))) {
     $node->stripe = array();
     $node->stripe_label = array();
   }  
@@ -246,12 +246,12 @@ function calendar_node_taxonomy_stripe($view, &$node, $query_name, $delta, $stri
   // taxonomy will expect, it's in the raw results.
   $node->vid = $node->raw->node_vid;
   $terms_for_node = taxonomy_node_get_terms($node);
-  if(!(isset($node->stripe))){
+  if (!(isset($node->stripe))) {
     $node->stripe = array();
     $node->stripe_label = array();
   }
-  if (count($terms_for_node)){
-    foreach($terms_for_node as $term_for_node){
+  if (count($terms_for_node)) {
+    foreach($terms_for_node as $term_for_node) {
       if (!array_key_exists($term_for_node->tid, $colors_taxonomy)) {
         continue;
       }
@@ -427,7 +427,7 @@ function calendar_validate_hex_color($element) {
   if (!$element['#required'] && empty($element['#value'])) {
     return;
   }
-  if (!preg_match('/^#(?:(?:[a-f\d]{3}){1,2})$/i', $element['#value'])) {
+  if (!preg_match('/^#(?:(?:[a-f\d]{3}) {1,2})$/i', $element['#value'])) {
     form_error($element, "'". check_plain($element['#value']) ."'". t(' is not a valid hex color'));
   }
   else {

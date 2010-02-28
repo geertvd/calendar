@@ -1,5 +1,11 @@
 <?php
-//$Id$
+// $Id$
+
+/**
+ * @file
+ * Views handlers for the Calendar iCal module.
+ */
+
 //views_include_handlers();
 /**
  * Implementation of hook_views_plugins

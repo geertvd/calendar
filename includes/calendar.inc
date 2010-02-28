@@ -1,5 +1,11 @@
 <?php
-//$Id$
+// $Id$
+
+/**
+ * @file
+ * Calendar building functions for the Calendar module.
+ */
+
 /**
  * Build calendar
  *
