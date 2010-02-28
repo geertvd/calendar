@@ -11,7 +11,7 @@ define('CALENDAR_HIDE_ALL', -1);
 function calendar_views_api() {
   return array(
     'api' => 2,
-    'path' => drupal_get_path('module', 'calendar') .'/includes',
+    'path' => drupal_get_path('module', 'calendar') . '/includes',
   );
 }
 
@@ -30,12 +30,12 @@ function calendar_help($section, $arg) {
 }
 
 function calendar_init() {
-  drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
+  drupal_add_css(drupal_get_path('module', 'calendar') . '/calendar.css');
   // The css for Farbtastic color picker, painless to add it here 
   // even though it isn't needed everywhere.
   drupal_add_css('misc/farbtastic/farbtastic.css');
 
-  require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'calendar') .'/theme/theme.inc');
+  require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'calendar') . '/theme/theme.inc');
 }
 
 function calendar_theme() {
@@ -143,7 +143,7 @@ function calendar_block($op = 'list', $delta = 0) {
       case 0:
         $block['subject'] = t('Calendar Legend');
         $content = theme('calendar_stripe_legend');
-        $block['content'] = !empty($content) ? '<div class="calendar legend">'. $content .'</div>' : '';
+        $block['content'] = !empty($content) ? '<div class="calendar legend">' . $content . '</div>' : '';
         return $block;
     }
   }
@@ -294,7 +294,7 @@ function calendar_og_groups($view) {
  * @return unknown
  */
 function calendar_date_select($view) {
-  return '<div class="calendar-date-select">'. drupal_get_form('calendar_date_select_form', $view) .'</div>';
+  return '<div class="calendar-date-select">' . drupal_get_form('calendar_date_select_form', $view) . '</div>';
 }
 
 /**
@@ -370,13 +370,13 @@ function calendar_groupby_times($type = '') {
   switch ($type) {
     case 'hour':
       for ($i = 0; $i <= 23; $i++) {
-        $times[] = date_pad($i) .':00:00';
+        $times[] = date_pad($i) . ':00:00';
       }
       break;
     case 'half':
       for ($i = 0; $i <= 23; $i++) {
-        $times[] = date_pad($i) .':00:00';
-        $times[] = date_pad($i) .':30:00';
+        $times[] = date_pad($i) . ':00:00';
+        $times[] = date_pad($i) . ':30:00';
       }
       break;
     default:
@@ -441,7 +441,7 @@ function calendar_validate_hex_color($element) {
 function theme_calendar_colorpicker($element) {
 
   $output = '';
-  $output .= '<div id="'. $element['#id'] .'" '. drupal_attributes($element['#attributes']) .' ></div>';
+  $output .= '<div id="' . $element['#id'] . '" ' . drupal_attributes($element['#attributes']) . ' ></div>';
   return theme('form_element', $element, $output);
 }
 
@@ -450,12 +450,12 @@ function theme_calendar_colorpicker($element) {
  */
 function theme_calendar_colorfield($element) {
   $size = isset($element['#size']) ? ' size="' . $element['#size'] . '"' : '';
-  $maxlength = isset($element['#maxlength']) ?  'maxlength="'.$element['#maxlength'] .'"' : '';
+  $maxlength = isset($element['#maxlength']) ?  'maxlength="' .$element['#maxlength'] . '"' : '';
   $output = '';
   if (isset($element['#calendar_colorpicker'])) {
-    $element['#attributes']['class'] .= ' edit-'. str_replace("_", "-", $element['#calendar_colorpicker']);
+    $element['#attributes']['class'] .= ' edit-' . str_replace("_", "-", $element['#calendar_colorpicker']);
   }
-  $output .= '<input type="text" name="'. $element['#name'] .'" id="'. $element['#id'] .'" '. $maxlength . $size .' value="'. check_plain($element['#value']) .'"'. drupal_attributes($element['#attributes']) .' />';
+  $output .= '<input type="text" name="' . $element['#name'] . '" id="' . $element['#id'] . '" ' . $maxlength . $size . ' value="' . check_plain($element['#value']) . '"' . drupal_attributes($element['#attributes']) . ' />';
   return theme('form_element', $element, $output);
 }
 
@@ -466,7 +466,7 @@ function theme_calendar_colorfield($element) {
  */
 function calendar_link($type, $object, $teaser = FALSE) {
   if ($type == 'node' && !$teaser) {
-    $path = variable_get('calendar_date_link_'. $object->type, NULL);
+    $path = variable_get('calendar_date_link_' . $object->type, NULL);
     if (!empty($path)) {
       return array('calendar_link' => array(
         'title' => t('Calendar'),

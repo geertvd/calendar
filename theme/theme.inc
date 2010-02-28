@@ -10,7 +10,7 @@
  * Display a calendar navigation and links
  */
 function template_preprocess_calendar_main(&$vars) {
-  require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'calendar') .'/includes/calendar.inc');
+  require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'calendar') . '/includes/calendar.inc');
   $view     = $vars['view'];
     
   $result   = (array) $view->result;
@@ -30,7 +30,7 @@ function template_preprocess_calendar_main(&$vars) {
   $view->date_info->month    = $view->date_info->month && $view->date_info->month != $view->argument['date_argument']->options['wildcard'] ? $view->date_info->month : date_format($now, 'm');
   $view->date_info->day      = $view->date_info->day && $view->date_info->day != $view->argument['date_argument']->options['wildcard'] ? $view->date_info->day : date_format($now, 'd');
   if (empty($view->date_info->week) || $view->date_info->week == $view->argument['date_argument']->options['wildcard']) {
-    $view->date_info->week = date_week($view->date_info->year .'-'. date_pad($view->date_info->month) .'-'. date_pad($view->date_info->day));
+    $view->date_info->week = date_week($view->date_info->year . '-' . date_pad($view->date_info->month) . '-' . date_pad($view->date_info->day));
   }
   $displays = $view->date_info->display_types;
     
@@ -52,15 +52,15 @@ function template_preprocess_calendar_main(&$vars) {
     
   // If the Date Popup module is enabled, add a popup date selector.
   if (!empty($view->date_info->calendar_popup)) {
-    $vars['calendar_popup'] = '<div class="clear-block">'. calendar_date_select($view) .'</div>';
+    $vars['calendar_popup'] = '<div class="clear-block">' . calendar_date_select($view) . '</div>';
   }
   
   // If an 'Add new ... link is provided, add it here.
   // the query will bring the user back here after adding the node.
-  if (!empty($view->date_info->calendar_date_link) && user_access('create '. $view->date_info->calendar_date_link .' content')) {
+  if (!empty($view->date_info->calendar_date_link) && user_access('create ' . $view->date_info->calendar_date_link . ' content')) {
     $name = node_get_types('name', $view->date_info->calendar_date_link);
-    $href = 'node/add/'. str_replace('_', '-', $view->date_info->calendar_date_link);
-    $query = 'destination='. $view->date_info->url;    
+    $href = 'node/add/' . str_replace('_', '-', $view->date_info->calendar_date_link);
+    $query = 'destination=' . $view->date_info->url;    
     $vars['calendar_links'][] = $base + array(
       'title' => t('Add+'), 
       'href' => $href, 
@@ -82,7 +82,7 @@ function template_preprocess_calendar_main(&$vars) {
  * views and the template takes care of displaying links to related views.
  */
 function template_preprocess_calendar(&$vars) {
-  require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'calendar') .'/includes/calendar.inc');
+  require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'calendar') . '/includes/calendar.inc');
   $view     = $vars['view'];
   
   // Make sure we only run through this function one time.
@@ -136,7 +136,7 @@ function template_preprocess_calendar(&$vars) {
   
   // Merge in items from other sources.
   foreach (module_implements('calendar_add_items') as $module) {
-    $function = $module .'_calendar_add_items';
+    $function = $module . '_calendar_add_items';
     if (function_exists($function)) {
       if ($feeds = $function($view)) {
         foreach ($feeds as $feed) {
@@ -204,7 +204,7 @@ function template_preprocess_calendar_month(&$vars) {
         $month_rows[$weekno][$day]['data'] = $data;
       }
       else {
-        $month_rows[$weekno][$day]['data'] = '<div class="inner">'. $data .'</div>';
+        $month_rows[$weekno][$day]['data'] = '<div class="inner">' . $data . '</div>';
       }
     }
   }
@@ -255,8 +255,8 @@ function template_preprocess_calendar_year(&$vars) {
     $view->date_info->mini = TRUE;
     $view->date_info->hide_nav = TRUE;
     $view->date_info->show_title = TRUE;
-    $view->date_info->url = date_real_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month));
-    $view->date_info->min_date = date_make_date($view->date_info->year .'-'. date_pad($month) .'-01 00:00:00', date_default_timezone_name());
+    $view->date_info->url = date_real_url($view, NULL, date_pad($year, 4) . '-' . date_pad($month));
+    $view->date_info->min_date = date_make_date($view->date_info->year . '-' . date_pad($month) . '-01 00:00:00', date_default_timezone_name());
     $view->date_info->max_date = drupal_clone($view->date_info->min_date);
     date_modify($view->date_info->max_date, '+1 month');
     date_modify($view->date_info->max_date, '-1 second');
@@ -310,7 +310,7 @@ function template_preprocess_calendar_day(&$vars) {
     else {
       $column = t('Items');
     }
-    $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_info->granularity .'_node';
+    $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_' . $view->date_info->granularity . '_node';
     $grouped_items[$column][] = theme($theme, $item, $view);
     $item_count++;
   }
@@ -345,7 +345,7 @@ function template_preprocess_calendar_day(&$vars) {
         $start_time = $next_start_time;
         $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
       }
-      $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_info->granularity .'_node';
+      $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_' . $view->date_info->granularity . '_node';
       $grouped_items[$start_time]['values'][$column][] = theme($theme, $item, $view);
       $item_count++;
       $by_hour_count++;
@@ -444,7 +444,7 @@ function template_preprocess_calendar_week(&$vars) {
     $start_time = array_shift($start_times);
     $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
     foreach ($row['data']['all_day'] as $key => $item) {
-      $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_info->granularity .'_node';
+      $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_' . $view->date_info->granularity . '_node';
       $vars['rows'][$weekno]['all_day'][$key] = theme($theme, $item, $view);
       $item_count++;
     }
@@ -459,7 +459,7 @@ function template_preprocess_calendar_week(&$vars) {
           $start_time = $next_start_time;
           $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
         }
-        $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_info->granularity .'_node';
+        $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_' . $view->date_info->granularity . '_node';
         $grouped_items[$start_time]['values'][$weekno][] = theme($theme, $item, $view);
         $item_count++; 
         $by_hour_count++; 
@@ -600,7 +600,7 @@ function template_preprocess_calendar_month_multiple_node(&$vars) {
   $day = intval($parts[2]);
   
   // create the link to the day
-  $vars['link'] = date_real_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month) .'-'. date_pad($day));
+  $vars['link'] = date_real_url($view, NULL, date_pad($year, 4) . '-' . date_pad($month) . '-' . date_pad($day));
 }
 
 /**
@@ -611,7 +611,7 @@ function template_preprocess_calendar_day_node(&$vars) {
   $node = $vars['node'];
   // Remote items may have a teaser to show.
   if (!empty($node->remote) && !empty($node->teaser)) {
-    $fields['teaser'] = '<div class="content">'. ($node->teaser) ."</div>\n";
+    $fields['teaser'] = '<div class="content">' . ($node->teaser) ."</div>\n";
   }
 }
 
@@ -636,7 +636,7 @@ function template_preprocess_calendar_week_multiple_node(&$vars) {
   $day = intval($parts[2]);
   
   // create the link to the day
-  $vars['link'] = date_real_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month) .'-'. date_pad($day));
+  $vars['link'] = date_real_url($view, NULL, date_pad($year, 4) . '-' . date_pad($month) . '-' . date_pad($day));
 }
 
 /**
@@ -653,11 +653,11 @@ function theme_calendar_time_row_heading($start_time, $next_start_time, $curday_
     $hour = t('All times');
   }
   elseif ($start_time == '00:00:00') {
-    $date = date_create($curday_date .' '. $next_start_time);
+    $date = date_create($curday_date . ' ' . $next_start_time);
     $hour = t('Before @time', array('@time' => date_format($date, $format_hour)));
   }
   else {
-    $date = date_create($curday_date .' '. $start_time);
+    $date = date_create($curday_date . ' ' . $start_time);
     $hour = date_format($date, $format_hour);
   }
   if (!empty($date)) {
@@ -684,7 +684,7 @@ function theme_calendar_stripe_legend() {
   $output = '';    
   foreach ((array) $GLOBALS['calendar_stripes'] as $label => $stripe) {
     if ($stripe) {
-      $rows[] = array($label, '<div style="background-color:'. $stripe .';color:'. $stripe .'" class="stripe" title="Key: '. $label .'">&nbsp;</div>');
+      $rows[] = array($label, '<div style="background-color:' . $stripe . ';color:' . $stripe . '" class="stripe" title="Key: ' . $label . '">&nbsp;</div>');
     }
   }
   if (!empty($rows)) {
@@ -705,7 +705,7 @@ function theme_calendar_stripe_stripe($node) {
     foreach($node->stripe_label as $k => $stripe_label) {
       if (!empty($node->stripe[$k]) && !empty($stripe_label)) {
         $GLOBALS['calendar_stripes'][$stripe_label] = $node->stripe[$k];
-        $output.= '<div style="background-color:'. $node->stripe[$k] .';color:'. $node->stripe[$k] .'" class="stripe" title="Key: '. $node->stripe_label[$k] .'">&nbsp;</div>'."\n";
+        $output.= '<div style="background-color:' . $node->stripe[$k] . ';color:' . $node->stripe[$k] . '" class="stripe" title="Key: ' . $node->stripe_label[$k] . '">&nbsp;</div>' ."\n";
       }
     }
   }
@@ -721,10 +721,10 @@ function theme_calendar_stripe_stripe($node) {
 function theme_calendar_empty_day($curday, $view) {
   
   if ($view->date_info->calendar_type != 'day') {
-    return '<div class="calendar-empty">&nbsp;</div>'."\n";
+    return '<div class="calendar-empty">&nbsp;</div>' ."\n";
   }
   else {
-    return '<div class="calendar-dayview-empty">'. t('Empty day') .'</div>';
+    return '<div class="calendar-dayview-empty">' . t('Empty day') . '</div>';
   }
 }
 

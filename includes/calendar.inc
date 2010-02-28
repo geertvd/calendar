@@ -100,7 +100,7 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
   // If we're displaying the week number, add it as the
   // first cell in the week.
   if (!empty($view->date_info->style_with_weekno) && !in_array($view->date_info->granularity, array('day', 'week'))) {
-    $url = $view->get_path() .'/'. $view->date_info->year .'-W'. $week;
+    $url = $view->get_path() .'/' . $view->date_info->year .'-W' . $week;
     if (!empty($view->date_info->display_types['week'])) {
       $weekno = l($week, $url, array('query' => !empty($view->date_info->append) ? $view->date_info->append : ''));
     }
@@ -168,7 +168,7 @@ function calendar_build_day($curday, $view, $items) {
             // Theme the item here unless this is a 'Day' or 'Week' view.
             // Day and week views need to do more processing before rendering
             // the item, so just past them the unrendered item.
-            $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_info->granularity .'_node';
+            $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_' . $view->date_info->granularity .'_node';
             if ($item->calendar_all_day) {
               $all_day[] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, $item, $view);
             }
@@ -190,7 +190,7 @@ function calendar_build_day($curday, $view, $items) {
     if ($view->date_info->style_max_items_behavior == 'hide') {
       $inner = array();
     }
-    $link = theme('calendar_'. $view->date_info->calendar_type .'_multiple_node', $curday_date, $count, $view, $types);
+    $link = theme('calendar_' . $view->date_info->calendar_type .'_multiple_node', $curday_date, $count, $view, $types);
   }
     
   $content = array(
@@ -357,7 +357,7 @@ function calendar_build_nodes(&$view, &$items) {
       if (substr($field['type'], 0, 3) == 'cck') {
         $real_field = str_replace(array('_value2', '_value'), '', $field_name);
       }
-      $id = 'calendar:'. $item->nid .':'. $real_field .':'. $delta;
+      $id = 'calendar:' . $item->nid .':' . $real_field .':' . $delta;
       if (!in_array($id, $processed) && isset($item->calendar_fields->$alias)) {
         // Create from and to date values for each item, adjusted to
         // the correct timezone.
@@ -511,7 +511,7 @@ function calendar_build_nodes(&$view, &$items) {
           else {
             calendar_node_stripe($view, $node, $alias, $alias);
             calendar_node_taxonomy_stripe($view, $node, $alias, $alias);
-            $node->date_id = $id .':'. $pos;
+            $node->date_id = $id .':' . $pos;
 
             $nodes[] = $node;
             unset($node);
