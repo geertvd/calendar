@@ -33,10 +33,11 @@ function template_preprocess_calendar_view_ical(&$vars) {
 
   drupal_add_http_header('Content-Type', 'text/calendar; charset=utf-8');
   drupal_add_http_header('Content-Disposition: attachment; filename="calendar.ics"; ');
-  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_api') . '/date_api_ical.inc';
-  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_api') . '/theme/theme.inc';
-  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'calendar') . '/includes/calendar.inc';
 
+  module_load_include('inc', 'date_api', 'date_api_ical');
+  module_load_include('inc', 'date_api', 'theme/theme');
+  module_load_include('inc', 'calendar', 'calendar');
+  
   $events = array();
   // Get the alias name for each of our data fields.
   foreach ($view->field as $name => $field) {

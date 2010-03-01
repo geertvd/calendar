@@ -8,7 +8,9 @@
 function calendar_views_query_alter(&$view, &$query) {
   // Check if a new date has been selected and if so redirect.
   if (isset($_POST['calendar_goto']) && $_POST['view_name'] == $view->name) {
-    require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_api') . '/date_api_elements.inc');
+    
+    module_load_include('inc', 'date_api', 'date_api_elements');
+    
     $format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), array('year', 'month', 'day'));
     $date = date_convert_from_custom($_POST['calendar_goto']['date'], $format);  
     switch ($_POST['calendar_type']) {
@@ -70,9 +72,9 @@ function calendar_views_pre_view(&$view, &$display_id, &$args) {
  * Implementation of hook_views_plugins
  */
 function calendar_views_plugins() {
-  $path = drupal_get_path('module', 'calendar');
   $views_path = drupal_get_path('module', 'views');
-  require_once(DRUPAL_ROOT . "/$path/theme/theme.inc");
+  module_load_include('inc', 'calendar', 'theme/theme');
+  
 
   $data = array(
     'module' => 'calendar', // This just tells our themes are elsewhere.

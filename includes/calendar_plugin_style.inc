@@ -110,9 +110,8 @@ class calendar_plugin_style extends views_plugin_style {
   }
 
   function query() {
-    
-    require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_api') . '/date_api_sql.inc');
-        
+    module_load_include('inc', 'date_api', 'date_api_sql');
+  
     $style_options = $this->view->style_plugin->options;
     
     // Evaluate our argument values and figure out which 

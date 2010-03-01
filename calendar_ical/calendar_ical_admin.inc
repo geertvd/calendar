@@ -14,7 +14,7 @@
  * @todo - control of the stripe color is not yet implemented.
  */
 function _calendar_ical_setup_form($view_name) {
-  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_api') . '/date_api_ical.inc';
+  module_load_include('inc', 'date_api', 'date_api_ical');
 
   $form = array();
   $view = views_get_view($view_name);

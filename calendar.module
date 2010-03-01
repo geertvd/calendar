@@ -35,12 +35,11 @@ function calendar_init() {
   // even though it isn't needed everywhere.
   drupal_add_css('misc/farbtastic/farbtastic.css');
 
-  require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'calendar') . '/theme/theme.inc');
+  module_load_include('inc', 'calendar', 'theme/theme.inc');
 }
 
 function calendar_theme() {
-  $path = drupal_get_path('module', 'calendar');
-  require_once(DRUPAL_ROOT ."/$path/theme/theme.inc");
+  module_load_include('inc', 'calendar', 'theme/theme.inc');
 
   $base = array(
     'file' => 'theme.inc',

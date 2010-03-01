@@ -10,7 +10,8 @@
  * Display a calendar navigation and links
  */
 function template_preprocess_calendar_main(&$vars) {
-  require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'calendar') . '/includes/calendar.inc');
+  module_load_include('inc', 'calendar', 'calendar');
+    
   $view     = $vars['view'];
     
   $result   = (array) $view->result;
@@ -82,7 +83,8 @@ function template_preprocess_calendar_main(&$vars) {
  * views and the template takes care of displaying links to related views.
  */
 function template_preprocess_calendar(&$vars) {
-  require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'calendar') . '/includes/calendar.inc');
+  module_load_include('inc', 'calendar', 'calendar');  
+  
   $view     = $vars['view'];
   
   // Make sure we only run through this function one time.

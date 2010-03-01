@@ -78,7 +78,8 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
       $view_granularity = $default_granularity;
     }
     elseif (!empty($argument)) {
-      require_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_api') . '/date_api_sql.inc');
+      module_load_include('inc', 'date_api', 'date_api_sql');
+      
       $date_handler = new date_sql_handler();
       $view_granularity = $date_handler->arg_granularity($argument);
     }

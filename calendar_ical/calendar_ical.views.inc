@@ -11,9 +11,8 @@
  * Implementation of hook_views_plugins
  */
 function calendar_ical_views_plugins() {
-  $path = drupal_get_path('module', 'calendar_ical');
   $views_path = drupal_get_path('module', 'views');
-  require_once(DRUPAL_ROOT . '/' . "./$path/theme.inc");
+  module_load_include('inc', 'calendar_ical', 'theme.inc');
 
   $data = array(
     'module' => 'calendar_ical', // This just tells our themes are elsewhere.
