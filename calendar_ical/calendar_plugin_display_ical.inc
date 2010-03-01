@@ -47,7 +47,7 @@ class calendar_plugin_display_ical extends views_plugin_display_page {
   }
 
   function defaultable_sections($section = NULL) {
-    if (in_array($section, array('style_options', 'style_plugin', 'row_options', 'row_plugin',))) {
+    if (in_array($section, array('style_options', 'style_plugin', 'row_options', 'row_plugin'))) {
       return FALSE;
     }
 

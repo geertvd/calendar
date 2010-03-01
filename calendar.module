@@ -415,7 +415,7 @@ function calendar_elements() {
   $type['calendar_colorfield'] = array(
     '#attributes' => array('class' => 'calendar_colorfield'), 
     '#input' => TRUE,
-	  '#validate' => array('calendar_validate_hex_color' => array())
+    '#validate' => array('calendar_validate_hex_color' => array())
   );
   return $type;
 }
@@ -428,7 +428,7 @@ function calendar_validate_hex_color($element) {
     return;
   }
   if (!preg_match('/^#(?:(?:[a-f\d]{3}) {1,2})$/i', $element['#value'])) {
-    form_error($element, "'" . check_plain($element['#value']) . "'" . t(' is not a valid hex color'));
+    form_error($element, t('@value is not a valid hex color', array('@value' => check_plain($element['#value']))));
   }
   else {
     form_set_value($element, $element['#value']);

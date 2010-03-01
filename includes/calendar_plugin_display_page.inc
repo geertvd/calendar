@@ -169,12 +169,12 @@ class calendar_plugin_display_page extends views_plugin_display_page {
         $colors_vocabulary = $this->get_option('calendar_colors_vocabulary');
         $form['#title'] .= t('Vocabulary Legend Types');
         $form['calendar_colors_vocabulary'] = array(
-	        '#type' => 'checkboxes',
-	        '#default_value' => isset($colors_vocabulary) ? $colors_vocabulary : array(),
-	        '#multiple' => TRUE,
-	        '#options' => $options,
-	        );
-	      $form['calendar_colors_vocabulary']['#prefix'] = t('<div class="form-item"><label>Vocabularies</label>Select vocabularies to use for setting calendar legend colors by taxonomy term. This works best for vocabularies with only a limited number of possible terms.</div>');
+          '#type' => 'checkboxes',
+          '#default_value' => isset($colors_vocabulary) ? $colors_vocabulary : array(),
+          '#multiple' => TRUE,
+          '#options' => $options,
+          );
+        $form['calendar_colors_vocabulary']['#prefix'] = t('<div class="form-item"><label>Vocabularies</label>Select vocabularies to use for setting calendar legend colors by taxonomy term. This works best for vocabularies with only a limited number of possible terms.</div>');
         break;
 
       case 'calendar_colors_taxonomy':
@@ -196,16 +196,16 @@ class calendar_plugin_display_page extends views_plugin_display_page {
           $vocab = taxonomy_get_tree($vid);
           foreach ($vocab as $tid => $term) {
             $form['calendar_colors_taxonomy']['color'][$term->tid] = array(
-	            '#title' => t($term->name),
-	            '#type' => 'calendar_colorfield',
-	            '#default_value' => isset($colors_taxonomy[$term->tid]) ? $colors_taxonomy[$term->tid] : '#ffffff',
-	            '#calendar_colorpicker' => 'calendar-colors-taxonomy-colorpicker',
-	            '#prefix' => '<div style="float:left;margin-right:10px">',
-	            '#suffix' => '</div>',
-	            );
-	        }
-	      }
-	      $form['calendar_colors_taxonomy']['color']['#suffix'] = '</div>';
+              '#title' => t($term->name),
+              '#type' => 'calendar_colorfield',
+              '#default_value' => isset($colors_taxonomy[$term->tid]) ? $colors_taxonomy[$term->tid] : '#ffffff',
+              '#calendar_colorpicker' => 'calendar-colors-taxonomy-colorpicker',
+              '#prefix' => '<div style="float:left;margin-right:10px">',
+              '#suffix' => '</div>',
+              );
+          }
+        }
+        $form['calendar_colors_taxonomy']['color']['#suffix'] = '</div>';
         break;
     }
   }

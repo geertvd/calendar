@@ -8,8 +8,9 @@
 /*
  *  Bind the colorpicker event to the form element
  */
-Drupal.behaviors.calendarColorpicker = function (context) {
-  
+(function ($) {
+Drupal.behaviors.calendarColorpicker = {
+  attach: function (context) {
   // do we have multiple calendar_colors?
   if ($("div.calendar_colorpicker").size() > 0) {
   
@@ -36,5 +37,6 @@ Drupal.behaviors.calendarColorpicker = function (context) {
 
     });
   }
+  }
 };
-
+})(jQuery);
