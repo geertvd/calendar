@@ -311,7 +311,7 @@ function calendar_date_select_form(&$form_state, $view) {
     //'#title' => t('Calendar date'),
     '#type' => module_exists('date_popup') ? 'date_popup' : 'date_select',
     '#default_value' => date_format($view->date_info->min_date, 'Y-m-d'),
-    '#date_timezone' => date_default_timezone_name(),
+    '#date_timezone' => date_default_timezone(),
     '#date_format' => $format,
     );
   $form['calendar_type'] = array(
@@ -466,7 +466,7 @@ function theme_calendar_colorfield($element) {
  */
 function calendar_link($type, $object, $teaser = FALSE) {
   if ($type == 'node' && !$teaser) {
-    $path = variable_get('calendar_date_link_' . $object->type, NULL);
+    $path = variable_get('calendar_date_link_' . $object->type);
     if (!empty($path)) {
       return array('calendar_link' => array(
         'title' => t('Calendar'),
