@@ -644,7 +644,10 @@ function template_preprocess_calendar_week_multiple_node(&$vars) {
 /**
  * Format the time row headings in the week and day view.
  */
-function theme_calendar_time_row_heading($start_time, $next_start_time, $curday_date) {
+function theme_calendar_time_row_heading($vars) {
+  $start_time = $vars['start_time'];
+  $next_start_time = $vars['next_start_time'];
+  $curday_date = $vars['curday_date'];
   static $format_hour, $format_ampm;
   if (empty($format_hour)) {
     $format = variable_get('date_format_short', 'm/d/Y - H:i');
@@ -698,7 +701,8 @@ function theme_calendar_stripe_legend() {
 /**
  * Format node stripes
  */
-function theme_calendar_stripe_stripe($node) {
+function theme_calendar_stripe_stripe($vars) {
+  $node = $vars['node'];
   if (empty($node->stripe) || (!count($node->stripe))) {
     return;
   }
@@ -720,7 +724,9 @@ function theme_calendar_stripe_stripe($node) {
  * @param day
  *   The day to display.
  */
-function theme_calendar_empty_day($curday, $view) {
+function theme_calendar_empty_day($vars) {
+  $curday = $vars['curday'];
+  $view = $vars['view'];
   
   if ($view->date_info->calendar_type != 'day') {
     return '<div class="calendar-empty">&nbsp;</div>' . "\n";
