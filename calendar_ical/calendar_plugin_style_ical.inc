@@ -134,7 +134,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
       foreach ($fields as $column => $field) {
         $field_name = $field['table'] . "." . $field['field'];
         if (!empty($field['multiple'])) {
-          $cck_fields = content_fields();
+          $cck_fields = field_info_fields();
           $real_name = $view_fields[$field_name]['real_field_name'];
           if ($cck_fields[$real_name]['multiple'] && !empty($field['multiple']['group'])) {
             $errors[] = t("The date field '@field' used by the display '@display_title' cannot be set to 'Group multiple values'.", array('@field' => $view_fields[$field_name]['label'], '@display_title' => $this->display->display_title));
