@@ -38,7 +38,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
     }
     $this->view->feed_icon .= theme('calendar_ical_icon', $url);
 
-    drupal_add_link(array(
+    drupal_add_html_head_link(array(
       'rel' => 'alternate',
       'type' => 'application/calendar',
       'title' => $title,
