@@ -40,10 +40,11 @@ function calendar_init() {
 
 function calendar_theme() {
   module_load_include('inc', 'calendar', 'theme/theme.inc');
+  $module_path = drupal_get_path('module', 'calendar');
 
   $base = array(
     'file' => 'theme.inc',
-    'path' => "$path/theme",
+    'path' => "$module_path/theme",
   );
   return array(
     'calendar_day_node' => $base + array(

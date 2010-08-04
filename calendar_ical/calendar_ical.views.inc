@@ -12,6 +12,7 @@
  */
 function calendar_ical_views_plugins() {
   $views_path = drupal_get_path('module', 'views');
+  $module_path = drupal_get_path('module', 'calendar_ical');
   module_load_include('inc', 'calendar_ical', 'theme.inc');
 
   $data = array(
@@ -35,7 +36,7 @@ function calendar_ical_views_plugins() {
         'title' => t('iCal feed'),
         'help' => t('Display the view as an iCal feed.'),
         'handler' => 'calendar_plugin_display_ical',
-        'path' => "$path",
+        'path' => "$module_path",
         'parent' => 'page',
         'uses hook menu' => TRUE,
         'theme' => 'views_view',
@@ -69,10 +70,10 @@ function calendar_ical_views_plugins() {
         'title' => t('iCal feed'),
         'help' => t('Generates an iCal feed from a view.'),
         'handler' => 'calendar_plugin_style_ical',
-        'path' => "$path",
+        'path' => "$module_path",
         'theme' => 'calendar_view_ical',
         'theme file' => 'theme.inc',
-        'theme path' => "$path",
+        'theme path' => "$module_path",
         'parent' => 'rss',
         'uses row plugin' => FALSE,
         'uses fields' => TRUE,

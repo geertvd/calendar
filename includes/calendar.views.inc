@@ -73,6 +73,7 @@ function calendar_views_pre_view(&$view, &$display_id, &$args) {
  */
 function calendar_views_plugins() {
   $views_path = drupal_get_path('module', 'views');
+  $module_path = drupal_get_path('module', 'calendar');
   module_load_include('inc', 'calendar', 'theme/theme');
   
 
@@ -107,7 +108,7 @@ function calendar_views_plugins() {
       ),
       'calendar_attachment' => array(
         'handler' => 'calendar_plugin_display_attachment',
-        'path' => "$path/includes",
+        'path' => "$module_path/includes",
         'parent' => 'attachment',
         'no ui' => TRUE,
         ),
@@ -116,7 +117,7 @@ function calendar_views_plugins() {
         'title' => t('Calendar page'),
         'help' => t('Calendar page. Attach Calendar period attachments to this page, set to show the year, month, day, and week views.'),
         'handler' => 'calendar_plugin_display_page',
-        'path' => "$path/includes",
+        'path' => "$module_path/includes",
         'parent' => 'page',
         'theme' => 'views_view',
         'no ui' => TRUE,
@@ -130,15 +131,15 @@ function calendar_views_plugins() {
         'help topic' => 'getting-started',
         'js' => array(
           'misc/farbtastic/farbtastic.js', 
-          drupal_get_path('module', 'calendar') . '/js/calendar_colorpicker.js',
-          ),
+          $module_path . '/js/calendar_colorpicker.js',
+        ),
       ),
       // Calendar block display plugin.
       'calendar_block' => array(
         'title' => t('Calendar block'),
         'help' => t('Calendar page. Attach a Calendar period attachment to this block, set to show the year, month, day, or week view.'),
         'handler' => 'calendar_plugin_display_block',
-        'path' => "$path/includes",
+        'path' => "$module_path/includes",
         'parent' => 'block',
         'theme' => 'views_view',
         'no ui' => TRUE,
@@ -156,7 +157,7 @@ function calendar_views_plugins() {
         'title' => t('Calendar period'),
         'help' => t('An attachment for a Year, Month, Day, or Week calendar display, using any style you choose. Attach to a Calendar page and/or a Calendar block.'),
         'handler' => 'calendar_plugin_display_attachment',
-        'path' => "$path/includes",
+        'path' => "$module_path/includes",
         'file' => 'calendar_plugin_display_attachment.inc',
         'parent' => 'calendar_attachment',
         'theme' => 'views_view',
@@ -182,11 +183,11 @@ function calendar_views_plugins() {
         'title' => t('Calendar navigation'),
         'help' => t('Creates back/next navigation and calendar links.'),
         'handler' => 'calendar_plugin_style',
-        'path' => "$path/includes",
+        'path' => "$module_path/includes",
         'parent' => 'parent',
         'theme' => 'calendar_main',
         'theme file' => 'theme.inc',
-        'theme path' => "$path/theme",
+        'theme path' => "$module_path/theme",
         'uses row plugin' => FALSE,
         'uses fields' => TRUE,
         'uses options' => FALSE,
@@ -197,11 +198,11 @@ function calendar_views_plugins() {
         'title' => t('Calendar'),
         'help' => t('Displays Views results in a calendar.'),
         'handler' => 'calendar_view_plugin_style',
-        'path' => "$path/includes",
+        'path' => "$module_path/includes",
         'parent' => 'calendar_nav',
         'theme' => 'calendar_month',
         'theme file' => 'theme.inc',
-        'theme path' => "$path/theme",
+        'theme path' => "$module_path/theme",
         'additional themes' => array(
           'calendar_year' => 'style',
           'calendar_day' => 'style',
