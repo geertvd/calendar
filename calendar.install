@@ -42,9 +42,9 @@ function calendar_uninstall() {
     'calendar_block',
     'calendar_block_view',
     'calendar_ical',
-    );
+  );
   $result = db_query("SELECT DISTINCT vid FROM {views_display} WHERE display_plugin IN ('" . implode("','", $displays) . "')");
-  while ($row = db_fetch_array($result)) {
+  foreach ($result as $row) {
     db_delete('views_view')
       ->condition('vid', $row['vid'])
       ->execute();
