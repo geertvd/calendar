@@ -562,7 +562,7 @@ function template_preprocess_calendar_node(&$vars) {
         }
       }
       $fields[$field_alias] = array(
-        'id' => views_css_safe($field_alias),
+        'id' => drupal_clean_css_identifier($field_alias),
         'label' => $label,
         'data' => $data,
         );
