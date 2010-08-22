@@ -36,7 +36,7 @@ function template_preprocess_calendar_view_ical(&$vars) {
 
   module_load_include('inc', 'date_api', 'date_api_ical');
   module_load_include('inc', 'date_api', 'theme/theme');
-  module_load_include('inc', 'calendar', 'calendar');
+  module_load_include('inc', 'calendar', 'includes/calendar');
   
   $events = array();
   // Get the alias name for each of our data fields.

@@ -1,6 +1,6 @@
 <?php
 // $Id$
-echo 'HERE';
+
 /**
  * @file
  * Views display plugin for the Calendar module.

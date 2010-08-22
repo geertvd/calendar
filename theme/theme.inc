@@ -10,7 +10,7 @@
  * Display a calendar navigation and links
  */
 function template_preprocess_calendar_main(&$vars) {
-  module_load_include('inc', 'calendar', 'calendar');
+  module_load_include('inc', 'calendar', 'includes/calendar');
     
   $view     = $vars['view'];
     
@@ -83,7 +83,7 @@ function template_preprocess_calendar_main(&$vars) {
  * views and the template takes care of displaying links to related views.
  */
 function template_preprocess_calendar(&$vars) {
-  module_load_include('inc', 'calendar', 'calendar');  
+  module_load_include('inc', 'calendar', 'includes/calendar');  
   
   $view     = $vars['view'];
   
@@ -320,7 +320,7 @@ function template_preprocess_calendar_day(&$vars) {
     $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_' . $view->date_info->granularity . '_node';
     $grouped_items[$column][] = theme($theme, 
       array(
-        'item' => $item, 
+        'node' => $item, 
         'view' => $view,
       ));
     $item_count++;

@@ -1,6 +1,6 @@
 <?php
 // $Id$
-
+echo 'HERE';
 /**
  * @file
  * Calendar building functions for the Calendar module.
@@ -120,7 +120,7 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
     if ($check_month && ($curday_date < $view->date_info->min_date_date || $curday_date > $view->date_info->max_date_date || date_format($curday, 'n') != $month)) {
       $class .= ' empty';
       $variables = array(
-        'curday_date' => $curday_date, 
+        'curday' => $curday_date, 
         'view' => $view,
       );
       $content = array(
@@ -174,7 +174,7 @@ function calendar_build_day($curday, $view, $items) {
             // the item, so just past them the unrendered item.
             $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_' . $view->date_info->granularity . '_node';
             $variables = array(
-              'item' => $item, 
+              'node' => $item, 
               'view' => $view,
             );
             if ($item->calendar_all_day) {
@@ -192,7 +192,7 @@ function calendar_build_day($curday, $view, $items) {
   ksort($inner);
   if (empty($inner) && empty($all_day)) {
     $variables = array(
-      'curday_date' => $curday_date, 
+      'curday' => $curday_date, 
       'view' => $view,
     );
     $empty = theme('calendar_empty_day', $variables);

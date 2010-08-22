@@ -146,7 +146,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
   }
 
   function render() {
-    module_load_include('inc', 'calendar', 'calendar');
+    module_load_include('inc', 'calendar', 'includes/calendar');
     
     // Transfer the style options to the view object so they
     // can be easily accessed in the theme.
