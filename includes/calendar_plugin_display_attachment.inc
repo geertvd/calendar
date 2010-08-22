@@ -157,14 +157,13 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
   }
   
   /**
-   * Set default values for the display.
+   * Override some of the parent options.
    */
   function options(&$display) {
     parent::options($display);
-    $display->display_options['inherit_argments'] = TRUE;
-    $display->display_options['inherit_filters'] = TRUE;
-    $display->display_options['attachment_position'] = 'after';
-    $display->display_options['calendar_type'] = $this->calendar_type();
+    $display['inherit_argments'] = TRUE;
+    $display['inherit_filters'] = TRUE;
+    $display['attachment_position'] = 'after';
   }  
 
   /**
