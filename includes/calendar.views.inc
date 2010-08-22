@@ -80,12 +80,6 @@ function calendar_views_plugins() {
   $data = array(
     'module' => 'calendar', // This just tells our themes are elsewhere.
     'display' => array(
-      'calendar_attachment' => array(
-        'handler' => 'calendar_plugin_display_attachment',
-        'path' => "$module_path/includes",
-        'parent' => 'attachment',
-        //'no ui' => TRUE,
-        ),
       // Main calendar display plugin.
       'calendar' => array(
         'title' => t('Calendar page'),
@@ -134,8 +128,8 @@ function calendar_views_plugins() {
         'path' => "$module_path/includes",
         'parent' => 'attachment',
         'theme' => 'views_view',
-        //'no ui' => TRUE,
-        //'no remove' => TRUE,
+        'no ui' => TRUE,
+        'no remove' => TRUE,
         'use ajax' => TRUE,
         'use pager' => TRUE,
         'admin' => t('Calendar page year, month, week, or day view'),

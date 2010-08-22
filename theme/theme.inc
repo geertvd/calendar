@@ -152,7 +152,7 @@ function template_preprocess_calendar(&$vars) {
   
   // Create the calendar day names and rows.
   $rows = calendar_build_calendar($view, $items);
-  
+
   $vars['items'] = $items;
   $vars['rows'] = $rows;
   
@@ -171,7 +171,6 @@ function template_preprocess_calendar_month(&$vars) {
   $view = $vars['view'];
   
   $rows = $vars['rows'];
-    
   if (sizeof($rows) > 1) {
     $day_names = array_shift($rows);
   }
@@ -357,7 +356,11 @@ function template_preprocess_calendar_day(&$vars) {
         $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
       }
       $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_' . $view->date_info->granularity . '_node';
-      $grouped_items[$start_time]['values'][$column][] = theme($theme, $item, $view);
+      $variables = array(
+        'node' => $item, 
+        'view' => $view,
+      );
+      $grouped_items[$start_time]['values'][$column][] = theme($theme, $variables);
       $item_count++;
       $by_hour_count++;
     }
@@ -379,7 +382,12 @@ function template_preprocess_calendar_day(&$vars) {
   $start_times = array_keys($grouped_items);
   foreach ($start_times as $start_time) {
     $next_start_time = array_key_exists($i + 1, $start_times) ? $start_times[$i + 1] : '23:59:59';
-    $heading = theme('calendar_time_row_heading', $start_time, $next_start_time, $rows['date']);
+    $variables = array(
+      'start_time' => $start_time, 
+      'next_start_time' => $next_start_time, 
+      'curday_date' => $rows['date'],
+    );
+    $heading = theme('calendar_time_row_heading', $variables);
     $grouped_items[$start_time]['hour'] = $heading['hour'];
     $grouped_items[$start_time]['ampm'] = $heading['ampm']; 
     $i++;      
@@ -456,7 +464,11 @@ function template_preprocess_calendar_week(&$vars) {
     $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
     foreach ($row['data']['all_day'] as $key => $item) {
       $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_' . $view->date_info->granularity . '_node';
-      $vars['rows'][$weekno]['all_day'][$key] = theme($theme, $item, $view);
+      $variables = array(
+        'node' => $item,
+        'view' => $view,
+      );
+      $vars['rows'][$weekno]['all_day'][$key] = theme($theme, $variables);
       $item_count++;
     }
     foreach ($row['data']['items'] as $time => $items) {
@@ -471,7 +483,11 @@ function template_preprocess_calendar_week(&$vars) {
           $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
         }
         $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_' . $view->date_info->granularity . '_node';
-        $grouped_items[$start_time]['values'][$weekno][] = theme($theme, $item, $view);
+        $variables = array(
+          'node' => $item,
+          'view' => $view,
+        );
+        $grouped_items[$start_time]['values'][$weekno][] = theme($theme, $variables);
         $item_count++; 
         $by_hour_count++; 
       }
@@ -495,7 +511,12 @@ function template_preprocess_calendar_week(&$vars) {
   $start_times = array_keys($grouped_items);
   foreach ($start_times as $start_time) {
     $next_start_time = array_key_exists($i + 1, $start_times) ? $start_times[$i + 1] : '23:59:59';
-    $heading = theme('calendar_time_row_heading', $start_time, $next_start_time, $row['data']['date']);
+    $variables = array(
+      'start_time' => $start_time, 
+      'next_start_time' => $next_start_time, 
+      'curday_date' => $row['data']['date'],
+    );
+    $heading = theme('calendar_time_row_heading', $variables);
     $grouped_items[$start_time]['hour'] = $heading['hour'];
     $grouped_items[$start_time]['ampm'] = $heading['ampm'];       
   }
@@ -702,7 +723,12 @@ function theme_calendar_stripe_legend() {
     }
   }
   if (!empty($rows)) {
-    $output .= theme('table', $header, $rows, array('class' => 'mini calendar-legend'));
+    $variables = array(
+      'header' => $header, 
+      'rows' => $rows, 
+      'attributes' => array('class' => 'mini calendar-legend'),
+    );
+    $output .= theme('table', $variables);
   }
   return $output;
 }
