@@ -8,12 +8,14 @@
   margin:0 auto;
   padding:0;
   width: 100%; /* Setting at 100% causes problem in Internet Explorer. */
+  clear:both;
 }
 .calendar-calendar .month-view table {
   border:none;
   padding:0;
   margin:0;
   width:100%;
+  clear: both;
 }
 
   /* IE needs a little help to get the side by side tables to the right size */
@@ -291,7 +293,6 @@ table.calendar-legend tr.even .stripe {
 .calendar-calendar div.date-nav {
   background-color:#ccc;
   color:#777;
-  padding:0.2em;
   width:auto;
   border:1px solid #ccc;
 }

@@ -48,26 +48,31 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     return parent::defaultable_sections($section);
   }
 
+  /**
+   * Override some of the parent options.
+   */
   function options(&$display) {
     parent::options($display);
-    $display->display_options['displays'] = array();
-    $display->display_options['style_plugin'] = 'calendar_nav';
-    $display->display_options['items_per_page'] = 0;
-    $display->display_options['row_plugin'] = '';
-    $display->display_options['defaults']['style_plugin'] = FALSE;
-    $display->display_options['defaults']['style_options'] = FALSE;
-    $display->display_options['defaults']['row_plugin'] = FALSE;
-    $display->display_options['defaults']['row_options'] = FALSE;
-    $display->display_options['defaults']['items_per_page'] = FALSE;
+    $display['displays'] = array();
+    $display['style_plugin'] = 'calendar_nav';
+    $display['items_per_page'] = 0;
+    $display['row_plugin'] = '';
+    $display['defaults']['style_plugin'] = FALSE;
+    $display['defaults']['style_options'] = FALSE;
+    $display['defaults']['row_plugin'] = FALSE;
+    $display['defaults']['row_options'] = FALSE;
+    $display['defaults']['items_per_page'] = FALSE;
   } 
   
+  /**
+   * Add custom option definitions.
+   */  
   function option_definition() {
     $options = parent::option_definition();
     $options['calendar_colors'] = array('default' => array());
     $options['calendar_colors_vocabulary'] = array('default' => array());
     $options['calendar_colors_taxonomy'] = array('default' => array());
     $options['calendar_popup'] = array('default' => 0);
-    $options['style_plugin'] = array('default' => 'calendar_nav');
     return $options;
   }
 
