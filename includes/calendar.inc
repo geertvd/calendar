@@ -1,6 +1,6 @@
 <?php
 // $Id$
-echo 'HERE';
+
 /**
  * @file
  * Calendar building functions for the Calendar module.
