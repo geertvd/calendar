@@ -80,8 +80,12 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     // It is very important to call the parent function here:
     parent::options_summary($categories, $options);
 
+    $variables = array(
+      'module' => 'calendar', 
+      'topic' => 'settings',
+    );
     $categories['calendar_settings'] = array(
-      'title' => theme('advanced_help_topic', 'calendar', 'settings') . t('Calendar settings'),
+      'title' => theme('advanced_help_topic', $variables) . t('Calendar settings'),
     );
     
     $colors = $this->get_option('calendar_colors');

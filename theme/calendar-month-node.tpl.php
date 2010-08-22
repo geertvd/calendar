@@ -40,7 +40,7 @@
 ?>
 <div class="view-item view-item-<?php print $view->name ?>">
   <div class="calendar monthview" id="<?php print $node->date_id ?>">
-    <?php print theme('calendar_stripe_stripe', $node); ?>
+    <?php print theme('calendar_stripe_stripe', array('node' => $node)); ?>
     <?php foreach ($fields as $field): ?>
       <div id="<?php print $field['id']; ?>" class="view-field view-data-<?php print $field['id'] ?>">
         <?php if ($field['label']): ?>

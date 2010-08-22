@@ -21,6 +21,6 @@
 <div class="calendar-calendar">
   <?php if (!empty($calendar_popup)) print $calendar_popup;?>
   <?php if (!empty($calendar_add_date)) print $calendar_add_date; ?>
-  <?php if (empty($block)) print theme('links', $calendar_links);?>
-  <?php print theme('date_navigation', $view) ?>
+  <?php if (empty($block)) print theme('links', array('links' => $calendar_links));?>
+  <?php print theme('date_navigation', array('view' => $view)) ?>
 </div>

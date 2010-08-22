@@ -27,7 +27,11 @@ function calendar_ical_theme() {
 
 function theme_calendar_ical_icon($vars) {
   $url = $vars['url'];
-  if ($image = theme('image', drupal_get_path('module', 'date_api') . '/images/ical16x16.gif', t('Add to calendar'), t('Add to calendar'))) {
+  $variables = array(
+    'path' => drupal_get_path('module', 'date_api') . '/images/ical16x16.gif', 
+    'title' => t('Add to calendar'), t('Add to calendar'),
+  );
+  if ($image = theme('image', $variables)) {
     return '<div style="text-align:right"><a href="' . check_url($url) . '" class="ical-icon" title="ical">' . $image . '</a></div>';
   }
 }

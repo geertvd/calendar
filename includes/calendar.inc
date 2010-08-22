@@ -119,10 +119,14 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
     ($view->date_info->mini ? ' mini' : ''));
     if ($check_month && ($curday_date < $view->date_info->min_date_date || $curday_date > $view->date_info->max_date_date || date_format($curday, 'n') != $month)) {
       $class .= ' empty';
+      $variables = array(
+        'curday_date' => $curday_date, 
+        'view' => $view,
+      );
       $content = array(
         'date' => '', 
         'datebox' => '', 
-        'empty' => theme('calendar_empty_day', $curday_date, $view), 
+        'empty' => theme('calendar_empty_day', $variables), 
         'link' => '',
         'all_day' => array(), 
         'items' => array(),
@@ -169,12 +173,16 @@ function calendar_build_day($curday, $view, $items) {
             // Day and week views need to do more processing before rendering
             // the item, so just past them the unrendered item.
             $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_' . $view->date_info->granularity . '_node';
+            $variables = array(
+              'item' => $item, 
+              'view' => $view,
+            );
             if ($item->calendar_all_day) {
-              $all_day[] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, $item, $view);
+              $all_day[] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, $variables);
             }
             else {
               $key = date_format($item->calendar_start_date, 'H:i:s');
-              $inner[$key][] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, $item, $view);
+              $inner[$key][] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, $variables);
             }
           }
         }
@@ -183,19 +191,35 @@ function calendar_build_day($curday, $view, $items) {
   }
   ksort($inner);
   if (empty($inner) && empty($all_day)) {
-    $empty = theme('calendar_empty_day', $curday_date, $view);
+    $variables = array(
+      'curday_date' => $curday_date, 
+      'view' => $view,
+    );
+    $empty = theme('calendar_empty_day', $variables);
   }
   // we have too many events on this day. use the theme('calendar_multiple_')
   if ($max_events > 0 && $count > $max_events && $view->date_info->calendar_type != 'day' && !$view->date_info->mini) {
+    $variables = array(
+      'curday_date' => $curday_date, 
+      'count' => $count, 
+      'view' => $view, 
+      'types' => $types,
+    );
     if ($view->date_info->style_max_items_behavior == 'hide') {
       $inner = array();
     }
-    $link = theme('calendar_' . $view->date_info->calendar_type . '_multiple_node', $curday_date, $count, $view, $types);
+    $link = theme('calendar_' . $view->date_info->calendar_type . '_multiple_node', $variables);
   }
-    
+  
+  $variables = array(
+    'curday_date' => $curday_date, 
+    'view' => $view, 
+    'items' => $items, 
+    'selected' => $selected,
+  );  
   $content = array(
     'date' => $curday_date, 
-    'datebox' => theme('calendar_datebox', $curday_date, $view, $items, $selected), 
+    'datebox' => theme('calendar_datebox', $variables), 
     'empty' => $empty,
     'link' => $link,
     'all_day' => $all_day,

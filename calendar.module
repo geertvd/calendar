@@ -10,7 +10,7 @@ define('CALENDAR_HIDE_ALL', -1);
  */
 function calendar_views_api() {
   return array(
-    'api' => 2,
+    'api' => 3.0,
     'path' => drupal_get_path('module', 'calendar') . '/includes',
   );
 }
@@ -443,7 +443,11 @@ function theme_calendar_colorpicker($element) {
 
   $output = '';
   $output .= '<div id="' . $element['#id'] . '" ' . drupal_attributes($element['#attributes']) . ' ></div>';
-  return theme('form_element', $element, $output);
+  $variables = array(
+    'element' => $element, 
+    '#markup' => $output,
+  );
+  return theme('form_element', $variables);
 }
 
 /**
@@ -457,7 +461,11 @@ function theme_calendar_colorfield($element) {
     $element['#attributes']['class'] .= ' edit-' . str_replace("_", "-", $element['#calendar_colorpicker']);
   }
   $output .= '<input type="text" name="' . $element['#name'] . '" id="' . $element['#id'] . '" ' . $maxlength . $size . ' value="' . check_plain($element['#value']) . '"' . drupal_attributes($element['#attributes']) . ' />';
-  return theme('form_element', $element, $output);
+  $variables = array(
+    'element' => $element, 
+    '#markup' => $output,
+  );
+  return theme('form_element', $variables);
 }
 
 /**

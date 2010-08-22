@@ -80,37 +80,11 @@ function calendar_views_plugins() {
   $data = array(
     'module' => 'calendar', // This just tells our themes are elsewhere.
     'display' => array(
-      // Parents are not really displays, just needed so the files can
-      // be included.
-      'parent' => array(
-        'no ui' => TRUE,
-        'handler' => 'views_plugin_display',
-        'path' => "$views_path/plugins",
-        'parent' => '',
-      ),
-      'page' => array(
-        'no ui' => TRUE,
-        'handler' => 'views_plugin_display_page',
-        'path' => "$views_path/plugins",
-        'parent' => 'parent',
-      ),
-      'block' => array(
-        'no ui' => TRUE,
-        'handler' => 'views_plugin_display_block',
-        'path' => "$views_path/plugins",
-        'parent' => 'parent',
-      ),
-      'attachment' => array(
-        'no ui' => TRUE,
-        'handler' => 'views_plugin_display_attachment',
-        'path' => "$views_path/plugins",
-        'parent' => 'parent',
-      ),
       'calendar_attachment' => array(
         'handler' => 'calendar_plugin_display_attachment',
         'path' => "$module_path/includes",
         'parent' => 'attachment',
-        'no ui' => TRUE,
+        //'no ui' => TRUE,
         ),
       // Main calendar display plugin.
       'calendar' => array(
@@ -161,8 +135,8 @@ function calendar_views_plugins() {
         'file' => 'calendar_plugin_display_attachment.inc',
         'parent' => 'calendar_attachment',
         'theme' => 'views_view',
-        'no ui' => TRUE,
-        'no remove' => TRUE,
+        //'no ui' => TRUE,
+        //'no remove' => TRUE,
         'use ajax' => TRUE,
         'use pager' => TRUE,
         'admin' => t('Calendar page year, month, week, or day view'),
@@ -217,5 +191,6 @@ function calendar_views_plugins() {
       ),
     ),
   );
+
   return $data;
 }

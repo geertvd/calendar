@@ -159,7 +159,7 @@ class calendar_plugin_style extends views_plugin_style {
    * Render the calendar navigation style.
    */
   function render() {
-    return theme($this->theme_functions(), $this->view, $this->options, array());
+    return theme($this->theme_functions(), array('view' => $this->view, 'options' => $this->options, 'items' => array()));
   }
 }
 

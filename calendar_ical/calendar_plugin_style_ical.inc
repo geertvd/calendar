@@ -36,7 +36,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
     if (empty($this->view->feed_icon)) {
       $this->view->feed_icon = '';
     }
-    $this->view->feed_icon .= theme('calendar_ical_icon', $url);
+    $this->view->feed_icon .= theme('calendar_ical_icon', array('url' => $url));
 
     drupal_add_html_head_link(array(
       'rel' => 'alternate',
@@ -255,6 +255,11 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
         }
       }
     }
-    return theme($this->theme_functions(), $this->view, $this->options, $items);
+    return theme($this->theme_functions(),
+      array(
+        'view' => $this->view,
+        'options' => $this->options,
+        'items' => $items)
+      );    
   }
 }

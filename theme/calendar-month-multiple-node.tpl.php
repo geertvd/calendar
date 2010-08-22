@@ -12,7 +12,7 @@
   <div class="calendar monthview" id="<?php print $curday ?>">
     <?php foreach ($types as $type): ?>
       <?php if ($view->date_info->style_max_items_behavior != 'more'): ?>
-        <?php print theme('calendar_stripe_stripe', $type); ?>
+        <?php print theme('calendar_stripe_stripe', array('type' => $type)); ?>
       <?php endif; ?>
     <?php endforeach; ?>
     <div class="view-item <?php print drupal_clean_css_identifier('view-item-'. $view->name) ?>">

@@ -262,7 +262,12 @@ function template_preprocess_calendar_year(&$vars) {
     $view->date_info->max_date = clone($view->date_info->min_date);
     date_modify($view->date_info->max_date, '+1 month');
     date_modify($view->date_info->max_date, '-1 second');
-    $months[$month] = theme('calendar_mini', $view, $vars['options'], $month_rows);
+    $variables = array(
+      'view' => $view, 
+      'options' => $vars['options'], 
+      'month_rows' => $month_rows,
+    );
+    $months[$month] = theme('calendar_mini', $variables);
   }
   $vars['months'] = $months;
   $vars['view']->date_info->hide_nav = FALSE;
@@ -313,7 +318,11 @@ function template_preprocess_calendar_day(&$vars) {
       $column = t('Items');
     }
     $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_' . $view->date_info->granularity . '_node';
-    $grouped_items[$column][] = theme($theme, $item, $view);
+    $grouped_items[$column][] = theme($theme, 
+      array(
+        'item' => $item, 
+        'view' => $view,
+      ));
     $item_count++;
   }
   $vars['rows']['all_day'] = $grouped_items;

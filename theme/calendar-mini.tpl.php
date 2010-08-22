@@ -20,7 +20,7 @@
 ?>
 <div class="calendar-calendar"><div class="month-view">
 <?php if ($view->date_info->show_title): ?>
-  <?php print theme('date_navigation', $view); ?>
+  <?php print theme('date_navigation', array('view' => $view)); ?>
 <?php endif; ?> 
 <table class="mini">
   <thead>

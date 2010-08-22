@@ -165,6 +165,6 @@ class calendar_view_plugin_style extends calendar_plugin_style {
       $this->definition['theme'] = 'calendar_' . $this->view->date_info->granularity;
     }
     $this->view->date_info->hide_admin_links = TRUE;
-    return theme($this->theme_functions(), $this->view, $this->options, array());
+    return theme($this->theme_functions(), array('view' => $this->view, 'options' => $this->options, 'items' => array()));
   }
 }
