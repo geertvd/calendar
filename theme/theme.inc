@@ -155,7 +155,7 @@ function template_preprocess_calendar(&$vars) {
 
   $vars['items'] = $items;
   $vars['rows'] = $rows;
-  
+
   $view->date_info->calendar_processed = TRUE;
   $vars['view'] = $view;  
   $vars['mini'] = !empty($view->date_info->mini);
@@ -169,8 +169,8 @@ function template_preprocess_calendar_month(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar($vars);
   $view = $vars['view'];
-  
   $rows = $vars['rows'];
+  
   if (sizeof($rows) > 1) {
     $day_names = array_shift($rows);
   }
@@ -264,7 +264,7 @@ function template_preprocess_calendar_year(&$vars) {
     $variables = array(
       'view' => $view, 
       'options' => $vars['options'], 
-      'month_rows' => $month_rows,
+      'rows' => $month_rows,
     );
     $months[$month] = theme('calendar_mini', $variables);
   }
