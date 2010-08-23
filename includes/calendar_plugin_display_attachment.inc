@@ -22,7 +22,7 @@
  * to choose what calendar period this display represents.
  */
 class calendar_plugin_display_attachment extends views_plugin_display_attachment {
-
+  
   /**
    * Instead of going through the standard views_view.tpl.php, delegate this
    * to the style handler.

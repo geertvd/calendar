@@ -105,9 +105,12 @@ if (empty($date_fields)) {
   $date_fields = array('changed');
 }
 $colors = array();
-foreach ($types as $type) {
-  $colors[$type] = '#ffffff';
+$date_link_type = '';
+foreach ($types as $type => $label) {
+  $colors[0][$type] = '#ffffff';
+  $date_link_type = $type;
 }
+
 // Can handle core node date fields or CCK date fields.
 
 $fields = array();
@@ -155,20 +158,19 @@ if (empty($display_fields)) {
 foreach ($display_fields as $key => $value) {
   $cck_field = substr($key, 0, 6) == 'field_' ? TRUE : FALSE;
   $date_field = $cck_field && in_array($key, $date_fields) ? TRUE : FALSE;
-  $display_fields[$key]['label'] = '';
-  $display_fields[$key]['link_to_node'] = $key == 'title' ? 1 : 0;
-  $display_fields[$key]['exclude'] = 0;
-  $display_fields[$key]['id'] = $date_field ? $key . '_value' : $key;
-  $display_fields[$key]['field'] = $date_field ? $key . '_value' : $key;
-  $display_fields[$key]['table'] = $cck_field ? 'node_data_' . $key : 'node';
-  $display_fields[$key]['relationship'] = 'none';
+  $index = $cck_field ? 'entity_id' : $key;
+  $display_fields[$index]['label'] = '';
+  $display_fields[$index]['link_to_node'] = $key == 'title' ? 1 : 0;
+  $display_fields[$index]['id'] = $cck_field ? 'entity_id' : $key;
+  $display_fields[$index]['field'] = $cck_field ? 'entity_id' : $key;
+  $display_fields[$index]['table'] = $cck_field ? 'field_data_' . $key : 'node';
+  $display_fields[$index]['relationship'] = 'none';
   if (in_array($key, array('changed'))) {
-    $display_fields[$key]['date_format'] = 'small';
+    $display_fields[$index]['date_format'] = 'small';
   }
   elseif ($cck_field) {
-    $display_fields[$key]['label_type'] = 'none';
-    $display_fields[$key]['format'] = 'time';
-    $display_fields[$key]['multiple'] = array(
+    $display_fields[$index]['type'] = 'short';
+    $display_fields[$index]['multiple'] = array(
       'group' => 0,
       'multiple_number' => '',
       'multiple_from' => '',
@@ -176,8 +178,8 @@ foreach ($display_fields as $key => $value) {
       );
   }
   // Upcoming and iCal fields should display the whole date, not just time.
-  $upcoming_fields[$key] = $display_fields[$key];
-  $upcoming_fields[$key]['format'] = 'default';
+  $upcoming_fields[$index] = $display_fields[$index];
+  $upcoming_fields[$index]['type'] = 'long';
 }
 
 $filters = array(
@@ -201,7 +203,7 @@ if (!empty($types)) {
   $filters += array(
     'type' => array(
     'operator' => 'in',
-    'value' => drupal_map_assoc($types),
+    'value' => drupal_map_assoc(array_keys($types)),
     'group' => '0',
     'exposed' => FALSE,
     'expose' => array(
@@ -305,6 +307,12 @@ $handler->override_option('access', array(
   'perm' => '',
 ));
 $handler->override_option('title', 'Calendar');
+if (!empty($header)) {
+  $handler->override_option('header', $header);
+  // The only format we can be sure of is filtered.
+  $handler->override_option('header_format', '1');
+}
+$handler->override_option('header_empty', 1);
 $handler->override_option('items_per_page', 0);
 $handler->override_option('use_more', 0);
 $handler->override_option('style_plugin', 'calendar_nav');
@@ -327,7 +335,10 @@ $handler->override_option('tab_options', array(
   'weight' => 0,
 ));
 $handler->override_option('calendar_colors', array($colors));
-
+$handler->override_option('calendar_colors_vocabulary', array());
+$handler->override_option('calendar_colors_taxonomy', array());
+$handler->override_option('calendar_popup', 0);
+$handler->override_option('calendar_date_link', $date_link_type);
 // Calendar block.
 $handler = $view->new_display('calendar_block', 'Calendar block', 'calendar_block_1');
 $handler->override_option('style_options', array());
@@ -341,8 +352,6 @@ $handler->override_option('style_options', array(
   'display_type' => 'year',
   'name_size' => 1,
   'max_items' => 0,
-  'truncated_fields' => array(),
-  'truncate_length' => '',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
@@ -363,8 +372,6 @@ $handler->override_option('style_options', array(
   'with_weekno' => '1',
   'date_fields' => NULL,
   'max_items' => 0,
-  'truncated_fields' => array(),
-  'truncate_length' => '',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
@@ -387,8 +394,6 @@ $handler->override_option('style_options', array(
   'groupby_times' => 'hour',
   'groupby_times_custom' => '',
   'groupby_field' => '',
-  'truncated_fields' => array(),
-  'truncate_length' => '',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
@@ -411,8 +416,6 @@ $handler->override_option('style_options', array(
   'groupby_times' => 'hour',
   'groupby_times_custom' => '',
   'groupby_field' => '',
-  'truncated_fields' => array(),
-  'truncate_length' => '',
 ));
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
@@ -456,7 +459,7 @@ $handler->override_option('style_options', array(
   'location_field' => '',
 ));
 $handler->override_option('row_plugin', '');
-$handler->override_option('path', $path . '/ical');
+$handler->override_option('path', $path .'/ical');
 $handler->override_option('menu', array(
   'type' => 'none',
   'title' => '',
@@ -488,8 +491,10 @@ $handler->override_option('style_options', array(
   'grouping' => '',
   'type' => 'ul',
 ));
+$handler->override_option('title', 'Upcoming');
 $handler->override_option('block_description', 'Upcoming');
 $handler->override_option('block_caching', -1);
 
 return $view;
+
 }

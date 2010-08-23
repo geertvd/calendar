@@ -112,6 +112,7 @@ class calendar_plugin_style extends views_plugin_style {
   function query() {
     module_load_include('inc', 'date_api', 'date_api_sql');
   
+    //$this->view->date_info->display_types = $this->display_types();
     $style_options = $this->view->style_plugin->options;
     
     // Evaluate our argument values and figure out which 
