@@ -337,16 +337,17 @@ function calendar_build_nodes(&$view, &$items) {
     $tz_alias     = str_replace('.', '_', $field['timezone_field']);
     $db_tz        = date_get_timezone_db($field['tz_handling']);
     $local_tz     = date_get_timezone($field['tz_handling'], 'date');
-    $field_name = $field['field_name'];
-        
+    $field_name   = $field['field_name'];
+    $real_field   = $field['real_field_name'];
+    
     // If there is no field for this item, just default to the site format.
     if (!isset($view->field[$field_name])) {
       $format = variable_get('date_format_short', 'm/d/Y - H:i');
     }
     else {
       if (strstr($field['type'], 'cck')) {
-        $format = $view->field[$field_name]->options['format'];
-        $cck_field_name = str_replace(array('_value2', '_value'), '', $field_name);
+        $format = $view->field[$field_name]->options['type'];
+        $cck_field_name = $real_field;
         $format = date_formatter_format($format, $cck_field_name);
       }
       else {
@@ -377,10 +378,6 @@ function calendar_build_nodes(&$view, &$items) {
     $processed = array();
     foreach ($items as $pos => $item) {
       $delta = !empty($field['delta_field']) && !empty($item->{$field['delta_field']}) ? $item->{$field['delta_field']} : 0;
-      $real_field = $field_name;
-      if (substr($field['type'], 0, 3) == 'cck') {
-        $real_field = str_replace(array('_value2', '_value'), '', $field_name);
-      }
       $id = 'calendar:' . $item->nid . ':' . $real_field . ':' . $delta;
       if (!in_array($id, $processed) && isset($item->calendar_fields->$alias)) {
         // Create from and to date values for each item, adjusted to

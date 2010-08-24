@@ -132,7 +132,7 @@ function template_preprocess_calendar(&$vars) {
   $vars['display_type'] = $view->date_info->granularity;
   $vars['min_date_formatted'] = date_format($view->date_info->min_date, DATE_FORMAT_DATETIME);
   $vars['max_date_formatted'] = date_format($view->date_info->max_date, DATE_FORMAT_DATETIME);
-  
+
   // Massage the resulting items into formatted calendar items.
   $items = calendar_build_nodes($view, $items);
   
@@ -166,12 +166,17 @@ function template_preprocess_calendar(&$vars) {
  * Display a month view.
  */
 function template_preprocess_calendar_month(&$vars) {
+  
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar($vars);
   $view = $vars['view'];
   $rows = $vars['rows'];
-  
-  if (sizeof($rows) > 1) {
+
+  if (empty($rows)) {
+    $rows = array();
+    $day_names = array();
+  } 
+  elseif (sizeof($rows) > 1) {
     $day_names = array_shift($rows);
   }
   else {
