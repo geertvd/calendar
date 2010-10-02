@@ -346,9 +346,8 @@ function calendar_build_nodes(&$view, &$items) {
     }
     else {
       if (strstr($field['type'], 'cck')) {
-        $format = $view->field[$field_name]->options['type'];
-        $cck_field_name = $real_field;
-        $format = date_formatter_format($format, $cck_field_name);
+        $formatter = $view->field[$field_name]->options['type'];
+        $format = date_formatter_format($formatter, $view->field[$field_name]->options['type']);
       }
       else {
         $format = $view->field[$field_name]->options['date_format'];
