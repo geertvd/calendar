@@ -394,7 +394,7 @@ function calendar_build_nodes(&$view, &$items) {
         $values_display = array();
         
         // Start date
-        $date = date_make_date($values[0], $db_tz, $field['sql_type']);
+        $date = new DateObject($values[0], $db_tz, date_type_format($field['sql_type']));
         if ($db_tz != $to_zone) {
           date_timezone_set($date, timezone_open($to_zone));
         }
@@ -409,7 +409,7 @@ function calendar_build_nodes(&$view, &$items) {
         }
             
         // End date
-        $date = date_make_date($values[1], $db_tz, $field['sql_type']);
+        $date = new DateObject($values[1], $db_tz, date_type_format($field['sql_type']));
         if ($db_tz != $to_zone) {
           date_timezone_set($date, timezone_open($to_zone));
         }
@@ -442,7 +442,7 @@ function calendar_build_nodes(&$view, &$items) {
         // limited to the view's date range (regarding only day, not time).
         $now = max($min_zone_string[$display_timezone_name], substr($values_display[0], 0, 10));
         $to  = min($max_zone_string[$display_timezone_name], substr($values_display[1], 0, 10));
-        $next = date_make_date($now, $display_timezone);
+        $next = new DateObject($now, $display_timezone);
         if ($display_timezone_name != $to_zone) {
           // Make $start and $end (derived from $node) use the timezone $to_zone, just as $values[..] do
           date_timezone_set($next, timezone_open($to_zone));

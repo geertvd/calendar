@@ -262,7 +262,7 @@ function template_preprocess_calendar_year(&$vars) {
     $view->date_info->hide_nav = TRUE;
     $view->date_info->show_title = TRUE;
     $view->date_info->url = date_real_url($view, NULL, date_pad($year, 4) . '-' . date_pad($month));
-    $view->date_info->min_date = date_make_date($view->date_info->year . '-' . date_pad($month) . '-01 00:00:00', date_default_timezone());
+    $view->date_info->min_date = new DateObject($view->date_info->year . '-' . date_pad($month) . '-01 00:00:00', date_default_timezone());
     $view->date_info->max_date = clone($view->date_info->min_date);
     date_modify($view->date_info->max_date, '+1 month');
     date_modify($view->date_info->max_date, '-1 second');
