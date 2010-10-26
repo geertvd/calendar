@@ -394,7 +394,7 @@ function calendar_build_nodes(&$view, &$items) {
         $values_display = array();
         
         // Start date
-        $date = new DateObject($values[0], $db_tz, date_type_format($field['sql_type']));
+        $date = new DateObject($values[0], $db_tz);
         if ($db_tz != $to_zone) {
           date_timezone_set($date, timezone_open($to_zone));
         }
@@ -409,7 +409,7 @@ function calendar_build_nodes(&$view, &$items) {
         }
             
         // End date
-        $date = new DateObject($values[1], $db_tz, date_type_format($field['sql_type']));
+        $date = new DateObject($values[1], $db_tz);
         if ($db_tz != $to_zone) {
           date_timezone_set($date, timezone_open($to_zone));
         }
