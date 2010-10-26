@@ -38,16 +38,16 @@ function template_preprocess_calendar_main(&$vars) {
   $calendar_links = array();
   $base = array('attributes' => array('rel' => 'nofollow'));
   if (!empty($displays['year'])) {
-    $calendar_links[] = $base + array('title' => date_t('Year', 'datetime'), 'href' => date_real_url($view, 'year'));
+    $calendar_links[] = $base + array('title' => t('Year', array(), array('context' => 'datetime')), 'href' => date_real_url($view, 'year'));
   }
   if (!empty($displays['month'])) {
-    $calendar_links[] = $base + array('title' => date_t('Month', 'datetime'), 'href' => date_real_url($view, 'month'));
+    $calendar_links[] = $base + array('title' => t('Month', array(), array('context' => 'datetime')), 'href' => date_real_url($view, 'month'));
   }
   if (!empty($displays['week'])) {
-    $calendar_links[] = $base + array('title' => date_t('Week', 'datetime'), 'href' => date_real_url($view, 'week'));
+    $calendar_links[] = $base + array('title' => t('Week', array(), array('context' => 'datetime')), 'href' => date_real_url($view, 'week'));
   }
   if (!empty($displays['day'])) {
-    $calendar_links[] = $base + array('title' => date_t('Day', 'datetime'), 'href' => date_real_url($view, 'day'));
+    $calendar_links[] = $base + array('title' => t('Day', array(), array('context' => 'datetime')), 'href' => date_real_url($view, 'day'));
   }
   $vars['calendar_links'] = $calendar_links;
     

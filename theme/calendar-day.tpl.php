@@ -47,7 +47,7 @@
   <tbody>
     <tr>
       <td class="<?php print $agenda_hour_class ?>">
-         <span class="calendar-hour"><?php print $by_hour_count > 0 ? date_t('All day', 'datetime') : ''; ?></span>
+         <span class="calendar-hour"><?php print $by_hour_count > 0 ? t('All day', array(), array('context' => 'datetime')) : ''; ?></span>
        </td>
       <?php foreach ($columns as $column): ?>
        <td class="calendar-agenda-items">
