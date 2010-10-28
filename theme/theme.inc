@@ -61,7 +61,7 @@ function template_preprocess_calendar_main(&$vars) {
   if (!empty($view->date_info->calendar_date_link) && user_access('create ' . $view->date_info->calendar_date_link . ' content')) {
     $name = node_type_get_name($view->date_info->calendar_date_link);
     $href = 'node/add/' . str_replace('_', '-', $view->date_info->calendar_date_link);
-    $query = 'destination=' . $view->date_info->url;    
+    $query = drupal_get_query_parameters(array('destination' => $view->date_info->url));    
     $vars['calendar_links'][] = $base + array(
       'title' => t('Add+'), 
       'href' => $href, 
