@@ -70,6 +70,10 @@ class calendar_plugin_style extends views_plugin_style {
    */
   function validate() {
     $errors = parent::validate();
+    
+    // @TODO Add validation back once view is working again.
+    return;
+    
     if (empty($this->display->display_options['style_plugin'])) {
       return $errors;
     }

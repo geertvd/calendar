@@ -26,6 +26,9 @@ class calendar_plugin_display_block extends views_plugin_display_block {
   function validate() {
     $errors = parent::validate();
     
+    // @TODO Add validation back once view is working again.
+    return;    
+    
     $arguments = $this->display->handler->get_option('arguments');
     if (!in_array('date_argument', array_keys($arguments))) {
       if (empty($this->view->date_info->arg_missing)) {
