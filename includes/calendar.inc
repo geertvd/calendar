@@ -309,6 +309,7 @@ function calendar_build_nodes(&$view, &$items) {
 
   $datefields = array();
   $fields = date_api_fields();
+
   if (!empty($view->filter['date_filter'])) {
     $date_filter = $view->filter['date_filter'];
     foreach ($view->filter['date_filter']->options['date_fields'] as $name) {
@@ -327,7 +328,8 @@ function calendar_build_nodes(&$view, &$items) {
   $nodes = array();
   $i = 0;
   foreach ($date_filter->options['date_fields'] as $name) {
-    $field = $fields['name'][$name];
+
+    $field        = $fields['name'][$name];
     $field_type   = strstr($field['type'], 'string') ? 'string' : 'timestamp';
     $alias        = $field['query_name'];
     $field_name   = $field['field_name'];
@@ -379,6 +381,7 @@ function calendar_build_nodes(&$view, &$items) {
       $delta = !empty($field['delta_field']) && !empty($item->{$field['delta_field']}) ? $item->{$field['delta_field']} : 0;
       $id = 'calendar:' . $item->nid . ':' . $real_field . ':' . $delta;
       if (!in_array($id, $processed) && isset($item->calendar_fields->$alias)) {
+        
         // Create from and to date values for each item, adjusted to
         // the correct timezone.
         $values[0] = $item->calendar_fields->$fromto[0];
