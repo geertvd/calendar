@@ -126,6 +126,9 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     return array(0 => t('No'), 1 => t('Yes'));
   }
    
+  /**
+   * @TODO Figure out how to get the colorpicker working in D7.
+   */ 
   function options_form(&$form, &$form_state) {
     // It is very important to call the parent function here:
     parent::options_form($form, $form_state);
@@ -147,13 +150,9 @@ class calendar_plugin_display_page extends views_plugin_display_page {
         $form['#title'] .= t('Content Type Legend Colors');
         $form['calendar_colors']['#tree'] = TRUE;
         $form['calendar_colors']['#prefix'] = t('<div class="form-item"><label>Content Type</label><p>Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Types with empty values will have no stripe in the calendar and will not be added to the legend.</p></div>');
-        $form['calendar_colors']['colorpicker'] = array(
-          '#type' => 'calendar_colorpicker',
-          '#prefix' => '<div class="clear-block"><div style="float:left">',
-          '#suffix' => '</div>',
-        );
-        $colors = $this->get_option('calendar_colors'); 
-
+        
+        $colors = $this->get_option('calendar_colors');   
+        
         switch ($method) {
           case 'types':
             $color_types = node_type_get_names();
@@ -162,14 +161,12 @@ class calendar_plugin_display_page extends views_plugin_display_page {
         foreach ($color_types as $key => $name) {
           $form['calendar_colors']['color'][$key] = array(
             '#title' => $name,
-            '#type' => 'calendar_colorfield',
+            '#type' => 'textfield',
             '#default_value' => isset($colors[$key]) ? $colors[$key] : '#ffffff',
-            '#calendar_colorpicker' => 'calendar-colors-colorpicker',
-            '#prefix' => '<div style="float:left;margin-right:10px">',
-            '#suffix' => '</div>',
+            '#size' => 7,
+            '#maxlength' => 7,
           );
         }
-        $form['calendar_colors']['color']['#suffix'] = '</div>';
         break;
 
       case 'calendar_colors_vocabulary':
@@ -199,25 +196,21 @@ class calendar_plugin_display_page extends views_plugin_display_page {
         }
         $form['calendar_colors_taxonomy']['#prefix'] .= t('<div class="form-item"><label>Taxonomy Terms</label><p>Set a hex color value (like #ffffff) to use in the calendar legend for each taxonomy term. Terms with empty values will have no stripe in the calendar and will not be added to the legend.</p></div>');
         $form['calendar_colors_taxonomy']['#tree'] = TRUE;
-        $form['calendar_colors_taxonomy']['colorpicker'] = array(
-          '#type' => 'calendar_colorpicker',
-          '#prefix' => '<div class="clear-block"><div style="float:left">',
-          '#suffix' => '</div>',
-        );
+
+        $colors = $this->get_option('calendar_colors'); 
+
         foreach ($taxonomies as $vid => $taxonomy) {
           $vocab = taxonomy_get_tree($vid);
           foreach ($vocab as $tid => $term) {
             $form['calendar_colors_taxonomy']['color'][$term->tid] = array(
               '#title' => t($term->name),
-              '#type' => 'calendar_colorfield',
+              '#type' => 'textfield',
               '#default_value' => isset($colors_taxonomy[$term->tid]) ? $colors_taxonomy[$term->tid] : '#ffffff',
-              '#calendar_colorpicker' => 'calendar-colors-taxonomy-colorpicker',
-              '#prefix' => '<div style="float:left;margin-right:10px">',
-              '#suffix' => '</div>',
-              );
+              '#size' => 7,
+              '#maxlength' => 7,
+            );
           }
         }
-        $form['calendar_colors_taxonomy']['color']['#suffix'] = '</div>';
         break;
     }
   }
