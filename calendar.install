@@ -46,10 +46,10 @@ function calendar_uninstall() {
   $result = db_query("SELECT DISTINCT vid FROM {views_display} WHERE display_plugin IN ('" . implode("','", $displays) . "')");
   foreach ($result as $row) {
     db_delete('views_view')
-      ->condition('vid', $row['vid'])
+      ->condition('vid', $row->vid)
       ->execute();
     db_delete('views_display')
-      ->condition('vid', $row['vid'])
+      ->condition('vid', $row->vid)
       ->execute();
   }
   db_delete('cache_views')
