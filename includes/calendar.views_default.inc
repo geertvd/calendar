@@ -38,7 +38,6 @@ function calendar_views_default_views() {
   // Then see if there are any custom calendars to be created 
   // using variable_get().
   $calendar_options = variable_get('calendar_default_view_options', array());
-  
   foreach ((array) $calendar_options as $calendar_option) {
     $view = calendar_views_construct($calendar_option);
     $views[$view->name] = $view;
@@ -171,6 +170,7 @@ foreach ($display_fields as $key => $value) {
       'multiple_to' => '',
       'show_repeat_rule' => 'show',
       );
+    unset($display_fields[$key]);  
   }
   // Upcoming and iCal fields should display the whole date, not just time.
   $upcoming_fields[$index] = $display_fields[$index];
@@ -178,8 +178,8 @@ foreach ($display_fields as $key => $value) {
 }
 
 $view = new view;
-$view->name = 'calendar';
-$view->description = 'A multi-dimensional calendar view with back/next navigation.';
+$view->name = $name;
+$view->description = $description;
 $view->tag = 'Calendar';
 $view->base_table = 'node';
 $view->api_version = '3.0-alpha1';
