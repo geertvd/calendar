@@ -93,10 +93,7 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
    * Display validation.
    */
   function validate() {
-    $errors = parent::validate();
-    
-    // @TODO Add validation back once view is working again.
-    return;    
+    $errors = parent::validate();  
     
     $arguments = $this->display->handler->get_option('arguments');
     if (!in_array('date_argument', array_keys($arguments))) {
