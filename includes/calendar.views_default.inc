@@ -379,6 +379,43 @@ $handler->display->display_options['filters']['date_filter']['date_fields'] = $f
 $handler->display->display_options['filters']['date_filter']['default_date'] = 'now';
 $handler->display->display_options['block_description'] = 'Upcoming';
 
+// iCal feed.
+if (module_exists('calendar_ical')) {
+/* Display: iCal feed */
+$handler = $view->new_display('calendar_ical', 'iCal feed', 'calendar_ical_1');
+$handler->display->display_options['style_plugin'] = 'ical';
+$handler->display->display_options['style_options']['mission_description'] = FALSE;
+$handler->display->display_options['style_options']['summary_field'] = 'title';
+$handler->display->display_options['defaults']['arguments'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter: Node: Published */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'node';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['value'] = 1;
+$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+/* Filter: Node: Type */
+$handler->display->display_options['filters']['type']['id'] = 'type';
+$handler->display->display_options['filters']['type']['table'] = 'node';
+$handler->display->display_options['filters']['type']['field'] = 'type';
+$handler->display->display_options['filters']['type']['value'] = $types;
+/* Filter: Date: Date (node) */
+$handler->display->display_options['filters']['date_filter']['id'] = 'date_filter';
+$handler->display->display_options['filters']['date_filter']['table'] = 'node';
+$handler->display->display_options['filters']['date_filter']['field'] = 'date_filter';
+$handler->display->display_options['filters']['date_filter']['operator'] = '>=';
+$handler->display->display_options['filters']['date_filter']['date_fields'] = $fields;
+$handler->display->display_options['filters']['date_filter']['default_date'] = 'now';
+$handler->display->display_options['path'] = $path . '/ical';
+$handler->display->display_options['displays'] = array(
+  'calendar_1' => 'calendar_1',
+  'calendar_block_1' => 'calendar_block_1',
+  'default' => 0,
+  'block_1' => 0,
+);
+
+}
+
 return $view;
 
 }

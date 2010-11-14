@@ -37,7 +37,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
       $this->view->feed_icon = '';
     }
     $this->view->feed_icon .= theme('calendar_ical_icon', array('url' => $url));
-
+  
     drupal_add_html_head_link(array(
       'rel' => 'alternate',
       'type' => 'application/calendar',
@@ -222,7 +222,6 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
     $items = array();
     $calendar_fields = date_api_fields($this->view->base_table);
     $calendar_fields = array_keys($calendar_fields['alias']);
-
     foreach ($this->view->result as $num => $row) {
       $items[$num] = $row;
       // Store the raw date values before formatting the results.
@@ -240,10 +239,10 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
         }
       }
     }
-
+    
     // Massage the resulting items into formatted calendar items.
     $items = calendar_build_nodes($this->view, $items);
-
+   
     // Merge in items from other sources.
     foreach (module_implements('calendar_add_items') as $module) {
       $function = $module . '_calendar_add_items';

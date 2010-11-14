@@ -15,8 +15,8 @@ function template_preprocess_calendar_view_ical(&$vars) {
 
   $view     = &$vars['view'];
   $options  = &$vars['options'];
-  $items    = &$vars['rows'];
-
+  $items    = &$vars['items'];
+  
   $style    = &$view->style_plugin;
 
   // Figure out which display which has a path we're using for this feed. If there isn't
@@ -32,7 +32,7 @@ function template_preprocess_calendar_view_ical(&$vars) {
   $GLOBALS['devel_shutdown'] = FALSE;
 
   drupal_add_http_header('Content-Type', 'text/calendar; charset=utf-8');
-  drupal_add_http_header('Content-Disposition: attachment; filename="calendar.ics"; ');
+  drupal_add_http_header('Content-Disposition', 'attachment; filename="calendar.ics";');
 
   module_load_include('inc', 'date_api', 'date_api_ical');
   module_load_include('inc', 'date_api', 'theme/theme');
