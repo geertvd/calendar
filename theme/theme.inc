@@ -165,7 +165,6 @@ function template_preprocess_calendar(&$vars) {
  * Display a month view.
  */
 function template_preprocess_calendar_month(&$vars) {
-  
   // Add in all the $vars added by the main calendar preprocessor.
   template_preprocess_calendar($vars);
   $view = $vars['view'];
@@ -282,7 +281,6 @@ function template_preprocess_calendar_year(&$vars) {
  * Display a day view.
  */
 function template_preprocess_calendar_day(&$vars) {
-  
   // Add in all the $vars added by the main calendar preprocessor.
   $vars['view']->style_with_weekno = FALSE;
   template_preprocess_calendar($vars);
