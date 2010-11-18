@@ -142,6 +142,7 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
       $this->view->date_info->calendar_colors = $this->view->display[$display_id]->handler->options['calendar_colors'];
       $this->view->date_info->calendar_colors_taxonomy = $this->view->display[$display_id]->handler->options['calendar_colors_taxonomy'];
       $this->view->date_info->calendar_popup = $this->view->display[$display_id]->handler->options['calendar_popup'];
+      $this->view->date_info->calendar_date_link = $this->view->display[$display_id]->handler->options['calendar_date_link'];
     }  
     
     parent::attach_to($display_id);

@@ -68,7 +68,6 @@ function template_preprocess_calendar_main(&$vars) {
       'query' => $query,
       );
   }
-  
   $vars['view'] = $view;  
   $vars['mini'] = !empty($view->date_info->mini);
   $vars['block'] = !empty($view->date_info->block);
