@@ -237,16 +237,22 @@ function calendar_node_taxonomy_stripe($view, &$node, $query_name, $delta, $stri
     return;
   }
   
+  if (empty($node->raw->taxonomy_term_data_tid)) {
+    return;
+  }
+  
   // Rename the vid added by Views to the normal name that 
   // taxonomy will expect, it's in the raw results.
   $node->vid = $node->raw->node_vid;
-  $terms_for_node = taxonomy_node_get_terms($node);
+  
+  $terms_for_node = (array) $node->raw->taxonomy_term_data_tid;
   if (!(isset($node->stripe))) {
     $node->stripe = array();
     $node->stripe_label = array();
   }
   if (count($terms_for_node)) {
-    foreach ($terms_for_node as $term_for_node) {
+    foreach ($terms_for_node as $tid) {
+      $term_for_node = taxonomy_term_load($tid);
       if (!array_key_exists($term_for_node->tid, $colors_taxonomy)) {
         continue;
       }

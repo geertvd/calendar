@@ -210,7 +210,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
         if (empty($taxonomies)) {
           $form['calendar_colors_taxonomy']['#prefix'] .= t('<div class="form-item warning">Please select Legend vocabularies first!</div>');
         }
-        $form['calendar_colors_taxonomy']['#prefix'] .= t('<div class="form-item"><label>Taxonomy Terms</label><p>Set a hex color value (like #ffffff) to use in the calendar legend for each taxonomy term. Terms with empty values will have no stripe in the calendar and will not be added to the legend.</p></div>');
+        $form['calendar_colors_taxonomy']['#prefix'] .= t('<div class="form-item"><label>Taxonomy Terms</label><p>Set a hex color value (like #ffffff) to use in the calendar legend for each taxonomy term. Terms with empty values will have no stripe in the calendar and will not be added to the legend. <strong>IMPORTANT!</strong>You must add the taxonomy field, Taxonomy: Term ID, to the view for this to do anything. You can exclude it from output if you do not want to see it in the view, but the field must be included.</p></div>');
         $form['calendar_colors_taxonomy']['#tree'] = TRUE;
 
         $colors = $this->get_option('calendar_colors'); 
