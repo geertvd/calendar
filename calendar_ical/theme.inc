@@ -73,6 +73,10 @@ function template_preprocess_calendar_view_ical(&$vars) {
     $event['uid'] = !empty($node->date_id) ? $node->date_id : $event['url'];
     $event['rrule'] = !empty($rrule_field) && !empty($node->$rrule_field) ? $node->$rrule_field : '';
     $events[$event['uid']] = $event;
+
+    /* force UTC timezone */
+    $event['start']->setTimeZone(new DateTimeZone("UTC"));
+    $event['end']->setTimeZone(new DateTimeZone("UTC"));
   }
 
   $headertitle = filter_xss_admin($view->get_title());

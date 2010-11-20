@@ -372,6 +372,9 @@ function calendar_build_nodes(&$view, &$items) {
       }
     }
     
+    // set the domain part of the id
+    $domain = check_plain($_SERVER['SERVER_NAME']);
+
     // If there are multiple date fields in this calendar we may get
     // duplicate items from the other date fields, so add a way to
     // make sure each individual date field only gets added to the
@@ -379,7 +382,8 @@ function calendar_build_nodes(&$view, &$items) {
     $processed = array();
     foreach ($items as $pos => $item) {
       $delta = !empty($field['delta_field']) && !empty($item->{$field['delta_field']}) ? $item->{$field['delta_field']} : 0;
-      $id = 'calendar:' . $item->nid . ':' . $real_field . ':' . $delta;
+      $id = 'calendar:' . $item->nid . ':' . $real_field . ':' . $delta . '@' . $domain;
+      
       if (!in_array($id, $processed) && isset($item->calendar_fields->$alias)) {
         
         // Create from and to date values for each item, adjusted to
