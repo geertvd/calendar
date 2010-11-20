@@ -349,6 +349,9 @@ function calendar_build_nodes(&$view, &$items) {
         }
       }
     }
+
+    // set the domain part of the id
+    $domain = check_plain($_SERVER['SERVER_NAME']);
      
     // If there are multiple date fields in this calendar we may get
     // duplicate items from the other date fields, so add a way to
@@ -363,7 +366,7 @@ function calendar_build_nodes(&$view, &$items) {
         $real_field = str_replace(array('_value2', '_value'), '', $field_name);
       }
       
-      $id = 'calendar:'. $item->{$view->base_field} .':'. $real_field .':'. $delta;
+      $id = 'calendar.'. $item->{$view->base_field} .'.'. $real_field .'.'. $delta . '@' . $domain;
       
       // When creating iCal feeds for repeating dates we don't want all
       // the multiple values, send only the first value.
