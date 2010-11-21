@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #439454 by TheRec, Darren Oh, don't show link to calendar day if there are no items.
 - #389334 by Gribnif and dnotes, fix ical feed to show all repeating dates.
 - #513794 by jhedstrom, add array keys to calendar links for easier theming.
 - #638304 by bricef, make sure time groupings display all items.
