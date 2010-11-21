@@ -13,7 +13,7 @@ if (Drupal.jsEnabled) {
       $('div#calpopup').remove();
       
       // create div to hold data and add it to the end of the body
-      var div = $('<div id="calpopup"><div id="popup-close"><img id="popup-close-img" src="' + var_path + '/images/cross.png" /></div><div id="calpopup-body"><img src="' + var_path + '/images/throbber.gif" id="popthrobber" /></div></div>').attr('style','display: none');
+      var div = $('<div id="calpopup"><div id="popup-close"><img id="popup-close-img" src="' + Drupal.settings.jcalendar.path + '/images/cross.png" /></div><div id="calpopup-body"><img src="' + Drupal.settings.jcalendar.path + '/images/throbber.gif" id="popthrobber" /></div></div>').attr('style','display: none');
       div.appendTo(document.body);
       
       // Locate Popup
@@ -53,7 +53,7 @@ if (Drupal.jsEnabled) {
       // fill the div with data
       $.ajax({
         type: "GET",
-        url: var_base_path + "?q=jcalendar/getnode/"+nid+"/"+ids,
+        url: Drupal.settings.basePath + "?q=jcalendar/getnode/"+nid+"/"+ids,
         success: function(msg){
           domCallback(msg);
         }
