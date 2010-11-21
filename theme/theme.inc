@@ -428,7 +428,7 @@ function template_preprocess_calendar_week(&$vars) {
     // If we're not grouping by time, move all items into the 'all day' array.
     if (empty($view->date_info->style_groupby_times)) {
       foreach ($row['data']['items'] as $item) {
-        $row['data']['all_day'] += $item;
+        $row['data']['all_day'] = array_merge($row['data']['all_date'], $item);
       }
       $row['data']['items'] = array();
     }

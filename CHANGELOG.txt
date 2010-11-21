@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #638304 by bricef, make sure time groupings display all items.
 - #697738 by Zoltan Balogh and Magnus, clean html out of translation strings.
 - #452690 by aufumy and mikesteff, avoid errors if calendar min or max dates are empty.
 - #469394 by extect, fix validation of calendar by removing duplicate ids.
