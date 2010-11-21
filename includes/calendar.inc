@@ -380,9 +380,21 @@ function calendar_build_nodes(&$view, &$items) {
     // make sure each individual date field only gets added to the
     // calendar one time.
     $processed = array();
+    $rrule_processed = array();
     foreach ($items as $pos => $item) {
       $delta = !empty($field['delta_field']) && !empty($item->{$field['delta_field']}) ? $item->{$field['delta_field']} : 0;
       $id = 'calendar:' . $item->nid . ':' . $real_field . ':' . $delta . '@' . $domain;
+      
+      // When creating iCal feeds for repeating dates we don't want all
+      // the multiple values, send only the first value.
+      if (strstr($view->current_display, '_ical')) {
+        if (!isset($rrule_processed[$item->nid])) {
+          $rrule_processed[$item->nid] = TRUE;
+        }
+        else {
+          continue;
+        }
+      }
       
       if (!in_array($id, $processed) && isset($item->calendar_fields->$alias)) {
         
