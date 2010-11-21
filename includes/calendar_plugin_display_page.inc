@@ -72,6 +72,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     $options['calendar_colors'] = array('default' => array());
     $options['calendar_colors_vocabulary'] = array('default' => array());
     $options['calendar_colors_taxonomy'] = array('default' => array());
+    $options['calendar_colors_group'] = array('default' => array());
     $options['calendar_popup'] = array('default' => 0);
     $options['calendar_date_link'] = array('default' => '');
     return $options;
@@ -111,6 +112,14 @@ class calendar_plugin_display_page extends views_plugin_display_page {
       'title' => t('Legend Terms'),
       'value' => t('Edit'),
     );
+    if (function_exists('og_all_groups_options')) {
+      $colors_group = $this->get_option('calendar_colors_group');
+      $options['calendar_colors_group'] = array(
+        'category' => 'calendar_settings',
+        'title' => t('Legend Groups'),
+        'value' => t('Edit'),
+      );
+    }
     $popup_options = $this->popup_options();
     $default = $this->get_option('calendar_popup');
     $options['calendar_popup'] = array(
@@ -228,6 +237,31 @@ class calendar_plugin_display_page extends views_plugin_display_page {
           }
         }
         break;
+
+      case 'calendar_colors_group':
+        $colors_group = $this->get_option('calendar_colors_group');
+        $form['#title'] .= t('Group Legend Colors');
+        $form['calendar_colors_group']['#prefix'] = '';
+        $form['calendar_colors_group']['#prefix'] .= t('<div class="form-item"><label>Group</label><p>Set a hex color value (like #ffffff) to use in the calendar legend for each group. Groups with empty values will have no stripe in the calendar and will not be added to the legend.</p></div>');
+        $form['calendar_colors_group']['#tree'] = TRUE;
+        $form['calendar_colors_group']['colorpicker'] = array(
+          '#type' => 'calendar_colorpicker',
+          '#prefix' => '<div class="clear-block"><div style="float:left">',
+          '#suffix' => '</div>',
+        );
+        $groups = og_all_groups_options();
+        foreach ($groups as $gid => $group_name){
+          $form['calendar_colors_group']['color'][$gid] = array(
+	          '#title' => t($group_name),
+	          '#type' => 'calendar_colorfield',
+	          '#default_value' => isset($colors_group[$gid]) ? $colors_group[$gid] : '#ffffff',
+	          '#calendar_colorpicker' => 'calendar-colors-group-colorpicker',
+	          '#prefix' => '<div style="float:left;margin-right:10px">',
+	          '#suffix' => '</div>',
+	          );
+	      }
+	      $form['calendar_colors_group']['color']['#suffix'] = '</div>';
+        break;
     }
   }
 
@@ -244,6 +278,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
         break;
       case 'calendar_colors':
       case 'calendar_colors_taxonomy':
+      case 'calendar_colors_group':
         $this->set_option($form_state['section'], $form_state['values'][$form_state['section']]['color']);
         break;
       case 'calendar_colors_vocabulary':

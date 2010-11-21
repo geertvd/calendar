@@ -272,6 +272,52 @@ function calendar_node_taxonomy_stripe($view, &$node, $query_name, $delta, $stri
 
 
 /**
+ * Create a stripe based on group.
+ *
+ * @param $node - the node object
+ * @param $query_name - the views queryname for this date field
+ * @param $delta - the delta for this field, used to distinguish fields that appear more than once in the calendar
+ * @param $stripe - the hex code for this stripe.
+ * @param $label - the label to give this stripe.
+ * 
+ * TODO Reconsider use of $GLOBALS as a method of triggering the legend, there
+ * may be a better way.
+ */
+function calendar_node_group_stripe($view, &$node, $query_name, $delta, $stripe = NULL, $label = '') {
+  $colors_group = isset($view->date_info->calendar_colors_group) ? $view->date_info->calendar_colors_group : array();
+  if (empty($colors_group)) {
+    return;
+  }
+  if (!function_exists('og_get_node_groups')) {
+    return;
+  }
+
+  $groups_for_node = og_get_node_groups($node);
+  if(!(isset($node->stripe))){
+    $node->stripe = array();
+    $node->stripe_label = array();
+  }
+  if (count($groups_for_node)){
+    foreach($groups_for_node as $gid => $group_name){
+      if (!array_key_exists($gid, $colors_group)) {
+        continue;
+      }
+      $stripe = $colors_group[$gid];
+      $stripe_label = $group_name;
+      $node->stripe[] = $stripe;
+      $node->stripe_label[] = $stripe_label;
+      $GLOBALS['calendar_stripe_labels'][][$gid] = array('stripe' => $stripe, 'label' => $stripe_label);
+    }
+  }
+  else {
+    $node->stripe[] = '';
+    $node->stripe_label[] = '';
+  } 
+  return $stripe;
+}
+
+
+/**
  * Helper function to figure out a group gid to use in blocks.
  *
  * @return an array of group nodes that are relevant.

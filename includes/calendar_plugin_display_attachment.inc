@@ -141,6 +141,7 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
     elseif (substr($display_id, 0, 9) == 'calendar_') {
       $this->view->date_info->calendar_colors = $this->view->display[$display_id]->handler->options['calendar_colors'];
       $this->view->date_info->calendar_colors_taxonomy = $this->view->display[$display_id]->handler->options['calendar_colors_taxonomy'];
+      $this->view->date_info->calendar_colors_group = $this->view->display[$display_id]->handler->options['calendar_colors_group'];
       $this->view->date_info->calendar_popup = $this->view->display[$display_id]->handler->options['calendar_popup'];
       $this->view->date_info->calendar_date_link = $this->view->display[$display_id]->handler->options['calendar_date_link'];
     }  

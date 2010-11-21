@@ -239,6 +239,7 @@ $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['path'] = $path;
 $handler->display->display_options['calendar_colors'] = $colors;
 $handler->display->display_options['calendar_colors_vocabulary'] = array();
+$handler->display->display_options['calendar_colors_group'] = array();
 
 // DODO This got lost in D7 version.
 $handler->display->display_options['calendar_date_link'] = $date_link_type;
