@@ -159,7 +159,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
         // TODO Move the embedded styles other than the color into a stylesheet.
         $form['#title'] .= t('Content Type Legend Colors');
         $form['calendar_colors']['#tree'] = TRUE;
-        $form['calendar_colors']['#prefix'] = t('<div class="form-item"><label>Content Type</label><p>Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Types with empty values will have no stripe in the calendar and will not be added to the legend.</p></div>');
+        $form['calendar_colors']['#prefix'] .= '<div class="form-item"><label>'. t('Content Type') .'</label><p>'. t('Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Types with empty values will have no stripe in the calendar and will not be added to the legend.') .'</p></div>';
         $form['calendar_colors']['colorpicker'] = array(
           '#type' => 'calendar_colorpicker',
           '#prefix' => '<div class="clear-block"><div style="float:left">',
@@ -199,7 +199,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
 	        '#multiple' => TRUE,
 	        '#options' => $options,
 	        );
-	      $form['calendar_colors_vocabulary']['#prefix'] = t('<div class="form-item"><label>Vocabularies</label>Select vocabularies to use for setting calendar legend colors by taxonomy term. This works best for vocabularies with only a limited number of possible terms.</div>');
+	      $form['calendar_colors_vocabulary']['#prefix'] .= '<div class="form-item"><label>'. t('Vocabularies') .'</label>'. t('Select vocabularies to use for setting calendar legend colors by taxonomy term. This works best for vocabularies with only a limited number of possible terms.') .'</div>';
         break;
 
       case 'calendar_colors_taxonomy':
@@ -208,9 +208,9 @@ class calendar_plugin_display_page extends views_plugin_display_page {
         $form['#title'] .= t('Taxonomy Legend Colors');
         $form['calendar_colors_taxonomy']['#prefix'] = '';
         if (empty($taxonomies)) {
-          $form['calendar_colors_taxonomy']['#prefix'] .= t('<div class="form-item warning">Please select Legend vocabularies first!</div>');
+          $form['calendar_colors_taxonomy']['#prefix'] .= '<div class="form-item warning">'. t('Please select Legend vocabularies first!') .'</div>';
         }
-        $form['calendar_colors_taxonomy']['#prefix'] .= t('<div class="form-item"><label>Taxonomy Terms</label><p>Set a hex color value (like #ffffff) to use in the calendar legend for each taxonomy term. Terms with empty values will have no stripe in the calendar and will not be added to the legend.</p></div>');
+        $form['calendar_colors_taxonomy']['#prefix'] .= '<div class="form-item"><label>'. t('Taxonomy Terms') .'</label><p>'. t('Set a hex color value (like #ffffff) to use in the calendar legend for each taxonomy term. Terms with empty values will have no stripe in the calendar and will not be added to the legend.') .'</p></div>';
         $form['calendar_colors_taxonomy']['#tree'] = TRUE;
         $form['calendar_colors_taxonomy']['colorpicker'] = array(
           '#type' => 'calendar_colorpicker',
@@ -237,7 +237,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
         $colors_group = $this->get_option('calendar_colors_group');
         $form['#title'] .= t('Group Legend Colors');
         $form['calendar_colors_group']['#prefix'] = '';
-        $form['calendar_colors_group']['#prefix'] .= t('<div class="form-item"><label>Group</label><p>Set a hex color value (like #ffffff) to use in the calendar legend for each group. Groups with empty values will have no stripe in the calendar and will not be added to the legend.</p></div>');
+        $form['calendar_colors_group']['#prefix'] .= '<div class="form-item"><label>' . t('Group') . '</label><p>' . t('Set a hex color value (like #ffffff) to use in the calendar legend for each group. Groups with empty values will have no stripe in the calendar and will not be added to the legend.') .'</p></div>';
         $form['calendar_colors_group']['#tree'] = TRUE;
         $form['calendar_colors_group']['colorpicker'] = array(
           '#type' => 'calendar_colorpicker',
