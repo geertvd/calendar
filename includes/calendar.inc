@@ -370,9 +370,9 @@ function calendar_build_nodes(&$view, &$items) {
       
       // When creating iCal feeds for repeating dates we don't want all
       // the multiple values, send only the first value.
-      if (strstr($view->current_display, '_ical') && !empty($rrule_field) && !empty($item->$rrule_field)) {
-        if (!in_array($rrule_field, $rrule_processed)) {
-          $rrule_processed[] = $rrule_field;
+      if (strstr($view->current_display, '_ical')) {
+        if (!isset($rrule_processed[$item->nid])) {
+          $rrule_processed[$item->nid] = TRUE;
         }
         else {
           continue;
