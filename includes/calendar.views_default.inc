@@ -332,6 +332,7 @@ $handler->override_option('tab_options', array(
 $handler->override_option('calendar_colors', array($colors));
 $handler->override_option('calendar_colors_vocabulary', array());
 $handler->override_option('calendar_colors_taxonomy', array());
+$handler->override_option('calendar_colors_group', array());
 $handler->override_option('calendar_popup', 0);
 $handler->override_option('calendar_date_link', $date_link_type);
 // Calendar block.
