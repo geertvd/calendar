@@ -94,7 +94,7 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
   // If we're displaying the week number, add it as the
   // first cell in the week.
   if (!empty($view->date_info->style_with_weekno) && !in_array($view->date_info->granularity, array('day', 'week'))) {
-    $url = $view->get_path() .'/'. $view->date_info->year .'-W'. $week;
+    $url = date_real_url($view, NULL, $view->date_info->year .'-W'. $week);
     if (!empty($view->date_info->display_types['week'])) {
       $weekno = l($week, $url, array('query' => !empty($view->date_info->append) ? $view->date_info->append : ''));
     }

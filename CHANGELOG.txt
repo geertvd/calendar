@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #522914 by jjemmett, user date_real_url() on week links.
 - #704068 by gibus, add option to color calendar items by group.
 - #360364 by marcushenningsen, don't link to day if there is no day view.
 - #382852 by llslim, make sure replacements patterns work even if field is excluded.
