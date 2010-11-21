@@ -45,8 +45,9 @@ if (Drupal.jsEnabled) {
       }
       
       // Get NodeID and ItemID
-      var ids = $(this).parent().parent().attr('id');
-      var arr = ids.split(":");
+      var ids = $(this).parent().parent().attr('class');
+      var arrs = ids.split(" ");
+      var arr = arrs[0].split(":");
       var nid = arr[1];
       var id = arr[4];
             
