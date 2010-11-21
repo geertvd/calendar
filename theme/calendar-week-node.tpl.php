@@ -39,10 +39,10 @@
  */ 
 ?>
 <div class="view-item view-item-<?php print $view->name ?>">
-  <div class="calendar weekview" id="<?php print $node->date_id ?>">
-    <?php print theme('calendar_stripe_stripe', array('node' => $node)); ?>
+  <div class="<?php print $node->date_id; ?> calendar weekview">
+    <?php print print theme('calendar_stripe_stripe', array('node' => $node)); ?>
     <?php foreach ($fields as $field): ?>
-      <div id="<?php print $field['id']; ?>" class="view-field view-data-<?php print $field['id'] ?>">
+      <div class="view-field view-data-<?php print $field['id']; ?> <?php print $field['id']; ?>">
         <?php if ($field['label']): ?>
           <div class="view-label-<?php print $field['id'] ?>"><?php print $field['label'] ?></div>
         <?php endif; ?>  

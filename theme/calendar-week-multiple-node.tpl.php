@@ -8,7 +8,7 @@
  */ 
 ?>
 <div class="view-item view-item-<?php print $view->name ?>">
-  <div class="calendar weekview" id="<?php print $curday ?>">
+  <div class="<?php print $curday; ?> calendar weekview">
     <?php foreach ($types as $type): ?>
       <?php if ($view->date_info->style_max_items_behavior != 'more'): ?>
         <?php print theme('calendar_stripe_stripe', array('type' => $type)); ?>
