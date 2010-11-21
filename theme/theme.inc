@@ -114,15 +114,15 @@ function template_preprocess_calendar(&$vars) {
       }
     }
     foreach ($fields as $name => $field) {
-      // Some fields, like the node edit and delete links, have no alias.
+     // Some fields, like the node edit and delete links, have no alias.
       $field_alias = $field->field_alias != 'unknown' ? $field->field_alias : $name; 
-      if (!empty($field->options['exclude'])) {
-        if (isset($items[$num]->{$field_alias})) unset($items[$num]->{$field_alias});
-      }
-      elseif (!empty($field) && is_object($field)) {
+      if (!empty($field) && is_object($field)) {
         // Theme the copy instead of the original row so duplicate date
         // fields each get a fresh copy of the original data to theme.
         $items[$num]->{$field_alias} = $field->theme($copy);
+      }
+      if (!empty($field->options['exclude'])) {
+        if (isset($items[$num]->{$field_alias})) unset($items[$num]->{$field_alias});
       }
     }
   }
