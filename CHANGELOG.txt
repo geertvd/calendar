@@ -6,6 +6,10 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #660880 by kaare, fix method of including js in jacalendar module.
+- #760316 by skwashd, arithmetric clean up ical rfc compliance.
+- #613528 Fix Views option handling to set options correctly and avoid Attempt to modify property of non-object error.
+
 Version 6.2.2
 =============
 - #429446 Col element must not be in thead.
