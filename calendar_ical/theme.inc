@@ -67,8 +67,8 @@ function template_preprocess_calendar_view_ical(&$vars) {
     $events[$event['uid']] = $event;
 
     /* force UTC timezone */
-    date_set_timezone($event['start'], timezone_open('UTC'));
-    date_set_timezone($event['end'], timezone_open('UTC'));
+    date_timezone_set($event['start'], timezone_open('UTC'));
+    date_timezone_set($event['end'], timezone_open('UTC'));
   }
   
   $headertitle = filter_xss_admin($view->get_title());
