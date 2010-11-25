@@ -52,7 +52,7 @@ function template_preprocess_calendar_main(&$vars) {
   // If an 'Add new ... link is provided, add it here.
   // the query will bring the user back here after adding the node.
   if (!empty($view->date_info->calendar_date_link) 
-  && (user_access("administer nodes") || user_access('create '. $view->date_info->calendar_date_link .' content')))
+  && (user_access("administer nodes") || user_access('create '. $view->date_info->calendar_date_link .' content'))) {
     $name = node_get_types('name', $view->date_info->calendar_date_link);
     $href = 'node/add/'. str_replace('_', '-', $view->date_info->calendar_date_link);
     $query = 'destination='. $view->date_info->url;    
