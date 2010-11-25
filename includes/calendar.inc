@@ -366,7 +366,7 @@ function calendar_build_nodes(&$view, &$items) {
         $real_field = str_replace(array('_value2', '_value'), '', $field_name);
       }
       
-      $id = 'calendar.'. $item->{$view->base_field} .'.'. $real_field .'.'. $delta . '@' . $domain;
+      $id = 'calendar.'. $item->{$view->base_field} .'.'. $real_field .'.'. $delta;
       
       // When creating iCal feeds for repeating dates we don't want all
       // the multiple values, send only the first value.
@@ -550,7 +550,7 @@ function calendar_build_nodes(&$view, &$items) {
             calendar_node_stripe($view, $node, $alias, $alias);
             calendar_node_taxonomy_stripe($view, $node, $alias, $alias);
             calendar_node_group_stripe($view, $node, $alias, $alias);
-            $node->date_id = $id .':'. $pos;
+            $node->date_id = $id .'.'. $pos;
 
             $nodes[] = $node;
             unset($node);

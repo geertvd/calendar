@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #978442 by bwynants and KarenS, fix some remaining brokenness from ical validation fix.
 - #638620 by ericduran, show add event link to user with administer nodes permissions.
 - #439454 by TheRec, Darren Oh, don't show link to calendar day if there are no items.
 - #389334 by Gribnif and dnotes, fix ical feed to show all repeating dates.
