@@ -170,7 +170,7 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
   /**
    * Add custom option definitions.
    */
-  function option_definition () {
+  function option_definition() {
     $options = parent::option_definition();
     $options['calendar_type'] = array('default' => $this->calendar_type());
     return $options;

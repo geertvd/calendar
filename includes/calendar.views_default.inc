@@ -369,6 +369,11 @@ $handler->override_option('style_options', array(
   'date_fields' => NULL,
   'max_items' => 0,
 ));
+
+if (module_exists('calendar_multiday')) {
+  $handler->override_option['style_options']['multiday_theme'] = 1;
+}
+
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
 $handler->override_option('inherit_exposed_filters', TRUE);
@@ -391,6 +396,11 @@ $handler->override_option('style_options', array(
   'groupby_times_custom' => '',
   'groupby_field' => '',
 ));
+
+if (module_exists('calendar_multiday')) {
+  $handler->override_option['style_options']['theme_style'] = 1;
+}
+
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
 $handler->override_option('inherit_exposed_filters', TRUE);
@@ -413,6 +423,11 @@ $handler->override_option('style_options', array(
   'groupby_times_custom' => '',
   'groupby_field' => '',
 ));
+
+if (module_exists('calendar_multiday')) {
+  $handler->override_option['style_options']['theme_style'] = 1;
+}
+
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
 $handler->override_option('inherit_exposed_filters', TRUE);

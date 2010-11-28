@@ -1,0 +1,7 @@
+; $Id$
+name = Calendar Multiday
+description = "Use the calendar multiday display as an alternative to the standard display."
+dependencies[] = calendar
+dependencies[] = views
+core = 6.x
+package = Date/Time
