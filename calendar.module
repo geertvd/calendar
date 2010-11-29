@@ -674,6 +674,7 @@ function calendar_build_nodes(&$view, &$items) {
       }
       else {
         $format = $view->field[$field_name]->options['date_format'];
+        $cck_field_name = NULL;
         switch ($format) {
           case 'long':
             $format = variable_get('date_format_long',  'l, F j, Y - H:i');
@@ -870,23 +871,28 @@ function calendar_build_nodes(&$view, &$items) {
           // Make date objects
           $node->calendar_start_date = date_create($node->calendar_start, timezone_open($to_zone));
           $node->calendar_end_date = date_create($node->calendar_end, timezone_open($to_zone));
-          if (date_format($node->date_end, 'H:i:s') == '00:00:00' &&
-            date_format($node->date_start, 'H:i:s') == '23:59:59') {
-            $node->calendar_all_day = TRUE;
+          
+          // Change string timezones into
+          // calendar_start and calendar_end are UTC dates as formatted strings
+          $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
+          $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
+          
+          if (substr($real_field, 0, 9) == 'field_') {
+            $cck_field = content_fields($cck_field_name);
+            $granularity = $cck_field['granularity'];
+            $increment = $cck_field['widget']['increment'];
           }
           else {
-            $node->calendar_all_day = FALSE;
+            $granularity = 'second';
+            $increment = 1;
           }
+          $node->calendar_all_day = date_is_all_day($node->calendar_end, $node->calendar_end, $granularity, $increment);
          
           // Flag all day values specifically set in date.
           $all_day_field = str_replace(array('_value2', '_value'), '_all_day', $node->datefield);
           if (!empty($all_day_field) && !empty($item->$all_day_field)) {
             $node->calendar_all_day = TRUE;
           }
-          // Change string timezones into
-          // calendar_start and calendar_end are UTC dates as formatted strings
-          $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
-          $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
          
           unset($node->calendar_fields);
           if (isset($node) && (empty($node->calendar_start))) {
