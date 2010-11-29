@@ -131,7 +131,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     $options['calendar_date_link'] = array(
       'category' => 'calendar_settings',
       'title' => t('Add new date link'),
-      'value' => !empty($default) ? check_plain(node_type_get_name($default)) : '',
+      'value' => !empty($default) ? check_plain(node_type_get_name($default)) : t('None'),
     );
 
     
