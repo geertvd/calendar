@@ -813,7 +813,15 @@ function calendar_build_nodes(&$view, &$items) {
           $exceptions = array('format_interval', 'time ago');
           $node->label = $label;
           $node->format = $format;
-          $node->format_time = !in_array($node->format, $exceptions) ? date_limit_format($format, array('hour', 'minute', 'second')) : '';
+          if (!in_array($node->format, $exceptions)) {
+            if (!isset($formats[$format])) {
+              $formats[$format] = date_limit_format($format, array('hour', 'minute', 'second'));
+              $node->format_time = $formats[$format];
+            }
+          }
+          else {
+            $node->format_time = '';
+          }
           $node->url = calendar_get_node_link($node);
                              
           //$node->$fromto[0] = $values[0];

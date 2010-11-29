@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #870018 by crell, don't call date_limit_format thousands of times.
 - #931392 by developer-x, Add multiday striping effect as an optional alternative display.
 - #978442 by bwynants and KarenS, fix some remaining brokenness from ical validation fix.
 - #638620 by ericduran, show add event link to user with administer nodes permissions.
