@@ -27,7 +27,7 @@ function calendar_views_query_alter(&$view, &$query) {
         
     }
     drupal_goto(str_replace($_POST['calendar_previous_arg'], $arg, $_POST['view_url']));
-    drupal_exit();
+    exit();
   }
 }
 
