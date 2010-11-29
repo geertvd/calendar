@@ -293,7 +293,7 @@ function template_preprocess_calendar_day(&$vars) {
   // Add optional css
   if ($display_overlap) {
     drupal_add_css(drupal_get_path('module', 'calendar_multiday')  .'/calendar-overlap.css');
-    drupal_add_js(drupal_get_path('module', 'calendar_multiday') . '/js/calendar_overlap.js');
+    drupal_add_js(drupal_get_path('module', 'calendar_multiday') . '/calendar_overlap.js');
     $overlapped_items = array();
   }
   
@@ -485,7 +485,7 @@ function template_preprocess_calendar_week(&$vars) {
   // Add optional css
   if ($display_overlap) {
     drupal_add_css(drupal_get_path('module', 'calendar_multiday')  .'/calendar-overlap.css');
-    drupal_add_js(drupal_get_path('module', 'calendar_multiday') . '/js/calendar_overlap.js');
+    drupal_add_js(drupal_get_path('module', 'calendar_multiday') . '/calendar_overlap.js');
     $overlapped_items = array( array(), array(), array(), array(), array(), array(), array());
     
     // Locate the first item
