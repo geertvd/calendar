@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #372988 by joachim, Eliminate 'broken field' message in view summary when no date link is chosen.
 - #870018 by crell, don't call date_limit_format thousands of times.
 - #931392 by developer-x, Add multiday striping effect as an optional alternative display.
 - #978442 by bwynants and KarenS, fix some remaining brokenness from ical validation fix.
