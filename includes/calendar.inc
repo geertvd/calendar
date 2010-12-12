@@ -544,9 +544,8 @@ function calendar_build_nodes(&$view, &$items) {
           
           if (substr($real_field, 0, 6) == 'field_') {
             $cck_field = field_info_field($real_field);
-            // @TODO This crappy construct will go away if http://drupal.org/node/986992 gets in.
-            $eid = variable_get('field_sql_storage_' . $view->base_table . 'etid', NULL);
-            $instance = field_info_instance($eid, $cck_field, $node->type);
+            // If $cck_field has empty array for 'entity_types', causes errors.
+            $instance = field_info_instance($view->base_table, $cck_field, $node->type);
             $granularity = $cck_field['settings']['granularity'];
             $increment = $instance['widget']['increment'];
           }
