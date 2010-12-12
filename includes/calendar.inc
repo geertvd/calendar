@@ -536,14 +536,26 @@ function calendar_build_nodes(&$view, &$items) {
           // Make date objects
           $node->calendar_start_date = date_create($node->calendar_start, timezone_open($to_zone));
           $node->calendar_end_date = date_create($node->calendar_end, timezone_open($to_zone));
-          if (date_format($node->calendar_start_date, 'H:i:s') == '00:00:00' && 
-            date_format($node->calendar_end_date, 'H:i:s') == '23:59:59') {
-            $node->calendar_all_day = TRUE;
+          
+          // Change string timezones into 
+          // calendar_start and calendar_end are UTC dates as formatted strings
+          $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
+          $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
+          
+          if (substr($real_field, 0, 6) == 'field_') {
+            $cck_field = field_info_field($real_field);
+            // @TODO This crappy construct will go away if http://drupal.org/node/986992 gets in.
+            $eid = variable_get('field_sql_storage_' . $view->base_table . 'etid', NULL);
+            $instance = field_info_instance($eid, $cck_field, $node->type);
+            $granularity = $cck_field['settings']['granularity'];
+            $increment = $instance['widget']['increment'];
           }
           else {
-            $node->calendar_all_day = FALSE;
+            $granularity = 'second';
+            $increment = 1;
           }
-
+          $node->calendar_all_day = date_is_all_day($node->calendar_start, $node->calendar_end, $granularity, $increment);
+          
           // Change string timezones into 
           // calendar_start and calendar_end are UTC dates as formatted strings
           $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
