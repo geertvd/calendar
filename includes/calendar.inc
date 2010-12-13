@@ -544,10 +544,9 @@ function calendar_build_nodes(&$view, &$items) {
           
           if (substr($real_field, 0, 6) == 'field_') {
             $cck_field = field_info_field($real_field);
-            // If $cck_field has empty array for 'entity_types', causes errors.
-            $instance = field_info_instance($view->base_table, $cck_field, $node->type);
+            $instance = field_info_instance($view->base_table, $real_field, $node->type);
             $granularity = $cck_field['settings']['granularity'];
-            $increment = $instance['widget']['increment'];
+            $increment = $instance['widget']['settings']['increment'];
           }
           else {
             $granularity = 'second';
