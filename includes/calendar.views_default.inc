@@ -277,6 +277,11 @@ $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
 $handler->display->display_options['defaults']['row_options'] = FALSE;
 $handler->display->display_options['attachment_position'] = 'after';
+
+if (module_exists('calendar_multiday')) {
+  $handler->display->display_options['style_options']['theme_style'] = 1;  
+}
+
 $handler->display->display_options['inherit_exposed_filters'] = TRUE;
 $handler->display->display_options['calendar_type'] = 'month';
 $handler->display->display_options['displays'] = array(
@@ -293,6 +298,11 @@ $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
 $handler->display->display_options['defaults']['row_options'] = FALSE;
 $handler->display->display_options['attachment_position'] = 'after';
+
+if (module_exists('calendar_multiday')) {
+  $handler->display->display_options['style_options']['theme_style'] = 1;  
+}
+
 $handler->display->display_options['inherit_exposed_filters'] = TRUE;
 $handler->display->display_options['calendar_type'] = 'day';
 $handler->display->display_options['displays'] = array(
@@ -306,6 +316,11 @@ $handler = $view->new_display('calendar_period', 'Week view', 'calendar_period_4
 $handler->display->display_options['defaults']['style_plugin'] = FALSE;
 $handler->display->display_options['style_plugin'] = 'calendar_style';
 $handler->display->display_options['defaults']['style_options'] = FALSE;
+
+if (module_exists('calendar_multiday')) {
+  $handler->display->display_options['style_options']['theme_style'] = 1;  
+}
+
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
 $handler->display->display_options['defaults']['row_options'] = FALSE;
 $handler->display->display_options['attachment_position'] = 'after';

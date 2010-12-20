@@ -74,8 +74,14 @@ function calendar_views_pre_view(&$view, &$display_id, &$args) {
 function calendar_views_plugins() {
   $views_path = drupal_get_path('module', 'views');
   $module_path = drupal_get_path('module', 'calendar');
-  module_load_include('inc', 'calendar', 'theme/theme');
-  
+  if (module_exists('calendar_multiday')) {
+    $theme_path = drupal_get_path('module', 'calendar_multiday');
+    module_load_include('inc', 'calendar_multiday', 'theme/theme');
+  }
+  else {
+    $theme_path = $module_path;
+    module_load_include('inc', 'calendar', 'theme/theme');
+  }
 
   $data = array(
     'module' => 'calendar', // This just tells our themes are elsewhere.
@@ -154,7 +160,7 @@ function calendar_views_plugins() {
         'parent' => 'parent',
         'theme' => 'calendar_main',
         'theme file' => 'theme.inc',
-        'theme path' => "$module_path/theme",
+        'theme path' => "$theme_path/theme",
         'uses row plugin' => FALSE,
         'uses fields' => TRUE,
         'uses options' => FALSE,
@@ -169,7 +175,7 @@ function calendar_views_plugins() {
         'parent' => 'calendar_nav',
         'theme' => 'calendar_month',
         'theme file' => 'theme.inc',
-        'theme path' => "$module_path/theme",
+        'theme path' => "$theme_path/theme",
         'additional themes' => array(
           'calendar_year' => 'style',
           'calendar_day' => 'style',
@@ -184,6 +190,12 @@ function calendar_views_plugins() {
       ),
     ),
   );
-
+  
+  if (module_exists('calendar_multiday')) {
+    $data['style']['calendar_style']['additional themese'] += array(
+      'calendar_day_overlap' => 'style',
+      'calendar_week_overlap' => 'style',
+    );
+  }
   return $data;
 }
