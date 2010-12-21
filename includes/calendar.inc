@@ -1,11 +1,11 @@
 <?php
-//$Id$
+// $Id$
 
 /**
  * @file
  * Calendar building functions for the Calendar module.
  */
- 
+
 /**
  * Build calendar
  *
@@ -24,313 +24,79 @@ function calendar_build_calendar($view, $items) {
     $item_end = date_format($item->calendar_end_date, DATE_FORMAT_DATE);
     if (($item_start >= $view->date_info->min_date_date && $item_start <= $view->date_info->max_date_date)
      || ($item_end >= $view->date_info->min_date_date && $item_end <= $view->date_info->max_date_date)) {
-       $values[$item_start][date_format($item->date_start, 'H:i:s')][] = $item;
+       $values[$item_start][date_format($item->calendar_start_date, 'H:i:s')][] = $item;
     }
   }
   $items = $values;
   ksort($items);
- 
+  
   $rows = array();
   $curday = clone($view->date_info->min_date);
- 
+  
   switch ($view->date_info->granularity) {
     case 'year':
       $rows = array();
       $view->date_info->mini = TRUE;
       for ($i = 1; $i <= 12; $i++) {
-        $rows[$i] = calendar_build_mini_month($curday, $view, $items);
+        $rows[$i] = calendar_build_month($curday, $view, $items);
       }
       $view->date_info->mini = FALSE;
       break;
+
     case 'month':
-      $rows = ($view->date_info->mini) ? calendar_build_mini_month($curday, $view, $items) : calendar_build_month($curday, $view, $items);
+      $rows = calendar_build_month($curday, $view, $items);
       break;
+
     case 'day':
       $rows = calendar_build_day($curday, $view, $items);
       break;
+
     case 'week':
       $rows = calendar_build_week($curday, $view, $items);
+
       // Merge the day names in as the first row.
       $rows = array_merge(array(calendar_week_header($view)), $rows);
       break;
   }
   return $rows;
- 
+  
 }
-/**
- * Build one month.
- */
-function calendar_build_mini_month(&$curday, $view, $items) {
-  $month = date_format($curday, 'n');
-  date_modify($curday, '-' . strval(date_format($curday, 'j')-1) . ' days');
-  $rows = array();
-  do {
-    $rows = array_merge($rows, calendar_build_mini_week($curday, $view, $items, TRUE));
-    $curday_date = date_format($curday, DATE_FORMAT_DATE);
-    $curday_month = date_format($curday, 'n');
-  } while ($curday_month == $month && $curday_date <= $view->date_info->max_date_date);
-  // Merge the day names in as the first row.
-  $rows = array_merge(array(calendar_week_header($view)), $rows);
-  return $rows;
-}
+
 /**
  * Build one month.
  */
 function calendar_build_month(&$curday, $view, $items) {
   $month = date_format($curday, 'n');
-  $curday_date = date_format($curday, DATE_FORMAT_DATE);
-  $weekdays = calendar_untranslated_days($items, $view);
   date_modify($curday, '-' . strval(date_format($curday, 'j')-1) . ' days');
+
   $rows = array();
   do {
-    $init_day = clone($curday);
-    $today = date_format(date_now(date_default_timezone()), DATE_FORMAT_DATE);
-    $month = date_format($curday, 'n');
-    $week = date_week($curday_date);
-    $first_day = variable_get('date_first_day', 0);
-    $week_rows = calendar_build_week($curday, $view, $items, TRUE);
-    $multiday_buckets = $week_rows['multiday_buckets'];
-    $singleday_buckets = $week_rows['singleday_buckets'];
-   
-    $total_rows = $week_rows['total_rows'];
-   
-    // Theme each row
-    $output = "";
-    $final_day = clone($curday);
- 
-    $iehint = 0;
-    $max_multirow_cnt = 0;
-    $max_singlerow_cnt = 0;
-   
-    for ($i = 0; $i < $total_rows + 1; $i++) {
-      $inner = "";
-     
-      // If we're displaying the week number, add it as the
-      // first cell in the week.
-      if ($i == 0 && !empty($view->date_info->style_with_weekno) && !in_array($view->date_info->granularity, array('day', 'week'))) {
-        $url = $view->get_path() .'/'. $view->date_info->year .'-W'. $week;
-        if (!empty($view->date_info->display_types['week'])) {
-          $weekno = l($week, $url, array('query' => !empty($view->date_info->append) ? $view->date_info->append : ''));
-        }
-        else {
-          // Do not link week numbers, if Week views are disabled.
-          $weekno = $week;
-        }
-        $item = array(
-          'entry' => $weekno,
-          'colspan' => 1,
-          'rowspan' => $total_rows + 1,
-          'id' => $view->name . '-weekno-' . $curday_date, 
-          'class' => 'week'
-        );
-        $inner .= theme('calendar_month_col', array('item' => $item));
-      }
-     
-      $curday = clone($init_day);
- 
-      // move backwards to the first day of the week
-      $day_wday = date_format($curday, 'w');
-      date_modify($curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
-     
-      for ( $wday = 0; $wday < 7; $wday++) {
- 
-        $curday_date = date_format($curday, DATE_FORMAT_DATE);
-        $class = strtolower($weekdays[$wday]);
-        $item = NULL;
-        $in_month = !($curday_date < $view->date_info->min_date_date || $curday_date > $view->date_info->max_date_date || date_format($curday, 'n') != $month);
-       
-        // Add the datebox
-        if ($i == 0) {
-          $variables = array(
-            'curday_date' => $curday_date, 
-            'view' => $view,
-          );
-          $item = array(
-            'entry' => theme('calendar_datebox', $variables),
-            'colspan' => 1,
-            'rowspan' => 1,
-            'class' => 'date-box',
-            'date' => $curday_date,
-            'id' => $view->name . '-' . $curday_date . '-date-box'
-          );
-          $item['class'] .= ($curday_date == $today && $in_month ? ' today' : '') .
-            ($curday_date < $today ? ' past' : '') .
-            ($curday_date > $today ? ' future' : '');
-        }
-        else {
-          $index = $i - 1;
-          $multi_count = count($multiday_buckets[$wday]);
-         
-          // Process multiday buckets first.  If there is a multiday-bucket item in this row...
-          if ($index < $multi_count) {
-           
-            // If this item is filled with either a blank or an entry...
-            if ($multiday_buckets[$wday][$index]['filled']) {
-             
-              // Add item and add class
-              $item = $multiday_buckets[$wday][$index];
-              $item['class'] =  'multi-day';
-              $item['date'] = $curday_date;
-             
-              // Is this an entry?
-              if (!$multiday_buckets[$wday][$index]['avail']) {
-               
-                // If the item either starts or ends on today,
-                // then add tags so we can style the borders
-                if ($curday_date == $today && $in_month) {
-                  $item['class'] .=  ' starts-today';
-                }
-               
-                // Calculate on which day of this week this item ends on..
-                $end_day = clone($curday);
-                $span = $item['colspan'] - 1;
-                date_modify($end_day, '+' . $span .' day');
-                $endday_date = date_format($end_day, DATE_FORMAT_DATE);
-               
-                // If it ends today, add class
-                if ($endday_date == $today && $in_month) {
-                  $item['class'] .=  ' ends-today';
-                }
-              }
-            }
-           
-            // If this is an acutal entry, add classes regarding the state of the
-            // item
-            if ($multiday_buckets[$wday][$index]['avail']) {
-              $item['class'] .= ' ' . $wday . ' ' . $index . ' no-entry ' . ($curday_date == $today && $in_month ? ' today' : '') .
-                ($curday_date < $today ? ' past' : '') .
-                ($curday_date > $today ? ' future' : '');
-            }
-           
-          // Else, process the single day bucket - we only do this once per day
-          }
-          elseif ($index == $multi_count) {
-           
-            $single_day_cnt = 0;
-            // If it's empty, add class
-            if (count($singleday_buckets[$wday]) == 0) {
-              $single_days = "&nbsp;";
-              if ($max_multirow_cnt == 0 ) {
-                $class = ($multi_count > 0 ) ? 'single-day no-entry noentry-multi-day' : 'single-day no-entry';
-              }
-              else {
-                $class = 'single-day';
-              }
-            }
-            else {
-              $single_days = "";
-              foreach ($singleday_buckets[$wday] as $day) {
-                foreach ($day as $event) {
-                  $single_day_cnt++;
-                  $single_days .= (isset($event['more_link'])) ? '<div class="calendar-more">' . $event['entry'] . '</div>' : $event['entry'];
-                }
-              }
-              $class = 'single-day';
-            }
-           
-            $rowspan = $total_rows - $index;
-           
-            // Add item...
-            $item = array(
-              'entry' => $single_days,
-              'colspan' => 1,
-              'rowspan' => $rowspan,
-              'class' => $class,
-              'date' => $curday_date,
-              'id' => $view->name . '-' . $curday_date . '-' . $index
-            );
-           
-            // Hack for ie to help it properly space single day rows
-            if ($rowspan > 1 && $in_month && $single_day_cnt > 0) {
-              $max_multirow_cnt = max($max_multirow_cnt, $single_day_cnt);
-            }
-            else {
-              $max_singlerow_cnt = max($max_singlerow_cnt, $single_day_cnt);
-            }
-           
-            // If the singlerow is bigger than the multi-row, then null out
-            // ieheight - I'm estimating that a single row is twice the size of
-            // multi-row.  This is really the best that can be done with ie
-            if ($max_singlerow_cnt >= $max_multirow_cnt || $max_multirow_cnt <= $multi_count / 2 ) {
-              $iehint = 0;
-            }
-            elseif ($rowspan > 1 && $in_month && $single_day_cnt > 0) {
-              $iehint = max($iehint, $rowspan - 1); // How many rows to adjust for?
-            }
-           
-            // Set the class
-            $item['class'] .= ($curday_date == $today && $in_month ? ' today' : '') .
-              ($curday_date < $today ? ' past' : '') .
-              ($curday_date > $today ? ' future' : '');
-          }
-        }
- 
-        // If there isn't an item, then add empty class
-        if ($item != NULL) {
-          if (!$in_month) {
-            $item['class'] .= ' empty';
-          }
-          // Style this entry - it will be a <td>.
-          $inner .= theme('calendar_month_col', array('item' => $item));
-        }
-       
-        date_modify($curday, '+1 day');
-      }
-     
-      if ($i == 0) {
-        $output .= theme('calendar_month_row', array(
-          'inner' => $inner, 
-          'class' => 'date-box', 
-          'iehint' => $iehint,
-        ));
-      }
-      elseif ($i == $total_rows) {
-        $output .= theme('calendar_month_row', array(
-          'inner' => $inner, 
-          'class' => 'single-day', 
-          'iehint' => $iehint,
-        ));
-        $iehint = 0;
-        $max_singlerow_cnt = 0;
-        $max_multirow_cnt = 0;
-      }
-      else {
-        // Style all the columns into a row
-        $output .= theme('calendar_month_row', array(
-          'inner' => $inner, 
-          'class' => 'multi-day',
-        ));
-      }
-    }
-    $curday = $final_day;
-   
-    // Add the row into the row array....
-    $rows[] = array('data' => $output);
-   
+    $rows = array_merge($rows, calendar_build_week($curday, $view, $items, TRUE));
     $curday_date = date_format($curday, DATE_FORMAT_DATE);
     $curday_month = date_format($curday, 'n');
   } while ($curday_month == $month && $curday_date <= $view->date_info->max_date_date);
- 
+
   // Merge the day names in as the first row.
   $rows = array_merge(array(calendar_week_header($view)), $rows);
   return $rows;
 }
+
 /**
  * Build one week row.
  */
-function calendar_build_mini_week(&$curday, $view, $items, $check_month = FALSE) {
+function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
   $curday_date = date_format($curday, DATE_FORMAT_DATE);
   $weekdays = calendar_untranslated_days($items, $view);
-  $today = date_format(date_now(date_default_timezone_name()), DATE_FORMAT_DATE);
+  $today = date_format(date_now(date_default_timezone()), DATE_FORMAT_DATE);
   $month = date_format($curday, 'n');
   $week = date_week($curday_date);
   $first_day = variable_get('date_first_day', 0);
-  
+
   // move backwards to the first day of the week
   $day_wday = date_format($curday, 'w');
   date_modify($curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
   $curday_date = date_format($curday, DATE_FORMAT_DATE);
-   
+    
   // If we're displaying the week number, add it as the
   // first cell in the week.
   if (!empty($view->date_info->style_with_weekno) && !in_array($view->date_info->granularity, array('day', 'week'))) {
@@ -348,32 +114,29 @@ function calendar_build_mini_week(&$curday, $view, $items, $check_month = FALSE)
       'class' => 'week');
   }
   for ($i = 0; $i < 7; $i++) {
-    $curday_date = date_format($curday, DATE_FORMAT_DATE);
-    $class = strtolower($weekdays[$i] . ' mini');
+    $curday_date = date_format($curday, DATE_FORMAT_DATE); 
+    $class = strtolower($weekdays[$i] .
+    ($view->date_info->mini ? ' mini' : ''));
     if ($check_month && ($curday_date < $view->date_info->min_date_date || $curday_date > $view->date_info->max_date_date || date_format($curday, 'n') != $month)) {
       $class .= ' empty';
-       $variables = array(
+      $variables = array(
         'curday' => $curday_date, 
         'view' => $view,
       );
-     
       $content = array(
-        'date' => '',
-        'datebox' => '',
-        'empty' => theme('calendar_empty_day', $variables),
+        'date' => '', 
+        'datebox' => '', 
+        'empty' => theme('calendar_empty_day', $variables), 
         'link' => '',
-        'all_day' => array(),
+        'all_day' => array(), 
         'items' => array(),
         );
     }
     else {
       $content = calendar_build_day($curday, $view, $items);
-      $class .= ($curday_date == $today ? ' today' : '') .
-        ($curday_date < $today ? ' past' : '') .
-        ($curday_date > $today ? ' future' : '') .
-        (empty($items[$curday_date]) ? ' has-no-events' : ' has-events');
+      $class .= ($curday_date == $today ? ' today' : '') . ($curday_date < $today ? ' past' : '') . ($curday_date > $today ? ' future' : '');
     }
-   
+    
     $rows[$week][] = array(
       'data' => $content,
       'class' => $class, 'id' => $view->name . '-' . $curday_date);
@@ -381,227 +144,7 @@ function calendar_build_mini_week(&$curday, $view, $items, $check_month = FALSE)
   }
   return $rows;
 }
-/**
- * Build one week row.
- */
-function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
-  $curday_date = date_format($curday, DATE_FORMAT_DATE);
-  $weekdays = calendar_untranslated_days($items, $view);
-  $month = date_format($curday, 'n');
-  $first_day = variable_get('date_first_day', 0);
- 
-  // Set up buckets
-  $total_rows = 0;
-  $multiday_buckets = array( array(), array(), array(), array(), array(), array(), array());
-  $singleday_buckets = array( array(), array(), array(), array(), array(), array(), array());
- 
-  // move backwards to the first day of the week
-  $day_wday = date_format($curday, 'w');
-  date_modify($curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
-  $curday_date = date_format($curday, DATE_FORMAT_DATE);
-   
-  for ($i = 0; $i < 7; $i++) {
-    if ($check_month && ($curday_date < $view->date_info->min_date_date || $curday_date > $view->date_info->max_date_date || date_format($curday, 'n') != $month)) {
-      $class = strtolower($weekdays[$i]) .' empty';
-      $singleday_buckets[$i][][] = array(
-        'entry' => theme('calendar_empty_day', array(
-           'curday' => $curday_date, 
-           'view' => $view,
-        )),
-        'item' => NULL
-      );
-    }
-    else {
-      calendar_build_week_day($curday, $view, $items, $i, $multiday_buckets, $singleday_buckets);
-    }
-    $total_rows = max(count($multiday_buckets[$i]) + 1, $total_rows);
-    date_modify($curday, '+1 day');
-    $curday_date = date_format($curday, DATE_FORMAT_DATE);
-  }
- 
-  $rows = array(
-    'multiday_buckets' => $multiday_buckets,
-    'singleday_buckets' => $singleday_buckets,
-    'total_rows' => $total_rows);
-  return $rows;
-}
-/**
- * Build the contents of a single day for the $rows results.
- */
-function calendar_build_week_day($curday, $view, $items, $wday, &$multiday_buckets, &$singleday_buckets) {
-  $curday_date = date_format($curday, DATE_FORMAT_DATE);
-  $max_events = !empty($view->date_info->style_max_items) ? $view->date_info->style_max_items : 0;
-  $hide = !empty($view->date_info->style_max_items_behavior) ? ($view->date_info->style_max_items_behavior == 'hide') : FALSE;
-  $multiday_theme = ($view->date_info->style_multiday_theme == '1');
-  $cur_cnt = 0;
-  $total_cnt = 0;
-  $types = array();
- 
-  // If we are hiding, count before processing further
-  if ($max_events != CALENDAR_SHOW_ALL) {
-    foreach ($items as $date => $day) {
-      if ($date == $curday_date) {
-        foreach ($day as $time => $hour) {
-          foreach ($hour as $key => $item) {
-            $total_cnt++;
-            $types[$item->type] = $item;
-          }
-        }
-      }
-    }
-  }
- 
-  // If we haven't already exceeded the max or we'll showing all, then process the items
-  if ($max_events == CALENDAR_SHOW_ALL || !$hide || $total_cnt <= $max_events) {
-    // Count currently filled items
-    foreach ($multiday_buckets[$wday] as $bucket) {
-      if (!$bucket['avail']) {
-        $cur_cnt++;
-      }
-    }
-   
-    foreach ($items as $date => $day) {
-      if ($date == $curday_date) {
-        $count = 0;
-        ksort($day);
-        foreach ($day as $time => $hour) {
-          foreach ($hour as $key => $item) {
-            $count++;
-           
-            // Can we add an item?
-            if ($max_events == CALENDAR_SHOW_ALL || $cur_cnt <= $max_events) {
-              $all_day = $item->calendar_start_date == $item->calendar_end_date;
-              $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_info->granularity .'_node';
-   
-              // Parse out date part
-              $start_ydate = date_format($item->date_start, DATE_FORMAT_DATE);
-              $end_ydate = date_format($item->date_end, DATE_FORMAT_DATE);
-              $cur_ydate = date_format($curday, DATE_FORMAT_DATE);
-             
-              $is_multi_day = ($start_ydate < $cur_ydate || $end_ydate > $cur_ydate);
-             
-              // Does this event span multi-days?
-              if ($multiday_theme && ($is_multi_day || $all_day)) {
-               
-                // If this the first day of the week, or is the start date of the multi-day event,
-                // then record this item, otherwise skip over
-                $day_no = date_format($curday, 'd');
-                if ($wday == 0 || $start_ydate == $cur_ydate || ($view->date_info->granularity == 'month' && $day_no == 1) || ($all_day && !$is_multi_day)) {
-                  $cur_cnt++;
-                 
-                  // Calculate the colspan for this event
-                  $start = date_make_date($cur_ydate);
-                  $end = date_make_date($end_ydate);
-                  $curday_obj = date_make_date($curday_date);
-                 
-                  // Calculate end of month
-                  $last_day = date_make_date($view->date_info->max_date_date);
- 
-                  // If the last day of this event exceeds the end of the current month or week,
-                  // truncate the remaining days
-                  $diff = date_difference($last_day, $curday_obj, 'days');
-                  $remaining_days = ($view->date_info->granularity == 'month') ? min(6 - $wday, $diff) : $diff - 1;                 
-                  // The bucket_cnt defines the colspan.  colspan = bucket_cnt + 1
-                  $days = date_difference($start, $end, 'days');
-                  $bucket_cnt = max(0, min($days, $remaining_days));
-                 
-                  // See if there is an avaiable slot to add an event.  This will allow
-                  // an event to precede a row filled up by a previous day event
-                  $avail = FALSE;
-                  $bucket_index = count($multiday_buckets[$wday]);
-                  for ($i = 0; $i < $bucket_index; $i++) {
-                    if ($multiday_buckets[$wday][$i]['avail']) {
-                      $bucket_index = $i;
-                      break;
-                    }
-                  }
-                 
-                  // Add continuation attributes
-                  $start_date = date_make_date($start_ydate);
-                  $item->continuation =  ($start_date < $curday_obj);
-                  $item->continues = ( $days > $bucket_cnt );
-                                 
-                  // Assign the item to the available bucket
-                  $multiday_buckets[$wday][$bucket_index] = array(
-                    'colspan' => $bucket_cnt + 1,
-                    'rowspan' => 1,
-                    'filled' => TRUE,
-                    'avail' => FALSE,
-                    'all_day' => $all_day,
-                    'item' => $item,
-                    'wday' => $wday,
-                    'entry' => theme($theme, array(
-                       'item' => $item, 
-                       'view' => $view,
-                    )),
-                  );
-                 
-                  // Block out empty buckets for the next days in this event for this week
-                  for ($i = 0; $i < $bucket_cnt; $i++) {
-                    $bucket = &$multiday_buckets[$i + $wday + 1];
-                    $bucket_row_count = count($bucket);
-                    $row_diff = $bucket_index - $bucket_row_count;
-                   
-                    // Fill up the preceding buckets - these are available for future
-                    // events
-                    for ( $j = 0; $j < $row_diff; $j++) {
-                      $bucket[($bucket_row_count + $j) ] = array(
-                        'entry' => '&nbsp;',
-                        'colspan' => 1,
-                        'rowspan' => 1,
-                        'filled' => TRUE,
-                        'avail' => TRUE,
-                        'wday' => $wday,
-                        'item' => NULL
-                      );
-                    }
-                    $bucket[$bucket_index] = array(
-                      'filled' => FALSE,
-                      'avail' => FALSE
-                    );
-                  }
-                }
-              }
-              else {
-                $cur_cnt++;
-                // Assign to single day bucket
-                $singleday_buckets[$wday][$time][] = array(
-                  'entry' => theme($theme, array(
-                     'item' => $item, 
-                     'view' => $view,
-                  )),
-                  'item' => $item,
-                  'colspan' => 1,
-                  'rowspan' => 1,
-                  'filled' => TRUE,
-                  'avail' => FALSE,
-                  'wday' => $wday,
-                );
-              }
-            }
-            else {
-              break;  // exceeded count
-            }
-          }
-        }
-      }
-    }
-  }
-   
-  // Add a more link if necessary
-  if ($max_events != CALENDAR_SHOW_ALL && $total_cnt > 0 && $cur_cnt < $total_cnt) {
-    $singleday_buckets[$wday][][] = array(
-      'entry' => theme('calendar_'. $view->date_info->calendar_type .'_multiple_node', array(
-        'curday' => $curday_date, 
-        'count' => $total_cnt, 
-        'view' => $view, 
-        'types' => $types,
-      )),
-      'more_link' => TRUE,
-      'item' => NULL
-    );
-  }
-}
+
 /**
  * Build the contents of a single day for the $rows results.
  */
@@ -615,6 +158,7 @@ function calendar_build_day($curday, $view, $items) {
   $empty = '';
   $link = '';
   $count = 0;
+
   foreach ($items as $date => $day) {
     if ($date == $curday_date) {
       $count = 0;
@@ -624,17 +168,21 @@ function calendar_build_day($curday, $view, $items) {
         foreach ($hour as $key => $item) {
           $count++;
           $types[$item->type] = $item;
-          if (!$view->date_info->mini && ($max_events == CALENDAR_SHOW_ALL || $count <= $max_events || ($count > 0 && $max_events == CALENDAR_HIDE_ALL))) {
+          if (!$view->date_info->mini && (empty($max_events) || ($max_events > 0 && $count <= $max_events))) {
             // Theme the item here unless this is a 'Day' or 'Week' view.
             // Day and week views need to do more processing before rendering
             // the item, so just past them the unrendered item.
-            $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_info->granularity .'_node';
+            $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_' . $view->date_info->granularity . '_node';
+            $variables = array(
+              'node' => $item, 
+              'view' => $view,
+            );
             if ($item->calendar_all_day) {
-              $all_day[] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, array('item' => $item, 'view' => $view));
+              $all_day[] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, $variables);
             }
             else {
-              $key = date_format($item->date_start, 'H:i:s');
-              $inner[$key][] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, array('item' => $item, 'view' => $view));
+              $key = date_format($item->calendar_start_date, 'H:i:s');
+              $inner[$key][] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, $variables);
             }
           }
         }
@@ -643,30 +191,35 @@ function calendar_build_day($curday, $view, $items) {
   }
   ksort($inner);
   if (empty($inner) && empty($all_day)) {
-    $empty = theme('calendar_empty_day', array('curday' => $curday_date, 'view' => $view));
+    $variables = array(
+      'curday' => $curday_date, 
+      'view' => $view,
+    );
+    $empty = theme('calendar_empty_day', $variables);
   }
-  // We have hidden events on this day, use the theme('calendar_multiple_') to show a link.
-  if ($max_events != CALENDAR_SHOW_ALL && $count > 0 && $count > $max_events && $view->date_info->calendar_type != 'day' && !$view->date_info->mini) {
-    if ($view->date_info->style_max_items_behavior == 'hide' || $max_events == CALENDAR_HIDE_ALL) {
-      $all_day = array();
-      $inner = array();
-    }
-    $link = theme('calendar_'. $view->date_info->calendar_type .'_multiple_node', array(
+  // we have too many events on this day. use the theme('calendar_multiple_')
+  if ($max_events > 0 && $count > $max_events && $view->date_info->calendar_type != 'day' && !$view->date_info->mini) {
+    $variables = array(
       'curday' => $curday_date, 
       'count' => $count, 
       'view' => $view, 
       'types' => $types,
-    ));
+    );
+    if ($view->date_info->style_max_items_behavior == 'hide') {
+      $inner = array();
+    }
+    $link = theme('calendar_' . $view->date_info->calendar_type . '_multiple_node', $variables);
   }
-   
+  
+  $variables = array(
+    'date' => $curday_date, 
+    'view' => $view, 
+    'items' => $items, 
+    'selected' => $selected,
+  ); 
   $content = array(
-    'date' => $curday_date,
-    'datebox' => theme('calendar_datebox', array(
-       'date' => $curday_date, 
-       'view' => $view, 
-       'items' => $items, 
-       'selected' => $selected,
-    )),
+    'date' => $curday_date, 
+    'datebox' => theme('calendar_datebox', $variables), 
     'empty' => $empty,
     'link' => $link,
     'all_day' => $all_day,
@@ -675,3 +228,358 @@ function calendar_build_day($curday, $view, $items) {
   return $content;
 }
 
+/**
+ * Formats the weekday information into table header format
+ *
+ * @ingroup event_support
+ * @return array with weekday table header data
+ */
+function calendar_week_header($view) {
+  $len = isset($view->date_info->style_name_size) ? $view->date_info->style_name_size : (!empty($view->date_info->mini) ? 1 : 3);
+  $with_week = !empty($view->date_info->style_with_weekno);
+  
+  // create week header
+  $untranslated_days = calendar_untranslated_days();
+  if ($len == 99) {
+    $translated_days = date_week_days_ordered(date_week_days(TRUE));
+  }
+  else {
+    $translated_days = date_week_days_ordered(date_week_days_abbr(TRUE));
+  }
+  if ($with_week) {
+    $row[] = array('header' => TRUE, 'class' => "days week", 'data' => '&nbsp;');
+  }
+  foreach ($untranslated_days as $delta => $day) {
+    $label = $len < 3 ? drupal_substr($translated_days[$delta], 0 , $len) : $translated_days[$delta];
+    $row[] = array('header' => TRUE, 'class' => "days " . $day, 'data' => $label);
+  }
+  return $row;
+}
+
+/**
+ * Array of untranslated day name abbreviations, forced to lowercase
+ * and ordered appropriately for the site setting for the first day of week.
+ *
+ * The untranslated day abbreviation is used in css classes.
+ */
+function calendar_untranslated_days() {
+  $untranslated_days = date_week_days_ordered(date_week_days_untranslated());
+  foreach ($untranslated_days as $delta => $day) {
+    $untranslated_days[$delta] = strtolower(substr($day, 0, 3));
+  }
+  return $untranslated_days;
+}
+
+/**
+ * Take the array of items and alter it to an array of
+ * calendar nodes that the theme can handle.
+ *
+ * Iterate through each datefield in the view and each item
+ * returned by the query, and create pseudo date nodes.
+ *
+ * If there is more than one date field in the node, this will create
+ * multiple nodes, one each with the right calendar date for that
+ * field's value. If a field value has a date range that covers more than
+ * one day, separate nodes will be created for each day in the field's
+ * day range, limited to the minimum and maximum dates for the view.
+ *
+ * When we finish, we will have a distinct node for each distinct day
+ * and date field.
+ */
+function calendar_build_nodes(&$view, &$items) {
+  if (empty($view->date_info->min_date) || empty($view->date_info->max_date)) {
+    return $items;
+  }
+  
+  // Midnights are determined based on the same timezone as the View uses
+  $display_timezone = date_timezone_get($view->date_info->min_date);
+  $display_timezone_name = timezone_name_get($display_timezone);
+  
+  // Translate the view min and max dates to UTC values
+  // so we can compare UTC dates to the view range.
+  $min_utc = clone($view->date_info->min_date);
+  date_timezone_set($min_utc, timezone_open('UTC'));
+  $max_utc = clone($view->date_info->max_date);
+  date_timezone_set($max_utc, timezone_open('UTC'));
+  $min_zone_string = array(); // Will cache $min_utc-strings in various timezones 
+  $max_zone_string = array();
+
+  $view->date_info->nodes_per_page = 0;
+  $type_names = node_type_get_names();
+
+  $datefields = array();
+  $fields = date_api_fields();
+
+  if (!empty($view->filter['date_filter'])) {
+    $date_filter = $view->filter['date_filter'];
+    foreach ($view->filter['date_filter']->options['date_fields'] as $name) {
+      $datefields[] = $fields['name'][$name]['query_name'];
+    }
+  }
+  if (!empty($view->argument['date_argument'])) {
+    $date_filter = $view->argument['date_argument'];
+    foreach ($view->argument['date_argument']->options['date_fields'] as $name) {
+      $datefields[] = $fields['name'][$name]['query_name'];
+    }
+  }
+  
+  $view_fields = date_api_views_fetch_fields('node', 'field');
+  $field_names = (array) array_keys($fields['name']);
+  $nodes = array();
+  $i = 0;
+  foreach ($date_filter->options['date_fields'] as $name) {
+
+    $field        = $fields['name'][$name];
+    $field_type   = strstr($field['type'], 'string') ? 'string' : 'timestamp';
+    $alias        = $field['query_name'];
+    $field_name   = $field['field_name'];
+    $fromto       = $field['fromto'];
+    $tz_handling  = $field['tz_handling'];
+    $label        = isset($view->field[$name]) ? $view->field[$name]['label'] : $field['field_name'];
+    $tz_alias     = str_replace('.', '_', $field['timezone_field']);
+    $db_tz        = date_get_timezone_db($field['tz_handling']);
+    $local_tz     = date_get_timezone($field['tz_handling'], 'date');
+    $field_name   = $field['field_name'];
+    $real_field   = $field['real_field_name'];
+    
+    // If there is no field for this item, just default to the site format.
+    if (!isset($view->field[$field_name])) {
+      $format = variable_get('date_format_short', 'm/d/Y - H:i');
+    }
+    else {
+      if (strstr($field['type'], 'cck')) {
+        $formatter = $view->field[$field_name]->options['type'];
+        $format = date_formatter_format($formatter, $view->field[$field_name]->options['type']);
+      }
+      else {
+        $format = $view->field[$field_name]->options['date_format'];
+        switch ($format) {
+          case 'long':
+            $format = variable_get('date_format_long',  'l, F j, Y - H:i');
+            break;
+          case 'medium':
+            $format = variable_get('date_format_medium',  'D, m/d/Y - H:i');
+            break;
+          case 'custom':
+            $format = $view->field[$field_name]->options['custom_date_format'];
+            break;
+          case 'time ago':
+            break;
+          default:
+            $format = variable_get('date_format_short', 'm/d/Y - H:i');
+            break;
+        }
+      }
+    }
+    
+    // set the domain part of the id
+    $domain = check_plain($_SERVER['SERVER_NAME']);
+
+    // If there are multiple date fields in this calendar we may get
+    // duplicate items from the other date fields, so add a way to
+    // make sure each individual date field only gets added to the
+    // calendar one time.
+    $processed = array();
+    $rrule_processed = array();
+    foreach ($items as $pos => $item) {
+      $delta = !empty($field['delta_field']) && !empty($item->{$field['delta_field']}) ? $item->{$field['delta_field']} : 0;
+      $id = 'calendar.' . $item->nid . '.' . $real_field . '.' . $delta;
+      
+      // When creating iCal feeds for repeating dates we don't want all
+      // the multiple values, send only the first value.
+      if (strstr($view->current_display, '_ical')) {
+        if (!isset($rrule_processed[$item->nid])) {
+          $rrule_processed[$item->nid] = TRUE;
+        }
+        else {
+          continue;
+        }
+      }
+      
+      if (!in_array($id, $processed) && isset($item->calendar_fields->$alias)) {
+        
+        // Create from and to date values for each item, adjusted to
+        // the correct timezone.
+        $values[0] = $item->calendar_fields->$fromto[0];
+        $values[1] = $item->calendar_fields->$fromto[1];
+                
+        $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_alias) ? $item->$tz_alias : $display_timezone_name);
+        $to_zone = date_get_timezone($tz_handling, isset($item->$tz_alias) ? $item->$tz_alias : $display_timezone_name);
+        
+        // Now $display_timezone determines how $item is split into 
+        // one entry per day, while $to_zone determines how date is displayed.
+        // For now, use the date fields's timezone for the day splitting.
+        $display_timezone_name = $to_zone;
+        $values_display = array();
+        
+        // Start date
+        $date = new DateObject($values[0], $db_tz);
+        if ($db_tz != $to_zone) {
+          date_timezone_set($date, timezone_open($to_zone));
+        }
+        $values[0] = date_format($date, DATE_FORMAT_DATETIME);
+            
+        if ($display_timezone_name != $to_zone) {
+          date_timezone_set($date, $display_timezone);
+          $values_display[0] = date_format($date, DATE_FORMAT_DATETIME);
+        } 
+        else {
+          $values_display[0] = $values[0];
+        }
+            
+        // End date
+        $date = new DateObject($values[1], $db_tz);
+        if ($db_tz != $to_zone) {
+          date_timezone_set($date, timezone_open($to_zone));
+        }
+        $values[1] = date_format($date, DATE_FORMAT_DATETIME);
+        if ($display_timezone_name != $to_zone) {
+          date_timezone_set($date, $display_timezone);
+          $values_display[1] = date_format($date, DATE_FORMAT_DATETIME);
+        } 
+        else {
+          $values_display[1] = $values[1];
+        }
+               
+        // Now $values contain start and end date of a node,
+        // expressed as strings in the display (local) timezone.
+        // $values_utc does the same in UTC timezone.
+
+        // Get calendar min and max day (not time) as strings in the
+        // $display_timezone. Cache in $min_zone_string and $max_zone_string,
+        // since many items or fields typically use the samee timezone.
+        if (!isset($min_zone_string[$display_timezone_name])) {
+          $date = clone($view->date_info->min_date);
+          date_timezone_set($date, $display_timezone);
+          $min_zone_string[$display_timezone_name] = date_format($date, DATE_FORMAT_DATE);
+          $date = clone($view->date_info->max_date);
+          date_timezone_set($date, $display_timezone);
+          $max_zone_string[$display_timezone_name] = date_format($date, DATE_FORMAT_DATE);
+        }
+        
+        // Create a node for each date within the field's date range,
+        // limited to the view's date range (regarding only day, not time).
+        $now = max($min_zone_string[$display_timezone_name], substr($values_display[0], 0, 10));
+        $to  = min($max_zone_string[$display_timezone_name], substr($values_display[1], 0, 10));
+        $next = new DateObject($now, $display_timezone);
+        if ($display_timezone_name != $to_zone) {
+          // Make $start and $end (derived from $node) use the timezone $to_zone, just as $values[..] do
+          date_timezone_set($next, timezone_open($to_zone));
+        }
+        if (empty($to)) {
+          $to = $now;
+        }
+                  
+        // $now and $next are midnight (in display timezone) on the first day where node will occur.
+        // $to is midnight on the last day where node will occur.
+        // All three were limited by the min-max date range of the view.
+        while ($now <= $to) {
+          $node = clone($item);
+          // Make sure the pseudo node has the same properties a
+          // regular node would have.
+          if (isset($node->node_title) && !isset($node->title)) {
+            $node->title = $node->node_title;
+          }
+          if (isset($node->node_type) && !isset($node->type)) {
+            $node->type = $node->node_type;
+          }
+
+          $exceptions = array('format_interval', 'time ago');
+          $node->label = $label;
+          $node->format = $format;
+          if (!in_array($node->format, $exceptions)) {
+            if (!isset($formats[$format])) {
+              $formats[$format] = date_limit_format($format, array('hour', 'minute', 'second'));
+              $node->format_time = $formats[$format];
+            }
+          }
+          else {
+            $node->format_time = '';
+          }
+          $node->url = calendar_get_node_link($node);
+                              
+          //$node->$fromto[0] = $values[0];
+          //$node->$fromto[1] = $values[1];
+          
+          // Flag which datefield this node is using, in case
+          // there are multiple date fields in the view.
+          $node->datefield = $alias;
+
+          // If there are other datefields in the View, get rid
+          // of them in this pseudo node. There should only be one
+          // date in each calendar node.
+          foreach ($node as $key => $val) {
+            if ($key != $alias && in_array($key, $datefields)) {
+              unset($node->$key);
+              foreach ($fields['name'] as $other_fields) {
+                // If the unused date has other fields, unset them, too.
+                if ($other_fields['query_name'] == $key) {
+                  foreach ($other_fields['related_fields'] as $related_field) {
+                    $key2 = str_replace('.', '_', $related_field);
+                    unset($node->$key2);
+                  }
+                }
+              }
+            }
+          }
+
+          // Get start and end of current day
+          $start = date_format($next, DATE_FORMAT_DATETIME);
+          date_modify($next, '+1 day');
+          date_modify($next, '-1 second');
+          $end = date_format($next, DATE_FORMAT_DATETIME);
+          
+          // Get intersection of current day and the node value's duration (as strings in $to_zone timezone)
+          $node->calendar_start = $values[0] < $start ? $start : $values[0];
+          $node->calendar_end = !empty($values[1]) ? ($values[1] > $end ? $end : $values[1]) : $node->calendar_start;
+
+          // Make date objects
+          $node->calendar_start_date = date_create($node->calendar_start, timezone_open($to_zone));
+          $node->calendar_end_date = date_create($node->calendar_end, timezone_open($to_zone));
+          
+          // Change string timezones into 
+          // calendar_start and calendar_end are UTC dates as formatted strings
+          $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
+          $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
+          
+          if (substr($real_field, 0, 6) == 'field_') {
+            $cck_field = field_info_field($real_field);
+            $instance = field_info_instance($view->base_table, $real_field, $node->type);
+            $granularity = $cck_field['settings']['granularity'];
+            $increment = $instance['widget']['settings']['increment'];
+          }
+          else {
+            $granularity = 'second';
+            $increment = 1;
+          }
+          $node->calendar_all_day = date_is_all_day($node->calendar_start, $node->calendar_end, $granularity, $increment);
+          
+          // Change string timezones into 
+          // calendar_start and calendar_end are UTC dates as formatted strings
+          $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
+          $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
+          
+          unset($node->calendar_fields);
+          if (isset($node) && (empty($node->calendar_start))) {
+            // if no date for the node and no date in the item
+            // there is no way to display it on the calendar
+            unset($node);
+          }
+          else {
+            calendar_node_stripe($view, $node, $alias, $alias);
+            calendar_node_taxonomy_stripe($view, $node, $alias, $alias);
+            calendar_node_group_stripe($view, $node, $alias, $alias);
+            $node->date_id = $id . '.' . $pos;
+
+            $nodes[] = $node;
+            unset($node);
+          }
+          date_modify($next, '+1 second');
+          $processed[] = $id;  
+          $now = date_format($next, DATE_FORMAT_DATE);
+        }
+      }
+    }
+  }
+  return $nodes;
+}

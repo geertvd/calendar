@@ -16,11 +16,15 @@
  * 
  */
 //dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_formatted);
+$links = array(
+  'links' => $calendar_links, 
+  'attributes' => array('class' => 'inline'),
+);
 ?>
 
 <div class="calendar-calendar">
   <?php if (!empty($calendar_popup)) print $calendar_popup;?>
   <?php if (!empty($calendar_add_date)) print $calendar_add_date; ?>
-  <?php if (empty($block)) print theme('links', array('links' => $calendar_links));?>
+  <?php if (empty($block)) print theme('links', $links);?>
   <?php print theme('date_navigation', array('view' => $view)) ?>
 </div>
