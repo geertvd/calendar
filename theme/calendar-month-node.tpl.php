@@ -37,17 +37,28 @@
  * 
  * @see template_preprocess_calendar_month_node.
  */
+$index = 0;
 ?>
 <div class="view-item view-item-<?php print $view->name ?>">
-  <div class="<?php print $node->date_id; ?> calendar monthview">
+  <div class="calendar monthview">
     <?php print theme('calendar_stripe_stripe', array('node' => $node)); ?>
-    <?php foreach ($fields as $field): ?>
-      <div class="view-field view-data-<?php print $field['id']; ?> <?php print $field['id']; ?>">
-        <?php if ($field['label']): ?>
-          <div class="view-label-<?php print $field['id'] ?>"><?php print $field['label'] ?></div>
-        <?php endif; ?>  
-        <?php print $field['data']; ?>
-      </div>  
-    <?php endforeach; ?>
+    <div id="<?php print $node->date_id ?>" class="contents">
+      <?php foreach ($fields as $field): ?>
+        <?php if ($index++ == 0 && (isset($node->continuation) && $node->continuation)) : ?>
+        <div class="continuation">&laquo;</div>
+        <?php endif;?>
+        <div id="<?php print $field['id']; ?>" class="view-field view-data-<?php print $field['id'] ?>">
+          <?php if ($field['label']): ?>
+            <div class="view-label-<?php print $field['id'] ?>"><?php print $field['label'] ?></div>
+          <?php endif; ?>  
+          <?php print $field['data']; ?>
+        </div>  
+      <?php endforeach; ?>
+    </div>  
+    <?php if (isset($node->continues) && $node->continues) : ?>
+    <div class="continues">&raquo;</div>
+    <?php else : ?>
+    <div class="cutoff">&nbsp;</div>
+    <?php endif;?>
   </div>    
 </div>
