@@ -15,8 +15,8 @@ class calendar_view_plugin_style extends calendar_plugin_style {
    * Init will be called after construct, when the plugin is attached to a
    * view and a display. 
    */
-  function init(&$view, &$display) {
-    parent::init($view, $display);
+  function init(&$view, &$display, $options = NULL) {
+    parent::init($view, $display, $options);
     $calendar_type = $this->display->handler->get_option('calendar_type');
     $view->date_info->calendar_popup = $this->display->handler->get_option('calendar_popup');
     $view->date_info->style_name_size = $this->options['name_size'];
@@ -168,7 +168,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     }
   }
 
-  function options_submit($form, &$form_state) {
+  function options_submit(&$form, &$form_state) {
     $form_state['values']['style_options']['truncated_fields'] = array_filter($form_state['values']['style_options']['truncated_fields']);
   }
 
