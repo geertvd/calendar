@@ -48,8 +48,8 @@ class calendar_view_plugin_style extends calendar_plugin_style {
   function options(&$options) {
     $options['name_size'] = 3;
     $options['with_weekno'] = 0;
-    $options['multiday_theme'] = '1';
-    $options['theme_style'] = '1';
+    $options['multiday_theme'] = module_exists('calendar_multiday') ? '1' : '0';
+    $options['theme_style'] = module_exists('calendar_multiday') ? '1' : '0';
     $options['max_items'] = 0;
     $options['max_items_behavior'] = 'more';
     $options['truncated_fields'] = array();
@@ -177,7 +177,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
    */
   function render() {
     $calendar_type = $this->display->handler->get_option('calendar_type');
-
+    
     // Adjust the theme to match the currently selected default.
     // Only the month view needs the special 'mini' class,
     // which is used to retrieve a different, more compact, theme.
@@ -186,11 +186,11 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     }
     elseif ( $calendar_type == 'week') {
       $this->view->date_info->mini = FALSE;
-      $this->definition['theme'] = ($this->view->style_options['multiday_theme'] == '1' && $this->view->style_options['theme_style'] == '1') ? 'calendar_'. $this->view->date_info->granularity .'_overlap' : 'calendar_'. $this->view->date_info->granularity;
+      $this->definition['theme'] = ($this->view->style_plugin->options['multiday_theme'] == '1' && $this->view->style_plugin->options['theme_style'] == '1') ? 'calendar_'. $this->view->date_info->granularity .'_overlap' : 'calendar_'. $this->view->date_info->granularity;
     }
     elseif ( $calendar_type == 'day') {
       $this->view->date_info->mini = FALSE;
-      $this->definition['theme'] = ($this->view->style_options['theme_style'] == '1') ? 'calendar_'. $this->view->date_info->granularity .'_overlap' : 'calendar_'. $this->view->date_info->granularity;
+      $this->definition['theme'] = ($this->view->style_plugin->options['theme_style'] == '1') ? 'calendar_'. $this->view->date_info->granularity .'_overlap' : 'calendar_'. $this->view->date_info->granularity;
     }
     else {
       $this->view->date_info->mini = FALSE;

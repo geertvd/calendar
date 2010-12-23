@@ -10,8 +10,8 @@
  * Default style plugin to render an iCal feed.
  */
 class calendar_plugin_style_ical extends views_plugin_style_rss {
-  function init(&$view, &$display) {
-    parent::init($view, $display);
+  function init(&$view, &$display, $options = NULL) {
+    parent::init($view, $display, $options);
     $fields = $display->handler->default_display->options['fields'];
     $this->options['fields'] = $fields;
   }
