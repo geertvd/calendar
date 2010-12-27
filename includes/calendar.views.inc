@@ -192,7 +192,7 @@ function calendar_views_plugins() {
   );
   
   if (module_exists('calendar_multiday')) {
-    $data['style']['calendar_style']['additional themese'] += array(
+    $data['style']['calendar_style']['additional themes'] += array(
       'calendar_day_overlap' => 'style',
       'calendar_week_overlap' => 'style',
     );
