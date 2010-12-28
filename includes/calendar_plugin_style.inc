@@ -10,8 +10,8 @@ class calendar_plugin_style extends views_plugin_style {
    * Init will be called after construct, when the plugin is attached to a
    * view and a display. 
    */
-  function init(&$view, &$display) {
-    parent::init($view, $display);
+  function init(&$view, &$display, $options = NULL) {
+    parent::init($view, $display, $options);
     $view->date_info->display_types = $this->display_types();
   }
     
