@@ -53,6 +53,7 @@ function calendar_build_calendar($view, $items) {
       $rows = array_merge(array(calendar_week_header($view)), $rows);
       break;
   }
+
   return $rows;
  
 }
@@ -320,7 +321,7 @@ function calendar_build_month(&$curday, $view, $items) {
 function calendar_build_mini_week(&$curday, $view, $items, $check_month = FALSE) {
   $curday_date = date_format($curday, DATE_FORMAT_DATE);
   $weekdays = calendar_untranslated_days($items, $view);
-  $today = date_format(date_now(date_default_timezone_name()), DATE_FORMAT_DATE);
+  $today = date_format(date_now(date_default_timezone()), DATE_FORMAT_DATE);
   $month = date_format($curday, 'n');
   $week = date_week($curday_date);
   $first_day = variable_get('date_first_day', 0);

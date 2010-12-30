@@ -78,7 +78,7 @@ function template_preprocess_calendar_main(&$vars) {
  */
 function template_preprocess_calendar(&$vars) {
   module_load_include('inc', 'calendar_multiday', 'includes/calendar');  
-  return;
+
   $view     = $vars['view'];
   
   // Make sure we only run through this function one time.
@@ -148,7 +148,7 @@ function template_preprocess_calendar(&$vars) {
   
   // Create the calendar day names and rows.
   $rows = calendar_build_calendar($view, $items);
-  
+
   $vars['items'] = $items;
   $vars['rows'] = $rows;
   
@@ -239,7 +239,7 @@ function template_preprocess_calendar_year(&$vars) {
   // Add in all the $vars added by the main calendar preprocessor.
   $vars['view']->date_info->style_with_weekno = FALSE;
   template_preprocess_calendar($vars);
-    
+
   // Get the url of the year view and remove the year argument from it.
   // TODO clean this up in case there is another arg that looks like
   // the year to make sure only the year gets removed.

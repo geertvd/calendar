@@ -63,7 +63,7 @@
     <tr class="<?php print $rowclass?>">
       <?php if($i == 0 && ($by_hour_count > 0 || !empty($start_times))) :?>
       <td class="<?php print $agenda_hour_class ?>" rowspan="<?php print $multiday_rows?>">
-        <span class="calendar-hour"><?php print date_t('All day', 'datetime')?></span>
+        <span class="calendar-hour"><?php print t('All day', array(), array('context' => 'datetime'))?></span>
       </td>
       <?php endif; ?>
       <?php for($j = 0; $j < 6; $j++): ?>
@@ -88,7 +88,7 @@
     <?php if ($multiday_rows == 0) :?>
     <tr>
       <td class="<?php print $agenda_hour_class ?>">
-        <span class="calendar-hour"><?php print date_t('All day', 'datetime')?></span>
+        <span class="calendar-hour"><?php print t('All day', array(), array('context' => 'datetime'))?></span>
       </td>
       <?php for($j = 0; $j < 6; $j++): ?>
       <td class="calendar-agenda-items multi-day no-entry"><div class="inner">&nbsp;</div></td>
