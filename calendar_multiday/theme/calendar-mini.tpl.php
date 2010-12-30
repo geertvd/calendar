@@ -36,7 +36,7 @@
     <?php foreach ((array) $rows as $row): ?>
       <tr>
         <?php foreach ($row as $cell): ?>
-          <td class="<?php print $cell['class']; ?> <?php print $cell['id']; ?>">
+          <td id="<?php print $cell['id']; ?>" class="<?php print $cell['class']; ?>">
             <?php print $cell['data']; ?>
           </td>
         <?php endforeach; ?>

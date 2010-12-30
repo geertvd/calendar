@@ -9,7 +9,7 @@
  */
 ?>
 <div class="view-item view-item-<?php print $view->name ?>">
-  <div class="<?php print $curday; ?> calendar monthview">
+  <div class="calendar monthview" id="<?php print $curday ?>">
     <?php foreach ($types as $type): ?>
       <?php if ($view->date_info->style_max_items_behavior != 'more'): ?>
         <?php print theme('calendar_stripe_stripe', array('type' => $type)); ?>

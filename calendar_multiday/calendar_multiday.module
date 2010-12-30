@@ -33,57 +33,57 @@ function calendar_multiday_theme() {
   return array(
     'calendar_day_node' => $base + array(
        'template' => 'calendar-day-node',
-       'arguments' => array('node' => NULL, 'view' => NULL),
+       'variables' => array('node' => NULL, 'view' => NULL),
        ),
     'calendar_month_node' => $base + array(
       'template' => 'calendar-month-node',
-      'arguments' => array('node' => NULL, 'view' => NULL),
+      'variables' => array('node' => NULL, 'view' => NULL),
       ),
     'calendar_week_node' => $base + array(
       'template' => 'calendar-week-node',
-      'arguments' => array('node' => NULL, 'view' => NULL),
+      'variables' => array('node' => NULL, 'view' => NULL),
       ),
     'calendar_month_multiple_node' => $base + array(
       'template' => 'calendar-month-multiple-node',
-      'arguments' => array('curday' => NULL, 'count' => NULL, 'view' => NULL, 'types' => NULL),
+      'variables' => array('curday' => NULL, 'count' => NULL, 'view' => NULL, 'types' => NULL),
       ),
     'calendar_week_multiple_node' => $base + array(
       'template' => 'calendar-week-multiple-node',
-      'arguments' => array('curday' => NULL, 'count' => NULL, 'view' => NULL, 'types' => NULL),
+      'variables' => array('curday' => NULL, 'count' => NULL, 'view' => NULL, 'types' => NULL),
       ),
     'calendar_datebox' => $base + array(
       'template' => 'calendar-datebox',
-      'arguments' => array(
+      'variables' => array(
         'date' => NULL, 'view' => NULL, 'items' => NULL, 'selected' => NULL),
       ),
     'calendar_date_combo' => $base + array(
-      'arguments' => array('node', 'lable', 'view'),
+      'variables' => array('node', 'lable', 'view'),
       ),
     'calendar_empty_day' => $base + array(
-      'arguments' => array('curday', 'view'),
+      'variables' => array('curday', 'view'),
       ),
     'calendar_stripe_legend' => $base + array(
-      'arguments' => array('stripe_labels'),
+      'variables' => array('stripe_labels'),
       ),
     'calendar_stripe_stripe' => $base + array(
-      'arguments' => array('node'),
+      'variables' => array('node'),
       ),
     'calendar_colorpicker' => $base + array(
-      'arguments' => array('element'),
+      'variables' => array('element'),
       ),
     'calendar_colorfield' => $base + array(
-      'arguments' => array('element'),
+      'variables' => array('element'),
       ),
     'calendar_time_row_heading' => $base + array(
-      'arguments' => array('start_time', 'next_start_time', 'curday_date'),
+      'variables' => array('start_time', 'next_start_time', 'curday_date'),
       ),
     'calendar_month_col' => $base + array(
       'template' => 'calendar-month-col',
-      'arguments' => array('item' => NULL),
+      'variables' => array('item' => NULL),
       ),  
     'calendar_month_row' => $base + array(
       'template' => 'calendar-month-row',
-      'arguments' => array('inner' => NULL, 'class' => NULL, 'iehint' => NULL),
+      'variables' => array('inner' => NULL, 'class' => NULL, 'iehint' => NULL),
       ),  
    );
 }

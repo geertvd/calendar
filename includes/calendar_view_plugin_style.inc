@@ -17,6 +17,9 @@ class calendar_view_plugin_style extends calendar_plugin_style {
    */
   function init(&$view, &$display, $options = NULL) {
     parent::init($view, $display, $options);
+    if (!isset($view->date_info)) {
+      $view->date_info = new stdClass();
+    }
     $calendar_type = $this->display->handler->get_option('calendar_type');
     $view->date_info->calendar_popup = $this->display->handler->get_option('calendar_popup');
     $view->date_info->style_name_size = $this->options['name_size'];

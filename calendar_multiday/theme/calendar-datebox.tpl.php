@@ -16,4 +16,4 @@
  * - $items: An array of items for this day.
  */
 ?>
-<div class="<?php print $granularity ?> <?php print $class; ?>"> <?php print $selected ? $link : $day; ?> </div>
+<div class="<?php print $granularity ?> <?php print $class; ?>"> <?php $selected ? $link : $day; ?> </div>

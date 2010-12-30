@@ -30,6 +30,7 @@ function calendar_help($section, $arg) {
 }
 
 function calendar_init() {
+
   // The css for Farbtastic color picker, painless to add it here 
   // even though it isn't needed everywhere.
   drupal_add_css('misc/farbtastic/farbtastic.css');
@@ -43,6 +44,10 @@ function calendar_init() {
 }
 
 function calendar_theme() {
+  // If the multiday module is enabled, let it control the theme.
+  if (module_exists('calendar_multiday')) {
+    return array();
+  }
   module_load_include('inc', 'calendar', 'theme/theme.inc');
   $module_path = drupal_get_path('module', 'calendar');
 
