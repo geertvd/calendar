@@ -131,7 +131,7 @@ function template_preprocess_calendar(&$vars) {
   
   // Massage the resulting items into formatted calendar items.
   $items = calendar_build_nodes($view, $items);
-  
+ 
   // Merge in items from other sources.
   foreach (module_implements('calendar_add_items') as $module) {
     $function = $module .'_calendar_add_items';
@@ -145,7 +145,7 @@ function template_preprocess_calendar(&$vars) {
   }
 
   $view->date_info->mini = isset($view->date_info->mini) ? $view->date_info->mini : $view->date_info->granularity == 'year';
-  
+
   // Create the calendar day names and rows.
   $rows = calendar_build_calendar($view, $items);
 
@@ -656,7 +656,6 @@ function template_preprocess_calendar_week(&$vars) {
 function template_preprocess_calendar_datebox(&$vars) {
   $date = $vars['date'];
   $view = $vars['view'];
-  
   $vars['day'] = intval(substr($date, 8, 2));
   $force_view_url = !empty($view->date_info->block) ? TRUE : FALSE;
   $vars['url'] = date_real_url($view, NULL, $date, $force_view_url);
