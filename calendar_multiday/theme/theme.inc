@@ -101,7 +101,8 @@ function template_preprocess_calendar(&$vars) {
     $copy = drupal_clone($row);
     $items[$num] = $row;
     $items[$num]->raw = $copy;
-    
+    $items[$num]->calendar_fields = new stdClass();
+
     foreach ($row as $key => $value) {
       if (in_array($key, $calendar_fields)) {
         $items[$num]->calendar_fields->$key = $value;

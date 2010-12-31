@@ -135,7 +135,7 @@ function calendar_build_month(&$curday, $view, $items) {
        
         // Add the datebox
         if ($i == 0) {
-          $count = intval(count($multiday_buckets[$wday]) + count($singleday_buckets[$wday]));
+          $count = $in_month ? intval(count($multiday_buckets[$wday]) + count($singleday_buckets[$wday])) : FALSE;
           $item = array(
             'entry' => theme('calendar_datebox', $curday_date, $view, $items, $count),
             'colspan' => 1,
