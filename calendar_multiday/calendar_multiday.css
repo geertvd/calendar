@@ -778,7 +778,7 @@ table.calendar-legend tr.even .stripe {
   font-size : 12px;
 }
 
-div.block .view-content .calendar-calendar .date-prev {
+div.sidebar .view-content .calendar-calendar .date-prev {
   left:0;
   right:auto;
 }

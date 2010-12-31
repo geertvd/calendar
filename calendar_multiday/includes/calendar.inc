@@ -144,7 +144,7 @@ function calendar_build_month(&$curday, $view, $items) {
             'date' => $curday_date, 
             'view' => $view,
             'items' => $items,
-            'selected' => count($multiday_buckets[$wday]) + count($singleday_buckets[$wday]),
+            'selected' => $in_month ? count($multiday_buckets[$wday]) + count($singleday_buckets[$wday]) : FALSE,
           );
           $item = array(
             'entry' => theme('calendar_datebox', $variables),

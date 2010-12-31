@@ -22,7 +22,6 @@
  * to choose what calendar period this display represents.
  */
 class calendar_plugin_display_attachment extends views_plugin_display_attachment {
-  
   /**
    * Instead of going through the standard views_view.tpl.php, delegate this
    * to the style handler.
@@ -126,14 +125,14 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
       unset($this->display);
       return;
     }
-    
+
     $this->view->date_info->parent_id = $display_id;
 
     // See if we're attaching to a block rather than a page.
     if (substr($display_id, 0, 14) == 'calendar_block') {
       $this->view->date_info->mini = TRUE;
       $this->view->date_info->block = TRUE;
-      $this->date_info->calendar_popup = FALSE;
+      $this->view->date_info->calendar_popup = FALSE;
       if (!isset($this->view->date_info->block_identifier)) {
         $this->view->date_info->block_identifier = 'mini';
       }
