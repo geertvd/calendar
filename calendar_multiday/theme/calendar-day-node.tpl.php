@@ -43,7 +43,7 @@ $node_class = (isset($node->class)) ? ' ' . $node->class : '';
   <div class="view-item view-item-<?php print $view->name ?>">
     <div class="calendar dayview">
       <?php print theme('calendar_stripe_stripe', array('node' => $node)); ?>
-      <div id="<?php print $node->date_id ?>" class="contents">
+      <div class="<?php print $node->date_id ?> contents">
       <?php foreach ($fields as $field): ?>
         <div id="<?php print $field['id']; ?>" class="view-field view-data-<?php print $field['id'] ?>">
           <?php if ($field['label']): ?>
