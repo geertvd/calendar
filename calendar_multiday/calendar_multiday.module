@@ -18,14 +18,15 @@ function calendar_multiday_views_api() {
  * Adds calendar filtering and displays to Views.
  */
 function calendar_multiday_init() {
+  if (substr($_GET['q'], 0, 24) == 'admin/build/modules/list') {
+    return;
+  }
   drupal_add_css(drupal_get_path('module', 'calendar_multiday') .'/calendar_multiday.css');
   require_once('./'. drupal_get_path('module', 'calendar_multiday') .'/theme/theme.inc');
 }
 
 function calendar_multiday_theme() {
   $path = drupal_get_path('module', 'calendar_multiday');
-  require_once "./$path/theme/theme.inc";
-
   $base = array(
     'file' => 'theme.inc',
     'path' => "$path/theme",

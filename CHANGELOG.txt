@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #999708 Try to avoid fatal errors from duplicate functions when enabling the Multiday module.
 - #1003938 Fix position of multiday navigation when displayed in a block.
 - #708258 by Kars-T, remove D7 drupal_exit() call from popup.
 - #372988 by joachim, Eliminate 'broken field' message in view summary when no date link is chosen.

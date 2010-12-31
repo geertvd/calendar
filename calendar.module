@@ -30,26 +30,22 @@ function calendar_help($section, $arg) {
 }
 
 function calendar_init() {
+  // If the multiday module is enabled, let it control the css.
+  if (module_exists('calendar_multiday') || substr($_GET['q'], 0, 24) == 'admin/build/modules/list') {
+    return;
+  }
   // The css for Farbtastic color picker, painless to add it here 
   // even though it isn't needed everywhere.
   drupal_add_css('misc/farbtastic/farbtastic.css');
-  
-  // If the multiday module is enabled, let it control the css.
-  if (module_exists('calendar_multiday')) {
-    return;
-  }
   drupal_add_css(drupal_get_path('module', 'calendar') .'/calendar.css');
   require_once('./'. drupal_get_path('module', 'calendar') .'/theme/theme.inc');
 }
 
 function calendar_theme() {
-  // If the multiday module is enabled, let it control the theme.
   if (module_exists('calendar_multiday')) {
     return array();
   }
   $path = drupal_get_path('module', 'calendar');
-  require_once "./$path/theme/theme.inc";
-
   $base = array(
     'file' => 'theme.inc',
     'path' => "$path/theme",
