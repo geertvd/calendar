@@ -1,6 +1,6 @@
 ; $Id$
 name = Calendar Multiday
-description = "Use the calendar multiday display as an alternative to the standard display."
+description = "Use the calendar multiday display as an alternative to the standard display. THIS CODE IS NOT YET WORKING IN D7!"
 dependencies[] = calendar
 dependencies[] = views
 core = 7.x
