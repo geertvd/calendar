@@ -92,7 +92,7 @@ function calendar_build_month(&$curday, $view, $items) {
     $multiday_buckets = $week_rows['multiday_buckets'];
     $singleday_buckets = $week_rows['singleday_buckets'];
     $total_rows = $week_rows['total_rows'];
-   
+
     // Theme each row
     $output = "";
     $final_day = clone($curday);
@@ -100,10 +100,10 @@ function calendar_build_month(&$curday, $view, $items) {
     $iehint = 0;
     $max_multirow_cnt = 0;
     $max_singlerow_cnt = 0;
-   
-    for ($i = 0; $i < $total_rows + 1; $i++) {
+
+    for ($i = 0; $i < intval($total_rows + 1); $i++) {
       $inner = "";
-     
+
       // If we're displaying the week number, add it as the
       // first cell in the week.
       if ($i == 0 && !empty($view->date_info->style_with_weekno) && !in_array($view->date_info->granularity, array('day', 'week'))) {
@@ -124,13 +124,13 @@ function calendar_build_month(&$curday, $view, $items) {
         );
         $inner .= theme('calendar_month_col', array('item' => $item));
       }
-     
+
       $curday = clone($init_day);
  
       // move backwards to the first day of the week
       $day_wday = date_format($curday, 'w');
       date_modify($curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
-     
+    
       for ( $wday = 0; $wday < 7; $wday++) {
  
         $curday_date = date_format($curday, DATE_FORMAT_DATE);
@@ -275,7 +275,7 @@ function calendar_build_month(&$curday, $view, $items) {
        
         date_modify($curday, '+1 day');
       }
-     
+           
       if ($i == 0) {
         $output .= theme('calendar_month_row', array(
           'inner' => $inner, 
@@ -301,7 +301,9 @@ function calendar_build_month(&$curday, $view, $items) {
           'iehint' => 0,
         ));
       }
-    }
+
+    } // End foreach
+   
     $curday = $final_day;
    
     // Add the row into the row array....
@@ -435,7 +437,7 @@ function calendar_build_week_day($curday, $view, $items, $wday, &$multiday_bucke
   $cur_cnt = 0;
   $total_cnt = 0;
   $types = array();
- 
+
   // If we are hiding, count before processing further
   if ($max_events != CALENDAR_SHOW_ALL) {
     foreach ($items as $date => $day) {
@@ -449,7 +451,7 @@ function calendar_build_week_day($curday, $view, $items, $wday, &$multiday_bucke
       }
     }
   }
- 
+
   // If we haven't already exceeded the max or we'll showing all, then process the items
   if ($max_events == CALENDAR_SHOW_ALL || !$hide || $total_cnt <= $max_events) {
     // Count currently filled items
@@ -481,7 +483,6 @@ function calendar_build_week_day($curday, $view, $items, $wday, &$multiday_bucke
              
               // Does this event span multi-days?
               if ($multiday_theme && ($is_multi_day || $all_day)) {
-               
                 // If this the first day of the week, or is the start date of the multi-day event,
                 // then record this item, otherwise skip over
                 $day_no = date_format($curday, 'd');
@@ -489,19 +490,13 @@ function calendar_build_week_day($curday, $view, $items, $wday, &$multiday_bucke
                   $cur_cnt++;
                  
                   // Calculate the colspan for this event
-                  $start = new DateObject($cur_ydate);
-                  $end = new DateObject($end_ydate);
-                  $curday_obj = new DateObject($curday_date);
-                 
-                  // Calculate end of month
-                  $last_day = new DateObject($view->date_info->max_date_date);
- 
+                  
                   // If the last day of this event exceeds the end of the current month or week,
                   // truncate the remaining days
-                  $diff =  $curday_obj->difference($last_day, 'days');
+                  $diff =  $curday->difference($view->date_info->max_date, 'days');
                   $remaining_days = ($view->date_info->granularity == 'month') ? min(6 - $wday, $diff) : $diff - 1;                 
                   // The bucket_cnt defines the colspan.  colspan = bucket_cnt + 1
-                  $days = $start->difference($end, 'days');
+                  $days = $curday->difference($item->date_end, 'days');
                   $bucket_cnt = max(0, min($days, $remaining_days));
                  
                   // See if there is an avaiable slot to add an event.  This will allow
@@ -514,12 +509,11 @@ function calendar_build_week_day($curday, $view, $items, $wday, &$multiday_bucke
                       break;
                     }
                   }
-                 
+                  
                   // Add continuation attributes
-                  $start_date = new DateObject($start_ydate);
-                  $item->continuation =  ($start_date < $curday_obj);
+                  $item->continuation =  ($item->date_start < $curday);
                   $item->continues = ( $days > $bucket_cnt );
-                                 
+                  
                   // Assign the item to the available bucket
                   $multiday_buckets[$wday][$bucket_index] = array(
                     'colspan' => $bucket_cnt + 1,
@@ -529,12 +523,9 @@ function calendar_build_week_day($curday, $view, $items, $wday, &$multiday_bucke
                     'all_day' => $all_day,
                     'item' => $item,
                     'wday' => $wday,
-                    'entry' => theme($theme, array(
-                       'item' => $item, 
-                       'view' => $view,
-                    )),
+                    'entry' => theme($theme, array('node' => $item, 'view' => $view)),
                   );
-                 
+
                   // Block out empty buckets for the next days in this event for this week
                   for ($i = 0; $i < $bucket_cnt; $i++) {
                     $bucket = &$multiday_buckets[$i + $wday + 1];
@@ -565,10 +556,7 @@ function calendar_build_week_day($curday, $view, $items, $wday, &$multiday_bucke
                 $cur_cnt++;
                 // Assign to single day bucket
                 $singleday_buckets[$wday][$time][] = array(
-                  'entry' => theme($theme, array(
-                     'item' => $item, 
-                     'view' => $view,
-                  )),
+                  'entry' => theme($theme, array('node' => $item, 'view' => $view)),
                   'item' => $item,
                   'colspan' => 1,
                   'rowspan' => 1,

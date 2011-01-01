@@ -41,7 +41,7 @@ $index = 0;
 ?>
 <div class="view-item view-item-<?php print $view->name ?>">
   <div class="calendar monthview">
-    <?php print theme('calendar_stripe_stripe', $node); ?>
+    <?php print theme('calendar_stripe_stripe', array('node' => $node)); ?>
     <div class="<?php print $node->date_id ?> contents">
       <?php foreach ($fields as $field): ?>
         <?php if ($index++ == 0 && (isset($node->continuation) && $node->continuation)) : ?>

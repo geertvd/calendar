@@ -850,3 +850,7 @@ div.sidebar .view-content .calendar-calendar .date-prev {
 .view-calendar .feed-icon {
   margin-top : 5px;
 }
+
+li.calendar {
+  width:auto;
+}
