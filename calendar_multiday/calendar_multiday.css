@@ -737,6 +737,7 @@ table.calendar-legend tr.even .stripe {
   float : left;
   line-height : inherit ;
   margin-left : 10px ;
+  width : auto;
 }
 
 .view-content .calendar-calendar li a {

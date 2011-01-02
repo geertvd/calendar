@@ -816,6 +816,10 @@ function calendar_build_nodes(&$view, &$items) {
           $node->date_start = date_create($values[0], timezone_open($to_zone));
           $node->date_end = date_create(!empty($values[1]) ? $values[1] : $values[0], timezone_open($to_zone));;
 
+          // Actual start and end date as set in the node object
+          $node->date_start = date_create($values[0], timezone_open($to_zone));
+          $node->date_end = date_create(!empty($values[1]) ? $values[1] : $values[0], timezone_open($to_zone));;
+          
           // Make date objects
           $node->calendar_start_date = date_create($node->calendar_start, timezone_open($to_zone));
           $node->calendar_end_date = date_create($node->calendar_end, timezone_open($to_zone));

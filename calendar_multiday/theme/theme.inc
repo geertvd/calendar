@@ -377,7 +377,7 @@ function template_preprocess_calendar_day(&$vars) {
         'node' => $item, 
         'view' => $view,
       );
-      $grouped_items[$start_time]['values'][$column][] = theme($theme, $variables);
+      $grouped_items[$start_time]['values'][$column][] = $item;
       if ($display_overlap) {
         $time_end = date_format($item->date_end, 'H:i:s');
         $item->time_start = $time;
@@ -424,13 +424,13 @@ function template_preprocess_calendar_day(&$vars) {
           $offset = round(date_format($item->date_start, 'i') / 15);
           $end = new DateObject('1970-01-01 ' . $item->time_end);
           $start = new DateObject('1970-01-01 ' . $item->time_start);
-          $duration = $end - $start;
+          $duration = $end->difference($start);
           $duration = round($duration / (15 * 60));
           $item->class = 'd_'. $duration . ' o_'. $offset . ' i_' . $item->indent . ' md_' . min($item->max_depth, 5);
         }
         $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_info->granularity .'_node';
         $variables = array(
-          'item' => $item, 
+          'node' => $item, 
           'view' => $view,
         );
         $grouped_items[$start_time]['values'][$column][$index] = theme($theme, $variables);
@@ -783,7 +783,7 @@ function template_preprocess_calendar_week_multiple_node(&$vars) {
 
 /**
  * Format the time row headings in the week and day view.
- */
+ */ 
 function theme_calendar_time_row_heading($vars) {
   $start_time = $vars['start_time'];
   $next_start_time = $vars['next_start_time'];

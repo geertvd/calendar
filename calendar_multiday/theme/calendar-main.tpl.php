@@ -18,7 +18,7 @@
 //dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_formatted);
 $links = array(
   'links' => $calendar_links, 
-  'attributes' => array('class' => 'inline'),
+  'attributes' => array('class' => 'inline links'),
 );
 ?>
 

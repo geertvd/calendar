@@ -122,7 +122,7 @@ function calendar_build_month(&$curday, $view, $items) {
           'id' => $view->name . '-weekno-' . $curday_date, 
           'class' => 'week'
         );
-        $inner .= theme('calendar_month_col', array('item' => $item));
+        $inner .= theme('calendar_month_col', array('node' => $item));
       }
 
       $curday = clone($init_day);
@@ -617,11 +617,11 @@ function calendar_build_day($curday, $view, $items) {
             // the item, so just past them the unrendered item.
             $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_info->granularity .'_node';
             if ($item->calendar_all_day) {
-              $all_day[] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, array('item' => $item, 'view' => $view));
+              $all_day[] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, array('node' => $item, 'view' => $view));
             }
             else {
               $key = date_format($item->date_start, 'H:i:s');
-              $inner[$key][] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, array('item' => $item, 'view' => $view));
+              $inner[$key][] = in_array($view->date_info->calendar_type, array('day', 'week')) ? $item : theme($theme, array('node' => $item, 'view' => $view));
             }
           }
         }
