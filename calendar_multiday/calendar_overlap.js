@@ -64,13 +64,13 @@
      });
   	 
      // Size the window
-     calendar_resizeViewport();
+     calendar_resizeViewport($);
   }
 };
 })(jQuery);
 
 // Scroll the viewport to the first item
-function calendar_scrollToFirst() {
+function calendar_scrollToFirst($) {
    if ($('div.first_item').size() > 0 ) {
       var y = $('div.first_item').offset().top - $('#single-day-container').offset().top ;
       $('#single-day-container').scrollTop(y);
@@ -78,8 +78,7 @@ function calendar_scrollToFirst() {
 }
 
 // Size the single day view 
-function calendar_resizeViewport() {
-	
+function calendar_resizeViewport($) {
   // Size of the browser window
   var viewportHeight = window.innerHeight ? window.innerHeight : $(window).height();
   var top = $('#single-day-container').offset().top;

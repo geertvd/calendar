@@ -59,7 +59,7 @@
   <script>
     try {
   	  // Hide container while it renders...  Degrade w/o javascript support
-      $('#single-day-container').css('visibility','hidden');
+      jQuery('#single-day-container').css('visibility','hidden');
     }catch(e){ 
       // swallow 
     }
@@ -126,9 +126,9 @@
 <script>
 try {
   // Size and position the viewport inline so there are no delays
-  calendar_resizeViewport();
-  calendar_scrollToFirst();
-  $('#single-day-container').css('visibility','visible');
+  calendar_resizeViewport(jQuery);
+  calendar_scrollToFirst(jQuery);
+  jQuery('#single-day-container').css('visibility','visible');
 }catch(e){ 
   // swallow 
 }

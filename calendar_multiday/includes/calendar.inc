@@ -122,7 +122,7 @@ function calendar_build_month(&$curday, $view, $items) {
           'id' => $view->name . '-weekno-' . $curday_date, 
           'class' => 'week'
         );
-        $inner .= theme('calendar_month_col', array('node' => $item));
+        $inner .= theme('calendar_month_col', array('item' => $item));
       }
 
       $curday = clone($init_day);
