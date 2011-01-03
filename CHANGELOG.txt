@@ -6,6 +6,10 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+Version 6.2.4
+=============
+- Theme folder got lost in 6.2.3 release.
+
 Version 6.2.3
 =============
 - #811704 Fix broken handling of calendar links that looses track of where you are if you click around too much.
