@@ -68,7 +68,6 @@ function calendar_build_calendar($view, $items) {
 function calendar_build_month(&$curday, $view, $items) {
   $month = date_format($curday, 'n');
   date_modify($curday, '-' . strval(date_format($curday, 'j')-1) . ' days');
-
   $rows = array();
   do {
     $rows = array_merge($rows, calendar_build_week($curday, $view, $items, TRUE));

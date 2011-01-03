@@ -144,7 +144,8 @@ class calendar_plugin_style extends views_plugin_style {
         $this->view->date_info->max_date = $argument->max_date;
         $this->view->date_info->min_date_date = date_format($this->view->date_info->min_date, DATE_FORMAT_DATE);
         $this->view->date_info->max_date_date = date_format($this->view->date_info->max_date, DATE_FORMAT_DATE);
-        
+        $this->view->date_info->forbid = isset($argument->forbid) ? $argument->forbid : FALSE;
+
         // Stop after the first date argument, if there is more than one.
         break;
       }

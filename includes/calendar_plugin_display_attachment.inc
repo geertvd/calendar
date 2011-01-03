@@ -27,6 +27,9 @@ class calendar_plugin_display_attachment extends views_plugin_display_attachment
    * to the style handler.
    */
   function render() {
+    if (!empty($this->view->date_info->forbid)) {
+      return '';
+    }
     return $this->view->style_plugin->render($this->view->result);
   }
   
