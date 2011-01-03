@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #720868 by dereine and KarenS, Fix argument handling for dates outside allowed range so only page views return 404.
 - #1005412 by developer-x, fix multiday date id.
 - #999708 Try to avoid fatal errors from duplicate functions when enabling the Multiday module.
 - #1003938 Fix position of multiday navigation when displayed in a block.

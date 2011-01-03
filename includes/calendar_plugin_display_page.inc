@@ -10,6 +10,14 @@
  */
 class calendar_plugin_display_page extends views_plugin_display_page {
   
+  function render() {
+    if (!empty($this->view->date_info->forbid)) {
+      drupal_not_found();
+      exit;
+    }
+   return parent::render();
+  }
+
   /**
    * Display validation.
    */
