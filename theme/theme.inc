@@ -6,7 +6,7 @@
 function template_preprocess_calendar_main(&$vars) {
   require_once('./'. drupal_get_path('module', 'calendar') .'/includes/calendar.inc');
   $view     = $vars['view'];
-    
+
   $result   = (array) $view->result;
   $options  = $view->style_plugin->options;
   $handler  = $view->style_plugin;
@@ -16,18 +16,36 @@ function template_preprocess_calendar_main(&$vars) {
   $vars['max_date_formatted'] = !empty($view->date_info->end_date) ? date_format($view->date_info->max_date, DATE_FORMAT_DATETIME) : '';
   $view->date_info->mini = isset($view->date_info->mini) ? $view->date_info->mini : $view->date_info->granularity == 'year';
   
-  // Create the links to other displays.
-  $now = date_now();
   $url = $view->get_url();
   $view->date_info->url = $url;
   $arg = $view->date_info->date_arg;
-  $view->date_info->month    = $view->date_info->month && $view->date_info->month != $view->argument['date_argument']->options['wildcard'] ? $view->date_info->month : date_format($now, 'm');
-  $view->date_info->day      = $view->date_info->day && $view->date_info->day != $view->argument['date_argument']->options['wildcard'] ? $view->date_info->day : date_format($now, 'd');
+  $displays = $view->date_info->display_types;
+    
+  // Set up the links to other calendar views.
+  $current_date = $view->date_info->min_date;
+  if (!empty($date->info->day)) {
+    $current_date = date_make_date($date_info->date_arg .' 00:00:00');
+  }
+  elseif (!empty($view->date_info->week)) {
+    $week = date_week_range($view->date_info->week, $view->date_info->year);
+    $current_date = $week[0]; 
+  }
+  elseif (!empty($view->date_info->month)) {
+    $current_date = date_make_date($view->date_info->year .'-'. date_pad($view->date_info->month) .'-01 00:00:00');
+  }
+  else {
+    $current_date = date_make_date($view->date_info->year .'-01-01 00:00:00');
+  }
+  if (empty($view->date_info->month) || $view->date_info->month == $view->argument['date_argument']->options['wildcard']) {
+    $view->date_info->month = date_format($current_date, 'm');
+  }
+  if (empty($view->date_info->day) || $view->date_info->day == $view->argument['date_argument']->options['wildcard']) {
+    $view->date_info->day = date_format($current_date, 'd');
+  }
   if (empty($view->date_info->week) || $view->date_info->week == $view->argument['date_argument']->options['wildcard']) {
     $view->date_info->week = date_week($view->date_info->year .'-'. date_pad($view->date_info->month) .'-'. date_pad($view->date_info->day));
   }
-  $displays = $view->date_info->display_types;
-    
+  
   $calendar_links = array();
   $base = array('attributes' => array('rel' => 'nofollow'));
   if (!empty($displays['year'])) {
@@ -79,7 +97,7 @@ function template_preprocess_calendar_main(&$vars) {
 function template_preprocess_calendar(&$vars) {
   require_once('./'. drupal_get_path('module', 'calendar') .'/includes/calendar.inc');
   $view     = $vars['view'];
-  
+
   // Make sure we only run through this function one time.
   if (!empty($view->date_info->calendar_processed)) {
     return;
@@ -102,6 +120,7 @@ function template_preprocess_calendar(&$vars) {
     $copy = drupal_clone($row);
     $items[$num] = $row;
     $items[$num]->raw = $copy;
+    $items[$num]->calendar_fields = new stdClass();
     
     foreach ($row as $key => $value) {
       if (in_array($key, $calendar_fields)) {
