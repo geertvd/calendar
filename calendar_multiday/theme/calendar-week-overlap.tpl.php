@@ -33,7 +33,7 @@
   <div id="header-container">
   <table class="full">
   <tbody>
-    <tr class="holder"><td class="calendar-time-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td></tr>
+    <tr class="holder"><td class="calendar-time-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder margin-right"></td></tr>
     <tr>
       <th class="calendar-agenda-hour">&nbsp;</th>
       <?php foreach ($day_names as $cell): ?>
@@ -41,6 +41,7 @@
           <?php print $cell['data']; ?>
         </th>
       <?php endforeach; ?>
+      <th class="calendar-day-holder margin-right"></th>
     </tr>
   </tbody>
   </table>
@@ -53,10 +54,10 @@
     <?php 
       $colpos = 0; 
       $rowclass = "all-day";
-      if( $i == 0) {
+      if ($i == 0) {
         $rowclass .= " first";
       }
-      if( $i == $multiday_rows - 1) {
+      if ($i == $multiday_rows - 1) {
         $rowclass .= " last";
       }
     ?>
@@ -72,16 +73,34 @@
           <?php for($k = $colpos; $k < $cell['wday']; $k++) : ?>
           <td class="calendar-agenda-items multi-day no-entry"><div class="inner">&nbsp;</div></td>
           <?php endfor;?>
-          <td colspan="<?php print $cell['colspan']?>" class="calendar-agenda-items multi-day">
+          <?php $colpos = $cell['wday'] + $cell['colspan']; ?>
+          <?php 
+            $colclass = "calendar-agenda-items multi-day";
+            if ($colpos == 1) {
+              $colclass .= " first";
+            }
+            if ($colpos == 7) {
+              $colclass .= " last";
+            }
+          ?>
+          <td colspan="<?php print $cell['colspan']?>" class="<?php print $colclass?>">
             <div class="inner">
             <?php print $cell['entry']?>
             </div>
           </td>
-          <?php $colpos = $cell['wday'] + $cell['colspan']; ?>
         <?php endif; ?>
       <?php endfor; ?>  
       <?php for($j = $colpos; $j < 7; $j++) : ?>
-      <td class="calendar-agenda-items multi-day no-entry"><div class="inner">&nbsp;</div></td>
+      <?php 
+        $colclass = "calendar-agenda-items multi-day no-entry";
+        if ($j == 0) {
+          $colclass .= " first";
+        }
+        if ($j == 6) {
+          $colclass .= " last";
+        }
+      ?>
+      <td class="<?php print $colclass?>"><div class="inner">&nbsp;</div></td>
       <?php endfor;?>
     </tr>
     <?php endfor; ?>
@@ -91,16 +110,34 @@
         <span class="calendar-hour"><?php print date_t('All day', 'datetime')?></span>
       </td>
       <?php for($j = 0; $j < 6; $j++): ?>
-      <td class="calendar-agenda-items multi-day no-entry"><div class="inner">&nbsp;</div></td>
+      <?php 
+        $colclass = "calendar-agenda-items multi-day no-entry";
+        if ($j == 0) {
+          $colclass .= " first";
+        }
+        if ($j == 6) {
+          $colclass .= " last";
+        }
+      ?>
+      <td class="<?php print $colclass?>"><div class="inner">&nbsp;</div></td>
       <?php endfor; ?>
-     </tr>
+    </tr>
     <?php endif; ?>
     <tr class="expand">
       <td class="<?php print $agenda_hour_class ?>">
         <span class="calendar-hour">&nbsp;</span>
       </td>
       <?php for($j = 0; $j < 6; $j++): ?>
-      <td class="calendar-agenda-items multi-day no-entry"><div class="inner">&nbsp;</div></td>
+      <?php 
+        $colclass = "calendar-agenda-items multi-day no-entry";
+        if ($j == 0) {
+          $colclass .= " first";
+        }
+        if ($j == 6) {
+          $colclass .= " last";
+        }
+      ?>
+      <td class="<?php print $colclass?>"><div class="inner">&nbsp;</div></td>
       <?php endfor; ?>
      </tr>
   </thead> 
