@@ -173,12 +173,17 @@
 .calendar-calendar .day-view #single-day-container td.calendar-day-holder {
   width:95%;
 }
+
 .calendar-calendar .week-view #header-container td.calendar-time-holder,
 .calendar-calendar .week-view #multi-day-container td.calendar-time-holder,
 .calendar-calendar .week-view #single-day-container td.calendar-time-holder {
   width : 50px;
   padding : 0px;
   border : 0px;
+}
+
+.calendar-calendar .week-view #header-container td.margin-right {
+  width : 10px;
 }
 
 .calendar-calendar .week-view .full td.calendar-day-holder {

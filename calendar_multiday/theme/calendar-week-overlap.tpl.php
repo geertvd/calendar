@@ -33,7 +33,7 @@
   <div id="header-container">
   <table class="full">
   <tbody>
-    <tr class="holder"><td class="calendar-time-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td></tr>
+    <tr class="holder"><td class="calendar-time-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder margin-right"></td></tr>
     <tr>
       <th class="calendar-agenda-hour">&nbsp;</th>
       <?php foreach ($day_names as $cell): ?>
@@ -41,6 +41,7 @@
           <?php print $cell['data']; ?>
         </th>
       <?php endforeach; ?>
+      <th class="calendar-day-holder margin-right"></th>
     </tr>
   </tbody>
   </table>
