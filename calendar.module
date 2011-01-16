@@ -356,7 +356,7 @@ function calendar_og_groups($view) {
  * @return unknown
  */
 function calendar_date_select($view) {
-  return '<div class="calendar-date-select">' . drupal_get_form('calendar_date_select_form', $view) . '</div>';
+  return '<div class="calendar-date-select">' . drupal_render(drupal_get_form('calendar_date_select_form', $view)) . '</div>';
 }
 
 /**
@@ -367,7 +367,7 @@ function calendar_date_select($view) {
  *
  * @TODO is the title desired here or does it take up too much space??
  */
-function calendar_date_select_form(&$form_state, $view) {
+function calendar_date_select_form($form, &$form_state, $view) {
   $format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), array('year', 'month', 'day'));
   $form['calendar_goto'] = array(
     //'#title' => t('Calendar date'),
