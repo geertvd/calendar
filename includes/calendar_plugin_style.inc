@@ -51,7 +51,7 @@ class calendar_plugin_style extends views_plugin_style {
    */
   function date_fields() {
     $date_fields = array();
-    $calendar_fields = date_api_fields();
+    $calendar_fields = date_views_fields();
     $arguments = $this->display->handler->get_option('arguments');
     foreach ($arguments as $name => $argument) {
       if (isset($argument['date_fields'])) {

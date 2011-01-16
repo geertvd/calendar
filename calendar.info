@@ -3,6 +3,7 @@ name = Calendar
 description = Views plugin to display views containing dates as Calendars.
 dependencies[] = views
 dependencies[] = date_api
+dependencies[] = date_views
 package = Date/Time
 core = 7.x
 

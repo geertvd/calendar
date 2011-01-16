@@ -35,6 +35,7 @@ function template_preprocess_calendar_view_ical(&$vars) {
   drupal_add_http_header('Content-Disposition', 'attachment; filename="calendar.ics";');
 
   module_load_include('inc', 'date_api', 'date_api_ical');
+  module_load_include('inc', 'date_views', 'theme/theme');
   module_load_include('inc', 'date_api', 'theme/theme');
   module_load_include('inc', 'calendar', 'includes/calendar');
   

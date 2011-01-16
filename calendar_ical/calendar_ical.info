@@ -3,6 +3,7 @@ name = Calendar iCal
 description = Adds ical functionality to Calendar views.
 dependencies[] = views
 dependencies[] = date_api
+dependencies[] = date_views
 dependencies[] = calendar
 package = Date/Time
 core = 7.x

@@ -12,8 +12,6 @@
  * Reset the calendar caches.
  */
 function calendar_enable() {
-  module_enable(array('date_api'));
-  db_query("DELETE FROM {cache_views}");
 }
 
 /**

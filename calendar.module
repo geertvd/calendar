@@ -588,7 +588,7 @@ function calendar_build_nodes(&$view, &$items) {
   $type_names = node_type_get_names();
 
   $datefields = array();
-  $fields = date_api_fields();
+  $fields = date_views_fields();
 
   if (!empty($view->filter['date_filter'])) {
     $date_filter = $view->filter['date_filter'];
@@ -603,7 +603,7 @@ function calendar_build_nodes(&$view, &$items) {
     }
   }
   
-  $view_fields = date_api_views_fetch_fields('node', 'field');
+  $view_fields = date_views_views_fetch_fields('node', 'field');
   $field_names = (array) array_keys($fields['name']);
   $nodes = array();
   $i = 0;
