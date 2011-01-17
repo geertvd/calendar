@@ -6,6 +6,9 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #373458 by criznach, apply all_day changes to week as well as day.
+- #998824 by developer-x, Use percentage widths for the multiday layouts.
+
 Version 6.2.4
 =============
 - Theme folder got lost in 6.2.3 release.
