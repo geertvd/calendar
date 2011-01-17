@@ -677,7 +677,6 @@ function calendar_build_nodes(&$view, &$items) {
       }
       
       if (!in_array($id, $processed) && isset($item->calendar_fields->$alias)) {
-        
         // Create from and to date values for each item, adjusted to
         // the correct timezone.
         $values[0] = $item->calendar_fields->$fromto[0];
