@@ -8,28 +8,24 @@
 function calendar_views_query_alter(&$view, &$query) {
   // Check if a new date has been selected and if so redirect.
   if (isset($_POST['calendar_goto']) && $_POST['view_name'] == $view->name) {
-
-    module_load_include('inc', 'date_api', 'date_api_elements');
-
     $format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), array('year', 'month', 'day'));
-    $date = date_convert_from_custom($_POST['calendar_goto']['date'], $format);  
+    $date = new DateObject($_POST['calendar_goto']['date'], date_default_timezone(), $format);  
     switch ($_POST['calendar_type']) {
       case 'year':
-        $arg = date_pad(date_part_extract($date, 'year'), 4);
+        $arg = $date->format('Y');
         break; 
       case 'month':
-        $arg = date_pad(date_part_extract($date, 'year'), 4) . '-' . date_pad(date_part_extract($date, 'month'));
+        $arg = $date->format('Y-m');
         break; 
       case 'week':
-        $arg = date_pad(date_part_extract($date, 'year'), 4) . '-W' . date_pad(date_week($date));
+        $arg = $date->format('Y') . '-W' . date_pad(date_week($date));
         break; 
       default:
-        $arg = date_pad(date_part_extract($date, 'year'), 4) . '-' . date_pad(date_part_extract($date, 'month')) . '-' . date_pad(date_part_extract($date, 'day'));
+        $arg = $date->format('Y-m-d');
         break; 
 
     }
     drupal_goto(str_replace($_POST['calendar_previous_arg'], $arg, $_POST['view_url']));
-    drupal_exit();
   }
 }
 

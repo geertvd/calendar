@@ -401,7 +401,7 @@ function calendar_date_select_form($form, &$form_state, $view) {
 function calendar_arg_position($view) {
   $pos = 0;
   foreach ($view->argument as $argument) {
-    if ($argument->definition['handler'] == 'date_api_argument_handler') {
+    if ($argument->definition['handler'] == 'date_views_argument_handler') {
       return $pos;
     }
     $pos++;
