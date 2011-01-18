@@ -102,4 +102,3 @@ msgstr "Views plugin för att visa vyer som innehåller datum som kalendrar."
 #: calendar.info:0
 msgid "Date/Time"
 msgstr "Datum/Tid"
-

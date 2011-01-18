@@ -8,9 +8,9 @@
 function calendar_views_query_alter(&$view, &$query) {
   // Check if a new date has been selected and if so redirect.
   if (isset($_POST['calendar_goto']) && $_POST['view_name'] == $view->name) {
-    
+
     module_load_include('inc', 'date_api', 'date_api_elements');
-    
+
     $format = date_limit_format(variable_get('date_format_short', 'm/d/Y - H:i'), array('year', 'month', 'day'));
     $date = date_convert_from_custom($_POST['calendar_goto']['date'], $format);  
     switch ($_POST['calendar_type']) {
@@ -26,7 +26,7 @@ function calendar_views_query_alter(&$view, &$query) {
       default:
         $arg = date_pad(date_part_extract($date, 'year'), 4) . '-' . date_pad(date_part_extract($date, 'month')) . '-' . date_pad(date_part_extract($date, 'day'));
         break; 
-        
+
     }
     drupal_goto(str_replace($_POST['calendar_previous_arg'], $arg, $_POST['view_url']));
     drupal_exit();
@@ -190,7 +190,7 @@ function calendar_views_plugins() {
       ),
     ),
   );
-  
+
   if (module_exists('calendar_multiday')) {
     $data['style']['calendar_style']['additional themes'] += array(
       'calendar_day_overlap' => 'style',

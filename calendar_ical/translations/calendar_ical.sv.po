@@ -167,4 +167,3 @@ msgstr "Lägger till funktionalitet till kalendervyer av typen iCal."
 #: calendar_ical.info:0
 msgid "Date/Time"
 msgstr "Datum/Tid"
-

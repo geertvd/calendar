@@ -16,7 +16,7 @@ function template_preprocess_calendar_view_ical(&$vars) {
   $view     = &$vars['view'];
   $options  = &$vars['options'];
   $items    = &$vars['items'];
-  
+
   $style    = &$view->style_plugin;
 
   // Figure out which display which has a path we're using for this feed. If there isn't
@@ -38,7 +38,7 @@ function template_preprocess_calendar_view_ical(&$vars) {
   module_load_include('inc', 'date_views', 'theme/theme');
   module_load_include('inc', 'date_api', 'theme/theme');
   module_load_include('inc', 'calendar', 'includes/calendar');
-  
+
   $events = array();
   // Get the alias name for each of our data fields.
   foreach ($view->field as $name => $field) {
@@ -61,7 +61,7 @@ function template_preprocess_calendar_view_ical(&$vars) {
     }
     // Allow modules to affect item fields
     module_invoke_all('node_ical item', $node);
-    
+
     unset($node->view);
     $rrule_field = str_replace(array('_value2', '_value'), '_rrule', $node->datefield);
     $event = array();

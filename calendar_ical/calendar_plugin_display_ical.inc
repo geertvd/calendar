@@ -228,4 +228,3 @@ class calendar_plugin_display_ical extends views_plugin_display_page {
     return $errors;
   }
 }
-

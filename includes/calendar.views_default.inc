@@ -30,11 +30,11 @@
 */
 function calendar_views_default_views() {
   $views = array();
-  
+
   // Construct the default view with default options.
   $view = calendar_views_construct();
   $views[$view->name] = $view;
-  
+
   // Then see if there are any custom calendars to be created 
   // using variable_get().
   $calendar_options = variable_get('calendar_default_view_options', array());
@@ -80,7 +80,7 @@ $path = NULL;
 $types = NULL;
 $date_fields = NULL;
 $display_fields = NULL;
-  
+
 if (empty($options)) {
   $disabled = TRUE;
 }
@@ -204,9 +204,7 @@ $handler->display->display_options['fields']['title']['field'] = 'title';
 $handler->display->display_options['fields']['title']['label'] = '';
 $handler->display->display_options['fields']['title']['link_to_node'] = 1;
 
-
 $handler->display->display_options['fields'] = $display_fields;
-
 
 /* Argument: Date: Date (node) */
 $handler->display->display_options['arguments']['date_argument']['id'] = 'date_argument';
@@ -251,7 +249,6 @@ $handler->display->display_options['style_plugin'] = 'calendar_nav';
 $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['block_description'] = 'Calendar';
 
-
 /* Display: Year view */
 $handler = $view->new_display('calendar_period', 'Year view', 'calendar_period_1');
 $handler->display->display_options['defaults']['style_plugin'] = FALSE;
@@ -267,7 +264,6 @@ $handler->display->display_options['displays'] = array(
   'default' => 0,
   'calendar_block_1' => 0,
 );
-
 
 /* Display: Month view */
 $handler = $view->new_display('calendar_period', 'Month view', 'calendar_period_2');

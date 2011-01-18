@@ -37,7 +37,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
       $this->view->feed_icon = '';
     }
     $this->view->feed_icon .= theme('calendar_ical_icon', array('url' => $url));
-  
+
     drupal_add_html_head_link(array(
       'rel' => 'alternate',
       'type' => 'application/calendar',
@@ -147,7 +147,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
 
   function render() {
     module_load_include('inc', 'calendar', 'includes/calendar');
-    
+
     // Transfer the style options to the view object so they
     // can be easily accessed in the theme.
     $style_options = $this->options;
@@ -239,10 +239,10 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
         }
       }
     }
-    
+
     // Massage the resulting items into formatted calendar items.
     $items = calendar_build_nodes($this->view, $items);
-   
+
     // Merge in items from other sources.
     foreach (module_implements('calendar_add_items') as $module) {
       $function = $module . '_calendar_add_items';

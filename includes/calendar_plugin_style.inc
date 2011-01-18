@@ -23,7 +23,7 @@ class calendar_plugin_style extends views_plugin_style {
      }
      $view->date_info->display_types = $this->display_types();
    }
-    
+
   function display_types($granularity = NULL, $option_type = 'names') {
     $ids = array();
     $names = array();
@@ -45,7 +45,7 @@ class calendar_plugin_style extends views_plugin_style {
     }
     return $$option_type;
   }
-  
+
   /**
    * Calendar argument date fields used in this view.
    */
@@ -67,18 +67,18 @@ class calendar_plugin_style extends views_plugin_style {
     }
     return ($date_fields);
   }
-  
+
   /**
    * Style validation.
    */
   function validate() {
     $errors = parent::validate();
-    
+
     if (empty($this->display->display_options['style_plugin'])) {
       return $errors;
     }
     $style = $this->display->display_options['style_plugin'];
-    
+
     $arguments = $this->display->handler->get_option('arguments');
     if (!in_array('date_argument', array_keys($arguments))) {
       if (empty($this->view->date_info->arg_missing)) {
@@ -92,7 +92,7 @@ class calendar_plugin_style extends views_plugin_style {
       }
       $this->view->date_info->arg_missing_default = TRUE;
     }
-         
+
     // Make sure date fields are not set up to 'Group multiple values' 
     // in the calendar style.
     if ($style == 'calendar_style') {
@@ -115,10 +115,10 @@ class calendar_plugin_style extends views_plugin_style {
 
   function query() {
     module_load_include('inc', 'date_api', 'date_api_sql');
-  
+
     //$this->view->date_info->display_types = $this->display_types();
     $style_options = $this->view->style_plugin->options;
-    
+
     // Evaluate our argument values and figure out which 
     // calendar display we need to create.
     $i = 0;   
@@ -154,13 +154,13 @@ class calendar_plugin_style extends views_plugin_style {
     $this->view->date_info->display_types = $this->display_types();
     $keys = drupal_map_assoc(array_keys(calendar_display_types()));
     $this->view->date_info->calendar_display = $keys[$this->view->date_info->granularity];
-    
+
     // bring the node type into the query so we can use it in the theme
     $this->view->query->add_field('node', 'type');
-      
+
     parent::query();
   }
-  
+
   /**
    * Render the calendar navigation style.
    */
@@ -168,4 +168,3 @@ class calendar_plugin_style extends views_plugin_style {
     return theme($this->theme_functions(), array('view' => $this->view, 'options' => $this->options, 'items' => array()));
   }
 }
-

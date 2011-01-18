@@ -37,14 +37,14 @@ class calendar_view_plugin_style extends calendar_plugin_style {
       $view->date_info->style_groupby_times = calendar_groupby_times($this->options['groupby_times']);
     }
     $view->date_info->style_groupby_field = $this->options['groupby_field'];
-    
+
     // TODO make this an option setting.
     $view->date_info->style_show_empty_times = !empty($this->options['groupby_times_custom']) ? TRUE : FALSE;
-    
+
     // Make sure views does't try to limit the number of items in this view.
     $this->view->pager['items_per_page'] = 0;
   }
-  
+
   /**
    * Set default options
    */
@@ -180,7 +180,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
    */
   function render() {
     $calendar_type = $this->display->handler->get_option('calendar_type');
-    
+
     // Adjust the theme to match the currently selected default.
     // Only the month view needs the special 'mini' class,
     // which is used to retrieve a different, more compact, theme.

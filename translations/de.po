@@ -575,4 +575,3 @@ msgstr "Schlüssel"
 #: theme/theme.inc:721
 msgid "Empty day"
 msgstr "Tag ohne Eintrag"
-
