@@ -17,7 +17,7 @@ class calendar_plugin_style extends views_plugin_style {
      }
      $view->date_info->display_types = $this->display_types();
    }
-    
+
   function display_types($granularity = NULL, $option_type = 'names') {
     $ids = array();
     $names = array();
@@ -39,7 +39,7 @@ class calendar_plugin_style extends views_plugin_style {
     }
     return $$option_type;
   }
-  
+
   /**
    * Calendar argument date fields used in this view.
    */
@@ -61,7 +61,7 @@ class calendar_plugin_style extends views_plugin_style {
     }
     return ($date_fields);
   }
-  
+
   /**
    * Style validation.
    */
@@ -71,7 +71,7 @@ class calendar_plugin_style extends views_plugin_style {
       return $errors;
     }
     $style = $this->display->display_options['style_plugin'];
-    
+
     $arguments = $this->display->handler->get_option('arguments');
     if (!in_array('date_argument', array_keys($arguments))) {
       if (empty($this->view->date_info->arg_missing)) {
@@ -89,7 +89,7 @@ class calendar_plugin_style extends views_plugin_style {
         $this->view->date_info->arg_missing_default = TRUE;
       }
     }
-    
+
     // Make sure date fields are not set up to 'Group multiple values' 
     // in the calendar style.
     if ($style == 'calendar_style') {
@@ -121,11 +121,11 @@ class calendar_plugin_style extends views_plugin_style {
   }
 
   function query() {
-    
+
     require_once('./'. drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
-        
+
     $style_options = $this->view->style_plugin->options;
-    
+
     // Evaluate our argument values and figure out which 
     // calendar display we need to create.
     $i = 0;   
@@ -152,7 +152,7 @@ class calendar_plugin_style extends views_plugin_style {
         $this->view->date_info->min_date_date = date_format($this->view->date_info->min_date, DATE_FORMAT_DATE);
         $this->view->date_info->max_date_date = date_format($this->view->date_info->max_date, DATE_FORMAT_DATE);
         $this->view->date_info->forbid = isset($argument->forbid) ? $argument->forbid : FALSE;
-        
+
         // Stop after the first date argument, if there is more than one.
         break;
       }
@@ -161,15 +161,15 @@ class calendar_plugin_style extends views_plugin_style {
     $this->view->date_info->display_types = $this->display_types();
     $keys = drupal_map_assoc(array_keys(calendar_display_types()));
     $this->view->date_info->calendar_type = $keys[$this->view->date_info->granularity];
-    
+
     // bring the node type into the query so we can use it in the theme
     if ($this->view->base_table == 'node') {
       $this->view->query->add_field('node', 'type');
     }
-      
+
     parent::query();
   }
-  
+
   /**
    * Render the calendar navigation style.
    */
@@ -177,4 +177,3 @@ class calendar_plugin_style extends views_plugin_style {
     return theme($this->theme_functions(), $this->view, $this->options, array());
   }
 }
-

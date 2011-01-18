@@ -13,13 +13,13 @@ class calendar_plugin_display_block extends views_plugin_display_block {
   function init(&$view, &$display, $options = NULL) {
     parent::init($view, $display, $options);
   }
-  
+
   /**
    * Display validation.
    */
   function validate() {
     $errors = parent::validate();
-    
+
     $arguments = $this->display->handler->get_option('arguments');
     if (!in_array('date_argument', array_keys($arguments))) {
       if (empty($this->view->date_info->arg_missing)) {
@@ -35,9 +35,9 @@ class calendar_plugin_display_block extends views_plugin_display_block {
     }
     return $errors;
   }
-  
+
   function get_style_type() { return 'calendar'; }
-  
+
   function defaultable_sections($section = NULL) {
     if (in_array($section, array('style_plugin', 'row_options', 'row_plugin', 'items_per_page'))) {
       return FALSE;

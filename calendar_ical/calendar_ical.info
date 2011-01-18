@@ -6,5 +6,3 @@ dependencies[] = date_api
 dependencies[] = calendar
 package = Date/Time
 core = 6.x
-
-

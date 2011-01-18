@@ -9,16 +9,16 @@
  *  Bind the colorpicker event to the form element
  */
 Drupal.behaviors.calendarColorpicker = function (context) {
-  
+
   // do we have multiple calendar_colors?
   if ($("div.calendar_colorpicker").size() > 0) {
-  
+
     // loop over each calendar_color type
     $("div.calendar_colorpicker").each(function() {
 
       // create the farbtastic colorpicker
     var farb = $.farbtastic(this);
-    
+
     // get the id of the current matched colorpicker wrapper div
     var id = $(this).attr("id");
 
@@ -26,7 +26,7 @@ Drupal.behaviors.calendarColorpicker = function (context) {
     $("input.calendar_colorfield").filter("." + id).each(function () {
       // set the background colors of all of the textfields appropriately
        farb.linkTo(this);
-    
+
       // when clicked, they get linked to the farbtastic colorpicker that they are associated with
       $(this).click(function () {
         farb.linkTo(this);
@@ -37,4 +37,3 @@ Drupal.behaviors.calendarColorpicker = function (context) {
     });
   }
 };
-

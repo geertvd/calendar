@@ -26,15 +26,15 @@ class calendar_view_plugin_style extends calendar_plugin_style {
       $view->date_info->style_groupby_times = calendar_groupby_times($this->options['groupby_times']);
     }
     $view->date_info->style_groupby_field = $this->options['groupby_field'];
-    
+
     // TODO make this an option setting.
     $view->date_info->style_show_empty_times = !empty($this->options['groupby_times_custom']) ? TRUE : FALSE;
-    
+
     // Make sure views does't try to limit the number of items in this view.
     $this->view->pager['items_per_page'] = 0;
-    
+
   }
-  
+
   /**
    * Set default options
    */
@@ -62,7 +62,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
       '#options' => array(1 => t('First letter of name'), 2 => t('First two letters of name'), 3 => t('Abbreviated name'), 99 => t('Full name')),
       '#description' => t('The way day of week names should be displayed in a calendar.'),
       );
-      
+
     $form['with_weekno'] = array(
       '#title' => t('Show week numbers'),
       '#default_value' => $this->options['with_weekno'],
@@ -119,7 +119,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
       '#description' => t("Optionally group items into columns by a field value, for instance select the content type to show items for each content type in their own column, or use a location field to organize items into columns by location."),
       '#options' => array('' => '') + $field_options,
       );
-      
+
     if (module_exists('calendar_multiday')) {  
       $form['multiday_theme'] = array(
         '#title' => t('Multi-day style'),
@@ -136,7 +136,7 @@ class calendar_view_plugin_style extends calendar_plugin_style {
         '#description' => t('Select whether calendar items are displayed as overlapping items.'),
         );
     }  
-      
+
     foreach ($form as $key => $value) {
       if ($value['#type'] == 'value') {
         $form[$key]['#value'] = $value['#default_value'];

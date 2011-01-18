@@ -9,7 +9,7 @@
  * deferred to the attachments.
  */
 class calendar_plugin_display_page extends views_plugin_display_page {
-  
+
   function render() {
     if (!empty($this->view->date_info->forbid)) {
       drupal_not_found();
@@ -23,7 +23,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
    */
   function validate() {
     $errors = parent::validate();
-    
+
     $arguments = $this->display->handler->get_option('arguments');
     if (!in_array('date_argument', array_keys($arguments))) {
       if (empty($this->view->date_info->arg_missing)) {
@@ -37,12 +37,12 @@ class calendar_plugin_display_page extends views_plugin_display_page {
       }
       $this->view->date_info->arg_missing_default = TRUE;
     }
-    
+
     return $errors;
   }
 
   function get_style_type() { return 'calendar'; }
-  
+
   function defaultable_sections($section = NULL) {
     if (in_array($section, array('style_plugin', 'row_options', 'row_plugin', 'items_per_page'))) {
       return FALSE;
@@ -64,7 +64,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     $display['defaults']['row_options'] = FALSE;
     $display['defaults']['items_per_page'] = FALSE;
   } 
-  
+
   /**
    * Add custom option definitions.
    */  
@@ -91,7 +91,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     $categories['calendar_settings'] = array(
       'title' => theme('advanced_help_topic', 'calendar', 'settings') . t('Calendar settings'),
     );
-    
+
     $colors = $this->get_option('calendar_colors');
     $colors_taxonomy = $this->get_option('calendar_colors_taxonomy');
     $options['calendar_colors'] = array(
@@ -132,15 +132,15 @@ class calendar_plugin_display_page extends views_plugin_display_page {
     );
 
   }
-  
+
   function popup_options() {
     return array(0 => t('No'), 1 => t('Yes'));
   }
-   
+
   function options_form(&$form, &$form_state) {
     // It is very important to call the parent function here:
     parent::options_form($form, $form_state);
-       
+
     switch ($form_state['section']) {
       case 'calendar_popup':
         $form['#title'] .= t('Date changer');
@@ -151,7 +151,7 @@ class calendar_plugin_display_page extends views_plugin_display_page {
           '#description' => t('Display a popup calendar date selector?'),
           );        
         break;
-      
+
       case 'calendar_date_link':
         $form['#title'] .= t('Add new date link');
         $form['calendar_date_link'] = array(

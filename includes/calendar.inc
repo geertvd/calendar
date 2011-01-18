@@ -23,10 +23,10 @@ function calendar_build_calendar($view, $items) {
   }
   $items = $values;
   ksort($items);
-  
+
   $rows = array();
   $curday = drupal_clone($view->date_info->min_date);
-  
+
   switch ($view->date_info->granularity) {
     case 'year':
       $rows = array();
@@ -53,7 +53,7 @@ function calendar_build_calendar($view, $items) {
       break;
   }
   return $rows;
-  
+
 }
 
 /**
@@ -90,7 +90,7 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
   $day_wday = date_format($curday, 'w');
   date_modify($curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
   $curday_date = date_format($curday, DATE_FORMAT_DATE);
-    
+
   // If we're displaying the week number, add it as the
   // first cell in the week.
   if (!empty($view->date_info->style_with_weekno) && !in_array($view->date_info->granularity, array('day', 'week'))) {
@@ -129,7 +129,7 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
         ($curday_date > $today ? ' future' : '') .
         (empty($items[$curday_date]) ? ' has-no-events' : ' has-events');
     }
-    
+
     $rows[$week][] = array(
       'data' => $content,
       'class' => $class, 'id' => $view->name . '-' . $curday_date);
@@ -189,7 +189,7 @@ function calendar_build_day($curday, $view, $items) {
     }
     $link = theme('calendar_'. $view->date_info->calendar_type .'_multiple_node', $curday_date, $count, $view, $types);
   }
-    
+
   $content = array(
     'date' => $curday_date, 
     'datebox' => theme('calendar_datebox', $curday_date, $view, $items, $selected), 
@@ -200,4 +200,3 @@ function calendar_build_day($curday, $view, $items) {
     );
   return $content;
 }
-

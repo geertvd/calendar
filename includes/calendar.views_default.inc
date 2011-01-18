@@ -24,15 +24,15 @@
 */
 function calendar_views_default_views() {
   $views = array();
-  
+
   // Construct the default view with default options.
   $view = calendar_views_construct();
   $views[$view->name] = $view;
-  
+
   // Then see if there are any custom calendars to be created 
   // using variable_get().
   $calendar_options = variable_get('calendar_default_view_options', array());
-  
+
   foreach ((array) $calendar_options as $calendar_option) {
     $view = calendar_views_construct($calendar_option);
     $views[$view->name] = $view;
@@ -76,7 +76,7 @@ $path = NULL;
 $types = NULL;
 $date_fields = NULL;
 $display_fields = NULL;
-  
+
 if (empty($options)) {
   $disabled = TRUE;
 }
@@ -126,7 +126,7 @@ foreach ($date_fields as $key => $field_name) {
     $cck_field = FALSE;
   }
   $fields[$alias] = $alias;
-  
+
   // Add a sort for each date field:
   $sort_fields[$field_name] = array(
     'order' => 'ASC',
@@ -454,7 +454,6 @@ $handler->override_option('displays', array(
   'calendar_block_1' => 'calendar_block_1',
 ));
 $handler->override_option('calendar_type', 'month');
-
 
 // iCal feed.
 if (module_exists('calendar_ical')) {

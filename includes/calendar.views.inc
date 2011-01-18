@@ -24,7 +24,7 @@ function calendar_views_query_alter(&$view, &$query) {
       default:
         $arg = date_pad(date_part_extract($date, 'year'), 4) .'-'. date_pad(date_part_extract($date, 'month')) .'-'. date_pad(date_part_extract($date, 'day'));
         break; 
-        
+
     }
     drupal_goto(str_replace($_POST['calendar_previous_arg'], $arg, $_POST['view_url']));
     exit();
@@ -75,7 +75,7 @@ function calendar_views_plugins() {
   if (module_exists('calendar_multiday')) {
     $theme_path = drupal_get_path('module', 'calendar_multiday');
   }
-  
+
   $views_path = drupal_get_path('module', 'views');
   require_once "./$theme_path/theme/theme.inc";
 
@@ -219,7 +219,7 @@ function calendar_views_plugins() {
       ),
     ),
   );
-  
+
   if (module_exists('calendar_multiday')) {
     $data['style']['calendar_style']['additional themes'] += array(
       'calendar_day_overlap' => 'style',

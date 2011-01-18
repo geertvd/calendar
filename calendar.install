@@ -78,12 +78,12 @@ function calendar_update_6000() {
     $ret = array();
     drupal_set_message(t('Calendar module cannot be updated until after Views has been updated. Please return to <a href="@update-php">update.php</a> and run the remaining updates.', array('@update-php' => base_path() .'update.php?op=selection')), 'warning', FALSE);
     $ret['#abort'] = array('success' => FALSE, 'query' => t('calendar.module has updates, but cannot be updated until views.module is updated first.'));
-    
+
     return $ret;
   }
-  
+
   variable_del('calendar_empty_arg');
-  
+
   // Can't use variable_del because we don't have a reliable
   // way to find the old view names.
   db_query("DELETE FROM {variable} WHERE name LIKE 'calendar_%'");
@@ -101,7 +101,7 @@ function calendar_update_6001() {
     $ret = array();
     drupal_set_message(t('Calendar module cannot be updated until after Views has been updated. Please return to <a href="@update-php">update.php</a> and run the remaining updates.', array('@update-php' => base_path() .'update.php?op=selection')), 'warning', FALSE);
     $ret['#abort'] = array('success' => FALSE, 'query' => t('calendar.module has updates, but cannot be updated until views.module is updated first.'));
-    
+
     return $ret;
   }
   if (!module_exists('calendar_ical')) {
@@ -117,7 +117,7 @@ function calendar_update_6002() {
     $ret = array();
     drupal_set_message(t('Calendar module cannot be updated until after Views has been updated. Please return to <a href="@update-php">update.php</a> and run the remaining updates.', array('@update-php' => base_path() .'update.php?op=selection')), 'warning', FALSE);
     $ret['#abort'] = array('success' => FALSE, 'query' => t('calendar.module has updates, but cannot be updated until views.module is updated first.'));
-    
+
     return $ret;
   }
   $periods = array(

@@ -6,11 +6,11 @@
  * For the most part, feeds are page displays but with some subtle differences.
  */
 class calendar_plugin_display_ical extends views_plugin_display_page {
-  
+
   function get_style_type() { return 'ical'; }
 
   function uses_breadcrumb() { return FALSE; }
-  
+
   /**
    * Feeds do not go through the normal page theming mechanism. Instead, they
    * go through their own little theme function and then return NULL so that
@@ -188,16 +188,16 @@ class calendar_plugin_display_ical extends views_plugin_display_page {
       $plugin->attach_to($display_id, $this->get_path(), $clone->get_title());
     }
   }
-  
+
   /**
    * Display validation.
    */
   function validate() {
     $errors = parent::validate();
-    
+
     $arguments = $this->display->handler->get_option('arguments');
     $filters = $this->display->handler->get_option('filters');
-        
+
     if (!array_key_exists('date_argument', $arguments) && !array_key_exists('date_filter', $filters)) {
       if (empty($this->view->date_info->arg_missing)) {
         $errors[] = t("A Calendar period display will not work without a Date argument or a Date filter."); 
@@ -215,4 +215,3 @@ class calendar_plugin_display_ical extends views_plugin_display_page {
     return $errors;
   }  
 }
-

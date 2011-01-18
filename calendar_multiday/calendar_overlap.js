@@ -8,16 +8,16 @@ Drupal.behaviors.calendarSetScroll = function (context) {
   $('.header-body-divider:not(.header-body-divider-processed)').each(function() {
     var divider = $(this).addClass('header-body-divider-processed');
     var start_y = divider.offset().top;
-  
+
     // Add the grippie icon 
     $(this).prepend('<div class="grippie"></div>').mousedown(startDrag);
-  
+
     function startDrag(e) {
       start_y = divider.offset().top;
       $(document).mousemove(performDrag).mouseup(endDrag);
       return false;
     }
-  
+
     function performDrag(e) {
       var offset = e.pageY - start_y;
       var mwc = $('#multi-day-container');
@@ -30,25 +30,25 @@ Drupal.behaviors.calendarSetScroll = function (context) {
       start_y = divider.offset().top;
       return false;
     }
-  
+
     function endDrag(e) {
       $(document).unbind("mousemove", performDrag).unbind("mouseup", endDrag);
     }
    });
- 
+
   $('.single-day-footer:not(.single-day-footer-processed)').each(function() {
     var divider = $(this).addClass('single-day-footer-processed');
     var start_y = divider.offset().top;
-  
+
     // Add the grippie icon 
     $(this).prepend('<div class="grippie"></div>').mousedown(startDrag);
-  
+
     function startDrag(e) {
       start_y = divider.offset().top;
       $(document).mousemove(performDrag).mouseup(endDrag);
       return false;
     }
-  
+
     function performDrag(e) {
       var offset = e.pageY - start_y;
       var sdc = $('#single-day-container');
@@ -56,12 +56,12 @@ Drupal.behaviors.calendarSetScroll = function (context) {
       start_y = divider.offset().top;
       return false;
     }
-  
+
     function endDrag(e) {
       $(document).unbind("mousemove", performDrag).unbind("mouseup", endDrag);
     }
    });
-	 
+
    // Size the window
    calendar_resizeViewport();
 }
@@ -76,12 +76,11 @@ function calendar_scrollToFirst() {
 
 // Size the single day view 
 function calendar_resizeViewport() {
-	
+
   // Size of the browser window
   var viewportHeight = window.innerHeight ? window.innerHeight : $(window).height();
   var top = $('#single-day-container').offset().top;
-  
+
   // Give it a 20 pixel margin at the bottom
   $('#single-day-container').height(viewportHeight - top - 20);
 }
-  

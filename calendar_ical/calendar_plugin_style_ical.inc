@@ -9,14 +9,14 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
     $fields = $display->handler->default_display->options['fields'];
     $this->options['fields'] = $fields;
   }
-  
+
   function query() {
     // We need these values for the iCal feed.
     $this->view->query->add_field('node', 'title');
     $this->view->query->add_field('node', 'type');
     parent::query();
   }
-  
+
   function attach_to($display_id, $path, $title) {
     $display = $this->view->display[$display_id]->handler;
     $url_options = array();
@@ -24,7 +24,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
     if ($input) {
       $url_options['query'] = $input;
     }
-    
+
     // TODO adjust this to pick up default values when no arg is set?
     $url = url($this->view->get_url(NULL, $path), $url_options);
     if (empty($this->view->feed_icon)) {
@@ -50,14 +50,14 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
     $options['location_field'] = '';
     $options['fields'] = array();
   }
-  
+
   function option_definition() {
     $options = parent::option_definition();
 
     $options['summary_field'] = array('default' => '', 'translatable' => TRUE);
     $options['description_field'] = array('default' => '', 'translatable' => TRUE);
     $options['location_field'] = array('default' => '', 'translatable' => TRUE);
-    
+
     return $options;
   }
 
@@ -68,7 +68,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
       $options[$field['field']] = $handler->ui_name();
     }
     $form['#prefix'] = '<div class="form-item">'. t("Map the View fields to the values they should represent in the iCal feed. Only fields that have been added to the view are available to use in this way. You can add additional fields to the view and mark them 'Exclude from display' if you only want them in the iCal feed.") .'</div>';
-    
+
     $form['summary_field'] = array(
       '#type' => 'select',
       '#title' => t('Title'),
@@ -88,7 +88,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
       '#default_value' => $this->options['location_field'],
       '#options' => $options,
       );
-      
+
   }
 
    /**
@@ -96,12 +96,12 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
    */
   function validate() {
     $errors = parent::validate();
-    
+
     $style = $this->display->display_options['style_plugin'];
-    
+
     $arguments = $this->display->handler->get_option('arguments');
     $filters = $this->display->handler->get_option('filters');
-    
+
     if (!array_key_exists('date_argument', $arguments) && !array_key_exists('date_filter', $filters)) {
       if (empty($this->view->date_info->arg_missing)) {
         $errors[$style] = t("The @style style requires a Date argument or a Date filter.", array('@style' => $style));      
@@ -115,7 +115,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
       }
       $this->view->date_info->arg_missing_default = TRUE;
     }
-     
+
     if (empty($this->options['summary_field'])) {
       $errors[] = $errors[$style] = t("The @style style requires a Title field for the iCal export.", array('@style' => $style));
     }
@@ -138,17 +138,17 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
     }
     return $errors;
   }
- 
+
   function render() {
     require_once('./'. drupal_get_path('module', 'calendar') .'/includes/calendar.inc');
-    
+
     // Transfer the style options to the view object so they
     // can be easily accessed in the theme.
     $style_options = $this->options;
     $this->view->date_info->summary_field = $style_options['summary_field'];
     $this->view->date_info->description_field = $style_options['description_field'];
     $this->view->date_info->location_field = $style_options['location_field'];
-    
+
     // Evaluate our argument values and figure out which 
     // calendar display we need to create.
     $i = 0;   
@@ -172,13 +172,13 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
         $this->view->date_info->week = isset($argument->week) ? $argument->week : NULL;
         $this->view->date_info->min_date = $argument->min_date;
         $this->view->date_info->max_date = $argument->max_date;
-                
+
         // Stop after the first date argument, if there is more than one.
         break;
       }
       $i++;
     }
-    
+
     // The ical display might have date filters instead of arguments.
     // If we missed getting a min date from date arguments, try date filters.
     if (empty($this->view->date_info->min_date)) {
@@ -204,19 +204,19 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
             $this->view->date_info->date_fields = array();
           }
           $this->view->date_info->date_fields = array_merge($this->view->date_info->date_fields, array_keys($filter->options['date_fields']));
-          
+
           // Stop after the first date filter, if there is more than one.
           break;
         }
       }
       $i++;
     }
-       
+
     // Render each field into an output array.
     $items = array();
     $calendar_fields = date_api_fields($this->view->base_table);
     $calendar_fields = array_keys($calendar_fields['alias']);
-    
+
     foreach ($this->view->result as $num => $row) {
       $items[$num] = $row;
       // Store the raw date values before formatting the results.
@@ -234,10 +234,10 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
         }
       }
     }
-    
+
     // Massage the resulting items into formatted calendar items.
     $items = calendar_build_nodes($this->view, $items);
-    
+
     // Merge in items from other sources.
     foreach (module_implements('calendar_add_items') as $module) {
       $function = $module .'_calendar_add_items';
