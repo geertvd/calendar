@@ -220,7 +220,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
 
     // Render each field into an output array.
     $items = array();
-    $calendar_fields = date_api_fields($this->view->base_table);
+    $calendar_fields = date_views_fields($this->view->base_table);
     $calendar_fields = array_keys($calendar_fields['alias']);
     foreach ($this->view->result as $num => $row) {
       $items[$num] = $row;

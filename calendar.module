@@ -605,7 +605,7 @@ function calendar_build_nodes(&$view, &$items) {
   $nodes = array();
   $i = 0;
   foreach ($date_filter->options['date_fields'] as $name) {
-
+    
     $field        = $fields['name'][$name];
     $field_type   = strstr($field['type'], 'string') ? 'string' : 'timestamp';
     $alias        = $field['query_name'];
@@ -648,7 +648,7 @@ function calendar_build_nodes(&$view, &$items) {
         }
       }
     }
-
+    
     // set the domain part of the id
     $domain = check_plain($_SERVER['SERVER_NAME']);
 
@@ -863,6 +863,7 @@ function calendar_build_nodes(&$view, &$items) {
         }
       }
     }
-  }
+  } 
+
   return $nodes;
 }
