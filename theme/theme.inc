@@ -112,6 +112,7 @@ function template_preprocess_calendar(&$vars) {
   }
 
   $result   = (array) $view->result;
+ 
   $options  = $view->style_plugin->options;
   $handler  = $view->style_plugin;
 
@@ -135,8 +136,13 @@ function template_preprocess_calendar(&$vars) {
       }
     }
     foreach ($fields as $name => $field) {
-     // Some fields, like the node edit and delete links, have no alias.
+      // Some fields, like the node edit and delete links, have no alias.
       $field_alias = $field->field_alias != 'unknown' ? $field->field_alias : $name; 
+      if ($field->real_field == 'entity_id' || $field->real_field == 'revision_id') {
+        $items[$num]->id = $row->{$field_alias};
+        //$col = $field->definition['field_name'] . '_' . $field->options['group_column'];
+        //$field_alias = $field->aliases[$col];
+      }
       if (!empty($field) && is_object($field)) {
         // Theme the copy instead of the original row so duplicate date
         // fields each get a fresh copy of the original data to theme.
@@ -147,7 +153,7 @@ function template_preprocess_calendar(&$vars) {
       }
     }
   }
-
+ 
   $vars['display_type'] = $view->date_info->granularity;
   $vars['min_date_formatted'] = date_format($view->date_info->min_date, DATE_FORMAT_DATETIME);
   $vars['max_date_formatted'] = date_format($view->date_info->max_date, DATE_FORMAT_DATETIME);
