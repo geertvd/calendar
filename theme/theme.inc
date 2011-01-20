@@ -117,18 +117,33 @@ function template_preprocess_calendar(&$vars) {
   $handler  = $view->style_plugin;
 
   $fields   = $view->field;
-
+    
   // Render each field into an output array. We have to do the rendering
   // here because we don't apppear to have full access to the view 
   // handlers in the theme functions.
   $items = array();
   $calendar_fields = date_views_fields($view->base_table);
   $calendar_fields = array_keys($calendar_fields['alias']);
+
+  // Try to figure out the 'id' for this collection of items.
+  // The id field is often not a field but instead an 'additional field',
+  // so this is cludgy.
+  foreach ($result as $num => $row) {
+    $keys = array_keys((array) $row);
+    foreach ($keys as $key) {
+      if (strlen($key) == 3 && substr($key, -2) == 'id' && !empty($row->$key)) {
+        $id = $key;
+      }
+    }
+  }
+
   foreach ($result as $num => $row) {
     $copy = clone($row);
     $items[$num] = $row;
     $items[$num]->raw = $copy;
     $items[$num]->calendar_fields = new stdClass();
+
+    $items[$num]->id = !empty($row->$id) ? $row->$id : NULL;
 
     foreach ($row as $key => $value) {
       if (in_array($key, $calendar_fields)) {
@@ -153,7 +168,7 @@ function template_preprocess_calendar(&$vars) {
       }
     }
   }
- 
+  
   $vars['display_type'] = $view->date_info->granularity;
   $vars['min_date_formatted'] = date_format($view->date_info->min_date, DATE_FORMAT_DATETIME);
   $vars['max_date_formatted'] = date_format($view->date_info->max_date, DATE_FORMAT_DATETIME);
