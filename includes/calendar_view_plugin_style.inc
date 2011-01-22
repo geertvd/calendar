@@ -155,13 +155,13 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     if (!empty($this->view->date_info->mini) && $this->view->date_info->granularity == 'month') {
       $this->definition['theme'] = 'calendar_mini';
     }
-    elseif (  module_exists('calendar_multiday') && $calendar_type == 'week') {
+    elseif (module_exists('calendar_multiday') && $calendar_type == 'week') {
       $this->view->date_info->mini = FALSE;
-      $this->definition['theme'] = ($this->view->style_options['multiday_theme'] == '1' && $this->view->style_options['theme_style'] == '1') ? 'calendar_'. $this->view->date_info->granularity .'_overlap' : 'calendar_'. $this->view->date_info->granularity;
+      $this->definition['theme'] = (!isset($this->view->style_options['multiday_theme']) || ($this->view->style_options['multiday_theme'] == '1' && $this->view->style_options['theme_style'] == '1')) ? 'calendar_'. $this->view->date_info->granularity .'_overlap' : 'calendar_'. $this->view->date_info->granularity;
     }
-    elseif ( module_exists('calendar_multiday') && $calendar_type == 'day') {
+    elseif (module_exists('calendar_multiday') && $calendar_type == 'day') {
       $this->view->date_info->mini = FALSE;
-      $this->definition['theme'] = ($this->view->style_options['theme_style'] == '1') ? 'calendar_'. $this->view->date_info->granularity .'_overlap' : 'calendar_'. $this->view->date_info->granularity;
+      $this->definition['theme'] = (!isset($this->view->style_options['multiday_theme']) || ($this->view->style_options['theme_style'] == '1')) ? 'calendar_'. $this->view->date_info->granularity .'_overlap' : 'calendar_'. $this->view->date_info->granularity;
     }
     else {
       $this->view->date_info->mini = FALSE;

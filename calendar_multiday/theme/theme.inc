@@ -417,10 +417,10 @@ function template_preprocess_calendar_day(&$vars) {
     foreach ($grouped_items[$start_time]['values'] as $column => &$items) {
       foreach ($items as $index => &$item) {
         if ($display_overlap) {
-          $offset = round(date_format($item->date_start, 'i') / 15);
+          $offset = round(date_format($item->date_start, 'i') / $overlap_unit);
           $duration = date_convert('1970-01-01 ' . $item->time_end, DATE_DATETIME, DATE_UNIX) - 
                       date_convert('1970-01-01 ' . $item->time_start, DATE_DATETIME, DATE_UNIX);
-          $duration = round($duration / (15 * 60));
+          $duration = round($duration / ($overlap_unit * 60));
           $item->class = 'd_'. $duration . ' o_'. $offset . ' i_' . $item->indent . ' md_' . min($item->max_depth, 5);
         }
         $theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $view->date_info->granularity .'_node';

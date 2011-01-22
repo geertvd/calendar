@@ -84,7 +84,7 @@ function calendar_multiday_theme() {
       ),  
     'calendar_month_row' => $base + array(
       'template' => 'calendar-month-row',
-      'arguments' => array('inner' => NULL, 'class' => NULL, 'iehint' => NULL),
+      'arguments' => array('inner' => NULL, 'class' => NULL, 'week' => NULL, 'iehint' => NULL),
       ),  
    );
 }

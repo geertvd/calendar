@@ -362,17 +362,18 @@ $handler->override_option('calendar_type', 'year');
 // Month view.
 $handler = $view->new_display('calendar_period', 'Month view', 'calendar_period_2');
 $handler->override_option('style_plugin', 'calendar_style');
-$handler->override_option('style_options', array(
+$style_options = array(
   'display_type' => 'month',
   'name_size' => '99',
   'with_weekno' => '1',
   'date_fields' => NULL,
   'max_items' => 0,
-));
+);
 
 if (module_exists('calendar_multiday')) {
-  $handler->override_option['style_options']['multiday_theme'] = 1;
+  $style_options['multiday_theme'] = 1;
 }
+$handler->override_option('style_options', $style_options);
 
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
@@ -387,7 +388,7 @@ $handler->override_option('calendar_type', 'month');
 // Day view.
 $handler = $view->new_display('calendar_period', 'Day view', 'calendar_period_3');
 $handler->override_option('style_plugin', 'calendar_style');
-$handler->override_option('style_options', array(
+$style_options = array(
   'name_size' => '99',
   'with_weekno' => 0,
   'max_items' => 0,
@@ -395,11 +396,13 @@ $handler->override_option('style_options', array(
   'groupby_times' => 'hour',
   'groupby_times_custom' => '',
   'groupby_field' => '',
-));
+);
 
 if (module_exists('calendar_multiday')) {
-  $handler->override_option['style_options']['theme_style'] = 1;
+  $style_options['theme_style'] = 1;
+  $style_options['multiday_theme'] = 1;
 }
+$handler->override_option('style_options', $style_options);
 
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);
@@ -414,19 +417,20 @@ $handler->override_option('calendar_type', 'day');
 // Week view.
 $handler = $view->new_display('calendar_period', 'Week view', 'calendar_period_4');
 $handler->override_option('style_plugin', 'calendar_style');
-$handler->override_option('style_options', array(
+$style_options = array(
   'name_size' => '99',
   'with_weekno' => 0,
   'max_items' => 0,
   'max_items_behavior' => 'more',
   'groupby_times' => 'hour',
   'groupby_times_custom' => '',
-  'groupby_field' => '',
-));
-
+  'groupby_field' => ''
+);
 if (module_exists('calendar_multiday')) {
-  $handler->override_option['style_options']['theme_style'] = 1;
+  $style_options['theme_style'] = 1;
+  $style_options['multiday_theme'] = 1;
 }
+$handler->override_option('style_options', $style_options);
 
 $handler->override_option('attachment_position', 'after');
 $handler->override_option('inherit_arguments', TRUE);

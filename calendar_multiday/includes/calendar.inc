@@ -269,10 +269,10 @@ function calendar_build_month(&$curday, $view, $items) {
       }
 
       if ($i == 0) {
-        $output .= theme('calendar_month_row', $inner, 'date-box', $iehint);
+        $output .= theme('calendar_month_row', $inner, 'date-box', $week, $iehint);
       }
       elseif ($i == $total_rows) {
-        $output .= theme('calendar_month_row', $inner, 'single-day', $iehint);
+        $output .= theme('calendar_month_row', $inner, 'single-day', $week, $iehint);
         $iehint = 0;
         $max_singlerow_cnt = 0;
         $max_multirow_cnt = 0;

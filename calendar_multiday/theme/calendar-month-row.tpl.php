@@ -8,6 +8,7 @@
  */
 $attrs = ($class) ? 'class="' . $class . '"': '';
 $attrs .= ($iehint > 0) ? ' iehint="' . $iehint . '"' : '';
+$attrs .= ($week > 0) ? ' week="' . $week . '"' : '';
 ?>
 <?php if ($attrs != ''):?>
 <tr <?php print $attrs?>>
