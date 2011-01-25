@@ -408,6 +408,7 @@ function template_preprocess_calendar_day(&$vars) {
 
   // Do the headers last, once we know what the actual values are.
   $i = 0;
+  $overlap_unit = 15;
   $start_times = array_keys($grouped_items);
   foreach ($start_times as $start_time) {
     $next_start_time = array_key_exists($i + 1, $start_times) ? $start_times[$i + 1] : '23:59:59';
@@ -596,6 +597,7 @@ function template_preprocess_calendar_week(&$vars) {
 
   // Do the headers last, once we know what the actual values are.
   $i = 0;
+  $overlap_unit = 15;
   $start_times = array_keys($grouped_items);
   foreach ($start_times as $start_time) {
     $next_start_time = array_key_exists($i + 1, $start_times) ? $start_times[$i + 1] : '23:59:59';
@@ -607,9 +609,9 @@ function template_preprocess_calendar_week(&$vars) {
       foreach ($grouped_items[$start_time]['values'] as $wday => &$items) {
         foreach ($items as &$item) {
           if ($display_overlap) {
-            $offset = round(date_format($item['item']->date_start, 'i') / 15);
+            $offset = round(date_format($item['item']->date_start, 'i') / $overlap_unit);
             $duration = date_convert($item['item']->date_end, DATE_OBJECT, DATE_UNIX) - date_convert($item['item']->date_start, DATE_OBJECT, DATE_UNIX);
-            $duration = round($duration / (15 * 60));
+            $duration = round($duration / ($overlap_unit * 60));
             $item['class'] = 'd_'. $duration . ' o_'. $offset . ' i_' . $item['indent'] . ' md_' . min($item['max_depth'], 5);
           }
         } 
