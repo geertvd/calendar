@@ -80,7 +80,7 @@ function calendar_multiday_theme() {
       ),
     'calendar_month_col' => $base + array(
       'template' => 'calendar-month-col',
-      'arguments' => array('item' => NULL),
+      'arguments' => array('item' => NULL), 
       ),  
     'calendar_month_row' => $base + array(
       'template' => 'calendar-month-row',

@@ -268,7 +268,7 @@ function calendar_build_month(&$curday, $view, $items) {
         date_modify($curday, '+1 day');
       }
 
-      if ($i == 0) {
+      if ($i == 0) { 
         $output .= theme('calendar_month_row', $inner, 'date-box', $week, $iehint);
       }
       elseif ($i == $total_rows) {
@@ -279,7 +279,7 @@ function calendar_build_month(&$curday, $view, $items) {
       }
       else {
         // Style all the columns into a row
-        $output .= theme('calendar_month_row', $inner, 'multi-day');
+        $output .= theme('calendar_month_row', $inner, 'multi-day', $week);
       }
     }
     $curday = $final_day;

@@ -703,7 +703,8 @@ function calendar_build_nodes(&$view, &$items) {
       if (substr($field['type'], 0, 3) == 'cck') {
         $real_field = str_replace(array('_value2', '_value'), '', $field_name);
       }
-
+      $item->real_field = $real_field;
+      
       $id = 'calendar.'. $item->{$view->base_field} .'.'. $real_field .'.'. $delta;
 
       // When creating iCal feeds for repeating dates we don't want all
