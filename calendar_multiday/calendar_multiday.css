@@ -704,6 +704,10 @@ table.calendar-legend tr.even .stripe {
 }
 
 /* Restyle Header */
+.view-content .calendar-calendar .clear-block {
+	margin-bottom: 10px;
+}
+
 .view-content .calendar-calendar {
   position : relative;
   margin-top : 5px;
@@ -744,6 +748,7 @@ table.calendar-legend tr.even .stripe {
   height : 30px;
   height : auto ;
   min-height : 30px;
+  position : relative;
 }
 
 .view-content .calendar-calendar .date-prev a,
