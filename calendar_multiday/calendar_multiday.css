@@ -376,10 +376,14 @@ table.calendar-legend tr.even .stripe {
   width : 100%;
 }
 
+.calendar-calendar .week-view .full .calendar-agenda-hour,
+.calendar-calendar .day-view .full .calendar-agenda-hour {
+  padding-right : 2px;
+}
+
 .calendar-calendar .week-view .full .calendar-agenda-hour {
   width : 6%;
   min-width : 0px;
-  padding-right : 2px;
 }
 
 .calendar-calendar .week-view .full .days {
