@@ -159,7 +159,6 @@
 .calendar-calendar .day-view .full div.calendar-agenda-hour,
 .calendar-calendar .week-view .full div.calendar-agenda-items,
 .calendar-calendar .day-view .full div.calendar-agenda-items  {
-  width : 100%;
   height : 47px;
   border-top : 1px solid #cccccc;
 }
