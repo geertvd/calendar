@@ -84,7 +84,7 @@ function calendar_build_week(&$curday, $view, $items, $check_month = FALSE) {
   $today = date_format(date_now(date_default_timezone_name()), DATE_FORMAT_DATE);
   $month = date_format($curday, 'n');
   $week = date_week($curday_date);
-  $first_day = variable_get('date_first_day', 0);
+  $first_day = variable_get('date_first_day', 1);
 
   // move backwards to the first day of the week
   $day_wday = date_format($curday, 'w');
