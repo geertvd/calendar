@@ -23,6 +23,7 @@ function template_preprocess_calendar_main(&$vars) {
   $vars['max_date_formatted'] = !empty($view->date_info->end_date) ? date_format($view->date_info->max_date, DATE_FORMAT_DATETIME) : '';
   $view->date_info->mini = isset($view->date_info->mini) ? $view->date_info->mini : $view->date_info->granularity == 'year';
 
+  // Create the links to other displays.
   $url = $view->get_url();
   $view->date_info->url = $url;
   $arg = $view->date_info->date_arg;
@@ -71,7 +72,7 @@ function template_preprocess_calendar_main(&$vars) {
 
   // If the Date Popup module is enabled, add a popup date selector.
   if (!empty($view->date_info->calendar_popup)) {
-    $vars['calendar_popup'] = '<div class="clear-block">'. calendar_date_select($view) .'</div>';
+    $vars['calendar_popup'] = '<div class="clear-block">' . calendar_date_select($view) . '</div>';
   }
 
   // If an 'Add new ... link is provided, add it here.
@@ -80,12 +81,18 @@ function template_preprocess_calendar_main(&$vars) {
   && (user_access("administer nodes") || user_access('create '. $view->date_info->calendar_date_link .' content'))) {
     $name = node_type_get_name($view->date_info->calendar_date_link);
     $href = 'node/add/' . str_replace('_', '-', $view->date_info->calendar_date_link);
-    $query = drupal_get_query_parameters(array('destination' => $view->date_info->url));   
-  } 
+    $query = drupal_get_query_parameters(array('destination' => $view->date_info->url));    
+    $vars['calendar_links']['calendar calendar-add'] = $base + array(
+      'title' => t('Add+'), 
+      'href' => $href, 
+      'query' => $query,
+      );
+  }
   $vars['view'] = $view;  
   $vars['mini'] = !empty($view->date_info->mini);
   $vars['block'] = !empty($view->date_info->block);
   $vars['block_identifier'] = date_block_identifier($view);
+
 }
 
 /**
@@ -95,8 +102,8 @@ function template_preprocess_calendar_main(&$vars) {
  * views and the template takes care of displaying links to related views.
  */
 function template_preprocess_calendar(&$vars) {
-  module_load_include('inc', 'calendar_multiday', 'includes/calendar');  
-
+  module_load_include('inc', 'calendar_multiday', 'includes/calendar');
+  
   $view     = $vars['view'];
 
   // Make sure we only run through this function one time.
@@ -105,22 +112,38 @@ function template_preprocess_calendar(&$vars) {
   }
 
   $result   = (array) $view->result;
+ 
   $options  = $view->style_plugin->options;
   $handler  = $view->style_plugin;
 
   $fields   = $view->field;
-
+    
   // Render each field into an output array. We have to do the rendering
   // here because we don't apppear to have full access to the view 
   // handlers in the theme functions.
   $items = array();
   $calendar_fields = date_views_fields($view->base_table);
   $calendar_fields = array_keys($calendar_fields['alias']);
+
+  // Try to figure out the 'id' for this collection of items.
+  // The id field is often not a field but instead an 'additional field',
+  // so this is cludgy.
+  foreach ($result as $num => $row) {
+    $keys = array_keys((array) $row);
+    foreach ($keys as $key) {
+      if (strlen($key) == 3 && substr($key, -2) == 'id' && !empty($row->$key)) {
+        $id = $key;
+      }
+    }
+  }
+
   foreach ($result as $num => $row) {
     $copy = clone($row);
     $items[$num] = $row;
     $items[$num]->raw = $copy;
     $items[$num]->calendar_fields = new stdClass();
+
+    $items[$num]->id = !empty($row->$id) ? $row->$id : NULL;
 
     foreach ($row as $key => $value) {
       if (in_array($key, $calendar_fields)) {
@@ -130,19 +153,22 @@ function template_preprocess_calendar(&$vars) {
     foreach ($fields as $name => $field) {
       // Some fields, like the node edit and delete links, have no alias.
       $field_alias = $field->field_alias != 'unknown' ? $field->field_alias : $name; 
+      if ($field->real_field == 'entity_id' || $field->real_field == 'revision_id') {
+        $items[$num]->id = $row->{$field_alias};
+        //$col = $field->definition['field_name'] . '_' . $field->options['group_column'];
+        //$field_alias = $field->aliases[$col];
+      }
       if (!empty($field) && is_object($field)) {
         // Theme the copy instead of the original row so duplicate date
         // fields each get a fresh copy of the original data to theme.
         $items[$num]->{$field_alias} = $field->theme($copy);
-      }  
-      // Some fields, like the node edit and delete links, have no alias.
-      $field_alias = $field->field_alias != 'unknown' ? $field->field_alias : $name; 
+      }
       if (!empty($field->options['exclude'])) {
         if (isset($items[$num]->{$field_alias})) unset($items[$num]->{$field_alias});
       }
     }
   }
-
+  
   $vars['display_type'] = $view->date_info->granularity;
   $vars['min_date_formatted'] = date_format($view->date_info->min_date, DATE_FORMAT_DATETIME);
   $vars['max_date_formatted'] = date_format($view->date_info->max_date, DATE_FORMAT_DATETIME);
@@ -152,7 +178,7 @@ function template_preprocess_calendar(&$vars) {
 
   // Merge in items from other sources.
   foreach (module_implements('calendar_add_items') as $module) {
-    $function = $module .'_calendar_add_items';
+    $function = $module . '_calendar_add_items';
     if (function_exists($function)) {
       if ($feeds = $function($view)) {
         foreach ($feeds as $feed) {
@@ -161,7 +187,6 @@ function template_preprocess_calendar(&$vars) {
       }
     }
   }
-
   $view->date_info->mini = isset($view->date_info->mini) ? $view->date_info->mini : $view->date_info->granularity == 'year';
 
   // Create the calendar day names and rows.
@@ -223,7 +248,7 @@ function template_preprocess_calendar_month(&$vars) {
         $month_rows[$weekno][$day]['data'] = $data;
       }
       else {
-        $month_rows[$weekno][$day]['data'] = '<div class="inner">'. $data .'</div>';
+        $month_rows[$weekno][$day]['data'] = '<div class="inner">' . $data . '</div>';
       }
     }
   }
@@ -234,7 +259,6 @@ function template_preprocess_calendar_month(&$vars) {
   $vars['display_type'] = $view->date_info->granularity;
   $vars['min_date_formatted'] = date_format($view->date_info->min_date, DATE_FORMAT_DATETIME);
   $vars['max_date_formatted'] = date_format($view->date_info->max_date, DATE_FORMAT_DATETIME);
-
 }
 
 /**
@@ -275,7 +299,7 @@ function template_preprocess_calendar_year(&$vars) {
     $view->date_info->mini = TRUE;
     $view->date_info->hide_nav = TRUE;
     $view->date_info->show_title = TRUE;
-    $view->date_info->url = date_real_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month));
+    $view->date_info->url = date_real_url($view, NULL, date_pad($year, 4) . '-' . date_pad($month));
     $view->date_info->min_date = new DateObject($view->date_info->year . '-' . date_pad($month) . '-01 00:00:00', date_default_timezone());
     $view->date_info->max_date = clone($view->date_info->min_date);
     date_modify($view->date_info->max_date, '+1 month');
@@ -286,7 +310,7 @@ function template_preprocess_calendar_year(&$vars) {
       'rows' => $month_rows,
     );
     $months[$month] = theme('calendar_mini', $variables);
-  }  
+  }
   $vars['months'] = $months;
   $vars['view']->date_info->hide_nav = FALSE;
   $vars['view']->date_info->granularity = 'year';
@@ -1010,4 +1034,3 @@ function _calc_indents(&$overlapped_items, $start, $end, &$item, $depth = 0) {
 function _calc_indent( $cur_depth, $depth ) {
   return round(10 * $cur_depth / ($depth + 1));
 }
-/** @} End of addtogroup themeable */
