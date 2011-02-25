@@ -1,4 +1,3 @@
-; $Id$
 name = Calendar iCal
 description = Adds ical functionality to calendar views.
 package = Views

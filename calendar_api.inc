@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Adapted from event_get_calendar() function in the event module
