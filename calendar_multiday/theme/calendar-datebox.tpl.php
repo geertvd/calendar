@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file 
  * Template to display the date box in a calendar.

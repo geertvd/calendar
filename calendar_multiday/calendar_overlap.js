@@ -1,4 +1,3 @@
-// $Id$
 /*
  *  Create the splitter, set the viewport size, and set the position of the scrollbar to the first item.
  */

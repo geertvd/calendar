@@ -1,4 +1,3 @@
-// $Id$
 Calendar Module 7.x
 ==================
 

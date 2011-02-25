@@ -1,4 +1,3 @@
-# $Id$
 #
 # Swedish translation of Drupal (calendar_ical)
 # Generated from files:

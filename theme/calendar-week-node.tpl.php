@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Template to display a view item as a calendar week node.

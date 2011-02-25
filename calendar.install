@@ -5,7 +5,6 @@
  *
  */
 
-// $Id$
 
 /**
  * Implementation of hook_enable().
