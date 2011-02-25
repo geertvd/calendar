@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Template to display a summary of the days items as a calendar month node.

@@ -1,5 +1,4 @@
 <?php
-//$Id$
 //views_include_handlers();
 /**
  * Implementation of hook_views_plugins

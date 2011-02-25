@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * The plugin that handles calendar attachment displays.
  * 

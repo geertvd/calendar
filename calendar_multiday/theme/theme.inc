@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * Display a calendar navigation and links
  */

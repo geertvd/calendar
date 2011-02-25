@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Style plugin to render the year, month, week, or day calendar view.

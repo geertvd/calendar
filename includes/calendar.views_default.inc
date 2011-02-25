@@ -1,5 +1,4 @@
 <?php
-//$Id$
 /**
  * Set up so it can be used as an API to create default calendars for
  * specific date fields.

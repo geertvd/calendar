@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * The plugin that handles a feed, such as RSS or atom.
  *

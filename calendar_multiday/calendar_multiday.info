@@ -1,4 +1,3 @@
-; $Id$
 name = Calendar Multiday
 description = "Use the calendar multiday display as an alternative to the standard display. (BETA version)"
 dependencies[] = calendar

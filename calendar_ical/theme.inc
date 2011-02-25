@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * Preprocess an ical feed
  */

@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * Style plugin to create the calendar navigation and links.
  * 

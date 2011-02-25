@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * Default style plugin to render an iCal feed.
  */

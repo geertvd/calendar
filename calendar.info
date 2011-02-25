@@ -1,4 +1,3 @@
-; $Id$
 name = Calendar
 description = Views plugin to display views containing dates as Calendars.
 dependencies[] = views
