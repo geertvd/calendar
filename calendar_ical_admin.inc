@@ -1,5 +1,4 @@
 <?php
-//$Id$
 /**
  * @file
  * Setup and admin functions.

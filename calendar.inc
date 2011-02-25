@@ -1,5 +1,4 @@
 <?php
-//$Id$
 /**
  * @file
  * All the code used while processing a calendar is stored in this file

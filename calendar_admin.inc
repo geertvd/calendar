@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * This file contains administrative functions used only when setting up
