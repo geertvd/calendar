@@ -1,6 +1,5 @@
 <?php
 
-// $Id$
 
 // Make sure Calendar iCal is loaded after Calendar module so constants and functions work correctly.
 function calendar_ical_install() {
