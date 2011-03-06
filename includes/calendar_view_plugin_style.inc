@@ -47,18 +47,19 @@ class calendar_view_plugin_style extends calendar_plugin_style {
   /**
    * Set default options
    */
-  function options(&$options) {
-    $options['name_size'] = 3;
-    $options['with_weekno'] = 0;
-    $options['multiday_theme'] = module_exists('calendar_multiday') ? '1' : '0';
-    $options['theme_style'] = module_exists('calendar_multiday') ? '1' : '0';
-    $options['max_items'] = 0;
-    $options['max_items_behavior'] = 'more';
-    $options['truncated_fields'] = array();
-    $options['truncate_length'] = '';
-    $options['groupby_times'] = 'hour';
-    $options['groupby_times_custom'] = '';
-    $options['groupby_field'] = '';
+  // Set default values for the date filter.
+  function option_definition() {
+    $options = parent::option_definition();
+    $options['name_size'] = array('default' => 3, 'export' => 'export_plugin');
+    $options['with_weekno'] = array('default' => 0, 'export' => 'export_plugin');
+    $options['multiday_theme'] = array('default' => module_exists('calendar_multiday') ? '1' : '0', 'export' => 'export_plugin');
+    $options['theme_style'] = array('default' => module_exists('calendar_multiday') ? '1' : '0', 'export' => 'export_plugin');
+    $options['max_items'] = array('default' => 0, 'export' => 'export_plugin');  
+    $options['max_items_behavior'] = array('default' => 'more', 'export' => 'export_plugin');  
+    $options['groupby_times'] = array('default' => 'hour', 'export' => 'export_plugin');  
+    $options['groupby_times_custom'] = array('default' => '', 'export' => 'export_plugin');  
+    $options['groupby_field'] = array('default' => '', 'export' => 'export_plugin');  
+    return $options;
   }
 
   /**
