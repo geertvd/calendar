@@ -27,8 +27,6 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     $view->date_info->style_theme_style = $this->options['theme_style'];
     $view->date_info->style_max_items = $this->options['max_items'];
     $view->date_info->style_max_items_behavior = $this->options['max_items_behavior'];
-    $view->date_info->style_truncated_fields = $this->options['truncated_fields'];
-    $view->date_info->style_truncate_length = $this->options['truncate_length'];
     if (!empty($this->options['groupby_times_custom'])) {
       $view->date_info->style_groupby_times = explode(',', $this->options['groupby_times_custom']);
     }
