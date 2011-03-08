@@ -148,7 +148,7 @@ class calendar_plugin_style extends views_plugin_style {
     $this->view->date_info->calendar_display = $keys[$this->view->date_info->granularity];
 
     // bring the node type into the query so we can use it in the theme
-    $this->view->query->add_field('node', 'type');
+    //$this->view->query->add_field('node', 'type');
 
     parent::query();
   }
