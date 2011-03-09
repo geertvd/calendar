@@ -61,6 +61,20 @@ class calendar_view_plugin_style extends calendar_plugin_style {
   }
 
   /**
+   * Make sure our custom options get exported.
+   * Handle the options we know about, pass the rest to the parent plugin.
+   */
+  function export_plugin($indent, $prefix, $storage, $option, $definition, $parents) {
+    $output = '';
+    if (in_array($option, array('name_size', 'with_weekno', 'multiday_theme', 'theme_style', 'max_items', 'max_items_behavior', 'groupby_times', 'groupby_times_custom', 'groupby_field'))) {
+      $name = $this->options[$option];
+      $output .= $indent . $prefix . "['$option'] = '$name';\n";
+      return $output;
+    }
+    return parent::export_plugin($indent, $prefix, $storage, $option, $definition, $parents);
+  }
+
+  /**
    * Style options.
    */
   function options_form(&$form, &$form_state) {
