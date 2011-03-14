@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- #1084366 by developer-x - Set the default value for date_first_day to 1
 - Some calendar settings were getting lost in export/clone.
 - #373458 by criznach, apply all_day changes to week as well as day.
 - #998824 by developer-x, Use percentage widths for the multiday layouts.
