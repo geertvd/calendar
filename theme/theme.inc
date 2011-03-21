@@ -651,7 +651,10 @@ function template_preprocess_calendar_node(&$vars) {
   // but it will show up as $node->node_type instead of
   // $node->type. Rename it to match the normal way it 
   // would show up on a node object.
-  $vars['node']->type = $vars['node']->node_type;
+  // @TODO May need to just remove this part, which only makes sense for nodes.
+  if (isset($vars['node']->node_type)) {
+    $vars['node']->type = $vars['node']->node_type;
+  }
 }
 
 /**

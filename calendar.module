@@ -207,8 +207,12 @@ function calendar_node_stripe($view, &$node, $query_name, $delta, $stripe = NULL
   if (empty($colors)) {
     return;
   }
+  if (empty($node->raw->node_type)) {
+    return;
+  }
 
   $type_names = node_type_get_names();
+  $type = '';
   $type = $node->raw->node_type;
   if (!(isset($node->stripe))) {
     $node->stripe = array();
@@ -353,7 +357,8 @@ function calendar_og_groups($view) {
  * @return unknown
  */
 function calendar_date_select($view) {
-  return '<div class="calendar-date-select">' . drupal_render(drupal_get_form('calendar_date_select_form', $view)) . '</div>';
+  $output = drupal_get_form('calendar_date_select_form', $view);
+  return '<div class="calendar-date-select">' . drupal_render($output) . '</div>';
 }
 
 /**
@@ -823,16 +828,17 @@ function calendar_build_nodes(&$view, &$items) {
           $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
           $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
 
+          // @TODO We can't assume we have information about an entity type.
+          // Probably need to make the increment a field setting so we can access it.
+          $granularity = 'second';
+          $increment = 1;
           if (substr($real_field, 0, 6) == 'field_') {
             $cck_field = field_info_field($real_field);
-            $instance = field_info_instance($view->base_table, $real_field, $node->type);
+            //$instance = field_info_instance($view->base_table, $real_field, $node->type);
             $granularity = $cck_field['settings']['granularity'];
-            $increment = $instance['widget']['settings']['increment'];
+            //$increment = $instance['widget']['settings']['increment'];
           }
-          else {
-            $granularity = 'second';
-            $increment = 1;
-          }
+
           $node->calendar_all_day = date_is_all_day($node->calendar_start, $node->calendar_end, $granularity, $increment);
 
           // Change string timezones into 

@@ -444,7 +444,11 @@ function calendar_build_week_day($curday, $view, $items, $wday, &$multiday_bucke
         foreach ($day as $time => $hour) {
           foreach ($hour as $key => $item) {
             $total_cnt++;
-            $types[$item->type] = $item;
+            // @TODO $node->type may or may not exist any more, or be relevant.
+            // Dig into the theme code to either remove it or get it working differently.
+            if (isset($item->type)) {
+              $types[$item->type] = $item;
+            }
           }
         }
       }

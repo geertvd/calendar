@@ -165,7 +165,12 @@ function calendar_build_day($curday, $view, $items) {
       foreach ($day as $time => $hour) {
         foreach ($hour as $key => $item) {
           $count++;
-          $types[$item->type] = $item;
+
+          // @TODO $node->type may or may not exist any more, or be relevant.
+          // Dig into the theme code to either remove it or get it working differently.
+          if (isset($item->type)) {
+            $types[$item->type] = $item;
+          }
           if (!$view->date_info->mini && (empty($max_events) || ($max_events > 0 && $count <= $max_events))) {
             // Theme the item here unless this is a 'Day' or 'Week' view.
             // Day and week views need to do more processing before rendering
