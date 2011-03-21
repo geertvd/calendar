@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-1.x-dev
 =================
 
+- #1084366 by developer-x - Set the default value for date_first_day to 1
 - Some calendar settings were getting lost in export/clone.
 - #1043856 Needed to copy changes made to theme.inc to multiday/theme.inc.
 - #582940 by mcpuddin - Nonexistant "First day of week" causes weekday offset in the calendar.
