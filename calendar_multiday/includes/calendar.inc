@@ -613,7 +613,9 @@ function calendar_build_day($curday, $view, $items) {
       foreach ($day as $time => $hour) {
         foreach ($hour as $key => $item) {
           $count++;
-          $types[$item->type] = $item;
+          if (isset($item->type)) {
+            $types[$item->type] = $item;
+          }
           if (!$view->date_info->mini && ($max_events == CALENDAR_SHOW_ALL || $count <= $max_events || ($count > 0 && $max_events == CALENDAR_HIDE_ALL))) {
             // Theme the item here unless this is a 'Day' or 'Week' view.
             // Day and week views need to do more processing before rendering
