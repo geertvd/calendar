@@ -168,6 +168,9 @@ function template_preprocess_calendar(&$vars) {
       if (!empty($field) && is_object($field)) {
         // Theme the copy instead of the original row so duplicate date
         // fields each get a fresh copy of the original data to theme.
+
+        // The row_index must be added or the Views token handling will throw errors.
+        $field->view->row_index = $num;
         $items[$num]->{$field_alias} = $field->theme($copy);
       }
       if (!empty($field->options['exclude'])) {
