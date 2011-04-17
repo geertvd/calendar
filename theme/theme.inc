@@ -22,6 +22,14 @@ function template_preprocess_calendar_main(&$vars) {
   $vars['max_date_formatted'] = !empty($view->date_info->end_date) ? date_format($view->date_info->max_date, DATE_FORMAT_DATETIME) : '';
   $view->date_info->mini = isset($view->date_info->mini) ? $view->date_info->mini : $view->date_info->granularity == 'year';
 
+  // The argument might either be the multi-value 'date_argument' or the simple date argument. 
+  $date_argument = NULL
+  foreach ($view->argument as $id => $handler) {
+    if (date_views_handler_is_date($handler, 'argument')) {
+      $date_argument = $handler;
+    }
+  }
+
   // Create the links to other displays.
   $url = $view->get_url();
   $view->date_info->url = $url;
@@ -43,13 +51,13 @@ function template_preprocess_calendar_main(&$vars) {
   else {
     $current_date = new DateObject($view->date_info->year .'-01-01 00:00:00');
   }
-  if (empty($view->date_info->month) || $view->date_info->month == $view->argument['date_argument']->options['wildcard']) {
+  if (empty($view->date_info->month) || $view->date_info->month == $date_argument->options['wildcard']) {
     $view->date_info->month = date_format($current_date, 'm');
   }
-  if (empty($view->date_info->day) || $view->date_info->day == $view->argument['date_argument']->options['wildcard']) {
+  if (empty($view->date_info->day) || $view->date_info->day == $date_argument->options['wildcard']) {
     $view->date_info->day = date_format($current_date, 'd');
   }
-  if (empty($view->date_info->week) || $view->date_info->week == $view->argument['date_argument']->options['wildcard']) {
+  if (empty($view->date_info->week) || $view->date_info->week == $date_argument->options['wildcard']) {
     $view->date_info->week = date_week($view->date_info->year .'-'. date_pad($view->date_info->month) .'-'. date_pad($view->date_info->day));
   }
 
