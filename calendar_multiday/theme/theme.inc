@@ -51,13 +51,13 @@ function template_preprocess_calendar_main(&$vars) {
   else {
     $current_date = new DateObject($view->date_info->year .'-01-01 00:00:00');
   }
-  if (empty($view->date_info->month) || $view->date_info->month == $date_argument->options['wildcard']) {
+  if (empty($view->date_info->month) || $view->date_info->month == $date_argument->options['exception']['value']) {
     $view->date_info->month = date_format($current_date, 'm');
   }
-  if (empty($view->date_info->day) || $view->date_info->day == $date_argument->options['wildcard']) {
+  if (empty($view->date_info->day) || $view->date_info->day == $date_argument->options['exception']['value']) {
     $view->date_info->day = date_format($current_date, 'd');
   }
-  if (empty($view->date_info->week) || $view->date_info->week == $date_argument->options['wildcard']) {
+  if (empty($view->date_info->week) || $view->date_info->week == $date_argument->options['exception']['value']) {
     $view->date_info->week = date_week($view->date_info->year .'-'. date_pad($view->date_info->month) .'-'. date_pad($view->date_info->day));
   }
 
