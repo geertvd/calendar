@@ -23,7 +23,7 @@ function template_preprocess_calendar_main(&$vars) {
   $view->date_info->mini = isset($view->date_info->mini) ? $view->date_info->mini : $view->date_info->granularity == 'year';
 
   // The argument might either be the multi-value 'date_argument' or the simple date argument. 
-  $date_argument = NULL
+  $date_argument = NULL;
   foreach ($view->argument as $id => $handler) {
     if (date_views_handler_is_date($handler, 'argument')) {
       $date_argument = $handler;
