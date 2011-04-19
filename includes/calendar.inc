@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Calendar building functions for the Calendar module.

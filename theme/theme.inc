@@ -6,74 +6,13 @@
  */
 
 /**
- * Basic adjustments to make to the view.
- * Needs to be in a central location because the preview does not call the navigation theme.
- */
-function calendar_basics(&$vars) {
-
-  // Make sure we only run through this function one time.
-  if (!empty($view->date_info->calendar_basics_processed)) {
-    return;
-  }
-
-  $view     = $vars['view'];
-  $result   = (array) $view->result;
-  $options  = $view->style_plugin->options;
-  $handler  = $view->style_plugin;
-  
-  $vars['display_type'] = $view->date_info->granularity;
-  $vars['min_date_formatted'] = !empty($view->date_info->min_date) ? date_format($view->date_info->min_date, DATE_FORMAT_DATETIME) : '';
-  $vars['max_date_formatted'] = !empty($view->date_info->end_date) ? date_format($view->date_info->max_date, DATE_FORMAT_DATETIME) : '';
-  $view->date_info->mini = isset($view->date_info->mini) ? $view->date_info->mini : $view->date_info->granularity == 'year';
-
-  // The argument might either be the multi-value 'date_argument' or the simple date argument. 
-  $date_argument = NULL;
-  foreach ($view->argument as $id => $handler) {
-    if (date_views_handler_is_date($handler, 'argument')) {
-      $date_argument = $handler;
-    }
-  }
-
-  // Create the links to other displays.
-  $url = $view->get_url();
-  $view->date_info->url = $url;
-  $arg = $view->date_info->date_arg;
-
-  // Set up the links to other calendar views.
-  $current_date = $view->date_info->min_date;
-  if (!empty($date->info->day)) {
-    $current_date = new DateObject($date_info->date_arg .' 00:00:00');
-  }
-  elseif (!empty($view->date_info->week)) {
-    $week = date_week_range($view->date_info->week, $view->date_info->year);
-    $current_date = $week[0]; 
-  }
-  elseif (!empty($view->date_info->month)) {
-    $current_date = new DateObject($view->date_info->year .'-'. date_pad($view->date_info->month) .'-01 00:00:00');
-  }
-  else {
-    $current_date = new DateObject($view->date_info->year .'-01-01 00:00:00');
-  }
-  if (empty($view->date_info->month) || $view->date_info->month == $date_argument->options['exception']['value']) {
-    $view->date_info->month = date_format($current_date, 'm');
-  }
-  if (empty($view->date_info->day) || $view->date_info->day == $date_argument->options['exception']['value']) {
-    $view->date_info->day = date_format($current_date, 'd');
-  }
-  if (empty($view->date_info->week) || $view->date_info->week == $date_argument->options['exception']['value']) {
-    $view->date_info->week = date_week($view->date_info->year .'-'. date_pad($view->date_info->month) .'-'. date_pad($view->date_info->day));
-  }
-  $view->date_info->calendar_basics_processed = TRUE;
-  $vars['mini'] = !empty($view->date_info->mini);
-  $vars['block'] = !empty($view->date_info->block);
-  $vars['block_identifier'] = date_block_identifier($view);
-  $vars['view'] = $view;  
-}
-
-/**
  * Display a calendar navigation and links
  */
 function template_preprocess_calendar_main(&$vars) {
+  if (module_exists('calendar_multiday')) {
+    return;
+  }
+  
   module_load_include('inc', 'calendar', 'includes/calendar');
 
   // Add some basic values to the view.
@@ -126,6 +65,10 @@ function template_preprocess_calendar_main(&$vars) {
  * views and the template takes care of displaying links to related views.
  */
 function template_preprocess_calendar(&$vars) {
+  if (module_exists('calendar_multiday')) {
+    return;
+  }
+
   module_load_include('inc', 'calendar', 'includes/calendar');  
 
   // Add some basic values to the view.
