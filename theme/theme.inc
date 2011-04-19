@@ -139,16 +139,10 @@ function template_preprocess_calendar(&$vars) {
   }
 
   $result   = (array) $view->result;
- 
-  $options  = $view->style_plugin->options;
-  $handler  = $view->style_plugin;
-
-  $fields   = $view->field;
-    
-  // Render each field into an output array. We have to do the rendering
-  // here because we don't apppear to have full access to the view 
-  // handlers in the theme functions.
+  $view->style_plugin->render_fields($result);
+  $rendered_items = $view->style_plugin->rendered_fields;
   $items = array();
+
   $calendar_fields = date_views_fields($view->base_table);
   $calendar_fields = array_keys($calendar_fields['alias']);
 
@@ -166,35 +160,14 @@ function template_preprocess_calendar(&$vars) {
 
   foreach ($result as $num => $row) {
     $copy = clone($row);
-    $items[$num] = $row;
-    $items[$num]->raw = $copy;
-    $items[$num]->calendar_fields = new stdClass();
-
     $items[$num]->id = !empty($row->$id) ? $row->$id : NULL;
+    $items[$num]->rendered = $rendered_items[$num];
+    $items[$num]->raw = $copy;
 
+    $items[$num]->calendar_fields = new stdClass();
     foreach ($row as $key => $value) {
       if (in_array($key, $calendar_fields)) {
         $items[$num]->calendar_fields->$key = $value;
-      }
-    }
-    foreach ($fields as $name => $field) {
-      // Some fields, like the node edit and delete links, have no alias.
-      $field_alias = $field->field_alias != 'unknown' ? $field->field_alias : $name; 
-      if ($field->real_field == 'entity_id' || $field->real_field == 'revision_id') {
-        $items[$num]->id = $row->{$field_alias};
-        //$col = $field->definition['field_name'] . '_' . $field->options['group_column'];
-        //$field_alias = $field->aliases[$col];
-      }
-      if (!empty($field) && is_object($field)) {
-        // Theme the copy instead of the original row so duplicate date
-        // fields each get a fresh copy of the original data to theme.
-
-        // The row_index must be added or the Views token handling will throw errors.
-        $field->view->row_index = $num;
-        $items[$num]->{$field_alias} = $field->theme($copy);
-      }
-      if (!empty($field->options['exclude'])) {
-        if (isset($items[$num]->{$field_alias})) unset($items[$num]->{$field_alias});
       }
     }
   }
@@ -648,44 +621,31 @@ function template_preprocess_calendar_node(&$vars) {
   $view = $vars['view'];
   $fields = array();
   foreach ($view->field as $name => $field) {
-    // Some fields, like the node edit and delete links, have no alias.
-    $field_alias = $field->field_alias != 'unknown' ? $field->field_alias : $name; 
-    if (!empty($node->$field_alias)) {
-      $data = $node->$field_alias;
-      $label = $field->options['label'];
+    $data = $node->rendered[$name];
+    $label = $field->options['label'];
 
-      // CCK has some special label options.
-      if (!empty($field->content_field)) {
-        switch ($field->options['label_type']) {
-          case 'none':
-            $label = '';
-            break;
-          case 'widget':
-            $label = $field->content_field['widget']['label'];
-            break;
-        }
+    // CCK has some special label options.
+    if (!empty($field->content_field)) {
+      switch ($field->options['label_type']) {
+        case 'none':
+          $label = '';
+          break;
+        case 'widget':
+          $label = $field->content_field['widget']['label'];
+          break;
       }
-      $fields[$field_alias] = array(
-        'id' => drupal_clean_css_identifier($field_alias),
-        'label' => $label,
-        'data' => $data,
-        );
     }
+    $fields[$name] = array(
+      'id' => drupal_clean_css_identifier($node->id),
+      'label' => $label,
+      'data' => $data,
+      );
   }
   $vars['fields'] = $fields;
   $vars['calendar_start'] = $node->calendar_start;
   $vars['calendar_end'] = $node->calendar_end;
   $vars['calendar_start_date'] = $node->calendar_start_date;
   $vars['calendar_end_date'] = $node->calendar_end_date;
-
-  // We added the node type to the results in the query,
-  // but it will show up as $node->node_type instead of
-  // $node->type. Rename it to match the normal way it 
-  // would show up on a node object.
-  // @TODO May need to just remove this part, which only makes sense for nodes.
-  if (isset($vars['node']->node_type)) {
-    $vars['node']->type = $vars['node']->node_type;
-  }
 }
 
 /**
