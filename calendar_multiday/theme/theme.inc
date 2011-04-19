@@ -76,7 +76,7 @@ function template_preprocess_calendar(&$vars) {
 
   $result   = (array) $view->result;
   $view->style_plugin->render_fields($result);
-  $rendered_items = $view->style_plugin->rendered_fields;
+  $rendered_items = !empty($view->style_plugin->rendered_fields) ? $view->style_plugin->rendered_fields : array();
   $items = array();
 
   $calendar_fields = date_views_fields($view->base_table);
