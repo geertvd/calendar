@@ -38,7 +38,6 @@ function calendar_basics(&$vars) {
   $url = $view->get_url();
   $view->date_info->url = $url;
   $arg = $view->date_info->date_arg;
-  $displays = $view->date_info->display_types;
 
   // Set up the links to other calendar views.
   $current_date = $view->date_info->min_date;
@@ -81,6 +80,8 @@ function template_preprocess_calendar_main(&$vars) {
   calendar_basics($vars);
 
   $view     = $vars['view'];
+  $displays = $view->date_info->display_types;
+
   $calendar_links = array();
   $base = array('attributes' => array('rel' => 'nofollow'));
   if (!empty($displays['year'])) {
