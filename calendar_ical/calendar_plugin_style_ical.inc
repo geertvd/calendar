@@ -231,11 +231,10 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
         }
       }
     }
-  
     foreach ($result as $num => $row) {
       $copy = clone($row);
       $items[$num]->id = !empty($row->$id) ? $row->$id : NULL;
-      $items[$num]->rendered = $rendered_items[$num];
+      $items[$num]->rendered = !empty($rendered_items[$num]) ? $rendered_items[$num] : '';
       $items[$num]->raw = $copy;
   
       $items[$num]->calendar_fields = new stdClass();

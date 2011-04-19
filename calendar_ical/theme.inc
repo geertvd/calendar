@@ -29,8 +29,10 @@ function template_preprocess_calendar_view_ical(&$vars) {
   // Keep devel module from appending queries to ical export.
   $GLOBALS['devel_shutdown'] = FALSE;
 
-  drupal_add_http_header('Content-Type', 'text/calendar; charset=utf-8');
-  drupal_add_http_header('Content-Disposition', 'attachment; filename="calendar.ics";');
+  if (empty($vars['view']->live_preview)) {
+    drupal_add_http_header('Content-Type', 'text/calendar; charset=utf-8');
+    drupal_add_http_header('Content-Disposition', 'attachment; filename="calendar.ics";');
+  }
 
   module_load_include('inc', 'date_api', 'date_api_ical');
   module_load_include('inc', 'date_views', 'theme/theme');
