@@ -32,7 +32,7 @@ function calendar_build_calendar($view, $items) {
   $rows = array();
   $curday = clone($view->date_info->min_date);
 
-  switch ($view->date_info->granularity) {
+  switch ($view->calendar_type) {
     case 'year':
       $rows = array();
       $view->date_info->mini = TRUE;
@@ -228,5 +228,6 @@ function calendar_build_day($curday, $view, $items) {
     'all_day' => $all_day,
     'items' => $inner,
     );
+
   return $content;
 }

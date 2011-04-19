@@ -6,17 +6,21 @@
  */
 
 /**
- * Display a calendar navigation and links
+ * Basic adjustments to make to the view.
+ * Needs to be in a central location because the preview does not call the navigation theme.
  */
-function template_preprocess_calendar_main(&$vars) {
-  module_load_include('inc', 'calendar_multiday', 'includes/calendar');
+function calendar_basics(&$vars) {
+
+  // Make sure we only run through this function one time.
+  if (!empty($view->date_info->calendar_basics_processed)) {
+    return;
+  }
 
   $view     = $vars['view'];
-
   $result   = (array) $view->result;
   $options  = $view->style_plugin->options;
   $handler  = $view->style_plugin;
-
+  
   $vars['display_type'] = $view->date_info->granularity;
   $vars['min_date_formatted'] = !empty($view->date_info->min_date) ? date_format($view->date_info->min_date, DATE_FORMAT_DATETIME) : '';
   $vars['max_date_formatted'] = !empty($view->date_info->end_date) ? date_format($view->date_info->max_date, DATE_FORMAT_DATETIME) : '';
@@ -60,6 +64,23 @@ function template_preprocess_calendar_main(&$vars) {
   if (empty($view->date_info->week) || $view->date_info->week == $date_argument->options['exception']['value']) {
     $view->date_info->week = date_week($view->date_info->year .'-'. date_pad($view->date_info->month) .'-'. date_pad($view->date_info->day));
   }
+  $vars['mini'] = !empty($view->date_info->mini);
+  $vars['block'] = !empty($view->date_info->block);
+  $vars['block_identifier'] = date_block_identifier($view);
+  $vars['view'] = $view;  
+  $view->date_info->calendar_basics_processed = TRUE;
+}
+
+/**
+ * Display a calendar navigation and links
+ */
+function template_preprocess_calendar_main(&$vars) {
+  module_load_include('inc', 'calendar_multiday', 'includes/calendar');
+
+  // Add some basic values to the view.
+  calendar_basics($vars);
+
+  $view     = $vars['view'];
 
   $calendar_links = array();
   $base = array('attributes' => array('rel' => 'nofollow'));
@@ -96,10 +117,6 @@ function template_preprocess_calendar_main(&$vars) {
       );
   }
   $vars['view'] = $view;  
-  $vars['mini'] = !empty($view->date_info->mini);
-  $vars['block'] = !empty($view->date_info->block);
-  $vars['block_identifier'] = date_block_identifier($view);
-
 }
 
 /**
@@ -111,6 +128,9 @@ function template_preprocess_calendar_main(&$vars) {
 function template_preprocess_calendar(&$vars) {
   module_load_include('inc', 'calendar_multiday', 'includes/calendar');
   
+  // Add some basic values to the view.
+  calendar_basics($vars);
+
   $view     = $vars['view'];
 
   // Make sure we only run through this function one time.
