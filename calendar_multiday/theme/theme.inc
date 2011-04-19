@@ -63,11 +63,11 @@ function calendar_basics(&$vars) {
   if (empty($view->date_info->week) || $view->date_info->week == $date_argument->options['exception']['value']) {
     $view->date_info->week = date_week($view->date_info->year .'-'. date_pad($view->date_info->month) .'-'. date_pad($view->date_info->day));
   }
+  $view->date_info->calendar_basics_processed = TRUE;
   $vars['mini'] = !empty($view->date_info->mini);
   $vars['block'] = !empty($view->date_info->block);
   $vars['block_identifier'] = date_block_identifier($view);
   $vars['view'] = $view;  
-  $view->date_info->calendar_basics_processed = TRUE;
 }
 
 /**
