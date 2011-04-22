@@ -147,10 +147,49 @@ class calendar_plugin_style extends views_plugin_style {
     $keys = drupal_map_assoc(array_keys(calendar_display_types()));
     $this->view->date_info->calendar_display = $keys[$this->view->date_info->granularity];
 
-    // bring the node type into the query so we can use it in the theme
-    //$this->view->query->add_field('node', 'type');
-
     parent::query();
+
+    // We need the right date fields joined into our query if they are not already.
+    // If we are dealing with a from/to date range, we need to know the whole range.
+    // We may also need the delta for multiple value fields, because from that can get 
+    // timezone or rrule. This extra work is necessary because otherwise we have the 
+    // whole node with potentially dozens of fields and we would have to iterate over 
+    // it and test each date on it to figure out which one(s) fall into the range for 
+    // this view, and then which ones should fall into each day in the calendar. 
+    // It's far easier to add the fields to the query, knowing that we will
+    // have results that include only the specific values that meet our criteria. 
+    // This also makes the results of field date queries consistent with non-field date 
+    // queries, so the results for a calendar of node changed dates (which will always
+    // have all the right tables and fields joined in) will be structured the same as 
+    // the results for a calendar of date fields.
+
+    $date_fields = array();
+    $all_date_fields = date_views_fields($this->view->base_table);
+    foreach ($this->view->argument as $name => $handler) {
+      if (date_views_handler_is_date($handler, 'argument')) {
+        foreach ($handler->options['date_fields'] as $alias) {
+          // Make sure the tables we need are joined in.
+          $info = $all_date_fields['name'][$alias];
+          $table = $info['table_name'];
+          if ($handler->table != $table && !empty($handler->relationship)) {
+            $table = $this->view->query->queue_table($table, $handler->relationship);
+          }
+          // Make sure both from and to date values and the delta are identified in our results.
+          $base_field = str_replace(array('_value2', '_value'), '', $info['field_name']);
+          if ($base_field != $info['field_name']) {
+            if (!array_key_exists($table . '_' . $base_field . '_value', $this->view->query->fields)) {
+              $this->view->query->add_field($table, $base_field . '_value');
+            }
+            if ($info['fromto'][0] != $info['fromto'][1] && !array_key_exists($table . '_' . $base_field . '_value2', $this->view->query->fields)) {
+              $this->view->query->add_field($table, $base_field . '_value2');
+            } 
+            if (!empty($info['delta_field']) && !array_key_exists($table . '_' . $info['delta_field'], $this->view->query->fields)) {
+              $this->view->query->add_field($table, $delta_field);
+            } 
+          }   
+        }
+      }
+    }
   }
 
   /**
