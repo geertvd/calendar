@@ -2,9 +2,25 @@ Calendar Module 7.x
 ==================
 
 =================
-Version 7.x-1.x-dev
+Version 7.x-2.x-dev
 =================
 
+- Issue #1135064 by Niremizov and KarenS, Don't try to get ui_name() before handler is initialized to avoid fatal errors when editing settings.
+- Add date fields to the calendar view so we can process them normally.
+- More cleanup of ical, by ankur and KarenS.
+- Issue #1096224 Make sure we don't get notice on views that have no rendered fields.
+- Issue #1087528 by thekevinday and KarenS, clean up ical handling.
+- A little reorganization to get a shared function out of theme.inc.
+- Rework calendar node processing to use ->style_plugin->render_fields() instead of trying to render them individually. Probably still some work to do on this change, but it cleans things up and prevents accidentally tromping on other fields in the view.
+- Moved a variable we still need in the navigation, move it back.
+- Issue #1130966, re-organize the theme processing so it the day and week views work right in the new Views preview pane.
+- Issue #1119752 by cezaryrk, Eliminate Views token handling errors when manually theming calendar items.
+- Views renamed 'wildcard' to 'exception'.
+- Fix references to the 'date_argument' argument, it now might also be the simple argument as well.
+- Fix reference to function that was renamed in Date module.
+- Fix another reference to node type.
+- Get rid of notices from not trying to force ->type into the calendar.
+- Issue #1098916 by arlinsandbulte: Delete master branch
 - #1084366 by developer-x - Set the default value for date_first_day to 1
 - Some calendar settings were getting lost in export/clone.
 - #1043856 Needed to copy changes made to theme.inc to multiday/theme.inc.
