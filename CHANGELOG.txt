@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-2.x-dev
 =================
 
+- Issue #1137538 Views renamed 'wildcard' to 'exception'.
 - Issue #1135064 by Niremizov and KarenS, Don't try to get ui_name() before handler is initialized to avoid fatal errors when editing settings.
 - Add date fields to the calendar view so we can process them normally.
 - More cleanup of ical, by ankur and KarenS.
