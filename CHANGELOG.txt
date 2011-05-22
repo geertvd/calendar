@@ -5,6 +5,8 @@ Calendar Module 7.x
 Version 7.x-2.x-dev
 =================
 
+- Issue #1137538 Fix incorrect value for 'delta' in calendar_plugin_style.inc.
+
 ======================
 Version 7.x-2.0-alpha1
 ======================

@@ -184,7 +184,7 @@ class calendar_plugin_style extends views_plugin_style {
               $this->view->query->add_field($table, $base_field . '_value2');
             } 
             if (!empty($info['delta_field']) && !array_key_exists($table . '_' . $info['delta_field'], $this->view->query->fields)) {
-              $this->view->query->add_field($table, $delta_field);
+              $this->view->query->add_field($table, 'delta');
             } 
           }   
         }
