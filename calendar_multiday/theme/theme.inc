@@ -96,6 +96,7 @@ function template_preprocess_calendar(&$vars) {
 
   foreach ($result as $num => $row) {
     $copy = clone($row);
+    $items[$num] = new stdClass(); 
     $items[$num]->id = !empty($row->$id) ? $row->$id : NULL;
     $items[$num]->rendered = $rendered_items[$num];
     $items[$num]->raw = $copy;
