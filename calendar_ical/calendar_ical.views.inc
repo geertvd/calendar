@@ -17,20 +17,6 @@ function calendar_ical_views_plugins() {
   $data = array(
     'module' => 'calendar_ical', // This just tells our themes are elsewhere.
     'display' => array(
-      // Parents are not really displays, just needed so the files can
-      // be included.
-      'parent' => array(
-        'no ui' => TRUE,
-        'handler' => 'views_plugin_display',
-        'path' => "$views_path/plugins",
-        'parent' => '',
-      ),
-      'page' => array(
-        'no ui' => TRUE,
-        'handler' => 'views_plugin_display_page',
-        'path' => "$views_path/plugins",
-        'parent' => 'parent',
-      ),
       'calendar_ical' => array(
         'title' => t('iCal feed'),
         'help' => t('Display the view as an iCal feed.'),
@@ -49,22 +35,6 @@ function calendar_ical_views_plugins() {
       ),
     ),
     'style' => array(
-      'parent' => array(
-        // this isn't really a display but is necessary so the file can
-        // be included.
-        'no ui' => TRUE,
-        'handler' => 'views_plugin_style',
-        'path' => "$views_path/plugins",
-        'parent' => '',
-      ),
-      'rss' => array(
-        // this isn't really a display but is necessary so the file can
-        // be included.
-        'no ui' => TRUE,
-        'handler' => 'views_plugin_style_rss',
-        'path' => "$views_path/plugins",
-        'parent' => 'parent',
-      ),
       'ical' => array(
         'title' => t('iCal feed'),
         'help' => t('Generates an iCal feed from a view.'),

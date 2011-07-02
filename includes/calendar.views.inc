@@ -138,21 +138,12 @@ function calendar_views_plugins() {
       ),
     ),
     'style' => array(
-      'parent' => array(
-        // this isn't really a display but is necessary so the file can
-        // be included.
-        'no ui' => TRUE,
-        'handler' => 'views_plugin_style',
-        'path' => "$views_path/plugins",
-        'parent' => '',
-      ),
       // Style plugin for the navigation.
       'calendar_nav' => array(
         'title' => t('Calendar navigation'),
         'help' => t('Creates back/next navigation and calendar links.'),
         'handler' => 'calendar_plugin_style',
         'path' => "$module_path/includes",
-        'parent' => 'parent',
         'theme' => 'calendar_main',
         'theme file' => 'theme.inc',
         'theme path' => "$theme_path/theme",

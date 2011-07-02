@@ -189,7 +189,8 @@ class calendar_view_plugin_style extends calendar_plugin_style {
   /**
    * Render the calendar attachment style.
    */
-  function render() {
+  function render($values) {
+
     $calendar_type = $this->display->handler->get_option('calendar_type');
     $this->view->calendar_type = $calendar_type;
  
