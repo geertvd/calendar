@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-2.x-dev
 =================
 
+- Issue #1188688 by TommyChris, Fix incorrectly-named view object in calendar_plugin_style_ical.inc.
 - Issue #1110012 Remove 'parent' items from Views plugins, no longer needed? See if this fixes the issue.
 - Issue #1161844 by AntoineSolutions, Use the same switch for Multiday as for the standard calendar when processing year view.
 - Issue #1114730 by jomski, PHP 5.3 requires that we initialize the $items array in template_preprocess_calendar().

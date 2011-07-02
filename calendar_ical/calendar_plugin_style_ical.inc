@@ -214,7 +214,7 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
     // Render each field into an output array.
     $result   = (array) $this->view->result;
     $this->view->style_plugin->render_fields($result);
-    $rendered_items = !empty($view->style_plugin->rendered_fields) ? $view->style_plugin->rendered_fields : array();
+    $rendered_items = !empty($this->view->style_plugin->rendered_fields) ? $this->view->style_plugin->rendered_fields : array();
     $items = array();
   
     $calendar_fields = date_views_fields($this->view->base_table);
