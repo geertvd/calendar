@@ -12,17 +12,6 @@ function template_preprocess_calendar_style_ical(&$vars) {
   global $base_url;
   global $language;
 
-  $view     = &$vars['view'];
-  $options  = &$vars['options'];
-  $items    = &$vars['rows'];
-
-  $options  = $view->style_plugin->options;
-  $handler  = $view->style_plugin;
-
-  $fields   = &$view->field;
-  $result   = $vars['result'] = $vars['rows'];
-  $renders  = $handler->render_fields($result);
-
   if ($view->display_handler->get_option('sitename_title')) {
     $title = variable_get('site_name', 'Drupal');
     if ($slogan = variable_get('site_slogan', '')) {
