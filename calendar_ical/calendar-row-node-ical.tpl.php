@@ -1,11 +1,5 @@
 <?php
 /**
- * $calname
- *   The name of the calendar.
- * $site_timezone
- *   The name of the site timezone.
- * $events
- *   An array with the following information about each event:
  * 
  *   $event['uid'] - a unique id for the event (usually the url).
  *   $event['summary'] - the name of the event.
@@ -21,14 +15,9 @@
  *   that are needed to make sure we get the required line break.
  * 
  */
-
+$date = date_now('UTC');
+$current_date = !empty($event['current_date']) ? $event['current_date'] : $date->format(DATE_FORMAT_ICAL);
 ?>
-BEGIN:VCALENDAR
-VERSION:2.0
-METHOD:PUBLISH
-X-WR-CALNAME: <?php print $calname . "\r\n"; ?>
-PRODID:-//Drupal iCal API//EN
-<?php foreach($events as $event): ?>
 BEGIN:VEVENT
 UID:<?php print($event['uid'] . "\r\n") ?>
 SUMMARY:<?php print($event['summary'] . "\r\n") ?>
@@ -50,5 +39,3 @@ LOCATION:<?php print($event['location'] . "\r\n") ?>
 DESCRIPTION:<?php print($event['description'] . "\r\n") ?>
 <?php endif; ?>
 END:VEVENT
-<?php endforeach; ?>
-END:VCALENDAR
