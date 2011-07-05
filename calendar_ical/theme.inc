@@ -6,7 +6,7 @@
  */
 
 /**
- * Preprocess an RSS feed
+ * Preprocess an iCal feed
  */
 function template_preprocess_calendar_style_ical(&$vars) {
   global $base_url;

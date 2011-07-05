@@ -1,14 +1,14 @@
 <?php
 /**
  * @file
- * Contains the iCal row style plugin.
+ * Contains the Calendar row style plugin.
  */
 
 /**
  * Plugin which creates a view on the resulting object
- * and formats it as an iCal VEVENT.
+ * and formats it as a Calendar node.
  */
-class calendar_plugin_row_node_ical extends views_plugin_row {
+class calendar_plugin_row_node extends views_plugin_row {
 
   // Basic properties that let the row style follow relationships.
   var $base_table = 'node';
@@ -17,9 +17,20 @@ class calendar_plugin_row_node_ical extends views_plugin_row {
   // Stores the nodes loaded with pre_render.
   var $nodes = array();
 
+  /**
+   * Helper function to find the date argument handler for this view.
+   */
+  function date_argument_handler() {
+    foreach ($this->view->argument as $name => $handler) {
+      if (date_views_handler_is_date($handler, 'argument')) {
+        return $handler;
+      }
+    }
+  }
+
   function option_definition() {
     $options = parent::option_definition();
-    $options['date_field'] = array('default' => array());
+    $options['date_fields'] = array('default' => array());
     return $options;
   }
 
@@ -28,24 +39,8 @@ class calendar_plugin_row_node_ical extends views_plugin_row {
    */
   function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
-    $data = date_views_fields('node');
-    $options = array();
-    foreach ($data['name'] as $item => $value) {
-      // We only want to see one value for each field, skip '_value2', and other columns.
-      if (str_replace('.', '_', $item) == $value['fromto'][0]) {
-        $options[$item] = $value['label'];
-      }
-    }
-
-    $form['date_field'] = array(
-      '#type' => 'select',
-      '#title' => t('Date field'),
-      '#options' => $options,
-      '#default_value' => $this->options['date_field'],
-      '#description' => t('Please identify the node field to use as the iCal date for each item in this view. Add a Date Filter or a Date Argument to the view to limit results to content in a specified date range.'),
-      '#required' => TRUE,
-      '#prefix' => t("The node title will be used as the 'summary' and the node view will be used as the 'description' for the iCal event. To control the description, hide or show fields for the iCal view mode on the 'Display Fields' screen. Keep in mind that any html in the node view will be stripped out in the feed, to comply with the iCal standards."),
-    );
+    
+    $form['#markup'] = t("The calendar row plugin will format nodes as calendar items. Make sure this display has a 'Calendar' format and uses a 'Date' contextual filter, or this plugin will not work correctly. The 'body' of the calendar item is constructed using the 'Calendar' view mode on the 'Display Fields' screen. Visit that screen to select the fields that should be displayed in the calendar body.");
   }
 
   function pre_render($values) {
@@ -81,6 +76,8 @@ class calendar_plugin_row_node_ical extends views_plugin_row {
     $is_field = !empty($delta_field);
 
     // Identify the field value that matched our query.
+    // @TODO Need to come back after this is all working and make more timezone adjustments.    
+        
     $item = $node->$field_name;
     $node->date_id = array();
     $start = NULL;
@@ -89,10 +86,9 @@ class calendar_plugin_row_node_ical extends views_plugin_row {
       $lang = $node->language;
       $delta = isset($row->$delta_field) ? $row->$delta_field : 0;
       $item = array_key_exists($lang, $item) ? $item[$lang][$delta] : $item['und'][$delta];
-      $node->date_id[] = 'calendar.' . $node->nid . '.' . $field_name . '.' . $delta;
+      $node->date_id[] = 'calendar-ical.' . $node->nid . '.' . $field_name . '.' . $delta;
 
       if (!empty($item['value'])) {
-        // @TODO Need to come back after this is all working and make more timezone adjustments.    
         $start = new dateObject($item['value'], 'UTC');
         $end   = array_key_exists('value2', $item) ? new dateObject($item['value2'], 'UTC') : $start;
       }
@@ -102,16 +98,15 @@ class calendar_plugin_row_node_ical extends views_plugin_row {
       $end   = new dateObject($item, 'UTC');
      }
     
-    // If we don't have an iCal date value, go no further.
+    // If we don't have date value, go no further.
     if (empty($start)) {
       return;
     }
     
-    module_load_include('inc', 'date_api', 'date_api_ical');
     $item_text = '';
 
-    // Create the rendered display using the display settings from the 'iCal' view mode.
-    node_build_content($node, 'ical');
+    // Create the rendered display using the display settings from the 'Calendar' view mode.
+    node_build_content($node, 'calendar');
 
     if (!empty($node->content)) {
       // We render node contents and force links to be last.
@@ -119,20 +114,18 @@ class calendar_plugin_row_node_ical extends views_plugin_row {
       $item_text .= drupal_render($node->content) . $links;
     }
 
-    $event = array();
-    $event['summary'] = $node->title;
-    $event['start'] = $start->format(DATE_FORMAT_ICAL);
-    $event['end'] = $end->format(DATE_FORMAT_ICAL);
-    $event['description'] = date_ical_escape_text($item_text);
-    $event['url'] = url("node/$node->nid", array('absolute' => TRUE));
-    $event['uid'] = !empty($node->date_id) ? $node->date_id[0] : $event['url'];
-    $event['rrule'] = $is_field && array_key_exists('rrule', $item) ? $item['rrule'] : '';
+    $item = new stdClass();
+    $item->title = $node->title;
+    $item->body = $item_text;
+    $item->item_start = $start;
+    $item->item_end = $end;
+    $item->item = $item;
     
     return theme($this->theme_functions(),
       array(
         'view' => $this->view,
         'options' => $this->options,
-        'event' => $event
+        'item' => $item
       ));
   }
 }
