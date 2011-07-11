@@ -32,6 +32,8 @@ function calendar_views_plugins() {
           'calendar_week' => 'style',
           'calendar_month' => 'style',
           'calendar_year' => 'style',
+          'calendar_day_overlap' => 'style',
+          'calendar_week_overlap' => 'style',
         ),
         'uses fields' => TRUE,
         'uses grouping' => FALSE,

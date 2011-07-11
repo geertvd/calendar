@@ -280,7 +280,27 @@ class calendar_plugin_style extends views_plugin_style {
     }
 
     // Send the sorted rows to the right theme for this type of calendar.
-    $this->definition['theme'] = 'calendar_' . $this->options['calendar_type'];
+
+    // Adjust the theme to match the currently selected default.
+    // Only the month view needs the special 'mini' class,
+    // which is used to retrieve a different, more compact, theme.
+    if (!empty($this->view->date_info->mini) && $this->options['calendar_type'] == 'month') {
+      $this->definition['theme'] = 'calendar_mini';
+    }
+    elseif ($this->options['calendar_type'] == 'week') {
+      $this->view->date_info->mini = FALSE;
+      $this->definition['theme'] = (!isset($this->view->style_options['multiday_theme']) || ($this->view->style_options['multiday_theme'] == '1' && $this->view->style_options['theme_style'] == '1')) ? 'calendar_'. $this->options['calendar_type'].'_overlap' : 'calendar_'. $this->options['calendar_type'];
+    }
+    elseif ($this->options['calendar_type'] == 'day') {
+      $this->view->date_info->mini = FALSE;
+      $this->definition['theme'] = (!isset($this->view->style_options['multiday_theme']) || ($this->view->style_options['theme_style'] == '1')) ? 'calendar_'. $this->options['calendar_type'] .'_overlap' : 'calendar_'. $this->options['calendar_type'];
+    }
+    else {
+      $this->view->date_info->mini = FALSE;
+      $this->definition['theme'] = 'calendar_' . $this->options['calendar_type'];
+    }
+
+
     $output = theme($this->theme_functions(),
       array(
         'view' => $this->view,
@@ -839,7 +859,7 @@ class calendar_plugin_style extends views_plugin_style {
    */
   function calendar_build_mini_week($check_month = TRUE) {
     $curday_date = date_format($this->curday, DATE_FORMAT_DATE);
-    $weekdays = calendar_untranslated_days($items, $this->view);
+    $weekdays = calendar_untranslated_days($this->items, $this->view);
     $today = date_format(date_now(date_default_timezone()), DATE_FORMAT_DATE);
     $month = date_format($this->curday, 'n');
     $week = date_week($curday_date);
@@ -886,7 +906,7 @@ class calendar_plugin_style extends views_plugin_style {
           );
       }
       else {
-        $content = $this->calendar_build_day($this->curday, $this->view, $items);
+        $content = $this->calendar_build_day($this->curday, $this->view, $this->items);
         $class .= ($curday_date == $today ? ' today' : '') .
           ($curday_date < $today ? ' past' : '') .
           ($curday_date > $today ? ' future' : '') .
