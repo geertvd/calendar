@@ -20,17 +20,18 @@ function calendar_views_plugins() {
     'style' => array(
       'calendar_style' => array(
         'title' => t('Calendar'),
-        'help' => t('Presents view results as a Calendar.'),
+        'help' => t('Present view results as a Calendar.'),
         'handler' => 'calendar_plugin_style',
         'path' => "$module_path/includes",
         'theme' => 'calendar_style',
         'theme file' => 'theme.inc',
         'theme path' => "$module_path/theme",
         'additional themes' => array(
-          'calendar_year' => 'style',
+          'calendar_mini' => 'style',
           'calendar_day' => 'style',
           'calendar_week' => 'style',
-          'calendar_mini' => 'style',
+          'calendar_month' => 'style',
+          'calendar_year' => 'style',
         ),
         'uses fields' => TRUE,
         'uses grouping' => FALSE,
@@ -51,7 +52,7 @@ function calendar_views_plugins() {
         'theme path' => "$module_path/theme",
         'base' => array('node'), // only works with 'node' as base.
         'uses options' => TRUE,
-        'uses fields' => FALSE,
+        'uses fields' => TRUE,
         'type' => 'normal',
       ),
     ),

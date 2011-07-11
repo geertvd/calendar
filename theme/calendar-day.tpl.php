@@ -28,6 +28,7 @@
  * evenly over the remaining 90% of the table.
  */
 //dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_formatted);
+
 ?>
 <div class="calendar-calendar"><div class="day-view">
 <table>

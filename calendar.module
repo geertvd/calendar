@@ -1,8 +1,14 @@
 <?php
+define('CALENDAR_SHOW_ALL', 0);
+define('CALENDAR_HIDE_ALL', -1);
+
 /**
- * Implementation of hook_views_api().
- *
- * This one is used as the base to reduce errors when updating.
+ * @file
+ * Adds calendar filtering and displays to Views.
+ */
+
+/**
+ * Implements hook_views_api().
  */
 function calendar_views_api() {
   return array(
@@ -12,22 +18,12 @@ function calendar_views_api() {
 }
 
 /**
- * Implements hook_entity_info_alter().
+ * Calendar display types.
  */
-function calendar_entity_info_alter(&$info) {
-  // Add an 'Calendar' view mode for nodes.
-  $info['node']['view modes'] += array(
-    'calendar' => array(
-      'label' => t('Calendar'),
-      'custom settings' => FALSE,
-    ),
-  );
+function calendar_display_types() {
+  return array('year' => t('Year'), 'month' => t('Month'), 'day' => t('Day'), 'week' => t('Week'));  
 }
 
-/**
- * @file
- * Adds calendar filtering and displays to Views.
- */
 /**
  * Implementation of hook_help().
  */
@@ -38,14 +34,9 @@ function calendar_help($section, $arg) {
   }
 }
 
-function calendar_init() {
-  // The css for Farbtastic color picker, painless to add it here 
-  // even though it isn't needed everywhere.
-  drupal_add_css('misc/farbtastic/farbtastic.css');
-  drupal_add_css(drupal_get_path('module', 'calendar') . '/calendar.css');
-  module_load_include('inc', 'calendar', 'theme/theme.inc');
-}
-
+/**
+ * Implements hook_theme().
+ */
 function calendar_theme() {
   $module_path = drupal_get_path('module', 'calendar');
 
@@ -54,33 +45,10 @@ function calendar_theme() {
     'path' => "$module_path/theme",
   );
   return array(
-    'calendar_day_node' => $base + array(
-       'template' => 'calendar-day-node',
-       'variables' => array('node' => NULL, 'view' => NULL),
-       ),
-    'calendar_month_node' => $base + array(
-      'template' => 'calendar-month-node',
-      'variables' => array('node' => NULL, 'view' => NULL),
-      ),
-    'calendar_week_node' => $base + array(
-      'template' => 'calendar-week-node',
-      'variables' => array('node' => NULL, 'view' => NULL),
-      ),
-    'calendar_month_multiple_node' => $base + array(
-      'template' => 'calendar-month-multiple-node',
-      'variables' => array('curday' => NULL, 'count' => NULL, 'view' => NULL, 'types' => NULL),
-      ),
-    'calendar_week_multiple_node' => $base + array(
-      'template' => 'calendar-week-multiple-node',
-      'variables' => array('curday' => NULL, 'count' => NULL, 'view' => NULL, 'types' => NULL),
-      ),
     'calendar_datebox' => $base + array(
       'template' => 'calendar-datebox',
       'variables' => array(
         'date' => NULL, 'view' => NULL, 'items' => NULL, 'selected' => NULL),
-      ),
-    'calendar_date_combo' => $base + array(
-      'variables' => array('node' => NULL, 'lable' => NULL, 'view' => NULL),
       ),
     'calendar_empty_day' => $base + array(
       'variables' => array('curday' => NULL, 'view' => NULL),
@@ -106,28 +74,86 @@ function calendar_theme() {
 }
 
 /**
- * Add link to calendar to nodes.
- * 
+ * Implements hook_node_view().
+ *
+ * Add link to calendar to nodes, formerly hook_link().
  * Controlled by value of 'calendar_date_link' in the view.
  */
-function calendar_link($type, $object, $teaser = FALSE) {
-  if ($type == 'node' && !$teaser) {
-    $path = variable_get('calendar_date_link_' . $object->type);
-    if (!empty($path)) {
-      return array('calendar_link' => array(
-        'title' => t('Calendar'),
-        'href' => $path,
-        'attributes' => array('title' => t('View the calendar.')),
-        ));
-    }
+function calendar_node_view($node, $view_mode, $langcode) {
+  $path = variable_get('calendar_date_link_' . $node->type);
+  if (!empty($path)) {
+    $links['calendar_link'] = array(
+      'title' => t('Calendar'),
+      'href' => $path,
+      'attributes' => array('title' => t('View the calendar.')),
+    );
+    $node->content['links']['calendar'] = array(
+      '#theme' => 'links__node__caledar',
+      '#links' => $links,
+      '#attributes' => array('class' => array('links', 'inline')),
+    );
   }
 }
 
 /**
- * Calendar display types
+ * Formats the weekday information into table header format
+ *
+ * @ingroup event_support
+ * @return array with weekday table header data
  */
-function calendar_display_types() {
-  return array('year' => t('Year'), 'month' => t('Month'), 'day' => t('Day'), 'week' => t('Week'));  
+function calendar_week_header($view) {
+  $len = isset($view->date_info->style_name_size) ? $view->date_info->style_name_size : (!empty($view->date_info->mini) ? 1 : 3);
+  $with_week = !empty($view->date_info->style_with_weekno);
+
+  // create week header
+  $untranslated_days = calendar_untranslated_days();
+  if ($len == 99) {
+    $translated_days = date_week_days_ordered(date_week_days(TRUE));
+  }
+  else {
+    $translated_days = date_week_days_ordered(date_week_days_abbr(TRUE));
+  }
+  if ($with_week) {
+    $row[] = array('header' => TRUE, 'class' => "days week", 'data' => '&nbsp;');
+  }
+  foreach ($untranslated_days as $delta => $day) {
+    $label = $len < 3 ? drupal_substr($translated_days[$delta], 0 , $len) : $translated_days[$delta];
+    $row[] = array('header' => TRUE, 'class' => "days " . $day, 'data' => $label);
+  }
+  return $row;
 }
 
+/**
+ * Array of untranslated day name abbreviations, forced to lowercase
+ * and ordered appropriately for the site setting for the first day of week.
+ *
+ * The untranslated day abbreviation is used in css classes.
+ */
+function calendar_untranslated_days() {
+  $untranslated_days = date_week_days_ordered(date_week_days_untranslated());
+  foreach ($untranslated_days as $delta => $day) {
+    $untranslated_days[$delta] = strtolower(substr($day, 0, 3));
+  }
+  return $untranslated_days;
+}
+
+function calendar_groupby_times($type = '') {
+  $times = array();
+  switch ($type) {
+    case 'hour':
+      for ($i = 0; $i <= 23; $i++) {
+        $times[] = date_pad($i) . ':00:00';
+      }
+      break;
+    case 'half':
+      for ($i = 0; $i <= 23; $i++) {
+        $times[] = date_pad($i) . ':00:00';
+        $times[] = date_pad($i) . ':30:00';
+      }
+      break;
+    default:
+      break;
+  }
+  return $times;
+}
 

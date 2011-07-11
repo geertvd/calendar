@@ -5,12 +5,17 @@ dependencies[] = date_api
 dependencies[] = date_views
 package = Date/Time
 core = 7.x
+stylesheets[all][] = css/calendar_multiday.css
 
 files[] = calendar.install
 files[] = calendar.module
 files[] = includes/calendar.inc
 files[] = includes/calendar.views.inc
 files[] = includes/calendar_plugin_style.inc
+files[] = includes/calendar_plugin_style_day.inc
+files[] = includes/calendar_plugin_style_week.inc
+files[] = includes/calendar_plugin_style_month.inc
+files[] = includes/calendar_plugin_style_year.inc
 files[] = includes/calendar_plugin_row_node.inc
 files[] = theme/theme.inc
 files[] = theme/calendar-style.tpl.php

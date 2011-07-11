@@ -8,7 +8,6 @@
  * $day_names: An array of the day of week names for the table header.
  * $rows: An array of data for each day of the week.
  * $view: The view.
- * $calendar_links: Array of formatted links to other calendar displays - year, month, week, day.
  * $display_type: year, month, day, or week.
  * $block: Whether or not this calendar is in a block.
  * $min_date_formatted: The minimum date for this calendar in the format YYYY-MM-DD HH:MM:SS.
