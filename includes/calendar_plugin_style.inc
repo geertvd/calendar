@@ -252,7 +252,7 @@ class calendar_plugin_style extends views_plugin_style {
     }
 
     ksort($items);
-
+    
     $rows = array();
     $this->curday = clone($this->date_info->min_date);
     $this->items = $items;
@@ -446,7 +446,6 @@ class calendar_plugin_style extends views_plugin_style {
               }
   
               $rowspan = $total_rows - $index;
-  
               // Add item...
               $item = array(
                 'entry' => $single_days,
@@ -626,7 +625,6 @@ class calendar_plugin_style extends views_plugin_style {
           foreach ($day as $time => $hour) {
             foreach ($hour as $key => $item) {
               $count++;
-  
               // Can we add an item?
               if ($max_events == CALENDAR_SHOW_ALL || $cur_cnt <= $max_events) {
                 $all_day = $item->calendar_start_date == $item->calendar_end_date;
@@ -747,6 +745,7 @@ class calendar_plugin_style extends views_plugin_style {
       );
     }
   }
+
   /**
    * Build the contents of a single day for the $rows results.
    */
@@ -771,7 +770,7 @@ class calendar_plugin_style extends views_plugin_style {
             if (isset($item->type)) {
               $types[$item->type] = $item;
             }
-            if (!empty($this->date_info->mini) && ($max_events == CALENDAR_SHOW_ALL || $count <= $max_events || ($count > 0 && $max_events == CALENDAR_HIDE_ALL))) {
+            if (empty($this->date_info->mini) && ($max_events == CALENDAR_SHOW_ALL || $count <= $max_events || ($count > 0 && $max_events == CALENDAR_HIDE_ALL))) {
               if ($item->calendar_all_day) {
                 $all_day[] = $item;
               }
@@ -801,7 +800,7 @@ class calendar_plugin_style extends views_plugin_style {
         'types' => $types,
       ));
     }
-  
+    
     $content = array(
       'date' => $curday_date,
       'datebox' => theme('calendar_datebox', array(
@@ -893,10 +892,11 @@ class calendar_plugin_style extends views_plugin_style {
           ($curday_date > $today ? ' future' : '') .
           (empty($items[$curday_date]) ? ' has-no-events' : ' has-events');
       }
-  
       $rows[$week][] = array(
         'data' => $content,
-        'class' => $class, 'id' => $this->view->name . '-' . $curday_date);
+        'class' => $class, 
+        'id' => $this->view->name . '-' . $curday_date,
+      );
       date_modify($this->curday, '+1 day');
     }
     return $rows;

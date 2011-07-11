@@ -1,9 +1,16 @@
 Calendar Module 7.x
 ==================
 
-=================
+===================
+Version 7.x-3.x-dev
+===================
+
+Starting new branch with a total rework of Calendar, using a Views pager plugin for the back/next navigation, 
+a row plugin to explode the view results into calendar day items, and a style plugin to disply the results in a calendar.
+
+===================
 Version 7.x-2.x-dev
-=================
+===================
 
 - Issue #1188688 by TommyChris, Fix incorrectly-named view object in calendar_plugin_style_ical.inc.
 - Issue #1110012 Remove 'parent' items from Views plugins, no longer needed? See if this fixes the issue.

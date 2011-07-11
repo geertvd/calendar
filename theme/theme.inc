@@ -206,7 +206,7 @@ function template_preprocess_calendar_day(&$vars) {
     // Items are already grouped into times, so we need to process each time-group.
     foreach ($rows['items'] as $time => $items) {
       foreach ($items as $item) {
-        $rows['all_day'][] = $item->rendered;
+        $rows['all_day'][] = $item;
       }
     }
     $rows['items'] = array();
@@ -227,7 +227,7 @@ function template_preprocess_calendar_day(&$vars) {
     else {
       $column = t('Items');
     }
-    $grouped_items[$column][] = $item->rendered;
+    $grouped_items[$column][] = $item;
     $item_count++;
   }
   $vars['rows']['all_day'] = $grouped_items;
@@ -262,12 +262,12 @@ function template_preprocess_calendar_day(&$vars) {
         $start_time = $next_start_time;
         $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
       }
-      $grouped_items[$start_time]['values'][$column][] = $item->rendered;
+      $grouped_items[$start_time]['values'][$column][] = $item;
       if ($display_overlap) {
         $time_end = date_format($item->date_end, 'H:i:s');
         $item->time_start = $time;
         $item->time_end = $time_end; 
-        _calc_indents($overlapped_items, $time, $time_end, $item->rendered);
+        _calc_indents($overlapped_items, $time, $time_end, $item);
       }
       $item_count++;
       $by_hour_count++;
@@ -366,6 +366,7 @@ function template_preprocess_calendar_week(&$vars) {
   $item_count = 0;
   $by_hour_count = 0;
   $start_time = NULL;
+  $columns = array();
 
   if (sizeof($rows) > 1) {
     $day_names = array_shift($rows);
@@ -392,7 +393,9 @@ function template_preprocess_calendar_week(&$vars) {
   // Add optional css
   if ($display_overlap) {
     drupal_add_css(drupal_get_path('module', 'calendar')  .'/css/calendar-overlap.css');
-    drupal_add_js(drupal_get_path('module', 'calendar') . '/css/calendar_overlap.js');
+    if (empty($view->live_preview)) {
+      drupal_add_js(drupal_get_path('module', 'calendar') . '/js/calendar_overlap.js');
+    }
     $overlapped_items = array( array(), array(), array(), array(), array(), array(), array());
 
     // Locate the first item
@@ -419,7 +422,7 @@ function template_preprocess_calendar_week(&$vars) {
     foreach ($vars['all_day'] as $index => &$day ) {
       foreach ($rows['singleday_buckets'][$index] as $item) {
         foreach ($item as $event) {
-          $day[] = $event;
+          $day[] = $event->rendered;
           $add_row = TRUE;
         }
       }
@@ -453,7 +456,7 @@ function template_preprocess_calendar_week(&$vars) {
               $start_time = $next_start_time;
               $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
             }
-            $grouped_items[$start_time]['values'][$wday][] = &$item; 
+            $grouped_items[$start_time]['values'][$wday][] = &$item['item']->rendered; 
             if ($display_overlap) {
               $date_end = date_format($item['item']->date_end, 'H:i:s');
               _calc_indents($overlapped_items[$wday], $time, $date_end, $item);
@@ -515,7 +518,7 @@ function template_preprocess_calendar_week(&$vars) {
   $vars['day_names'] = $day_names;
   $vars['columns'] = $columns;
   $vars['start_times'] = $view->date_info->style_groupby_times;
-  $vars['first_time'] = $first_time;
+  $vars['first_time'] = !empty($first_time) ? $first_time : '';
 
   $vars['agenda_hour_class'] = 'calendar-agenda-hour';
   $first_column_width = 10;
