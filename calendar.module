@@ -69,7 +69,7 @@ function calendar_theme() {
     'calendar_month_row' => $base + array(
       'template' => 'calendar-month-row',
       'variables' => array('inner' => NULL, 'class' => NULL, 'iehint' => NULL),
-      ),    
+      ),
     );
 }
 

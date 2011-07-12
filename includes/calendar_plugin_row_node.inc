@@ -70,8 +70,6 @@ class calendar_plugin_row_node extends views_plugin_row {
       '#options' => array('' => t('No link')) + node_type_get_names(),
       '#description' => t('Display a link to add a new date of the specified content type. Displayed only to users with appropriate permissions.'),
       );        
-
-
     $form['colors'] = array(
       '#type' => 'fieldset',
       '#title' => t('Legend Colors'),

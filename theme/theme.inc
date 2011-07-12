@@ -6,6 +6,57 @@
  */
 
 /**
+ * Add calendar links above the pager.
+ */
+function calendar_preprocess_date_views_pager(&$vars) {
+  $view = $vars['plugin']->view;
+  if ($view->plugin_name != 'calendar_style') {
+    return;
+  }
+  $options = $view->style_options;
+
+  // If we're not on a view with a path (a page), no links are needed.
+  $current_path = !empty($view->display_handler->options['path']) ? $view->display_handler->options['path'] : '';
+  if (empty($current_path)) {
+    return;
+  }
+
+  $calendar_links = array();
+  $base = array('attributes' => array('rel' => 'nofollow'));
+  foreach($view->display as $id => $display) {
+    if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
+      $path = $display->display_options['path'];
+      $title = $display->display_title;
+      $type = $display->display_options['style_options']['calendar_type'];
+      $href = str_replace($current_path, $path, date_pager_url($view, $type));
+      $calendar_links['calendar calendar-'. $type] = array('title' => $title, 'href' => $href);
+
+    }
+  }
+
+  // If an 'Add new ... link is provided, add it here.
+  // the query will bring the user back here after adding the node.
+  if (!empty($view->date_info->calendar_date_link) 
+  && (user_access("administer nodes") || user_access('create '. $view->date_info->calendar_date_link .' content'))) {
+    $name = node_type_get_name($view->date_info->calendar_date_link);
+    $href = 'node/add/' . str_replace('_', '-', $view->date_info->calendar_date_link);
+    $query = drupal_get_query_parameters(array('destination' => $view->date_info->url));    
+    $calendar_links['calendar calendar-add'] = $base + array(
+      'title' => t('Add+'), 
+      'href' => $href, 
+      'query' => $query,
+      );
+  }
+
+  $links = array(
+    'links' => $calendar_links, 
+    'attributes' => array('class' => 'inline'),
+  );
+  $vars['pager_prefix'] = theme('links', $links);
+
+}
+
+/**
  * Preprocess an RSS feed
  */
 function template_preprocess_calendar_style(&$vars) {

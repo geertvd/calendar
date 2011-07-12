@@ -706,45 +706,43 @@ table.calendar-legend tr.even .stripe {
 }
 
 /* Restyle Header */
-.view-content .calendar-calendar .clear-block {
+.view .date-nav-wrapper .clear-block {
   margin-bottom: 10px;
 }
 
-.view-content .calendar-calendar {
+.view .date-nav-wrapper  {
   position : relative;
   margin-top : 5px;
-  float:left;
   width: 100%;
 }
 
-.view-content .calendar-calendar .links {
+.view .date-nav-wrapper .links {
   display : block;
 }
 
-.view-content .calendar-calendar ul.links {
+.view .date-nav-wrapper ul.links {
   margin-bottom: 3px;
 }
 
-.view-content .calendar-calendar ul {
+.view .date-nav-wrapper ul {
   position : absolute;
   top : 8px ;
   line-height : inherit;
   z-index : 1;
 }
 
-.view-content .calendar-calendar li {
+.view .date-nav-wrapper li {
   float : left;
   line-height : inherit ;
-  margin-left : 10px ;
   width : auto;
 }
 
-.view-content .calendar-calendar li a {
+.view .date-nav-wrapper li a {
   text-decoration : underline ;
   line-height : inherit ;
 }
 
-.view-content .calendar-calendar .date-nav {
+.view .date-nav-wrapper .date-nav {
   background-color : transparent  ;
   border : 0px  ;
   height : 30px;
@@ -753,18 +751,18 @@ table.calendar-legend tr.even .stripe {
   position : relative;
 }
 
-.view-content .calendar-calendar .date-prev a,
-.view-content .calendar-calendar .date-next a {
+.view .date-nav-wrapper .date-prev a,
+.view .date-nav-wrapper .date-next a {
   text-decoration : none ;
   color : inherit ;
   font-size : 12px;
 }
 
-.view-content .calendar-calendar .date-nav a:hover {
+.view .date-nav-wrapper.date-nav a:hover {
   text-decoration : underline ;
 }
 
-.view-content .calendar-calendar .date-prev {
+.view .date-nav-wrapper .date-prev {
   -moz-border-radius:5px 0 0 5px;
   border-radius:5px 0 0 5px;
   background:none repeat scroll 0 0 #dfdfdf;
@@ -779,17 +777,17 @@ table.calendar-legend tr.even .stripe {
   font-size : 12px;
 }
 
-.block-views .view-content .calendar-calendar .date-prev {
+.block-views .view .date-nav-wrapper .date-prev {
   left:0;
   right:auto;
 }
 
-.view-content .calendar-calendar .date-prev span {
+.view .date-nav-wrapper .date-prev span {
   margin-left : 10px;
   font-style : bold;
 }
 
-.view-content .calendar-calendar .date-heading {
+.view .date-nav-wrapper .date-heading {
   position : relative;
   width : 100%;
   top : 0px;
@@ -798,12 +796,12 @@ table.calendar-legend tr.even .stripe {
   float : none;
 }
 
-.view-content .calendar-calendar .date-heading h3 {
+.view .date-nav-wrapper .date-heading h3 {
   line-height : 30px ;
   font-size : 1.7em ;
 }
 
-.view-content .calendar-calendar .date-next {
+.view .date-nav-wrapper .date-next {
   -moz-border-radius:0px 5px 5px 0px;
   border-radius:0px 5px 5px 0px;
   background:none repeat scroll 0 0 #dfdfdf;
@@ -818,7 +816,7 @@ table.calendar-legend tr.even .stripe {
   font-size : 12px;
 }
 
-.view-content .calendar-calendar .date-next span {
+.view .date-nav-wrapper .date-next span {
   margin-right : 10px;
   font-style : bold;
 }
@@ -852,7 +850,19 @@ table.calendar-legend tr.even .stripe {
   margin-top : 5px;
 }
 
-.view-content table.mini .calendar-calendar .date-prev,
-.view-content table.mini .calendar-calendar .date-next {
+.view table.mini .date-prev,
+.view table.mini .date-next {
   background: none;
+}
+
+.date-nav div.date-prev,
+.date-nav div.date-next,
+.date-nav {
+  width:auto;
+}
+
+.region-content .date-nav-wrapper ul, 
+.region-content .date-nav-wrapper ol {
+  margin:0;
+  padding:0;
 }
