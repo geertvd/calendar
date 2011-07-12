@@ -43,13 +43,6 @@ class calendar_plugin_style extends views_plugin_style {
     $options['groupby_times'] = array('default' => 'hour', 'export' => 'export_plugin');  
     $options['groupby_times_custom'] = array('default' => '', 'export' => 'export_plugin');  
     $options['groupby_field'] = array('default' => '', 'export' => 'export_plugin');  
-    $options['colors'] = array('default' => '');
-    $options['calendar_colors'] = array('default' => array());
-    $options['calendar_colors_vocabulary'] = array('default' => array());
-    $options['calendar_colors_taxonomy'] = array('default' => array());
-    $options['calendar_colors_group'] = array('default' => array());
-    $options['calendar_popup'] = array('default' => 0);
-    $options['calendar_date_link'] = array('default' => '');
     return $options;
   }
 
@@ -147,126 +140,7 @@ class calendar_plugin_style extends views_plugin_style {
       '#options' => array(0 => t('Do not display overlapping items'), 1 => t('Display overlapping items')),
       '#description' => t('Select whether calendar items are displayed as overlapping items.'),
       '#dependency' => array('edit-style-options-calendar-type' => array('day', 'week')),
-      );
-
-    // Former calendar display options. We may or may not add all these back.
-    
-    $form['calendar_date_link'] = array(
-      '#title' => t('Add new date link'),
-      '#type' => 'select',
-      '#default_value' => $this->options['calendar_date_link'],
-      '#options' => array('' => t('No link')) + node_type_get_names(),
-      '#description' => t('Display a link to add a new date of the specified content type. Displayed only to users with appropriate permissions.'),
-      );        
-
-    $form['calendar_popup'] = array(
-      '#access' => FALSE, // Hide for now.
-      '#title' => t('Date changer'),
-      '#type' => 'select',
-      '#default_value' => $this->options['calendar_popup'],
-      '#options' => array(0 => t('No'), 1 => t('Yes')),
-      '#description' => t('Display a popup calendar date selector?'),
-      );        
-
-    $method =  'types';
-    switch ($method) {
-      case 'types':
-        $color_types = node_type_get_names();
-        break;
-    }
-
-    // TODO Move the embedded styles other than the color into a stylesheet.
-    $form['colors'] = array(
-      '#title' => t('Select stripe colors for calendar items.'),
-      '#type' => 'select',
-      '#options' => array('' => t('Choose'), 'type' => t('Content Type'), 'taxonomy' => t('Taxonomy'), 'group' => t('Group')),
-      '#default_value' => $this->options['colors'],
-    );
-    if (!module_exists('og')) {
-      unset($form['colors']['#options']['group']);
-    }
-
-    $form['calendar_colors'] = array(
-      '#type' => 'fieldset',
-      '#tree' => TRUE,
-      '#title' => t('Content Type Legend Colors'),
-      '#description' =>  t('Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Types with empty values will have no stripe in the calendar and will not be added to the legend.'),
-      '#dependency' => array('edit-style-options-colors' => array('type')),
-    );
-    $colors = $this->options['calendar_colors'];   
-    foreach ($color_types as $key => $name) {
-      $form['calendar_colors']['color'][$key] = array(
-        '#title' => $name,
-        '#type' => 'textfield',
-        '#default_value' => isset($colors[$key]) ? $colors[$key] : '#ffffff',
-        '#size' => 7,
-        '#maxlength' => 7,
-      );
-    }
-
-    $taxonomies = taxonomy_get_vocabularies();
-    $options = array();
-    foreach ($taxonomies as $vid => $vocab) {
-      $options[$vid] = $vocab->name;
-    }
-    $colors_vocabulary = $this->options['calendar_colors_vocabulary'];
-    $form['calendar_colors_vocabulary'] = array(
-      '#title' => t('Vocabulary Legend Types'),
-      '#type' => 'checkboxes',
-      '#default_value' => isset($colors_vocabulary) ? $colors_vocabulary : array(),
-      '#multiple' => TRUE,
-      '#options' => $options,
-      '#description' => t('Select vocabularies to use for setting calendar legend colors by taxonomy term. This works best for vocabularies with only a limited number of possible terms.'),
-      '#dependency' => array('edit-style-options-colors' => array('taxonomy')),
-    );
-
-    $taxonomies = (array) $this->options['calendar_colors_vocabulary'];
-    $colors_taxonomy = $this->options['calendar_colors_taxonomy'];
-    $form['calendar_colors_taxonomy'] = array(
-      '#description' => t('Set a hex color value (like #ffffff) to use in the calendar legend for each taxonomy term. Terms with empty values will have no stripe in the calendar and will not be added to the legend. <strong>IMPORTANT!</strong>You must add the taxonomy field, Taxonomy: Term ID, to the view for this to do anything. You can exclude it from output if you do not want to see it in the view, but the field must be included.'),
-      '#tree' => TRUE,
-      '#title' => t('Taxonomy Legend Colors'),
-      '#dependency' => array('edit-style-options-calendar-colors-vocabulary' => array_keys($options)),
-    );
-
-    $colors = $this->options['calendar_colors']; 
-    foreach ($taxonomies as $vid => $taxonomy) {
-      $vocab = taxonomy_get_tree($vid);
-      foreach ($vocab as $tid => $term) {
-        $form['calendar_colors_taxonomy']['color'][$term->tid] = array(
-          '#title' => t($term->name),
-          '#type' => 'textfield',
-          '#default_value' => isset($colors_taxonomy[$term->tid]) ? $colors_taxonomy[$term->tid] : '#ffffff',
-          '#size' => 7,
-          '#maxlength' => 7,
-        );
-      }
-    }
- 
-    if (module_exists('og')) {
-      $colors_group = $this->option['calendar_colors_group'];
-      $form['calendar_colors_group'] = array(
-        '#title' => t('Group Legend Colors'),
-        '#description' => t('Set a hex color value (like #ffffff) to use in the calendar legend for each group. Groups with empty values will have no stripe in the calendar and will not be added to the legend.'),
-        '#tree' => TRUE,
-        '#dependency' => array('edit-style-options-colors' => array('group')),
-        'colorpicker' => array(
-          '#type' => 'calendar_colorpicker',
-          '#prefix' => '<div class="clear-block"><div style="float:left">',
-          '#suffix' => '</div>',
-        ),
-      );
-  
-      $groups = og_all_groups_options();
-      foreach ($groups as $gid => $group_name){
-        $form['calendar_colors_group']['color'][$gid] = array(
-  	      '#title' => t($group_name),
-  	      '#type' => 'calendar_colorfield',
-  	      '#default_value' => isset($colors_group[$gid]) ? $colors_group[$gid] : '#ffffff',
-  	      '#calendar_colorpicker' => 'calendar-colors-group-colorpicker',
-  	    );
-  	  }  
-    }  
+      );      
   }
 
   /**

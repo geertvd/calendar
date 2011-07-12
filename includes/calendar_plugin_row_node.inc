@@ -44,6 +44,15 @@ class calendar_plugin_row_node extends views_plugin_row {
   function option_definition() {
     $options = parent::option_definition();
     $options['date_fields'] = array('default' => array());
+    $options['calendar_date_link'] = array('default' => '');
+    $options['colors'] = array(
+      'contains' => array(
+        'legend' => array('default' => ''),
+        'calendar_colors_type' => array('default' => array()),
+        'calendar_colors_vocabulary' => array('default' => array()),
+        'calendar_colors_taxonomy' => array('default' => array()),
+        'calendar_colors_group' => array('default' => array()),
+    ));
     return $options;
   }
 
@@ -53,7 +62,94 @@ class calendar_plugin_row_node extends views_plugin_row {
   function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     
-    $form['#markup'] = t("The calendar row plugin will format view results as calendar items. Make sure this display has a 'Calendar' format and uses a 'Date' contextual filter, or this plugin will not work correctly.");
+    $form['markup']['#markup'] = t("The calendar row plugin will format view results as calendar items. Make sure this display has a 'Calendar' format and uses a 'Date' contextual filter, or this plugin will not work correctly.");
+    $form['calendar_date_link'] = array(
+      '#title' => t('Add new date link'),
+      '#type' => 'select',
+      '#default_value' => $this->options['calendar_date_link'],
+      '#options' => array('' => t('No link')) + node_type_get_names(),
+      '#description' => t('Display a link to add a new date of the specified content type. Displayed only to users with appropriate permissions.'),
+      );        
+
+
+    $form['colors'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Legend Colors'),
+      '#description' =>  t('Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Types with empty values will have no stripe in the calendar and will not be added to the legend.'),
+      'colorpicker' => array(
+        '#type' => 'calendar_colorpicker',
+        '#prefix' => '<div class="clear-block"><div style="float:left">',
+        '#suffix' => '</div>',
+      ),
+    );
+    $form['colors']['legend'] = array(
+      '#title' => t('Stripes'),
+      '#description' => t('Add stripes to calendar items.'),
+      '#type' => 'select',
+      '#options' => array('' => t('None'), 'type' => t('Based on the Content Type'), 'taxonomy' => t('Based on the Taxonomy'), 'group' => t('Based on the Organic Group')),
+      '#default_value' => $this->options['colors']['legend'],
+    );
+    if (!module_exists('og')) {
+      unset($form['colors']['legend']['#options']['group']);
+    }
+    $colors = $this->options['colors']['calendar_colors_type'];   
+    $type_names = node_type_get_names();
+    foreach ($type_names as $key => $name) {
+      $form['colors']['calendar_colors_type'][$key] = array(
+        '#title' => $name,
+        '#type' => 'textfield',
+        '#default_value' => isset($colors[$key]) ? $colors[$key] : '#ffffff',
+        '#size' => 7,
+        '#maxlength' => 7,
+        '#dependency' => array('edit-row-options-colors-legend' => array('type')),
+      );
+    }
+
+    $taxonomies = taxonomy_get_vocabularies();
+    $options = array();
+    foreach ($taxonomies as $vid => $vocab) {
+      $options[$vid] = $vocab->name;
+    }
+    $colors_vocabulary = $this->options['colors']['calendar_colors_vocabulary'];
+    $form['colors']['calendar_colors_vocabulary'] = array(
+      '#title' => t('Vocabulary Legend Types'),
+      '#type' => 'checkboxes',
+      '#default_value' => isset($colors_vocabulary) ? $colors_vocabulary : array(),
+      '#multiple' => TRUE,
+      '#options' => $options,
+      '#description' => t('Select vocabularies to use for setting calendar legend colors by taxonomy term. This works best for vocabularies with only a limited number of possible terms.'),
+      '#dependency' => array('edit-row-options-colors-legend' => array('taxonomy')),
+    );
+
+    $taxonomies = (array) $this->options['calendar_colors_vocabulary'];
+    $colors_taxonomy = $this->options['calendar_colors_taxonomy'];
+    foreach ($taxonomies as $vid => $taxonomy) {
+      $vocab = taxonomy_get_tree($vid);
+      foreach ($vocab as $tid => $term) {
+        $form['colors']['calendar_colors_taxonomy'][$term->tid] = array(
+          '#title' => t($term->name),
+          '#type' => 'textfield',
+          '#default_value' => isset($colors_taxonomy[$term->tid]) ? $colors_taxonomy[$term->tid] : '#ffffff',
+          '#size' => 7,
+          '#maxlength' => 7,
+          '#dependency' => array('edit-row-options-calendar-colors-vocabulary' => array_keys($options)),
+        );
+      }
+    }
+ 
+    if (module_exists('og')) {
+      $colors_group = $this->option['colors']['calendar_colors_group'];
+      $groups = og_all_groups_options();
+      foreach ($groups as $gid => $group_name){
+        $form['colors']['calendar_colors_group'][$gid] = array(
+  	      '#title' => t($group_name),
+  	      '#type' => 'calendar_colorfield',
+  	      '#default_value' => isset($colors_group[$gid]) ? $colors_group[$gid] : '#ffffff',
+  	      '#calendar_colorpicker' => 'calendar-colors-group-colorpicker',
+          '#dependency' => array('edit-row-options-colors-legend' => array('group')),
+  	    );
+  	  }  
+    }  
   }
 
   function pre_render($values) {
@@ -265,10 +361,18 @@ class calendar_plugin_row_node extends views_plugin_row {
           unset($node);
         }
         else {
-          // @TODO Add stripes back in later.
-          //calendar_node_stripe($this->view, $node, $alias, $alias);
-          //calendar_node_taxonomy_stripe($this->view, $node, $alias, $alias);
-          //calendar_node_group_stripe($this->view, $node, $alias, $alias);
+          // Add legend stripes, if called for.
+          switch ($this->options['colors']['legend']) {
+            case 'type':
+              $this->calendar_node_type_stripe($node);
+              break;
+            case 'taxonomy':
+              $this->calendar_node_taxonomy_stripe($node);
+              break;
+            case 'group':
+              $this->calendar_node_group_stripe($node);
+              break;
+          }
           $node->date_id .= '.' . $pos;
 
           $output = theme($this->theme_functions(),
@@ -289,6 +393,119 @@ class calendar_plugin_row_node extends views_plugin_row {
       }
     }
     return $rows;
+  }
+
+  /**
+   * Create a stripe base on node type.
+   */
+  function calendar_node_type_stripe(&$node) {
+    $colors = isset($this->options['colors']['calendar_colors_type']) ? $this->options['colors']['calendar_colors_type'] : array();
+    if (empty($colors)) {
+      return;
+    }
+    if (empty($node->type)) {
+      return;
+    }
+  
+    $type_names = node_type_get_names();
+    $type = $node->type;
+    if (!(isset($node->stripe))) {
+      $node->stripe = array();
+      $node->stripe_label = array();
+    }  
+    if (array_key_exists($type, $type_names)) {
+      $label = $type_names[$type];
+    }
+    if (array_key_exists($type, $colors)) {
+      $stripe = $colors[$type];
+    }
+    else {
+      $stripe = '';
+    }
+  
+    $node->stripe[] = $stripe;
+    $node->stripe_label[] = $label;
+    $GLOBALS['calendar_stripe_labels'][][$type] = array('stripe' => $stripe, 'label' => $label);
+    return $stripe;
+  }
+  
+   /**
+   * Create a stripe based on a taxonomy term.
+   */
+  
+  function calendar_node_taxonomy_stripe(&$node) {
+    $colors_taxonomy = isset($this->options['colors']['calendar_colors_taxonomy']) ? $this->options['colors']['calendar_colors_taxonomy'] : array();
+    if (empty($colors_taxonomy)) {
+      return;
+    }
+  
+    if (empty($node->taxonomy_term_data_tid)) {
+      return;
+    }
+  
+    // Rename the vid added by Views to the normal name that 
+    // taxonomy will expect, it's in the raw results.
+    $node->vid = $node->raw->node_vid;
+  
+    $terms_for_node = (array) $node->taxonomy_term_data_tid;
+    if (!(isset($node->stripe))) {
+      $node->stripe = array();
+      $node->stripe_label = array();
+    }
+    if (count($terms_for_node)) {
+      foreach ($terms_for_node as $tid) {
+        $term_for_node = taxonomy_term_load($tid);
+        if (!array_key_exists($term_for_node->tid, $colors_taxonomy)) {
+          continue;
+        }
+        $stripe = $colors_taxonomy[$term_for_node->tid];
+        $stripe_label = $term_for_node->name;
+        $node->stripe[] = $stripe;
+        $node->stripe_label[] = $stripe_label;
+        $GLOBALS['calendar_stripe_labels'][][$term_for_node->tid] = array('stripe' => $stripe, 'label' => $stripe_label);
+      }
+    }
+    else {
+      $node->stripe[] = '';
+      $node->stripe_label[] = '';
+    } 
+    return;
+  }
+  
+  /**
+   * Create a stripe based on group.
+   */
+  function calendar_node_group_stripe(&$node) {
+    $colors_group = isset($this->options['colors']['calendar_colors_group']) ? $this->options['colors']['calendar_colors_group'] : array();
+    if (empty($colors_group)) {
+      return;
+    }
+    if (!function_exists('og_get_node_groups')) {
+      return;
+    }
+  
+    $groups_for_node = og_get_node_groups($node);
+    if(!(isset($node->stripe))){
+      $node->stripe = array();
+      $node->stripe_label = array();
+    }
+    if (count($groups_for_node)){
+      foreach($groups_for_node as $gid => $group_name){
+        if (!array_key_exists($gid, $colors_group)) {
+          continue;
+        }
+        $stripe = $colors_group[$gid];
+        $stripe_label = $group_name;
+        $node->stripe[] = $stripe;
+        $node->stripe_label[] = $stripe_label;
+        $GLOBALS['calendar_stripe_labels'][][$gid] = array('stripe' => $stripe, 'label' => $stripe_label);
+      }
+    }
+    else {
+      $node->stripe[] = '';
+      $node->stripe_label[] = '';
+    } 
+    return $stripe;
   }
 }
 
