@@ -44,8 +44,8 @@ function calendar_views_plugins() {
       ),
     ),
     'row' => array(
-      'node_calendar' => array(
-        'title' => t('Calendar Content'),
+      'calendar_node' => array(
+        'title' => t('Calendar Items'),
         'help' => t('Displays each selected node as a Calendar item.'),
         'handler' => 'calendar_plugin_row_node',
         'path' => "$module_path/includes",

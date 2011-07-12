@@ -34,14 +34,22 @@ class calendar_plugin_style extends views_plugin_style {
     $options = parent::option_definition();
     $options['calendar_type'] = array('default' => 'month');
     $options['name_size'] = array('default' => 3, 'export' => 'export_plugin');
+    $options['mini'] = array('default' => 0, 'export' => 'export_plugin');
     $options['with_weekno'] = array('default' => 0, 'export' => 'export_plugin');
-    $options['multiday_theme'] = array('default' => '1', 'export' => 'export_plugin');
-    $options['theme_style'] = array('default' => '1', 'export' => 'export_plugin');
+    $options['multiday_theme'] = array('default' => 1, 'export' => 'export_plugin');
+    $options['theme_style'] = array('default' => 1, 'export' => 'export_plugin');
     $options['max_items'] = array('default' => 0, 'export' => 'export_plugin');  
     $options['max_items_behavior'] = array('default' => 'more', 'export' => 'export_plugin');  
     $options['groupby_times'] = array('default' => 'hour', 'export' => 'export_plugin');  
     $options['groupby_times_custom'] = array('default' => '', 'export' => 'export_plugin');  
     $options['groupby_field'] = array('default' => '', 'export' => 'export_plugin');  
+    $options['colors'] = array('default' => '');
+    $options['calendar_colors'] = array('default' => array());
+    $options['calendar_colors_vocabulary'] = array('default' => array());
+    $options['calendar_colors_taxonomy'] = array('default' => array());
+    $options['calendar_colors_group'] = array('default' => array());
+    $options['calendar_popup'] = array('default' => 0);
+    $options['calendar_date_link'] = array('default' => '');
     return $options;
   }
 
@@ -55,13 +63,21 @@ class calendar_plugin_style extends views_plugin_style {
       '#default_value' => $this->options['calendar_type'],
       '#options' => calendar_display_types(),
       );
+    $form['mini'] = array(
+      '#title' => t('Display as mini calendar'),
+      '#default_value' => $this->options['mini'],
+      '#type' => 'radios',
+      '#options' => array(0 => t('No'), 1 => t('Yes')),
+      '#description' => t('Display the mini style calendar, with no item details. Suitable for a calendar displayed in a block.'),
+      '#dependency' => array('edit-style-options-calendar-type' => array('month')),
+      );
     $form['name_size'] = array(
       '#title' => t('Calendar day of week names'),
       '#default_value' => $this->options['name_size'],
       '#type' => 'radios',
       '#options' => array(1 => t('First letter of name'), 2 => t('First two letters of name'), 3 => t('Abbreviated name'), 99 => t('Full name')),
       '#description' => t('The way day of week names should be displayed in a calendar.'),
-      '#dependency' => array('edit-style-options-calendar-type' => array('month', 'week')),
+      '#dependency' => array('edit-style-options-calendar-type' => array('month', 'week', 'year')),
       );
     $form['with_weekno'] = array(
       '#title' => t('Show week numbers'),
@@ -132,6 +148,125 @@ class calendar_plugin_style extends views_plugin_style {
       '#description' => t('Select whether calendar items are displayed as overlapping items.'),
       '#dependency' => array('edit-style-options-calendar-type' => array('day', 'week')),
       );
+
+    // Former calendar display options. We may or may not add all these back.
+    
+    $form['calendar_date_link'] = array(
+      '#title' => t('Add new date link'),
+      '#type' => 'select',
+      '#default_value' => $this->options['calendar_date_link'],
+      '#options' => array('' => t('No link')) + node_type_get_names(),
+      '#description' => t('Display a link to add a new date of the specified content type. Displayed only to users with appropriate permissions.'),
+      );        
+
+    $form['calendar_popup'] = array(
+      '#access' => FALSE, // Hide for now.
+      '#title' => t('Date changer'),
+      '#type' => 'select',
+      '#default_value' => $this->options['calendar_popup'],
+      '#options' => array(0 => t('No'), 1 => t('Yes')),
+      '#description' => t('Display a popup calendar date selector?'),
+      );        
+
+    $method =  'types';
+    switch ($method) {
+      case 'types':
+        $color_types = node_type_get_names();
+        break;
+    }
+
+    // TODO Move the embedded styles other than the color into a stylesheet.
+    $form['colors'] = array(
+      '#title' => t('Select stripe colors for calendar items.'),
+      '#type' => 'select',
+      '#options' => array('' => t('Choose'), 'type' => t('Content Type'), 'taxonomy' => t('Taxonomy'), 'group' => t('Group')),
+      '#default_value' => $this->options['colors'],
+    );
+    if (!module_exists('og')) {
+      unset($form['colors']['#options']['group']);
+    }
+
+    $form['calendar_colors'] = array(
+      '#type' => 'fieldset',
+      '#tree' => TRUE,
+      '#title' => t('Content Type Legend Colors'),
+      '#description' =>  t('Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Types with empty values will have no stripe in the calendar and will not be added to the legend.'),
+      '#dependency' => array('edit-style-options-colors' => array('type')),
+    );
+    $colors = $this->options['calendar_colors'];   
+    foreach ($color_types as $key => $name) {
+      $form['calendar_colors']['color'][$key] = array(
+        '#title' => $name,
+        '#type' => 'textfield',
+        '#default_value' => isset($colors[$key]) ? $colors[$key] : '#ffffff',
+        '#size' => 7,
+        '#maxlength' => 7,
+      );
+    }
+
+    $taxonomies = taxonomy_get_vocabularies();
+    $options = array();
+    foreach ($taxonomies as $vid => $vocab) {
+      $options[$vid] = $vocab->name;
+    }
+    $colors_vocabulary = $this->options['calendar_colors_vocabulary'];
+    $form['calendar_colors_vocabulary'] = array(
+      '#title' => t('Vocabulary Legend Types'),
+      '#type' => 'checkboxes',
+      '#default_value' => isset($colors_vocabulary) ? $colors_vocabulary : array(),
+      '#multiple' => TRUE,
+      '#options' => $options,
+      '#description' => t('Select vocabularies to use for setting calendar legend colors by taxonomy term. This works best for vocabularies with only a limited number of possible terms.'),
+      '#dependency' => array('edit-style-options-colors' => array('taxonomy')),
+    );
+
+    $taxonomies = (array) $this->options['calendar_colors_vocabulary'];
+    $colors_taxonomy = $this->options['calendar_colors_taxonomy'];
+    $form['calendar_colors_taxonomy'] = array(
+      '#description' => t('Set a hex color value (like #ffffff) to use in the calendar legend for each taxonomy term. Terms with empty values will have no stripe in the calendar and will not be added to the legend. <strong>IMPORTANT!</strong>You must add the taxonomy field, Taxonomy: Term ID, to the view for this to do anything. You can exclude it from output if you do not want to see it in the view, but the field must be included.'),
+      '#tree' => TRUE,
+      '#title' => t('Taxonomy Legend Colors'),
+      '#dependency' => array('edit-style-options-calendar-colors-vocabulary' => array_keys($options)),
+    );
+
+    $colors = $this->options['calendar_colors']; 
+    foreach ($taxonomies as $vid => $taxonomy) {
+      $vocab = taxonomy_get_tree($vid);
+      foreach ($vocab as $tid => $term) {
+        $form['calendar_colors_taxonomy']['color'][$term->tid] = array(
+          '#title' => t($term->name),
+          '#type' => 'textfield',
+          '#default_value' => isset($colors_taxonomy[$term->tid]) ? $colors_taxonomy[$term->tid] : '#ffffff',
+          '#size' => 7,
+          '#maxlength' => 7,
+        );
+      }
+    }
+ 
+    if (module_exists('og')) {
+      $colors_group = $this->option['calendar_colors_group'];
+      $form['calendar_colors_group'] = array(
+        '#title' => t('Group Legend Colors'),
+        '#description' => t('Set a hex color value (like #ffffff) to use in the calendar legend for each group. Groups with empty values will have no stripe in the calendar and will not be added to the legend.'),
+        '#tree' => TRUE,
+        '#dependency' => array('edit-style-options-colors' => array('group')),
+        'colorpicker' => array(
+          '#type' => 'calendar_colorpicker',
+          '#prefix' => '<div class="clear-block"><div style="float:left">',
+          '#suffix' => '</div>',
+        ),
+      );
+  
+      $groups = og_all_groups_options();
+      foreach ($groups as $gid => $group_name){
+        $form['calendar_colors_group']['color'][$gid] = array(
+  	      '#title' => t($group_name),
+  	      '#type' => 'calendar_colorfield',
+  	      '#default_value' => isset($colors_group[$gid]) ? $colors_group[$gid] : '#ffffff',
+  	      '#calendar_colorpicker' => 'calendar-colors-group-colorpicker',
+  	    );
+  	  }  
+    }  
   }
 
   /**
@@ -210,6 +345,7 @@ class calendar_plugin_style extends views_plugin_style {
     // Add calendar style information to the view.
     $this->date_info->calendar_popup = $this->display->handler->get_option('calendar_popup');
     $this->date_info->style_name_size = $this->options['name_size'];
+    $this->date_info->mini = $this->options['mini'];
     $this->date_info->style_with_weekno = $this->options['with_weekno'];
     $this->date_info->style_multiday_theme = $this->options['multiday_theme'];
     $this->date_info->style_theme_style = $this->options['theme_style'];
@@ -256,7 +392,7 @@ class calendar_plugin_style extends views_plugin_style {
     $rows = array();
     $this->curday = clone($this->date_info->min_date);
     $this->items = $items;
-    // Massage the results array depending on the granularity of the display.
+    // Retrieve the results array using a the right method for the granularity of the display.
     switch ($this->options['calendar_type']) {
       case 'year':
         $rows = array();
@@ -280,26 +416,18 @@ class calendar_plugin_style extends views_plugin_style {
     }
 
     // Send the sorted rows to the right theme for this type of calendar.
+    $this->definition['theme'] = 'calendar_' . $this->options['calendar_type'];
 
     // Adjust the theme to match the currently selected default.
     // Only the month view needs the special 'mini' class,
     // which is used to retrieve a different, more compact, theme.
-    if (!empty($this->view->date_info->mini) && $this->options['calendar_type'] == 'month') {
+    if ($this->options['calendar_type'] == 'month' && !empty($this->view->date_info->mini)) {
       $this->definition['theme'] = 'calendar_mini';
     }
-    elseif ($this->options['calendar_type'] == 'week') {
-      $this->view->date_info->mini = FALSE;
-      $this->definition['theme'] = (!isset($this->view->style_options['multiday_theme']) || ($this->view->style_options['multiday_theme'] == '1' && $this->view->style_options['theme_style'] == '1')) ? 'calendar_'. $this->options['calendar_type'].'_overlap' : 'calendar_'. $this->options['calendar_type'];
+    // If the overlap option was selected, choose the overlap version of the theme.
+    elseif (in_array($this->options['calendar_type'], array('week', 'day')) && !empty($this->options['multiday_theme']) && !empty($this->options['theme_style'])) {
+      $this->definition['theme'] .= '_overlap';
     }
-    elseif ($this->options['calendar_type'] == 'day') {
-      $this->view->date_info->mini = FALSE;
-      $this->definition['theme'] = (!isset($this->view->style_options['multiday_theme']) || ($this->view->style_options['theme_style'] == '1')) ? 'calendar_'. $this->options['calendar_type'] .'_overlap' : 'calendar_'. $this->options['calendar_type'];
-    }
-    else {
-      $this->view->date_info->mini = FALSE;
-      $this->definition['theme'] = 'calendar_' . $this->options['calendar_type'];
-    }
-
 
     $output = theme($this->theme_functions(),
       array(
@@ -870,22 +998,6 @@ class calendar_plugin_style extends views_plugin_style {
     date_modify($this->curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
     $curday_date = date_format($this->curday, DATE_FORMAT_DATE);
   
-    // If we're displaying the week number, add it as the
-    // first cell in the week.
-    if (!empty($this->date_info->style_with_weekno) && !in_array($this->date_info->granularity, array('day', 'week'))) {
-      $url = date_real_url($this->view, NULL, $this->date_info->year .'-W'. $week);
-      if (!empty($this->date_info->display_types['week'])) {
-        $weekno = l($week, $url, array('query' => !empty($this->date_info->append) ? $this->date_info->append : ''));
-      }
-      else { 
-        // Do not link week numbers, if Week views are disabled.
-        $weekno = $week;
-      }
-      $rows[$week][] = array(
-        'data' => $weekno,
-        'id' => $this->view->name . '-weekno-' . $curday_date,  
-        'class' => 'week');
-    }
     for ($i = 0; $i < 7; $i++) {
       $curday_date = date_format($this->curday, DATE_FORMAT_DATE);
       $class = strtolower($weekdays[$i] . ' mini');
@@ -910,7 +1022,7 @@ class calendar_plugin_style extends views_plugin_style {
         $class .= ($curday_date == $today ? ' today' : '') .
           ($curday_date < $today ? ' past' : '') .
           ($curday_date > $today ? ' future' : '') .
-          (empty($items[$curday_date]) ? ' has-no-events' : ' has-events');
+          (empty($this->items[$curday_date]) ? ' has-no-events' : ' has-events');
       }
       $rows[$week][] = array(
         'data' => $content,

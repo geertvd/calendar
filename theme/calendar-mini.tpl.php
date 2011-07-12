@@ -15,7 +15,7 @@
  *   into the navigation, but sometimes needed, like in the year view of mini calendars.
  * 
  */
-//dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_formatted);
+//dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_formatted);dsm($day_names);
 ?>
 <div class="calendar-calendar"><div class="month-view">
 <?php if ($view->date_info->show_title): ?>
@@ -35,7 +35,7 @@
     <?php foreach ((array) $rows as $row): ?>
       <tr>
         <?php foreach ($row as $cell): ?>
-          <td class="<?php print $cell['class']; ?> <?php print $cell['id']; ?>">
+          <td id="<?php print $cell['id']; ?>" class="<?php print $cell['class']; ?>">
             <?php print $cell['data']; ?>
           </td>
         <?php endforeach; ?>

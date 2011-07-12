@@ -851,3 +851,8 @@ table.calendar-legend tr.even .stripe {
 .view-calendar .feed-icon {
   margin-top : 5px;
 }
+
+.view-content table.mini .calendar-calendar .date-prev,
+.view-content table.mini .calendar-calendar .date-next {
+  background: none;
+}

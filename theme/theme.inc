@@ -59,8 +59,6 @@ function template_preprocess_calendar_row_node(&$vars) {
  * Display a month view.
  */
 function template_preprocess_calendar_month(&$vars) {
-  // Add in all the $vars added by the main calendar preprocessor.
-  //template_preprocess_calendar($vars);
   $view = $vars['view'];
   $rows = $vars['rows'];
   if (empty($rows)) {
@@ -131,7 +129,6 @@ function template_preprocess_calendar_mini(&$vars) {
  * Display a year view.
  */
 function template_preprocess_calendar_year(&$vars) {
-  // Add in all the $vars added by the main calendar preprocessor.
   $vars['view']->date_info->style_with_weekno = FALSE;
 
   // Get the url of the year view and remove the year argument from it.
@@ -166,6 +163,7 @@ function template_preprocess_calendar_year(&$vars) {
   $vars['months'] = $months;
   $vars['view']->date_info->hide_nav = FALSE;
   $vars['view']->date_info->granularity = 'year';
+  $vars['mini'] = $view->date_info->mini;
 
 }
 
@@ -180,7 +178,6 @@ function template_preprocess_calendar_day_overlap(&$vars) {
  * Display a day view.
  */
 function template_preprocess_calendar_day(&$vars) {
-  // Add in all the $vars added by the main calendar preprocessor.
   $vars['view']->style_with_weekno = FALSE;
 
   $view = $vars['view'];
@@ -358,7 +355,6 @@ function template_preprocess_calendar_week_overlap(&$vars) {
  * Display a week view.
  */
 function template_preprocess_calendar_week(&$vars) {
-  // Add in all the $vars added by the main calendar preprocessor.
   $vars['view']->style_with_weekno = FALSE;
 
   $view = $vars['view'];

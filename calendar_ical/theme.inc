@@ -36,7 +36,7 @@ function template_preprocess_calendar_style_ical(&$vars) {
 /**
  * Default theme function for all iCal rows.
  */
-function template_preprocess_calendar_row_node_ical(&$vars) {
+function template_preprocess_calendar_row_ical_node(&$vars) {
   $view     = &$vars['view'];
   $options  = &$vars['options'];
   $item     = &$vars['row'];

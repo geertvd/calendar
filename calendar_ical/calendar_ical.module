@@ -37,9 +37,10 @@ function theme_calendar_ical_icon($vars) {
 
 /**
  * Implements hook_entity_info_alter().
+ *
+ * Add an 'iCal' view mode for nodes, similar to RSS view mode.
  */
 function calendar_ical_entity_info_alter(&$info) {
-  // Add an 'iCal' view mode for nodes.
   $info['node']['view modes'] += array(
     'ical' => array(
       'label' => t('iCal'),
@@ -75,12 +76,12 @@ function calendar_ical_views_plugins() {
       ),
     ),
     'row' => array(
-      'node_ical' => array(
+      'ical_node' => array(
         'title' => t('iCal Fields'),
-        'help' => t('Display each row as an iCal VEVENT item.'),
-        'handler' => 'calendar_plugin_row_node_ical',
+        'help' => t('Display each node as an iCal VEVENT item.'),
+        'handler' => 'calendar_plugin_row_ical_node',
         'path' => "$module_path",
-        'theme' => 'calendar_row_node_ical',
+        'theme' => 'calendar_row_ical_node',
         'theme file' => 'theme.inc',
         'theme path' => "$module_path",
         'base' => array('node'), // only works with 'node' as base.
