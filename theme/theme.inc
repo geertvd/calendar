@@ -26,6 +26,13 @@ function calendar_preprocess_date_views_pager(&$vars) {
   foreach($view->display as $id => $display) {
     if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
       $path = $display->display_options['path'];
+      if (!empty($display->display_options['pager']) && $display->display_options['pager']['type'] == 'date_views_pager') {
+        $pager_id = $display->display_options['pager']['type'] == 'date_views_pager' ? $display->display_options['pager']['options']['date_id'] : '';
+        $pager_format = $display->display_options['pager']['options']['link_format'];
+        if ($pager_format == 'pager') {
+          $view->date_info->block_identifier = $pager_id;
+        }
+      }
       $title = $display->display_title;
       $type = $display->display_options['style_options']['calendar_type'];
       $href = str_replace($current_path, $path, date_pager_url($view, $type));
