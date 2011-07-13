@@ -16,10 +16,21 @@
  * 
  */
 //dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_formatted);dsm($day_names);
+$params = array(
+  'view' => $view,
+  'granularity' => 'month',
+  'link' => FALSE,
+);
 ?>
 <div class="calendar-calendar"><div class="month-view">
-<?php if ($view->date_info->show_title): ?>
-  <?php print theme('date_navigation', array('view' => $view)); ?>
+<?php if ($show_title): ?>
+<div class="date-nav-wrapper clear-block">
+  <div class="date-nav">
+    <div class="date-heading">
+      <?php print theme('date_nav_title', $params) ?>
+    </div>
+  </div>
+</div> 
 <?php endif; ?> 
 <table class="mini">
   <thead>

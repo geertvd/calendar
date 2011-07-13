@@ -180,17 +180,12 @@ function template_preprocess_calendar_mini(&$vars) {
  * Display a year view.
  */
 function template_preprocess_calendar_year(&$vars) {
-  $vars['view']->date_info->style_with_weekno = FALSE;
-
-  // Get the url of the year view and remove the year argument from it.
-  // TODO clean this up in case there is another arg that looks like
-  // the year to make sure only the year gets removed.
-  $view = $vars['view'];
-  $year = date_format($view->date_info->min_date, 'Y');
 
   // Construct a calendar for each month, adjusting the $view passed 
   // to the theme so it will produce the right results.  
   $view = clone($vars['view']);
+  $year = date_format($view->date_info->min_date, 'Y');
+  $view->date_info->style_with_weekno = FALSE;
   $rows = $vars['rows'];
   $months = array();
   foreach ($rows as $month => $month_rows) {
