@@ -11,6 +11,7 @@
 function template_preprocess_calendar_style_ical(&$vars) {
   global $base_url;
   global $language;
+  $view = $vars['view'];
 
   if ($view->display_handler->get_option('sitename_title')) {
     $title = variable_get('site_name', 'Drupal');
