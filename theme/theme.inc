@@ -61,7 +61,7 @@ function calendar_preprocess_date_views_pager(&$vars) {
     'attributes' => array('class' => 'inline'),
   );
   $vars['pager_prefix'] = theme('links', $links);
-
+  $vars['plugin']->view = $view;
 
 }
 
@@ -595,8 +595,10 @@ function template_preprocess_calendar_datebox(&$vars) {
   $view = $vars['view'];
   $vars['day'] = intval(substr($date, 8, 2));
   $force_view_url = !empty($view->date_info->block) ? TRUE : FALSE;
-  $vars['url'] = date_pager_url($view, NULL, $date, $force_view_url);
-  $vars['link'] = !empty($view->date_info->display_types['day']) ? l($vars['day'], $vars['url']) : $vars['day'];
+  $month_path = calendar_granularity_path($view, 'month');
+  $day_path = calendar_granularity_path($view, 'day');
+  $vars['url'] = str_replace($month_path, $day_path, date_pager_url($view, NULL, $date, $force_view_url));
+  $vars['link'] = !empty($day_path) ? l($vars['day'], $vars['url']) : $vars['day'];
   $vars['granularity'] = $view->date_info->granularity;
   $vars['mini'] = !empty($view->date_info->mini);
   if ($vars['mini']) {

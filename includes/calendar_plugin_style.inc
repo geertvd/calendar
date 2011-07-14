@@ -877,7 +877,6 @@ class calendar_plugin_style extends views_plugin_style {
     $month = date_format($this->curday, 'n');
     $week = date_week($curday_date);
     $first_day = variable_get('date_first_day', 1);
-  
     // move backwards to the first day of the week
     $day_wday = date_format($this->curday, 'w');
     date_modify($this->curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
@@ -887,7 +886,7 @@ class calendar_plugin_style extends views_plugin_style {
       $curday_date = date_format($this->curday, DATE_FORMAT_DATE);
       $class = strtolower($weekdays[$i] . ' mini');
       if ($check_month && ($curday_date < $this->date_info->min_date_date || $curday_date > $this->date_info->max_date_date || date_format($this->curday, 'n') != $month)) {
-        $class .= ' empty';
+         $class .= ' empty';
          $variables = array(
           'curday' => $curday_date, 
           'view' => $this->view,
@@ -903,7 +902,7 @@ class calendar_plugin_style extends views_plugin_style {
           );
       }
       else {
-        $content = $this->calendar_build_day($this->curday, $this->view, $this->items);
+        $content = $this->calendar_build_day();
         $class .= ($curday_date == $today ? ' today' : '') .
           ($curday_date < $today ? ' past' : '') .
           ($curday_date > $today ? ' future' : '') .
