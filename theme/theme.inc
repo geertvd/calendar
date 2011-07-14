@@ -238,8 +238,8 @@ function template_preprocess_calendar_day_overlap(&$vars) {
  * Display a day view.
  */
 function template_preprocess_calendar_day(&$vars) {
-  $vars['view']->style_with_weekno = FALSE;
 
+  $vars['view']->style_with_weekno = FALSE;
   $view = $vars['view'];
   $rows = $vars['rows'];
 
@@ -332,8 +332,8 @@ function template_preprocess_calendar_day(&$vars) {
 
   // Finish out the day's time values if we want to see empty times.
   if (!empty($show_empty_times) || $display_overlap) {
-    while ($start_time < $end_start_time && ($start_time != NULL || $display_overlap)) {
-      if ($start_time == NULL) {
+    while ($start_time < $end_start_time && (!empty($start_time) || $display_overlap)) {
+      if (empty($start_time)) {
         $start_times = $view->date_info->style_groupby_times;
         $start_time = array_shift($start_times);
         $next_start_time = array_shift($start_times);

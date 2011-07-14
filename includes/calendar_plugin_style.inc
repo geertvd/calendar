@@ -111,6 +111,15 @@ class calendar_plugin_style extends views_plugin_style {
       '#description' => t("When choosing the 'custom' Time grouping option above, create custom time period groupings as a comma-separated list of 24-hour times in the format HH:MM:SS, like '00:00:00,08:00:00,18:00:00'. Be sure to start with '00:00:00'. All items after the last time will go in the final group."),
       '#dependency' => array('edit-style-options-groupby-times' => array('custom')),
       );
+    $form['theme_style'] = array(
+      '#title' => t('Overlapping time style'),
+      '#default_value' => $this->options['theme_style'],
+      '#type' => 'select',
+      '#options' => array(0 => t('Do not display overlapping items'), 1 => t('Display overlapping items')),
+      '#description' => t('Select whether calendar items are displayed as overlapping items. Only works if some sort of time grouping is chosen!'),
+      '#dependency' => array('edit-style-options-calendar-type' => array('day', 'week')),
+      );      
+
     // Create a list of fields that are available for grouping,
     $field_options = array();
     $fields = $this->display->handler->get_option('fields');
@@ -133,14 +142,16 @@ class calendar_plugin_style extends views_plugin_style {
       '#description' => t('If selected, items which span multiple days will displayed as a multi-column row.  If not selected, items will be displayed as an individual column.'),
       '#dependency' => array('edit-style-options-calendar-type' => array('month', 'week')),
       );
-    $form['theme_style'] = array(
-      '#title' => t('Overlapping time style'),
-      '#default_value' => $this->options['theme_style'],
-      '#type' => 'select',
-      '#options' => array(0 => t('Do not display overlapping items'), 1 => t('Display overlapping items')),
-      '#description' => t('Select whether calendar items are displayed as overlapping items.'),
-      '#dependency' => array('edit-style-options-calendar-type' => array('day', 'week')),
-      );      
+  }
+
+  function options_validate(&$form, &$form_state) {
+    $values = $form_state['values']['style_options'];
+    if ($values['groupby_times'] == 'custom' && empty($values['groupby_times_custom'])) {
+      form_set_error('style_options][groupby_times_custom', t('Custom groupby times cannot be empty.'));
+    }
+    if (!empty($values['theme_style']) && empty($values['groupby_times'])) {
+      form_set_error('style_options][theme_style', t('You cannot use overlapping items unless there are groupby times selected.'));
+    }
   }
 
   /**
