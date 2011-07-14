@@ -26,7 +26,7 @@
  * work to set the 'hour' column to 10% and split the remaining columns 
  * evenly over the remaining 90% of the table.
  */
-//dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_formatted);
+//dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_formatted);;
 ?>
 <div class="calendar-calendar"><div class="day-view">
 <div id="multi-day-container">

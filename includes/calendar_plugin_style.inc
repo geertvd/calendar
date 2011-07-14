@@ -262,7 +262,7 @@ class calendar_plugin_style extends views_plugin_style {
     }
 
     ksort($items);
-    
+
     $rows = array();
     $this->curday = clone($this->date_info->min_date);
     $this->items = $items;

@@ -246,7 +246,6 @@ function template_preprocess_calendar_day(&$vars) {
   $item_count = 0;
   $by_hour_count = 0;
   $grouping_field = $view->date_info->style_groupby_field;
-
   $display_overlap = $view->date_info->style_theme_style == '1';
 
   // Add optional css
@@ -284,7 +283,7 @@ function template_preprocess_calendar_day(&$vars) {
     else {
       $column = t('Items');
     }
-    $grouped_items[$column][] = $item;
+    $grouped_items[$column][] = $item->rendered;
     $item_count++;
   }
   $vars['rows']['all_day'] = $grouped_items;
