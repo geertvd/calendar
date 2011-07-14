@@ -157,3 +157,28 @@ function calendar_groupby_times($type = '') {
   return $times;
 }
 
+/**
+ *  Implementation of hook_block_info()
+ */
+function calendar_block_info() {
+  $blocks['calendar_legend'] = array(
+    'info' => t('Calendar Legend'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  return $blocks;
+}
+
+/**
+ *  Implementation of hook_block_view().
+ */
+function calendar_block_view($delta = '') {
+  switch ($delta) {
+    case 'calendar_legend':
+      $block['subject'] = t('Calendar Legend');
+      $block['content'] = array(
+        '#theme' => 'calendar_stripe_legend',
+      );
+      //$block['content'] = !empty($content) ? '<div class="calendar legend">' . $content . '</div>' : '';
+      return $block;
+  }
+}

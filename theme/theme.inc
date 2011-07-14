@@ -21,6 +21,7 @@ function calendar_preprocess_date_views_pager(&$vars) {
     return;
   }
 
+  // Find all the displays in this view that use the calendar style and have a path and create links to each.
   $calendar_links = array();
   $base = array('attributes' => array('rel' => 'nofollow'));
   foreach($view->display as $id => $display) {
@@ -695,9 +696,10 @@ function theme_calendar_stripe_legend() {
     $variables = array(
       'header' => $header, 
       'rows' => $rows, 
-      'attributes' => array('class' => 'mini calendar-legend'),
+      'attributes' => array('class' => array('mini', 'calendar-legend')),
     );
     $output .= theme('table', $variables);
+    $output = '<div class="calendar legend">' . $output . '</div>';
   }
   return $output;
 }

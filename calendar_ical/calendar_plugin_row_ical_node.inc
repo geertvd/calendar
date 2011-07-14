@@ -8,7 +8,7 @@
  * Plugin which creates a view on the resulting object
  * and formats it as an iCal VEVENT.
  */
-class calendar_plugin_row_node_ical extends views_plugin_row {
+class calendar_plugin_row_ical_node extends views_plugin_row {
 
   // Basic properties that let the row style follow relationships.
   var $base_table = 'node';
