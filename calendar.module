@@ -137,6 +137,9 @@ function calendar_untranslated_days() {
   return $untranslated_days;
 }
 
+/**
+ * Default settings array for calendar time grouping.
+ */
 function calendar_groupby_times($type = '') {
   $times = array();
   switch ($type) {
@@ -178,7 +181,21 @@ function calendar_block_view($delta = '') {
       $block['content'] = array(
         '#theme' => 'calendar_stripe_legend',
       );
-      //$block['content'] = !empty($content) ? '<div class="calendar legend">' . $content . '</div>' : '';
       return $block;
   }
 }
+
+/**
+ * Find the path for the calendar display that has a specific granularity.
+ */
+function calendar_granularity_path(&$view, $granularity) {
+  foreach($view->display as $id => $display) {
+    if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
+      $type = $display->display_options['style_options']['calendar_type'];
+      if ($type == $granularity) {
+        return $display->display_options['path'];
+      }
+    }
+  }
+}
+

@@ -38,7 +38,6 @@ function calendar_preprocess_date_views_pager(&$vars) {
       $type = $display->display_options['style_options']['calendar_type'];
       $href = str_replace($current_path, $path, date_pager_url($view, $type));
       $calendar_links['calendar calendar-'. $type] = array('title' => $title, 'href' => $href);
-
     }
   }
 
@@ -56,11 +55,13 @@ function calendar_preprocess_date_views_pager(&$vars) {
       );
   }
 
+  // Append the calendar links above the pager.
   $links = array(
     'links' => $calendar_links, 
     'attributes' => array('class' => 'inline'),
   );
   $vars['pager_prefix'] = theme('links', $links);
+
 
 }
 
@@ -179,6 +180,11 @@ function template_preprocess_calendar_mini(&$vars) {
   template_preprocess_calendar_month($vars);
 
   $view = $vars['view'];
+
+  // Make sure that the calendar title links go to the month view, 
+  // not the year view (if this is embedded in a year display).
+  $view->override_path =  calendar_granularity_path($view, 'month');  
+    
   $view->date_info->show_title = !empty($view->date_info->show_title) ? $view->date_info->show_title : FALSE;
   $vars['show_title'] = $view->date_info->show_title;
   $vars['view'] = $view;
