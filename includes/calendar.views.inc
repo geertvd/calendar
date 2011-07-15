@@ -49,9 +49,6 @@ function calendar_views_plugins() {
         'help' => t('Displays each selected node as a Calendar item.'),
         'handler' => 'calendar_plugin_row_node',
         'path' => "$module_path/includes",
-        'theme' => 'calendar_row_node',
-        'theme file' => 'theme.inc',
-        'theme path' => "$module_path/theme",
         'base' => array('node'), // only works with 'node' as base.
         'uses options' => TRUE,
         'uses fields' => TRUE,

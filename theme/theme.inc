@@ -73,47 +73,6 @@ function template_preprocess_calendar_style(&$vars) {
 }
 
 /**
- * Default theme function for all Calendar rows.
- */
-function template_preprocess_calendar_row_node(&$vars) {
-  $view     = &$vars['view'];
-  $options  = &$vars['options'];
-  $node     = &$vars['item'];
-  
-  $view = $vars['view'];
-  $fields = array();
-//  foreach ($view->field as $name => $field) {
-//    $data = $node->rendered[$name];
-//    $label = $field->options['label'];
-//
-//    // Fields have some special label options.
-//    if (!empty($field->content_field)) {
-//      switch ($field->options['label_type']) {
-//        case 'none':
-//          $label = '';
-//          break;
-//        case 'widget':
-//          $label = $field->content_field['widget']['label'];
-//          break;
-//      }
-//    }
-//    $fields[$name] = array(
-//      'id' => drupal_clean_css_identifier($node->id),
-//      'label' => $label,
-//      'data' => $data,
-//      );
-//  }
-  $vars['fields'] = $fields;
-  $vars['date_start'] = $node->date_start->format(DATE_FORMAT_DATE);
-  $vars['date_end'] = $node->date_end->format(DATE_FORMAT_DATE);
-  $vars['calendar_start'] = $node->calendar_start_date->format(DATE_FORMAT_DATE);
-  $vars['calendar_end'] = $node->calendar_end_date->format(DATE_FORMAT_DATE);
-  $vars['calendar_start_date'] = $node->calendar_start_date;
-  $vars['calendar_end_date'] = $node->calendar_end_date;
-
-}
-
-/**
  * Display a month view.
  */
 function template_preprocess_calendar_month(&$vars) {

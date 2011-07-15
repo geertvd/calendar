@@ -265,31 +265,18 @@ class calendar_plugin_row_node extends views_plugin_row {
       $item_start_date->setTimezone(new dateTimezone($to_zone));
       $item_end_date->setTimezone(new dateTimezone($to_zone));
 
-      $item_text = '';
-     
-      // @TODO This displays the node view, need to come back and render the fields instead.
-
-      // Create the rendered display using the display settings from the 'Calendar' view mode.
-      node_build_content($node, 'calendar');
-     
-      if (!empty($node->content)) {
-        // We render node contents and force links to be last.
-        $links = drupal_render($node->content['links']);
-        $item_text .= drupal_render($node->content) . $links;
-      }
-     
       $event = new stdClass();
       $event->nid = $node->nid;
       $event->title = $node->title;
       // The theme expects a 'type', so populate the $event->type 
       // with some value if used later on entities other than nodes.
       $event->type = $node->type;
-      $event->body = $item_text;
       $event->date_start = $item_start_date;
       $event->date_end = $item_end_date;
       $event->date_id = $node->date_id[0];
       $event->class = implode(' ', array($event->date_id, 'calendar', $date_info->granularity . 'view'));
-      $event->raw = $item;
+      $event->field = $is_field ? $item : NULL;
+      $event->row = $row;
 
       // Now that we have a 'node' for each view result, we need 
       // to remove anything outside the view date range,
@@ -372,14 +359,7 @@ class calendar_plugin_row_node extends views_plugin_row {
               break;
           }
           $node->date_id .= '.' . $pos;
-
-          $output = theme($this->theme_functions(),
-            array(
-              'view' => $this->view,
-              'options' => $this->options,
-              'item' => $node
-            ));
-          $node->rendered = $output;
+          
           $rows[] = $node;
           unset($node);
         }

@@ -258,6 +258,14 @@ class calendar_plugin_style extends views_plugin_style {
     date_timezone_set($date, $display_timezone);
     $this->date_info->max_zone_string = date_format($date, DATE_FORMAT_DATE);
 
+    // Identify the fields that need to be displayed on each item.
+    $keys = array();
+    foreach ($this->view->field as $key => $handler) {
+      if (empty($handler->options['exclude'])) {
+        $keys[] = $key;
+      }
+    }
+
     // Invoke the row plugin to massage each result row into calendar items.
     // Gather the row items into an array grouped by date and time.
     $items = array();
@@ -265,10 +273,18 @@ class calendar_plugin_style extends views_plugin_style {
       $this->view->row_index = $row_index;
 
       foreach ($this->row_plugin->render($row) as $item) {
+        $rendered = array();
         $item_start = date_format($item->calendar_start_date, DATE_FORMAT_DATE);
         $item_end = date_format($item->calendar_end_date, DATE_FORMAT_DATE);
         $time_start = date_format($item->calendar_start_date, 'H:i:s');
+        foreach ($keys as $field) {
+          $rendered[] = $this->get_field($row_index, $field);
+        }
+        // @TODO I suppose we could provide a setting for how the field items are joined together,
+        // or maybe run it through a .
+        $item->rendered = implode('<br />', $rendered);
         $items[$item_start][$time_start][] = $item;
+        $this->view->row_index++;
       }
     }
 
@@ -277,6 +293,7 @@ class calendar_plugin_style extends views_plugin_style {
     $rows = array();
     $this->curday = clone($this->date_info->min_date);
     $this->items = $items;
+
     // Retrieve the results array using a the right method for the granularity of the display.
     switch ($this->options['calendar_type']) {
       case 'year':
