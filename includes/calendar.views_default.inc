@@ -108,6 +108,12 @@ foreach ($types as $type => $label) {
   $date_link_type = $type;
 }
 
+$type = '';
+if (!empty($types) && is_array($types) && count($types) > 0 ) {
+  $types = array_keys($types);
+  $type = $types[0];
+}
+
 // Can handle core node timestamp fields or Field date fields.
 
 $aliases = array();
@@ -291,7 +297,7 @@ $handler->display->display_options['style_options']['max_items'] = '0';
 $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
 $handler->display->display_options['row_plugin'] = 'calendar_node';
-$handler->display->display_options['row_options']['calendar_date_link'] = !empty($types) && count($types) > 0 ? $types[0] : '';
+$handler->display->display_options['row_options']['calendar_date_link'] = $type;
 $handler->display->display_options['row_options']['colors']['legend'] = 'type';
 $handler->display->display_options['row_options']['colors']['calendar_colors_type'] = array();
 $handler->display->display_options['row_options']['colors']['calendar_colors_vocabulary'] = array();
