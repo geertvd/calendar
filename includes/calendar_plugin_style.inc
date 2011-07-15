@@ -433,7 +433,7 @@ class calendar_plugin_style extends views_plugin_style {
                   }
   
                   // Calculate on which day of this week this item ends on..
-                  $end_day = clone($curday);
+                  $end_day = clone($this->curday);
                   $span = $item['colspan'] - 1;
                   date_modify($end_day, '+' . $span .' day');
                   $endday_date = date_format($end_day, DATE_FORMAT_DATE);
@@ -674,7 +674,7 @@ class calendar_plugin_style extends views_plugin_style {
                 if ($multiday_theme && ($is_multi_day || $all_day)) {
                   // If this the first day of the week, or is the start date of the multi-day event,
                   // then record this item, otherwise skip over
-                  $day_no = date_format($curday, 'd');
+                  $day_no = date_format($this->curday, 'd');
                   if ($wday == 0 || $start_ydate == $cur_ydate || ($this->date_info->granularity == 'month' && $day_no == 1) || ($all_day && !$is_multi_day)) {
                     $cur_cnt++;
   
@@ -682,10 +682,10 @@ class calendar_plugin_style extends views_plugin_style {
   
                     // If the last day of this event exceeds the end of the current month or week,
                     // truncate the remaining days
-                    $diff =  $curday->difference($this->date_info->max_date, 'days');
+                    $diff =  $this->curday->difference($this->date_info->max_date, 'days');
                     $remaining_days = ($this->date_info->granularity == 'month') ? min(6 - $wday, $diff) : $diff - 1;                 
                     // The bucket_cnt defines the colspan.  colspan = bucket_cnt + 1
-                    $days = $curday->difference($item->date_end, 'days');
+                    $days = $this->curday->difference($item->date_end, 'days');
                     $bucket_cnt = max(0, min($days, $remaining_days));
   
                     // See if there is an avaiable slot to add an event.  This will allow
@@ -700,7 +700,7 @@ class calendar_plugin_style extends views_plugin_style {
                     }
   
                     // Add continuation attributes
-                    $item->continuation =  ($item->date_start < $curday);
+                    $item->continuation =  ($item->date_start < $this->curday);
                     $item->continues = ( $days > $bucket_cnt );
   
                     // Assign the item to the available bucket

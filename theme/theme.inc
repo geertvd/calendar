@@ -27,16 +27,16 @@ function calendar_preprocess_date_views_pager(&$vars) {
   foreach($view->display as $id => $display) {
     if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
       $path = $display->display_options['path'];
-      if (!empty($display->display_options['pager']) && $display->display_options['pager']['type'] == 'date_views_pager') {
-        $pager_id = $display->display_options['pager']['type'] == 'date_views_pager' ? $display->display_options['pager']['options']['date_id'] : '';
-        $pager_format = $display->display_options['pager']['options']['link_format'];
-        if ($pager_format == 'pager') {
-          $view->date_info->block_identifier = $pager_id;
-        }
-      }
       $title = $display->display_title;
       $type = $display->display_options['style_options']['calendar_type'];
-      $href = str_replace($current_path, $path, date_pager_url($view, $type));
+
+      // Make sure the links to other calendar displays use the right path for that display.
+      // Get rid of pager links when swapping between displays to force the base argument 
+      // to be structured correctly for the type of display. This means you can't use
+      // these links in a block or panel.
+      $href = str_replace($current_path, $path, date_pager_url($view, $type, NULL, TRUE));
+
+      // Once we have a path for the links to other displays, add it to our links array.
       $calendar_links['calendar calendar-'. $type] = array('title' => $title, 'href' => $href);
     }
   }
@@ -61,8 +61,6 @@ function calendar_preprocess_date_views_pager(&$vars) {
     'attributes' => array('class' => 'inline'),
   );
   $vars['pager_prefix'] = theme('links', $links);
-  $vars['plugin']->view = $view;
-
 }
 
 /**
