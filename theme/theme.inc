@@ -4,7 +4,6 @@
  * @file
  * Theme functions for the Calendar module.
  */
-
 /**
  * Add calendar links above the pager.
  */
@@ -604,6 +603,18 @@ function template_preprocess_calendar_week_multiple_node(&$vars) {
   // create the link to the day
   $vars['link'] = date_pager_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month) .'-'. date_pad($day));
 }
+
+/**
+ * Theme function for rendering views fields as a calendar 'item'.
+ *
+ * $vars['rendered_fields'] = An array of the rendered display of each field in the View.
+ * $vars['item'] = The source data for this item.
+ * $vars['view'] = The view that this item is displayed on.
+ */
+function theme_calendar_fields($vars) {
+  return '<div class="calendar-fields">' . implode('<br />', $vars['rendered_fields']) . '</div>';
+}
+
 
 /**
  * Format the time row headings in the week and day view.

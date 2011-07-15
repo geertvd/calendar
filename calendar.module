@@ -45,6 +45,9 @@ function calendar_theme() {
     'path' => "$module_path/theme",
   );
   return array(
+    'calendar_fields' => $base + array(
+      'variables' => array('view' => NULL, 'rendered_fields' => NULL, 'item' => NULL),
+      ),
     'calendar_datebox' => $base + array(
       'template' => 'calendar-datebox',
       'variables' => array(

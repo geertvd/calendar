@@ -273,16 +273,14 @@ class calendar_plugin_style extends views_plugin_style {
       $this->view->row_index = $row_index;
 
       foreach ($this->row_plugin->render($row) as $item) {
-        $rendered = array();
+        $rendered_fields = array();
         $item_start = date_format($item->calendar_start_date, DATE_FORMAT_DATE);
         $item_end = date_format($item->calendar_end_date, DATE_FORMAT_DATE);
         $time_start = date_format($item->calendar_start_date, 'H:i:s');
         foreach ($keys as $field) {
-          $rendered[] = $this->get_field($row_index, $field);
+          $rendered_fields[] = $this->get_field($row_index, $field);
         }
-        // @TODO I suppose we could provide a setting for how the field items are joined together,
-        // or maybe run it through a .
-        $item->rendered = implode('<br />', $rendered);
+        $item->rendered = theme('calendar_fields', array('view' => $this->view, 'rendered_fields' => $rendered_fields, 'item' => $item));
         $items[$item_start][$time_start][] = $item;
         $this->view->row_index++;
       }
