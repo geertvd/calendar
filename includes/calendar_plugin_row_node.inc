@@ -254,6 +254,7 @@ class calendar_plugin_row_node extends views_plugin_row {
       elseif (!$is_field && !empty($item)) {
         $item_start_date = new dateObject($item, $db_tz);
         $item_end_date   = $item_start_date;
+        $node->date_id = array('calendar.' . $node->nid . '.' . $field_name . '.0');
       }
       
       // If we don't have date value, go no further.
