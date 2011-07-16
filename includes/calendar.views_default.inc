@@ -436,6 +436,8 @@ $handler->display->display_options['arguments']['date_argument']['date_fields'] 
 $handler->display->display_options['arguments']['date_argument']['date_method'] = 'OR';
 $handler->display->display_options['arguments']['date_argument']['date_group'] = 'date';
 
+if (module_exists('calendar_ical')) {
+
 /* Display: iCal */
 $handler = $view->new_display('feed', 'iCal', 'feed_1');
 $handler->display->display_options['pager']['type'] = 'some';
@@ -473,6 +475,8 @@ $handler->display->display_options['displays'] = array(
   'block_1' => 'block_1',
   'default' => 0,
 );
+
+} // End if module_exists()
 
 /* Display: Upcoming */
 $handler = $view->new_display('block', 'Upcoming', 'block_2');
