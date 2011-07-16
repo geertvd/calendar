@@ -615,7 +615,7 @@ function template_preprocess_calendar_week_multiple_node(&$vars) {
  * Fields rendered in multiday containers need to be inline.
  */
 function theme_calendar_fields($vars) {
-  return '<div class="'. $vars['item']->date_class .' calendar contents">' . implode(' ', $vars['rendered_fields']) . '</div>';
+  return theme('calendar_stripe_stripe', $vars) . '<div class="'. $vars['item']->date_class .' calendar contents">' . implode(' ', $vars['rendered_fields']) . '</div>';
 }
 
 /**
@@ -685,7 +685,7 @@ function theme_calendar_stripe_legend() {
  * Format node stripes
  */
 function theme_calendar_stripe_stripe($vars) {
-  $node = $vars['node'];
+  $node = $vars['item'];
   if (empty($node->stripe) || (!count($node->stripe))) {
     return;
   }
