@@ -255,6 +255,8 @@ class calendar_plugin_row_node extends views_plugin_row {
 
       $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
       $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
+      $granularity = 'second';
+      $increment = 1;
 
       if ($is_field) {
 
@@ -271,6 +273,12 @@ class calendar_plugin_row_node extends views_plugin_row {
           $item_start_date = new dateObject($item['value'], $db_tz);
           $item_end_date   = array_key_exists('value2', $item) ? new dateObject($item['value2'], $db_tz) : $item_start_date;
         }
+
+        $cck_field = field_info_field($field_name);
+        $instance = field_info_instance($this->view->base_table, $field_name, $node->type);
+        $granularity = $cck_field['settings']['granularity'];
+        $increment = $instance['widget']['settings']['increment'];
+
       }
       elseif (!$is_field && !empty($item)) {
         $item_start_date = new dateObject($item, $db_tz);
@@ -290,107 +298,118 @@ class calendar_plugin_row_node extends views_plugin_row {
       $event = new stdClass();
       $event->nid = $node->nid;
       $event->title = $node->title;
-      // The theme expects a 'type', so populate the $event->type 
-      // with some value if used later on entities other than nodes.
       $event->type = $node->type;
       $event->date_start = $item_start_date;
       $event->date_end = $item_end_date;
       $event->date_id = $node->date_id[0];
+      $event->db_tz = $db_tz;
+      $event->to_zone = $to_zone;
+      $event->granularity = $granularity;
+      $event->increment = $increment;
       $event->field = $is_field ? $item : NULL;
       $event->row = $row;
       $event->node = $node;
 
-      // Now that we have a 'node' for each view result, we need 
-      // to remove anything outside the view date range,
-      // and possibly create additional nodes so that we have a 'node' 
-      // for each day that this item occupies in this view.
-      $now = max($date_info->min_zone_string, $item_start_date->format(DATE_FORMAT_DATE));
-      $to  = min($date_info->max_zone_string, $item_end_date->format(DATE_FORMAT_DATE));
-      $next = new DateObject($now . ' 00:00:00', $date_info->display_timezone);
-      if ($date_info->display_timezone_name != $to_zone) {
-        // Make $start and $end (derived from $node) use the timezone $to_zone, just as the original dates do.
-        date_timezone_set($next, timezone_open($to_zone));
+      $nodes = $this->explode_values($event);
+      foreach ($nodes as $node) {
+        switch ($this->options['colors']['legend']) {
+          case 'type':
+            $this->calendar_node_type_stripe($node);
+            break;
+          case 'taxonomy':
+            $this->calendar_node_taxonomy_stripe($node);
+            break;
+          case 'group':
+            $this->calendar_node_group_stripe($node);
+            break;
+        }
+        $rows[] = $node;
       }
-      if (empty($to) || $now > $to) {
-        $to = $now;
+
+    }
+    return $rows;
+  }
+
+  function explode_values($event) {
+    $rows = array();
+
+    $date_info = $this->date_argument->view->date_info;    
+    $item_start_date = $event->date_start;
+    $item_end_date = $event->date_end;
+    $to_zone = $event->to_zone;
+    $db_tz = $event->db_tz;
+    $granularity = $event->granularity;
+    $increment = $event->increment;
+
+    // Now that we have a 'node' for each view result, we need 
+    // to remove anything outside the view date range,
+    // and possibly create additional nodes so that we have a 'node' 
+    // for each day that this item occupies in this view.
+    $now = max($date_info->min_zone_string, $item_start_date->format(DATE_FORMAT_DATE));
+    $to  = min($date_info->max_zone_string, $item_end_date->format(DATE_FORMAT_DATE));
+    $next = new DateObject($now . ' 00:00:00', $date_info->display_timezone);
+    if ($date_info->display_timezone_name != $to_zone) {
+      // Make $start and $end (derived from $node) use the timezone $to_zone, just as the original dates do.
+      date_timezone_set($next, timezone_open($to_zone));
+    }
+    if (empty($to) || $now > $to) {
+      $to = $now;
+    }
+    // $now and $next are midnight (in display timezone) on the first day where node will occur.
+    // $to is midnight on the last day where node will occur.
+    // All three were limited by the min-max date range of the view.
+    $pos = 0;
+    while (!empty($now) && $now <= $to) {
+      $node = clone($event);
+      $node->url = url('node/' . $node->nid, array('absolute' => TRUE));
+
+      // Get start and end of current day.
+      $start = $next->format(DATE_FORMAT_DATETIME);
+      date_modify($next, '+1 day');
+      date_modify($next, '-1 second');
+      $end = $next->format(DATE_FORMAT_DATETIME);
+
+      // Get start and end of item, formatted the same way.
+      $item_start = $item_start_date->format(DATE_FORMAT_DATETIME);
+      $item_end = $item_end_date->format(DATE_FORMAT_DATETIME);
+
+      // Get intersection of current day and the node value's duration (as strings in $to_zone timezone).
+      $node->calendar_start = $item_start < $start ? $start : $item_start;
+      $node->calendar_end = !empty($item_end) ? ($item_end > $end ? $end : $item_end) : $node->calendar_start;
+      
+      // Make date objects
+      $node->calendar_start_date = date_create($node->calendar_start, timezone_open($to_zone));
+      $node->calendar_end_date = date_create($node->calendar_end, timezone_open($to_zone));
+
+      // Change string timezones into 
+      // calendar_start and calendar_end are UTC dates as formatted strings
+      $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
+      $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
+
+      $node->calendar_all_day = date_is_all_day($node->calendar_start, $node->calendar_end, $granularity, $increment);
+
+      // Change string timezones into 
+      // calendar_start and calendar_end are UTC dates as formatted strings
+      $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
+      $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
+
+      unset($node->calendar_fields);
+      if (isset($node) && (empty($node->calendar_start))) {
+        // if no date for the node and no date in the item
+        // there is no way to display it on the calendar
+        unset($node);
       }
-      // $now and $next are midnight (in display timezone) on the first day where node will occur.
-      // $to is midnight on the last day where node will occur.
-      // All three were limited by the min-max date range of the view.
-      $pos = 0;
-      while (!empty($now) && $now <= $to) {
-        $node = clone($event);
-        $node->url = url('node/' . $node->nid, array('absolute' => TRUE));
-
-        // Get start and end of current day.
-        $start = $next->format(DATE_FORMAT_DATETIME);
-        date_modify($next, '+1 day');
-        date_modify($next, '-1 second');
-        $end = $next->format(DATE_FORMAT_DATETIME);
-
-        // Get start and end of item, formatted the same way.
-        $item_start = $item_start_date->format(DATE_FORMAT_DATETIME);
-        $item_end = $item_end_date->format(DATE_FORMAT_DATETIME);
-
-        // Get intersection of current day and the node value's duration (as strings in $to_zone timezone).
-        $node->calendar_start = $item_start < $start ? $start : $item_start;
-        $node->calendar_end = !empty($item_end) ? ($item_end > $end ? $end : $item_end) : $node->calendar_start;
+      else {
+        $node->date_id .= '.' . $pos;
         
-        // Make date objects
-        $node->calendar_start_date = date_create($node->calendar_start, timezone_open($to_zone));
-        $node->calendar_end_date = date_create($node->calendar_end, timezone_open($to_zone));
-
-        // Change string timezones into 
-        // calendar_start and calendar_end are UTC dates as formatted strings
-        $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
-        $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
-
-        $granularity = 'second';
-        $increment = 1;
-        if ($is_field) {
-          $cck_field = field_info_field($field_name);
-          $instance = field_info_instance($this->view->base_table, $field_name, $node->type);
-          $granularity = $cck_field['settings']['granularity'];
-          $increment = $instance['widget']['settings']['increment'];
-        }
-
-        $node->calendar_all_day = date_is_all_day($node->calendar_start, $node->calendar_end, $granularity, $increment);
-
-        // Change string timezones into 
-        // calendar_start and calendar_end are UTC dates as formatted strings
-        $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
-        $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
-
-        unset($node->calendar_fields);
-        if (isset($node) && (empty($node->calendar_start))) {
-          // if no date for the node and no date in the item
-          // there is no way to display it on the calendar
-          unset($node);
-        }
-        else {
-          // Add legend stripes, if called for.
-          switch ($this->options['colors']['legend']) {
-            case 'type':
-              $this->calendar_node_type_stripe($node);
-              break;
-            case 'taxonomy':
-              $this->calendar_node_taxonomy_stripe($node);
-              break;
-            case 'group':
-              $this->calendar_node_group_stripe($node);
-              break;
-          }
-          $node->date_id .= '.' . $pos;
-          
-          $rows[] = $node;
-          unset($node);
-        }
-
-        date_modify($next, '+1 second');
-        $now = date_format($next, DATE_FORMAT_DATE);  
-        $pos++;    
-
+        $rows[] = $node;
+        unset($node);
       }
+
+      date_modify($next, '+1 second');
+      $now = date_format($next, DATE_FORMAT_DATE);  
+      $pos++;    
+
     }
     return $rows;
   }

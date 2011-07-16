@@ -614,8 +614,8 @@ function template_preprocess_calendar_week_multiple_node(&$vars) {
  * @TODO We need some options about how to combine rendered fields.
  * Fields rendered in multiday containers need to be inline.
  */
-function theme_calendar_fields($vars) {
-  return theme('calendar_stripe_stripe', $vars) . '<div class="'. $vars['item']->date_class .' calendar contents">' . implode(' ', $vars['rendered_fields']) . '</div>';
+function template_preprocess_calendar_item(&$vars) {
+
 }
 
 /**
@@ -682,19 +682,19 @@ function theme_calendar_stripe_legend() {
 }
 
 /**
- * Format node stripes
+ * Format item stripes
  */
 function theme_calendar_stripe_stripe($vars) {
-  $node = $vars['item'];
-  if (empty($node->stripe) || (!count($node->stripe))) {
+  $item = $vars['item'];
+  if (empty($item->stripe) || (!count($item->stripe))) {
     return;
   }
   $output = '';
-  if (is_array($node->stripe_label)) {
-    foreach ($node->stripe_label as $k => $stripe_label) {
-      if (!empty($node->stripe[$k]) && !empty($stripe_label)) {
-        $GLOBALS['calendar_stripes'][$stripe_label] = $node->stripe[$k];
-        $output .= '<div style="background-color:' . $node->stripe[$k] . ';color:' . $node->stripe[$k] . '" class="stripe" title="Key: ' . $node->stripe_label[$k] . '">&nbsp;</div>' . "\n";
+  if (is_array($item->stripe_label)) {
+    foreach ($item->stripe_label as $k => $stripe_label) {
+      if (!empty($item->stripe[$k]) && !empty($stripe_label)) {
+        $GLOBALS['calendar_stripes'][$stripe_label] = $item->stripe[$k];
+        $output .= '<div style="background-color:' . $item->stripe[$k] . ';color:' . $item->stripe[$k] . '" class="stripe" title="Key: ' . $item->stripe_label[$k] . '">&nbsp;</div>' . "\n";
       }
     }
   }
