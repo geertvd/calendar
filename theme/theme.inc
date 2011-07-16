@@ -612,9 +612,8 @@ function template_preprocess_calendar_week_multiple_node(&$vars) {
  * $vars['view'] = The view that this item is displayed on.
  */
 function theme_calendar_fields($vars) {
-  return '<div class="calendar-fields">' . implode('<br />', $vars['rendered_fields']) . '</div>';
+  return '<div class="'. $vars['item']->class .' contents">' . implode('<br />', $vars['rendered_fields']) . '</div>';
 }
-
 
 /**
  * Format the time row headings in the week and day view.
