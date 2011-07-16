@@ -221,8 +221,7 @@ class calendar_plugin_row_node extends views_plugin_row {
       $tz_handling = $info['tz_handling'];
       $tz_field    = $info['timezone_field'];
       $rrule_field = $info['rrule_field'];
-      
-      $is_field = !empty($delta_field);
+      $is_field = substr($info['real_field_name'], 0, 6) == 'field_';
      
       // Retrieve the field value that matched our query from the cached node.
       // Find the date and set it to the right timezone.  
