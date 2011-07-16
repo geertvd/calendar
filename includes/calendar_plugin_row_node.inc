@@ -201,13 +201,13 @@ class calendar_plugin_row_node extends views_plugin_row {
         if ($handler->definition['handler'] != 'date_views_argument_handler') {
           $alias = $handler->table_alias . '.' . $handler->field;
           $info = $data[$alias];
-          $field_name  = str_replace(array('_value', '_value2'), '', $info['real_field_name']);
+          $field_name  = str_replace(array('_value2', '_value'), '', $info['real_field_name']);
           $date_fields[$field_name] = $info;
         }
         else {
           foreach ($handler->options['date_fields'] as $alias) {
             $info = $data[$alias];
-            $field_name  = str_replace(array('_value', '_value2'), '', $info['real_field_name']);
+            $field_name  = str_replace(array('_value2', '_value'), '', $info['real_field_name']);
             $date_fields[$field_name] = $info;
           }
         }
