@@ -610,9 +610,12 @@ function template_preprocess_calendar_week_multiple_node(&$vars) {
  * $vars['rendered_fields'] = An array of the rendered display of each field in the View.
  * $vars['item'] = The source data for this item.
  * $vars['view'] = The view that this item is displayed on.
+ * 
+ * @TODO We need some options about how to combine rendered fields.
+ * Fields rendered in multiday containers need to be inline.
  */
 function theme_calendar_fields($vars) {
-  return '<div class="'. $vars['item']->date_class .' calendar contents">' . implode('<br />', $vars['rendered_fields']) . '</div>';
+  return '<div class="'. $vars['item']->date_class .' calendar contents">' . implode(' ', $vars['rendered_fields']) . '</div>';
 }
 
 /**
