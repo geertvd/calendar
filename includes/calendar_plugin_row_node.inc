@@ -274,7 +274,6 @@ class calendar_plugin_row_node extends views_plugin_row {
       $event->date_start = $item_start_date;
       $event->date_end = $item_end_date;
       $event->date_id = $node->date_id[0];
-      $event->class = implode(' ', array($event->date_id, 'calendar', $date_info->granularity . 'view'));
       $event->field = $is_field ? $item : NULL;
       $event->row = $row;
 

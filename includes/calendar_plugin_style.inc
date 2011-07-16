@@ -273,6 +273,7 @@ class calendar_plugin_style extends views_plugin_style {
       $this->view->row_index = $row_index;
 
       foreach ($this->row_plugin->render($row) as $item) {
+        $item->date_class = implode(' ', array($item->date_id, $this->date_info->granularity . 'view'));      
         $rendered_fields = array();
         $item_start = date_format($item->calendar_start_date, DATE_FORMAT_DATE);
         $item_end = date_format($item->calendar_end_date, DATE_FORMAT_DATE);
