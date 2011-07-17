@@ -5,7 +5,6 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
-- Issue #1207392 Set Set the default value for date_first_day to 0 to conform with the core default value.
 
 Starting new branch with a total rework of Calendar, using a Views pager plugin for the back/next navigation, 
 a row plugin to explode the view results into calendar day items, and a style plugin to disply the results in a calendar.
@@ -16,6 +15,36 @@ Version 7.x-3.0-alpha1
 
 Initial release of 7.3 branch.
 
+- Issue #1207392 Set Set the default value for date_first_day to 0 to conform with the core default value.
+- Note that the row plugin will need adjustment if the date is coming in through a relationship.
+- Fix broken logic for determining the field name, didn't work right when looking for value2.
+- Add a template for the item view, split the row processing out into the basic processing and a separate function for exploding a single item into the multiple values that may be needed in a calendar.
+- Issue #1161632 Rework the logic for creating striping based on taxonomy.
+- Rename the item class holder and shift responsibility for the item class to the style plugin.
+- Add class needed for overlap backgrounds.
+- Issue #1220346 Add if module_exists('calendar_ical') to the ical part of the default view.
+- Issue #1220376 Code wasn't correctly identifying fields that didn't use delta.
+- Get rid of notice about wrong value for content type.
+- Remove display extender, we're not going to use that.
+- Add a theme for the calendar field display to make it easier to override.
+- Add new calendar view that uses all these new handlers and plugins. Anything using the default view will have to be reverted to pick up these changes.
+- Make sure that all items have an id, even if not fields.
+- Set up the calendar to display field values rather than the node view.
+- More tweaks to the calendar display links, we can't use pager links for those or the base argument is structured incorrectly for our pager's attempt to swap new values in. Also found some more references to  that needed to be switched to ->curday.
+- Get the mini month displaying the links for days with events.
+- Add some validation to the style plugin. Prevent the invalid combination of overlapping items and missing groupby times. That creates an endless fatal loop.
+- All day rows need to have rendered content in them.
+- Make sure that the month names in the year view link to the month, not the year, display.
+- Fix the legend block and a wrong name in the ical class.
+- Make sure each of the links use the right pager identifier.
+- Rework the year view to manage the month titles better.
+- Add missing view info in ical theme.
+- Add calendar links and style them better.
+- Move the stripe options and functions into the row plugin, they are all specific to the content type, so they belong there rather than in the style.
+- Clean up mini calendar processing, start to add the stripe handling back in.
+- Add in the overlap templates needed for the multiday display.
+- More rework of calendar into a row plugin, a style plugin, and a pager plugin.
+- Start the process of reworking the main calendar to use row plugins to massage the nodes and style plugins to disply the calendar.
 
 ===================
 Version 7.x-2.x-dev

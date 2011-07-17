@@ -560,7 +560,7 @@ table.calendar-legend tr.even .stripe {
 .calendar-calendar .month-view .full td.single-day div.monthview,
 .calendar-calendar .week-view .full td.single-day div.weekview,
 .calendar-calendar .day-view .full td.single-day div.dayview {
-  background : #FFD8C0;
+  background : #ffc;
   width : auto;
   padding : 0px 3px;
   overflow : hidden;
