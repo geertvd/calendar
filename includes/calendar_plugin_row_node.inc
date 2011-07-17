@@ -174,6 +174,10 @@ class calendar_plugin_row_node extends views_plugin_row {
 
   function pre_render($values) {
 
+    // @TODO When the date is coming in through a relationship, the nid
+    // of the view is not the right node to use, then we need the related node.
+    // Need to sort out how that should be handled.
+
     // Preload each node used in this view from the cache.
     // Provides all the node values relatively cheaply, and we don't
     // need to do it repeatedly for the same node if there are
