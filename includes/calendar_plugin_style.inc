@@ -354,7 +354,7 @@ class calendar_plugin_style extends views_plugin_style {
       $today = date_format(date_now(date_default_timezone()), DATE_FORMAT_DATE);
       $month = date_format($this->curday, 'n');
       $week = date_week($curday_date);
-      $first_day = variable_get('date_first_day', 1);
+      $first_day = variable_get('date_first_day', 0);
       $week_rows = $this->calendar_build_week(TRUE);
       $multiday_buckets = $week_rows['multiday_buckets'];
       $singleday_buckets = $week_rows['singleday_buckets'];
@@ -590,7 +590,7 @@ class calendar_plugin_style extends views_plugin_style {
     $curday_date = date_format($this->curday, DATE_FORMAT_DATE);
     $weekdays = calendar_untranslated_days($this->items, $this->view);
     $month = date_format($this->curday, 'n');
-    $first_day = variable_get('date_first_day', 1);
+    $first_day = variable_get('date_first_day', 0);
   
     // Set up buckets
     $total_rows = 0;
@@ -892,7 +892,7 @@ class calendar_plugin_style extends views_plugin_style {
     $today = date_format(date_now(date_default_timezone()), DATE_FORMAT_DATE);
     $month = date_format($this->curday, 'n');
     $week = date_week($curday_date);
-    $first_day = variable_get('date_first_day', 1);
+    $first_day = variable_get('date_first_day', 0);
     // move backwards to the first day of the week
     $day_wday = date_format($this->curday, 'w');
     date_modify($this->curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
