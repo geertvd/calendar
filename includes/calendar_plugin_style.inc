@@ -636,9 +636,10 @@ class calendar_plugin_style extends views_plugin_style {
     $max_events = !empty($this->date_info->style_max_items) ? $this->date_info->style_max_items : 0;
     $hide = !empty($this->date_info->style_max_items_behavior) ? ($this->date_info->style_max_items_behavior == 'hide') : FALSE;
     $multiday_theme = !empty($this->date_info->style_multiday_theme) && $this->date_info->style_multiday_theme == '1';
+    $first_day = variable_get('date_first_day', 0);
     $cur_cnt = 0;
     $total_cnt = 0;
-    $types = array();
+    $ids = array();
   
     // If we are hiding, count before processing further
     if ($max_events != CALENDAR_SHOW_ALL) {
@@ -647,11 +648,7 @@ class calendar_plugin_style extends views_plugin_style {
           foreach ($day as $time => $hour) {
             foreach ($hour as $key => $item) {
               $total_cnt++;
-              // @TODO $node->type may or may not exist any more, or be relevant.
-              // Dig into the theme code to either remove it or get it working differently.
-              if (isset($item->type)) {
-                $types[$item->type] = $item;
-              }
+              $ids[] = $item->date_id;
             }
           }
         }
@@ -666,7 +663,6 @@ class calendar_plugin_style extends views_plugin_style {
           $cur_cnt++;
         }
       }
-      
       foreach ($this->items as $date => $day) {
         if ($date == $curday_date) {
           $count = 0;
@@ -677,7 +673,6 @@ class calendar_plugin_style extends views_plugin_style {
               // Can we add an item?
               if ($max_events == CALENDAR_SHOW_ALL || $cur_cnt <= $max_events) {
                 $all_day = $item->calendar_start_date == $item->calendar_end_date;
-                //$theme = isset($item->calendar_node_theme) ? $item->calendar_node_theme : 'calendar_'. $this->date_info->granularity .'_node';
   
                 // Parse out date part
                 $start_ydate = date_format($item->date_start, DATE_FORMAT_DATE);
@@ -693,7 +688,6 @@ class calendar_plugin_style extends views_plugin_style {
                   $day_no = date_format($this->curday, 'd');
                   if ($wday == 0 || $start_ydate == $cur_ydate || ($this->date_info->granularity == 'month' && $day_no == 1) || ($all_day && !$is_multi_day)) {
                     $cur_cnt++;
-  
                     // Calculate the colspan for this event
   
                     // If the last day of this event exceeds the end of the current month or week,
@@ -704,7 +698,7 @@ class calendar_plugin_style extends views_plugin_style {
                     $days = $this->curday->difference($item->date_end, 'days');
                     $bucket_cnt = max(0, min($days, $remaining_days));
   
-                    // See if there is an avaiable slot to add an event.  This will allow
+                    // See if there is an available slot to add an event.  This will allow
                     // an event to precede a row filled up by a previous day event
                     $avail = FALSE;
                     $bucket_index = count($multiday_buckets[$wday]);
@@ -787,7 +781,7 @@ class calendar_plugin_style extends views_plugin_style {
           'curday' => $curday_date, 
           'count' => $total_cnt, 
           'view' => $this->view, 
-          'types' => $types,
+          'ids' => $ids,
         )),
         'more_link' => TRUE,
         'item' => NULL

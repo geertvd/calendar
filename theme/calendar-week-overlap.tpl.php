@@ -24,8 +24,6 @@
  * 
  */
 //dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_formatted);
-//dsm($rows);
-//dsm($items);
 ?>
 
 <div class="calendar-calendar"><div class="week-view">

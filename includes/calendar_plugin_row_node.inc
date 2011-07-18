@@ -305,15 +305,17 @@ class calendar_plugin_row_node extends views_plugin_row {
       $event->type = $node->type;
       $event->date_start = $item_start_date;
       $event->date_end = $item_end_date;
-      $event->date_id = $node->date_id[0];
       $event->db_tz = $db_tz;
       $event->to_zone = $to_zone;
-      $event->granularity = $granularity;
+      $event->granularity = date_granularity_precision($granularity);
       $event->increment = $increment;
       $event->field = $is_field ? $item : NULL;
       $event->row = $row;
       $event->node = $node;
 
+      // All calendar row plugins should provide a date_id that the theme can use.
+      $event->date_id = $node->date_id[0];
+      
       $nodes = $this->explode_values($event);
       foreach ($nodes as $node) {
         switch ($this->options['colors']['legend']) {
@@ -389,7 +391,6 @@ class calendar_plugin_row_node extends views_plugin_row {
       // calendar_start and calendar_end are UTC dates as formatted strings
       $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
       $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
-
       $node->calendar_all_day = date_is_all_day($node->calendar_start, $node->calendar_end, $granularity, $increment);
 
       // Change string timezones into 
