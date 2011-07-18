@@ -57,7 +57,7 @@ function calendar_preprocess_date_views_pager(&$vars) {
   // Append the calendar links above the pager.
   $links = array(
     'links' => $calendar_links, 
-    'attributes' => array('class' => 'inline'),
+    'attributes' => array('class' => array('calendar-links', 'inline')),
   );
   $vars['pager_prefix'] = theme('links', $links);
 }

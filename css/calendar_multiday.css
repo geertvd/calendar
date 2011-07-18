@@ -793,7 +793,6 @@ table.calendar-legend tr.even .stripe {
   top : 0px;
   text-align : center;
   z-index : 0;
-  float : none;
 }
 
 .view .date-nav-wrapper .date-heading h3 {
@@ -861,8 +860,8 @@ table.calendar-legend tr.even .stripe {
   width:auto;
 }
 
-.region-content .date-nav-wrapper ul, 
-.region-content .date-nav-wrapper ol {
+ul.calendar-links,
+.region-content ul.calendar-links {
   margin:0;
   padding:0;
 }
