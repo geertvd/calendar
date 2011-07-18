@@ -15,6 +15,7 @@ Version 7.x-3.0-alpha1
 
 Initial release of 7.3 branch.
 
+- Fix broken ical icon.
 - Fix broken day overlap theme template.
 - Fix some granularity handling, note that all calendar row plugins must provide a date_id value.
 - Swap in a light yellow for the peach background color.
