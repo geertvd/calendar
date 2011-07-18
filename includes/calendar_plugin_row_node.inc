@@ -410,7 +410,6 @@ class calendar_plugin_row_node extends views_plugin_row {
         $rows[] = $node;
         unset($node);
       }
-
       date_modify($next, '+1 second');
       $now = date_format($next, DATE_FORMAT_DATE);  
       $pos++;    

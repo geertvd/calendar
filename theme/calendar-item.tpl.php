@@ -40,7 +40,8 @@
  */
 $index = 0;
 ?>
-<div class="view-item view-item-<?php print $view->name ?>">
+<div class="<?php print $item->class; ?>">
+  <div class="view-item view-item-<?php print $view->name ?>">
   <div class="calendar <?php print $item->granularity; ?>view">
     <?php print theme('calendar_stripe_stripe', array('item' => $item)); ?>
     <div class="<?php print $item->date_id ?> contents">
@@ -56,5 +57,6 @@ $index = 0;
     <?php else : ?>
     <div class="cutoff">&nbsp;</div>
     <?php endif;?>
-  </div>    
+  </div> 
+  </div>   
 </div>

@@ -281,7 +281,7 @@ class calendar_plugin_style extends views_plugin_style {
         foreach ($keys as $field) {
           $rendered_fields[] = $this->get_field($row_index, $field);
         }
-        $item->rendered = theme('calendar_item', array('view' => $this->view, 'rendered_fields' => $rendered_fields, 'item' => $item));
+        $item->rendered_fields = $rendered_fields;
         $items[$item_start][$time_start][] = $item;
         $this->view->row_index++;
       }
@@ -722,7 +722,7 @@ class calendar_plugin_style extends views_plugin_style {
                       'all_day' => $all_day,
                       'item' => $item,
                       'wday' => $wday,
-                      'entry' => $item->rendered,
+                      'entry' => theme('calendar_item', array('view' => $this->view, 'rendered_fields' => $item->rendered_fields, 'item' => $item)),
                     );
   
                     // Block out empty buckets for the next days in this event for this week
@@ -755,7 +755,7 @@ class calendar_plugin_style extends views_plugin_style {
                   $cur_cnt++;
                   // Assign to single day bucket
                   $singleday_buckets[$wday][$time][] = array(
-                    'entry' => $item->rendered,
+                    'entry' => theme('calendar_item', array('view' => $this->view, 'rendered_fields' => $item->rendered_fields, 'item' => $item)),
                     'item' => $item,
                     'colspan' => 1,
                     'rowspan' => 1,

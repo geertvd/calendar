@@ -239,7 +239,7 @@ function template_preprocess_calendar_day(&$vars) {
     else {
       $column = t('Items');
     }
-    $grouped_items[$column][] = $item->rendered;
+    $grouped_items[$column][] = theme('calendar_item', array('view' => $this->view, 'rendered_fields' => $item->rendered_fields, 'item' => $item));
     $item_count++;
   }
   $vars['rows']['all_day'] = $grouped_items;
@@ -254,7 +254,7 @@ function template_preprocess_calendar_day(&$vars) {
   $grouped_items = array();
   foreach ($rows['items'] as &$items) {
     foreach ($items as &$item) {
-      $time = date_format($item->date_start, 'H:i:s');
+      $time = date_format($item->calendar_start_date, 'H:i:s');
       if (isset($item->{$grouping_field})) {
         $column = $item->{$grouping_field};
         $item->{$grouping_field} = ''; // Remove the grouping field from the results.
@@ -276,7 +276,7 @@ function template_preprocess_calendar_day(&$vars) {
       }
       $grouped_items[$start_time]['values'][$column][] = $item;
       if ($display_overlap) {
-        $time_end = date_format($item->date_end, 'H:i:s');
+        $time_end = date_format($item->calendar_end_date, 'H:i:s');
         $item->time_start = $time;
         $item->time_end = $time_end; 
         _calc_indents($overlapped_items, $time, $time_end, $item);
@@ -318,14 +318,14 @@ function template_preprocess_calendar_day(&$vars) {
     foreach ($grouped_items[$start_time]['values'] as $column => &$items) {
       foreach ($items as $index => &$item) {
         if ($display_overlap) {
-          $offset = round(date_format($item->date_start, 'i') / 15);
+          $offset = round(date_format($item->calendar_start_date, 'i') / 15);
           $end = new DateObject('1970-01-01 ' . $item->time_end);
           $start = new DateObject('1970-01-01 ' . $item->time_start);
           $duration = $end->difference($start);
           $duration = round($duration / (15 * 60));
           $item->class = 'd_'. $duration . ' o_'. $offset . ' i_' . $item->indent . ' md_' . min($item->max_depth, 5);
         }
-        $grouped_items[$start_time]['values'][$column][$index] = $item->rendered;
+        $grouped_items[$start_time]['values'][$column][$index] = theme('calendar_item', array('view' => $view, 'rendered_fields' => $item->rendered_fields, 'item' => $item));
       } 
     }
     $i++;      
@@ -615,7 +615,7 @@ function template_preprocess_calendar_week_multiple_node(&$vars) {
  * Fields rendered in multiday containers need to be inline.
  */
 function template_preprocess_calendar_item(&$vars) {
-
+ 
 }
 
 /**

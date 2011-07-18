@@ -41,7 +41,8 @@ removed). Then clone it and make the following changes:
 After you have made these changes, go to the Views Tools tab and clear the Views 
 caches. Also go to admin/config/regional/settings, make sure the right
 first day of the week is selected, and resubmit that page even if you
-don't make any changes.
+don't make any changes. That step is to fix a bug that might have set that date
+to the wrong value.
 
 After that your new views should work correctly and you can try out the
 new settings to make whatever additional changes you like.
