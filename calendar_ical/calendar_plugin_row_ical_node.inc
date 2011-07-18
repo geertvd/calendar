@@ -32,11 +32,10 @@ class calendar_plugin_row_ical_node extends views_plugin_row {
     $options = array();
     foreach ($data['name'] as $item => $value) {
       // We only want to see one value for each field, skip '_value2', and other columns.
-      if (str_replace('.', '_', $item) == $value['fromto'][0]) {
+      if ($item == $value['fromto'][0]) {
         $options[$item] = $value['label'];
       }
     }
-
     $form['date_field'] = array(
       '#type' => 'select',
       '#title' => t('Date field'),
@@ -60,7 +59,6 @@ class calendar_plugin_row_ical_node extends views_plugin_row {
 
   function render($row) {
     global $base_url;
-
     $nid = $row->{$this->field_alias};
     if (!is_numeric($nid)) {
       return;
@@ -74,7 +72,6 @@ class calendar_plugin_row_ical_node extends views_plugin_row {
 
     $data = date_views_fields('node');
     $info = $data['name'][$this->options['date_field']];
-
     $field_name  = str_replace(array('_value', '_value2'), '', $info['real_field_name']);
     $table_name  = $info['table_name'];
     $delta_field = $info['delta_field'];
