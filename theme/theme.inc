@@ -239,7 +239,7 @@ function template_preprocess_calendar_day(&$vars) {
     else {
       $column = t('Items');
     }
-    $grouped_items[$column][] = theme('calendar_item', array('view' => $this->view, 'rendered_fields' => $item->rendered_fields, 'item' => $item));
+    $grouped_items[$column][] = theme('calendar_item', array('view' => $view, 'rendered_fields' => $item->rendered_fields, 'item' => $item));
     $item_count++;
   }
   $vars['rows']['all_day'] = $grouped_items;
