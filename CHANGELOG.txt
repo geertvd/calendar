@@ -16,6 +16,8 @@ Version 7.x-3.0-alpha1
 Initial release of 7.3 branch.
 
 - Fix broken day overlap theme template.
+- Fix some granularity handling, note that all calendar row plugins must provide a date_id value.
+- Swap in a light yellow for the peach background color.
 - Issue #1207392 Set Set the default value for date_first_day to 0 to conform with the core default value.
 - Note that the row plugin will need adjustment if the date is coming in through a relationship.
 - Fix broken logic for determining the field name, didn't work right when looking for value2.
