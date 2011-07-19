@@ -832,6 +832,7 @@ class calendar_plugin_style extends views_plugin_style {
       }
     }
     ksort($inner);
+
     if (empty($inner) && empty($all_day)) {
       $empty = theme('calendar_empty_day', array('curday' => $curday_date, 'view' => $this->view));
     }

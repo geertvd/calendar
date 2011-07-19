@@ -203,7 +203,7 @@ function template_preprocess_calendar_day(&$vars) {
   $item_count = 0;
   $by_hour_count = 0;
   $grouping_field = $view->date_info->style_groupby_field;
-  $display_overlap = $view->date_info->style_theme_style == '1';
+  $display_overlap = !empty($view->date_info->style_theme_style) && !empty($view->date_info->style_groupby_times);
 
   // Add optional css
   if ($display_overlap) {
