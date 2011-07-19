@@ -202,12 +202,17 @@ class calendar_plugin_style extends views_plugin_style {
 
   function render() {
     if (empty($this->row_plugin) || $this->row_plugin->definition['handler'] != 'calendar_plugin_row_node') {
-      debug('views_plugin_style_default: Missing calendar row plugin');
+      debug('calendar_plugin_style: Missing calendar row plugin');
       return;
     }
     if (!$argument = $this->date_argument_handler()) {
-      debug('views_plugin_style_default: Missing date argument');
+      debug('calendar_plugin_style: Missing date argument');
       return;
+    }
+
+    if (empty($argument->min_date)) {
+      //debug('calendar_plugin_style: Empty date argument');
+      return;      
     }
 
     // Add information from the date argument to the view.
