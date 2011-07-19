@@ -280,7 +280,7 @@ class calendar_plugin_row_node extends views_plugin_row {
 
         $cck_field = field_info_field($field_name);
         $instance = field_info_instance($this->view->base_table, $field_name, $node->type);
-        $granularity = $cck_field['settings']['granularity'];
+        $granularity = date_granularity_precision($cck_field['settings']['granularity']);
         $increment = $instance['widget']['settings']['increment'];
 
       }
@@ -307,7 +307,7 @@ class calendar_plugin_row_node extends views_plugin_row {
       $event->date_end = $item_end_date;
       $event->db_tz = $db_tz;
       $event->to_zone = $to_zone;
-      $event->granularity = date_granularity_precision($granularity);
+      $event->granularity = $granularity;
       $event->increment = $increment;
       $event->field = $is_field ? $item : NULL;
       $event->row = $row;
