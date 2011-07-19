@@ -15,8 +15,10 @@ Version 7.x-3.0-alpha1
 
 Initial release of 7.3 branch.
 
+- Set default day view to use agenda style.
 - Add back calendar_remove() function used by Date Tools to remove default calendars.
 - Re-arrange the default view so the month is first.
+- Fix granularity setting in row so it works right for both field dates and system dates.
 - Fix broken ical field options field.
 - Fix broken ical icon.
 - Adding a calendar-links class to make theming easier.
