@@ -15,6 +15,7 @@ Version 7.x-3.0-alpha1
 
 Initial release of 7.3 branch.
 
+- Issue #1222736 Fix export errors caused when previous export fix of using export plugins got broken by changes in Views.
 - Set default day view to use agenda style.
 - Add back calendar_remove() function used by Date Tools to remove default calendars.
 - Re-arrange the default view so the month is first.

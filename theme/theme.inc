@@ -27,7 +27,8 @@ function calendar_preprocess_date_views_pager(&$vars) {
     if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
       $path = $display->display_options['path'];
       $title = $display->display_title;
-      $type = $display->display_options['style_options']['calendar_type'];
+      // @TODO Why is this sometimes empty for a style that uses the default value?
+      $type = !empty($display->display_options['style_options']['calendar_type']) ? $display->display_options['style_options']['calendar_type'] : 'month';
 
       // Make sure the links to other calendar displays use the right path for that display.
       // Get rid of pager links when swapping between displays to force the base argument 

@@ -195,7 +195,8 @@ function calendar_block_view($delta = '') {
 function calendar_granularity_path(&$view, $granularity) {
   foreach($view->display as $id => $display) {
     if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
-      $type = $display->display_options['style_options']['calendar_type'];
+      // @TODO Why is this sometimes empty for a style that uses the default value?
+      $type = !empty($display->display_options['style_options']['calendar_type']) ? $display->display_options['style_options']['calendar_type'] : 'month';
       if ($type == $granularity) {
         return $display->display_options['path'];
       }
