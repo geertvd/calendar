@@ -15,6 +15,8 @@ Version 7.x-3.0-alpha1
 
 Initial release of 7.3 branch.
 
+- Issue #1223500 Fix the day link in the year view to point to the day view rather than the year view.
+- Add the date sort field to the default view so upcoming events sort correctly.
 - Change the default setting for the day view and make sure that the style does not try to create overlap items if it is missing the groupby value (which the default view was doing.)
 - Issue #1168672 Temporary workaround for missing date info in calendar style. Still need a smarter fix.
 - Issue #1222736 Fix export errors caused when previous export fix of using export plugins got broken by changes in Views.
