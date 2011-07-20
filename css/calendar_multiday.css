@@ -298,6 +298,7 @@ table.calendar-legend tr.even .stripe {
 .calendar-calendar td.empty {
   background:#ccc;
   border-color:#ccc;
+  color:#cc9;
 }
 .calendar-calendar table.mini td.empty {
   background:#fff;
