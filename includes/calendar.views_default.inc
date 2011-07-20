@@ -230,7 +230,22 @@ foreach ($date_fields as $field_name) {
     $handler->display->display_options['fields'][$field_name]['delta_offset'] = '0';
     $handler->display->display_options['fields'][$field_name]['delta_reversed'] = 0;
     $handler->display->display_options['fields'][$field_name]['field_api_classes'] = 0;
+
+    /* Sort criterion */
+    $handler->display->display_options['sorts'][$field_name . '_value']['id'] = $field_name . '_value';
+    $handler->display->display_options['sorts'][$field_name . '_value']['table'] = $table;
+    $handler->display->display_options['sorts'][$field_name . '_value']['field'] = $field_name . '_value';
+
   }
+  else {
+
+    /* Sort criterion */
+    $handler->display->display_options['sorts'][$field_name]['id'] = $field_name;
+    $handler->display->display_options['sorts'][$field_name]['table'] = $table;
+    $handler->display->display_options['sorts'][$field_name]['field'] = $field_name;
+
+  }
+
 }
 
 /* Filter criterion: Content: Published */
@@ -489,7 +504,7 @@ $handler->display->display_options['defaults']['style_plugin'] = FALSE;
 $handler->display->display_options['style_plugin'] = 'list';
 $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
-$handler->display->display_options['row_plugin'] = 'node';
+$handler->display->display_options['row_plugin'] = 'fields';
 $handler->display->display_options['row_options']['links'] = 1;
 $handler->display->display_options['row_options']['comments'] = 0;
 $handler->display->display_options['defaults']['row_options'] = FALSE;
