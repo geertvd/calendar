@@ -231,7 +231,10 @@ class calendar_plugin_row_node extends views_plugin_row {
     }
 
     // Load the specified node:
-    $node = $this->nodes[$nid];
+    // We have to clone this or nodes on other views on this page,
+    // like an Upcoming block on the same page as a calendar view, 
+    // will end up acquiring the values we set here. 
+    $node = clone($this->nodes[$nid]);
     if (empty($node)) {
       return;
     }

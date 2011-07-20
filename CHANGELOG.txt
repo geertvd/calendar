@@ -15,6 +15,7 @@ Version 7.x-3.0-alpha1
 
 Initial release of 7.3 branch.
 
+- The row plugin needs to clone the node before altering it, or other views on the same page that use the same node will acquire things like the 'date_id' that the row plugin is setting.
 - Issue #1222770 Lighten the color of the date in month 'overflow' days so it is clearer that they are out of scope for the view.
 - Issue #1223500 Fix the day link in the year view to point to the day view rather than the year view.
 - Add the date sort field to the default view so upcoming events sort correctly.
