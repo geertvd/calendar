@@ -19,16 +19,14 @@ class calendar_plugin_style_ical extends views_plugin_style_rss {
     }
     $url_options['absolute'] = TRUE;
     $url = url($this->view->get_url(NULL, $path), $url_options);
-    if ($display->has_path()) {
-      if (empty($this->preview)) {
-        $this->view->feed_icon = theme('calendar_ical_icon', array('url' => $url, 'title' => $title));
-        drupal_add_html_head_link(array(
-          'rel' => 'alternate',
-          'type' => 'application/calendar',
-          'title' => $title,
-          'href' => $url
-        ));
-      }
+    if (empty($this->preview)) {
+      $this->view->feed_icon = theme('calendar_ical_icon', array('url' => $url, 'title' => $title));
+      drupal_add_html_head_link(array(
+        'rel' => 'alternate',
+        'type' => 'application/calendar',
+        'title' => $title,
+        'href' => $url
+      ));
     }
   }
 
