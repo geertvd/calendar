@@ -104,24 +104,24 @@ class calendar_plugin_row_node extends views_plugin_row {
       );
     }
 
-    $field_options = array();
+    $vocab_field_options = array();
     $fields = $this->display->handler->get_option('fields');
     foreach ($fields as $name => $field) {
-      if ($field['type'] == 'taxonomy_term_reference_link') {
-        $field_options[$field['field']] = $field['field'];
+      if (!empty($field['type']) && $field['type'] == 'taxonomy_term_reference_link') {
+        $vocab_field_options[$field['field']] = $field['field'];
       }
     }
     $form['colors']['taxonomy_field'] = array(
       '#title' => t('Term field'),
-      '#type' => 'select',
+      '#type' => !empty($vocab_field_options) ? 'select' : 'hidden',
       '#default_value' => $this->options['colors']['taxonomy_field'],
       '#description' => t("Select the taxonomy term field to use when setting stripe colors."),
-      '#options' => $field_options,
+      '#options' => $vocab_field_options,
       '#dependency' => array('edit-row-options-colors-legend' => array('taxonomy')),
       '#required' => TRUE,
       );
-    if (empty($field_options)) {
-      $form['colors']['taxonomy_field']['#suffix'] = t('You must add a term field to this view to use for taxonomy stripe values.');
+    if (empty($vocab_field_options)) {
+      $form['colors']['taxonomy_field']['#suffix'] = t('You must add a term field to this view to use taxonomy stripe values.');
     }
 
     $taxonomies = taxonomy_get_vocabularies();
@@ -129,8 +129,8 @@ class calendar_plugin_row_node extends views_plugin_row {
     foreach ($taxonomies as $vid => $vocab) {
       $options[$vid] = $vocab->name;
     }
-    $vocabularies = $this->options['colors']['vocabulary'];
-    $form['colors']['vocabulary'] = array(
+    $vocabularies = $this->options['colors']['calendar_colors_vocabulary'];
+    $form['colors']['calendar_colors_vocabulary'] = array(
       '#title' => t('Vocabulary Legend Types'),
       '#type' => 'checkboxes',
       '#default_value' => isset($vocabularies) ? $vocabularies : array(),
@@ -141,12 +141,12 @@ class calendar_plugin_row_node extends views_plugin_row {
       '#access' => !empty($field_options),
     );
 
-    $vocabularies = (array) $this->options['colors']['vocabulary'];
-    $term_colors = $this->options['colors']['term_colors'];
+    $vocabularies = (array) $this->options['colors']['calendar_colors_vocabulary'];
+    $term_colors = $this->options['colors']['calendar_colors_taxonomy'];
     foreach ($vocabularies as $vid) {
       $vocab = taxonomy_get_tree($vid);
       foreach ($vocab as $tid => $term) {
-        $form['colors']['term_colors'][$term->tid] = array(
+        $form['colors']['calendar_colors_taxonomy'][$term->tid] = array(
           '#title' => t($term->name),
           '#type' => 'textfield',
           '#default_value' => isset($term_colors[$term->tid]) ? $term_colors[$term->tid] : '#ffffff',
