@@ -95,11 +95,19 @@ class calendar_plugin_row_node extends views_plugin_row {
         '#default_value' => isset($colors[$key]) ? $colors[$key] : '#ffffff',
         '#size' => 7,
         '#maxlength' => 7,
-        '#attributes' => array('class' => array('calendar-colors-colorpicker')),
         '#element_validate' => array('calendar_validate_hex_color'),
         '#dependency' => array('edit-row-options-colors-legend' => array('type')),
-        '#prefix' => '<div style="float:left;margin-right:10px">',
-        '#suffix' => '</div>',
+        '#prefix' => '<div class="calendar-colorpicker-wrapper">',
+        '#suffix' => '<div class="calendar-colorpicker"></div></div>',
+        '#attributes' => array('class' => array('edit-calendar-colorpicker')),
+        '#attached' => array(
+          // Add Farbtastic color picker.
+          'library' => array(
+            array('system', 'farbtastic'),
+          ),
+          // Add javascript to trigger the colorpicker.
+          'js' => array(drupal_get_path('module', 'calendar') . '/js/calendar_colorpicker.js'),
+        ),
       );
     }
 
@@ -116,11 +124,8 @@ class calendar_plugin_row_node extends views_plugin_row {
       '#default_value' => $this->options['colors']['taxonomy_field'],
       '#description' => t("Select the taxonomy term field to use when setting stripe colors."),
       '#options' => $vocab_field_options,
-      '#attributes' => array('class' => array('calendar-colors-colorpicker')),
       '#element_validate' => array('calendar_validate_hex_color'),
       '#dependency' => array('edit-row-options-colors-legend' => array('taxonomy')),
-      '#prefix' => '<div style="float:left;margin-right:10px">',
-      '#suffix' => '</div>',
       );
     if (empty($vocab_field_options)) {
       $form['colors']['taxonomy_field']['#options'] = array('' => '');
@@ -156,11 +161,20 @@ class calendar_plugin_row_node extends views_plugin_row {
           '#size' => 7,
           '#maxlength' => 7,
           '#access' => !empty($field_options),
-          '#attributes' => array('class' => array('calendar-colors-colorpicker')),
-          '#element_validate' => array('calendar_validate_hex_color'),
           '#dependency' => array('edit-row-options-colors-legend' => array('taxonomy')),
-          '#prefix' => '<div style="float:left;margin-right:10px">',
-          '#suffix' => '</div>',
+          '#element_validate' => array('calendar_validate_hex_color'),
+          '#dependency' => array('edit-row-options-colors-legend' => array('type')),
+          '#prefix' => '<div class="calendar-colorpicker-wrapper">',
+          '#suffix' => '<div class="calendar-colorpicker"></div></div>',
+          '#attributes' => array('class' => array('edit-calendar-colorpicker')),
+          '#attached' => array(
+            // Add Farbtastic color picker.
+            'library' => array(
+              array('system', 'farbtastic'),
+            ),
+            // Add javascript to trigger the colorpicker.
+            'js' => array(drupal_get_path('module', 'calendar') . '/js/calendar_colorpicker.js'),
+          ),
         );
       }
     }
@@ -173,10 +187,19 @@ class calendar_plugin_row_node extends views_plugin_row {
   	      '#type' => 'textfield',
   	      '#default_value' => isset($colors_group[$gid]) ? $colors_group[$gid] : '#ffffff',
           '#dependency' => array('edit-row-options-colors-legend' => array('group')),
-          '#attributes' => array('class' => array('calendar-colors-colorpicker')),
           '#element_validate' => array('calendar_validate_hex_color'),
-          '#prefix' => '<div style="float:left;margin-right:10px">',
-          '#suffix' => '</div>',
+          '#dependency' => array('edit-row-options-colors-legend' => array('type')),
+          '#prefix' => '<div class="calendar-colorpicker-wrapper">',
+          '#suffix' => '<div class="calendar-colorpicker"></div></div>',
+          '#attributes' => array('class' => array('edit-calendar-colorpicker')),
+          '#attached' => array(
+            // Add Farbtastic color picker.
+            'library' => array(
+              array('system', 'farbtastic'),
+            ),
+            // Add javascript to trigger the colorpicker.
+            'js' => array(drupal_get_path('module', 'calendar') . '/js/calendar_colorpicker.js'),
+          ),
   	    );
   	  }  
     }  

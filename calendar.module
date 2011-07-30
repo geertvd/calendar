@@ -224,7 +224,7 @@ function calendar_remove($view_name) {
 /**
  *  Check to make sure the user has entered a valid 6 digit hex color.
  */
-function calendar_validate_hex_color($element) {
+function calendar_validate_hex_color($element, &$form_state) {
   if (!$element['#required'] && empty($element['#value'])) {
     return;
   }
@@ -232,6 +232,6 @@ function calendar_validate_hex_color($element) {
     form_error($element, "'". check_plain($element['#value']) ."'". t(' is not a valid hex color'));
   }
   else {
-    form_set_value($element, $element['#value']);
+    form_set_value($element, $element['#value'], $form_state);
   }
 }
