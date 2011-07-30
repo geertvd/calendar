@@ -75,11 +75,6 @@ class calendar_plugin_row_node extends views_plugin_row {
       '#type' => 'fieldset',
       '#title' => t('Legend Colors'),
       '#description' =>  t('Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Items with empty values will have no stripe in the calendar and will not be added to the legend.'),
-      'colorpicker' => array(
-        '#type' => 'calendar_colorpicker',
-        '#prefix' => '<div class="clear-block"><div style="float:left">',
-        '#suffix' => '</div>',
-      ),
     );
     $form['colors']['legend'] = array(
       '#title' => t('Stripes'),
@@ -100,7 +95,11 @@ class calendar_plugin_row_node extends views_plugin_row {
         '#default_value' => isset($colors[$key]) ? $colors[$key] : '#ffffff',
         '#size' => 7,
         '#maxlength' => 7,
+        '#attributes' => array('class' => array('calendar-colors-colorpicker')),
+        '#element_validate' => array('calendar_validate_hex_color'),
         '#dependency' => array('edit-row-options-colors-legend' => array('type')),
+        '#prefix' => '<div style="float:left;margin-right:10px">',
+        '#suffix' => '</div>',
       );
     }
 
@@ -117,10 +116,14 @@ class calendar_plugin_row_node extends views_plugin_row {
       '#default_value' => $this->options['colors']['taxonomy_field'],
       '#description' => t("Select the taxonomy term field to use when setting stripe colors."),
       '#options' => $vocab_field_options,
+      '#attributes' => array('class' => array('calendar-colors-colorpicker')),
+      '#element_validate' => array('calendar_validate_hex_color'),
       '#dependency' => array('edit-row-options-colors-legend' => array('taxonomy')),
-      '#required' => TRUE,
+      '#prefix' => '<div style="float:left;margin-right:10px">',
+      '#suffix' => '</div>',
       );
     if (empty($vocab_field_options)) {
+      $form['colors']['taxonomy_field']['#options'] = array('' => '');
       $form['colors']['taxonomy_field']['#suffix'] = t('You must add a term field to this view to use taxonomy stripe values.');
     }
 
@@ -153,7 +156,11 @@ class calendar_plugin_row_node extends views_plugin_row {
           '#size' => 7,
           '#maxlength' => 7,
           '#access' => !empty($field_options),
+          '#attributes' => array('class' => array('calendar-colors-colorpicker')),
+          '#element_validate' => array('calendar_validate_hex_color'),
           '#dependency' => array('edit-row-options-colors-legend' => array('taxonomy')),
+          '#prefix' => '<div style="float:left;margin-right:10px">',
+          '#suffix' => '</div>',
         );
       }
     }
@@ -163,10 +170,13 @@ class calendar_plugin_row_node extends views_plugin_row {
       foreach ($groups as $gid => $group_name){
         $form['colors']['calendar_colors_group'][$gid] = array(
   	      '#title' => t($group_name),
-  	      '#type' => 'calendar_colorfield',
+  	      '#type' => 'textfield',
   	      '#default_value' => isset($colors_group[$gid]) ? $colors_group[$gid] : '#ffffff',
-  	      '#calendar_colorpicker' => 'calendar-colors-group-colorpicker',
           '#dependency' => array('edit-row-options-colors-legend' => array('group')),
+          '#attributes' => array('class' => array('calendar-colors-colorpicker')),
+          '#element_validate' => array('calendar_validate_hex_color'),
+          '#prefix' => '<div style="float:left;margin-right:10px">',
+          '#suffix' => '</div>',
   	    );
   	  }  
     }  
