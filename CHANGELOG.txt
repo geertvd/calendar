@@ -9,6 +9,8 @@ Version 7.x-3.x-dev
 Starting new branch with a total rework of Calendar, using a Views pager plugin for the back/next navigation, 
 a row plugin to explode the view results into calendar day items, and a style plugin to disply the results in a calendar.
 
+- Fix master calendar display, it was missing the contextual filter.
+
 ======================
 Version 7.x-3.0-alpha1
 ======================
