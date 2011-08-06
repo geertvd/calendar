@@ -122,15 +122,17 @@ class calendar_plugin_style extends views_plugin_style {
 
     // Create a list of fields that are available for grouping,
     $field_options = array();
+    $i = 1;
     $fields = $this->display->handler->get_option('fields');
     foreach ($fields as $field_name => $field) {
-      $field_options[$field['table'] . '_' . $field['field']] = $field['field'];
+      $field_options[$i] = $field['field'];
+      $i++;
     }
     $form['groupby_field'] = array(
       '#title' => t('Field grouping'),
-      '#type' => in_array($calendar_type, array('day')) ? 'select' : 'value',
+      '#type' => 'select',
       '#default_value' => $this->options['groupby_field'],
-      '#description' => t("Optionally group items into columns by a field value, for instance select the content type to show items for each content type in their own column, or use a location field to organize items into columns by location."),
+      '#description' => t("Optionally group items into columns by a field value, for instance select the content type to show items for each content type in their own column, or use a location field to organize items into columns by location. NOTE! This is incompatible with the overlapping style option."),
       '#options' => array('' => '') + $field_options,
       '#dependency' => array('edit-style-options-calendar-type' => array('day')),
       );
@@ -152,6 +154,10 @@ class calendar_plugin_style extends views_plugin_style {
     if (!empty($values['theme_style']) && empty($values['groupby_times'])) {
       form_set_error('style_options][theme_style', t('You cannot use overlapping items unless there are groupby times selected.'));
     }
+    if (!empty($values['theme_style']) && !empty($values['groupby_field'])) {
+      form_set_error('style_options][theme_style', t('You cannot use overlapping items and also try to group by a field value.'));
+    }
+
   }
 
   /**

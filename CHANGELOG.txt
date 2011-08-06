@@ -9,6 +9,7 @@ Version 7.x-3.x-dev
 Starting new branch with a total rework of Calendar, using a Views pager plugin for the back/next navigation, 
 a row plugin to explode the view results into calendar day items, and a style plugin to disply the results in a calendar.
 
+- Issue #1232258 Fix the option to group items by a field value in the day view.
 - The Link back to the calendar on the date node got lost in the latest rework. Add it back.
 - The Add+ link got lost when we switched to using a row plugin. Add it back.
 - Fix typo in ical path, it should be .ical, not .cal.

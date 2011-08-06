@@ -195,14 +195,13 @@ function template_preprocess_calendar_day_overlap(&$vars) {
  * Display a day view.
  */
 function template_preprocess_calendar_day(&$vars) {
-
   $vars['view']->style_with_weekno = FALSE;
   $view = $vars['view'];
   $rows = $vars['rows'];
 
   $item_count = 0;
   $by_hour_count = 0;
-  $grouping_field = $view->date_info->style_groupby_field;
+  $grouping_field = !empty($view->date_info->style_groupby_field) ? ($view->date_info->style_groupby_field - 1) : NULL;
   $display_overlap = !empty($view->date_info->style_theme_style) && !empty($view->date_info->style_groupby_times);
 
   // Add optional css
@@ -230,9 +229,9 @@ function template_preprocess_calendar_day(&$vars) {
   // Move all_day items into the right columns and render them.
   $grouped_items = array();
   foreach ($rows['all_day'] as $item) {
-    if (isset($item->{$grouping_field})) {
-      $column = $item->{$grouping_field};        
-      $item->{$grouping_field} = ''; // Remove the grouping field from the results.
+    if (!empty($item->rendered_fields[$grouping_field])) {
+      $column = $item->rendered_fields[$grouping_field];        
+      unset($item->rendered_fields[$grouping_field]); // Remove the grouping field from the results.
       if (!in_array($column, $columns)) {
         $columns[] = $column;
       }
@@ -256,9 +255,9 @@ function template_preprocess_calendar_day(&$vars) {
   foreach ($rows['items'] as &$items) {
     foreach ($items as &$item) {
       $time = date_format($item->calendar_start_date, 'H:i:s');
-      if (isset($item->{$grouping_field})) {
-        $column = $item->{$grouping_field};
-        $item->{$grouping_field} = ''; // Remove the grouping field from the results.
+      if (!empty($item->rendered_fields[$grouping_field])) {
+        $column = $item->rendered_fields[$grouping_field];
+        unset($item->rendered_fields[$grouping_field]); // Remove the grouping field from the results.
         if (!in_array($column, $columns)) {
           $columns[] = $column;
         }
