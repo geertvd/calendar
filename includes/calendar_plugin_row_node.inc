@@ -225,6 +225,9 @@ class calendar_plugin_row_node extends views_plugin_row {
       $this->nodes = node_load_multiple($nids);
     }
 
+    // Let the style know if a link to create a new date is required.
+    $this->view->date_info->calendar_date_link = $this->options['calendar_date_link'];
+
     // Identify the date argument and fields that apply to this view.
     // Preload the Date Views field info for each field, keyed by the
     // field name, so we know how to retrieve field values from the cached node.
