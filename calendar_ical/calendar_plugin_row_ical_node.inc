@@ -75,7 +75,7 @@ class calendar_plugin_row_ical_node extends views_plugin_row {
     $field_name  = str_replace(array('_value', '_value2'), '', $info['real_field_name']);
     $table_name  = $info['table_name'];
     $delta_field = $info['delta_field'];
-    $is_field = !empty($delta_field);
+    $is_field    = $info['is_field'];
 
     // Identify the field value that matched our query.
     $item = $node->$field_name;

@@ -13,6 +13,7 @@ a row plugin to explode the view results into calendar day items, and a style pl
 Version 7.x-3.0-alpha2
 ======================
 
+- Add new 'is_field' flag to tell when we're working with a Field field.
 - Issue #1232258 Fix the option to group items by a field value in the day view.
 - The Link back to the calendar on the date node got lost in the latest rework. Add it back.
 - The Add+ link got lost when we switched to using a row plugin. Add it back.
