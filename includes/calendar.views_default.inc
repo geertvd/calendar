@@ -106,6 +106,7 @@ $date_link_type = '';
 foreach ($types as $type => $label) {
   $colors[0][$type] = '#ffffff';
   $date_link_type = $type;
+  variable_set('calendar_date_link_' . $type, $path . '/month');
 }
 
 $type = '';

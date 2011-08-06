@@ -205,6 +205,14 @@ class calendar_plugin_row_node extends views_plugin_row {
     }  
   }
 
+  function options_submit(&$form, &$form_state) {
+    parent::options_submit($form, $form_state);
+    if (!empty($form_state['values']['row_options']['calendar_date_link'])) {
+      $path = $this->view->display_handler->get_option('path');
+      variable_set('calendar_date_link_' . $form_state['values']['row_options']['calendar_date_link'], $path);
+    }
+  }
+
   function pre_render($values) {
 
     // @TODO When the date is coming in through a relationship, the nid
