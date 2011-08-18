@@ -21,11 +21,13 @@
  *   that are needed to make sure we get the required line break.
  * 
  */
-
+if (empty($method)) {
+  $method = 'PUBLISH';
+}
 ?>
 BEGIN:VCALENDAR
 VERSION:2.0
-METHOD:PUBLISH
+METHOD:<?php print $method; ?>
 X-WR-CALNAME;VALUE=TEXT:<?php print $calname . "\r\n"; ?>
 PRODID:-//Drupal iCal API//EN
 <?php foreach($events as $event): ?>
