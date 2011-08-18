@@ -8,7 +8,7 @@
 BEGIN:VCALENDAR
 VERSION:2.0
 METHOD:PUBLISH
-X-WR-CALNAME: <?php print $title . "\r\n"; ?>
+X-WR-CALNAME;VALUE=TEXT:<?php print $title . "\r\n"; ?>
 PRODID:-//Drupal iCal API//EN
 <?php print $rows ?>
 END:VCALENDAR
