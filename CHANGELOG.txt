@@ -13,6 +13,7 @@ a row plugin to explode the view results into calendar day items, and a style pl
 Version 7.x-3.0-alpha2
 ======================
 
+- Issue #742146, Add option to remove X-WR-CALNAME if VEVENT is not a feed.
 - Add option to change method from PUBLISH to REQUEST in VCALENDAR.
 - Issue #1087798 by anj, Fix X-WR-CALNAME in VCALENDAR.
 - Add new 'is_field' flag to tell when we're working with a Field field.
