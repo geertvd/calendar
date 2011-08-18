@@ -26,7 +26,7 @@
 BEGIN:VCALENDAR
 VERSION:2.0
 METHOD:PUBLISH
-X-WR-CALNAME: <?php print $calname . "\r\n"; ?>
+X-WR-CALNAME;VALUE=TEXT:<?php print $calname . "\r\n"; ?>
 PRODID:-//Drupal iCal API//EN
 <?php foreach($events as $event): ?>
 BEGIN:VEVENT
