@@ -6,6 +6,7 @@ See documentation at http://drupal.org/node/262064.
 Version 2.0 dev
 =================
 
+- Issue #742146, Add option to remove X-WR-CALNAME if VEVENT is not a feed.
 - Add option to change method from PUBLISH to REQUEST in VCALENDAR.
 - Issue #1087798 by anj, Fix X-WR-CALNAME in VCALENDAR.
 - #1084366 by developer-x - Set the default value for date_first_day to 1
