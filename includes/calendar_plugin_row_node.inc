@@ -298,7 +298,7 @@ class calendar_plugin_row_node extends views_plugin_row {
      
       // Retrieve the field value that matched our query from the cached node.
       // Find the date and set it to the right timezone.  
-          
+   
       $item = $node->$field_name;
       $node->date_id = array();
       $item_start_date = NULL;
