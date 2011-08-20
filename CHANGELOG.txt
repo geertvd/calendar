@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Issue #1254922 by larsdesigns, calendar_multiday.css is not complient with Drupal Coding Standards
 - Issue #1254920 by larsdesigns, calendar.css is not complient with Drupal Coding Standards
 - Issue #1254916 by larsdesigns, calendar-overlap.css is not complient with Drupal Coding Standards
 
