@@ -820,7 +820,7 @@ table.calendar-legend tr.even .stripe {
 
 .view .date-nav-wrapper .date-prev span {
   margin-left: 10px;
-  font-style: bold;
+  font-weight: bold;
 }
 
 .view .date-nav-wrapper .date-heading {
@@ -853,7 +853,7 @@ table.calendar-legend tr.even .stripe {
 
 .view .date-nav-wrapper .date-next span {
   margin-right: 10px;
-  font-style: bold;
+  font-weight: bold;
 }
 
 .view-content:after {
