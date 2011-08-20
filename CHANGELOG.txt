@@ -5,6 +5,8 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Issue #1254920 by larsdesigns, calendar.css is not complient with Drupal Coding Standards
+- Issue #1254916 by larsdesigns, calendar-overlap.css is not complient with Drupal Coding Standards
 
 Starting new branch with a total rework of Calendar, using a Views pager plugin for the back/next navigation, 
 a row plugin to explode the view results into calendar day items, and a style plugin to disply the results in a calendar.
@@ -13,7 +15,6 @@ a row plugin to explode the view results into calendar day items, and a style pl
 Version 7.x-3.0-alpha2
 ======================
 
-- Issue #1254916 by larsdesigns, calendar-overlap.css is not complient with Drupal Coding Standards
 - Add update hook to remove old style calendar legend blocks from system.
 - Issue #742146, Add option to remove X-WR-CALNAME if VEVENT is not a feed.
 - Add option to change method from PUBLISH to REQUEST in VCALENDAR.
