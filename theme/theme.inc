@@ -13,7 +13,7 @@ function calendar_preprocess_date_views_pager(&$vars) {
     return;
   }
   $options = $view->style_options;
-
+  
   // If we're not on a view with a path (a page), no links are needed.
   $current_path = !empty($view->display_handler->options['path']) ? $view->display_handler->options['path'] : '';
   if (empty($current_path)) {
@@ -43,13 +43,13 @@ function calendar_preprocess_date_views_pager(&$vars) {
 
   // If an 'Add new ... link is provided, add it here.
   // the query will bring the user back here after adding the node.
-  if (!empty($view->date_info->calendar_date_link) 
+  if (!empty($view->date_info->calendar_date_link) && !empty($view->date_info->url)
   && (user_access("administer nodes") || user_access('create '. $view->date_info->calendar_date_link .' content'))) {
     $name = node_type_get_name($view->date_info->calendar_date_link);
     $href = 'node/add/' . str_replace('_', '-', $view->date_info->calendar_date_link);
-    $query = drupal_get_query_parameters(array('destination' => $view->date_info->url));    
+    $query = drupal_get_query_parameters(array('destination' => $view->date_info->url));
     $calendar_links['calendar calendar-add'] = $base + array(
-      'title' => t('Add+'), 
+      'title' => t('Add+'),
       'href' => $href, 
       'query' => $query,
       );
