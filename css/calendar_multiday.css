@@ -752,32 +752,6 @@ table.calendar-legend tr.even .stripe {
   width: 100%;
 }
 
-.view .date-nav-wrapper .links {
-  display: block;
-}
-
-.view .date-nav-wrapper ul.links {
-  margin-bottom: 3px;
-}
-
-.view .date-nav-wrapper ul {
-  position: absolute;
-  top: 8px ;
-  line-height: inherit;
-  z-index: 1;
-}
-
-.view .date-nav-wrapper li {
-  float: left;
-  line-height: inherit;
-  width: auto;
-}
-
-.view .date-nav-wrapper li a {
-  text-decoration: underline;
-  line-height: inherit;
-}
-
 .view .date-nav-wrapper .date-nav {
   background-color: transparent;
   border: 0px;
@@ -785,6 +759,7 @@ table.calendar-legend tr.even .stripe {
   height: auto;
   min-height: 30px;
   position: relative;
+  margin-bottom: 10px;
 }
 
 .view .date-nav-wrapper .date-prev a,
@@ -818,7 +793,7 @@ table.calendar-legend tr.even .stripe {
   right: auto;
 }
 
-.view .date-nav-wrapper .date-prev span {
+.view .date-nav-wrapper .date-prev a {
   margin-left: 10px;
   font-weight: bold;
 }
@@ -851,7 +826,7 @@ table.calendar-legend tr.even .stripe {
   font-size: 12px;
 }
 
-.view .date-nav-wrapper .date-next span {
+.view .date-nav-wrapper .date-next a {
   margin-right: 10px;
   font-weight: bold;
 }
