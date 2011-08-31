@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Add static to calendar_granularity_path() to speed up processing.
 - Issue #1264974 by hdcwebteam, Fix parse error in latest ical.
 - Issue #1261478 by stevector and KarenS, Reconfigure the back/next buttons into item lists so Views ajax pager works right.
 - Issue #1238568, Add more checks to bail gracefully when a date argument is missing.

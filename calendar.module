@@ -191,17 +191,26 @@ function calendar_block_view($delta = '') {
 
 /**
  * Find the path for the calendar display that has a specific granularity.
+ * 
+ * Check for !empty() in case the view is not fully formed or has displays that are marked to be deleted that are missing information.
  */
 function calendar_granularity_path(&$view, $granularity) {
-  foreach($view->display as $id => $display) {
-    if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
-      // @TODO Why is this sometimes empty for a style that uses the default value?
-      $type = !empty($display->display_options['style_options']['calendar_type']) ? $display->display_options['style_options']['calendar_type'] : 'month';
-      if ($type == $granularity) {
-        return $display->display_options['path'];
+  $paths = &drupal_static(__FUNCTION__, array());
+  if (!array_key_exists($view->name, $paths) || !(array_key_exists($granularity, $paths[$view->name]))) {
+    $paths[$view->name][$granularity] = '';
+    foreach($view->display as $id => $display) {
+      if (!empty($display->deleted) || empty($display->display_options['style_plugin'])) {
+        continue;
+      }
+      if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
+        $type = !empty($display->display_options['style_options']['calendar_type']) ? $display->display_options['style_options']['calendar_type'] : 'month';
+        if ($type == $granularity) {
+          $paths[$view->name][$granularity] = $display->display_options['path'];
+        }
       }
     }
   }
+  return $paths[$view->name][$granularity];
 }
 
 /**
