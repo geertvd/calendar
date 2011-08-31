@@ -24,10 +24,13 @@ function calendar_preprocess_date_views_pager(&$vars) {
   $calendar_links = array();
   $base = array('attributes' => array('rel' => 'nofollow'));
   foreach($view->display as $id => $display) {
+    // Check for !empty() in case the view is not fully formed or has displays that are marked to be deleted.
+    if (!empty($display->deleted) || empty($display->display_options['style_plugin'])) {
+      continue;
+    }
     if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
       $path = $display->display_options['path'];
       $title = $display->display_title;
-      // @TODO Why is this sometimes empty for a style that uses the default value?
       $type = !empty($display->display_options['style_options']['calendar_type']) ? $display->display_options['style_options']['calendar_type'] : 'month';
 
       // Make sure the links to other calendar displays use the right path for that display.
