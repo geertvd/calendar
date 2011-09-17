@@ -179,16 +179,15 @@ class calendar_plugin_row_node extends views_plugin_row {
       }
     }
     if (module_exists('og')) {
-      $colors_group = $this->option['colors']['calendar_colors_group'];
-      $groups = og_all_groups_options();
-      foreach ($groups as $gid => $group_name){
+      $colors_group = $this->options['colors']['calendar_colors_group'];
+      $groups = og_get_all_group();
+      foreach ($groups as $gid){
         $form['colors']['calendar_colors_group'][$gid] = array(
-  	      '#title' => t($group_name),
+  	      '#title' => t(og_label($gid)),
   	      '#type' => 'textfield',
   	      '#default_value' => isset($colors_group[$gid]) ? $colors_group[$gid] : '#ffffff',
           '#dependency' => array('edit-row-options-colors-legend' => array('group')),
           '#element_validate' => array('calendar_validate_hex_color'),
-          '#dependency' => array('edit-row-options-colors-legend' => array('type')),
           '#prefix' => '<div class="calendar-colorpicker-wrapper">',
           '#suffix' => '<div class="calendar-colorpicker"></div></div>',
           '#attributes' => array('class' => array('edit-calendar-colorpicker')),
@@ -560,11 +559,10 @@ class calendar_plugin_row_node extends views_plugin_row {
     if (empty($colors_group)) {
       return;
     }
-    if (!function_exists('og_get_node_groups')) {
+    if (!function_exists('og_get_entity_groups')) {
       return;
     }
-  
-    $groups_for_node = og_get_node_groups($node);
+    $groups_for_node = og_get_entity_groups('node', $node);
     if(!(isset($node->stripe))){
       $node->stripe = array();
       $node->stripe_label = array();
