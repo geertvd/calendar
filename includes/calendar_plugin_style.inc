@@ -282,7 +282,6 @@ class calendar_plugin_style extends views_plugin_style {
     $items = array();
     foreach ($this->view->result as $row_index => $row) {
       $this->view->row_index = $row_index;
-
       foreach ($this->row_plugin->render($row) as $item) {
         $item->granularity = $this->date_info->granularity;      
         $rendered_fields = array();
