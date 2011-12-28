@@ -331,7 +331,7 @@ class calendar_plugin_row_node extends views_plugin_row {
         $increment = $instance['widget']['settings']['increment'];
 
       }
-      else {
+      elseif (!empty($node->$field_name)) {
         $item = $node->$field_name;
         $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
         $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
