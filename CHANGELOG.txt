@@ -7,7 +7,7 @@ Version 7.x-3.x-dev
 
 NOTES:
 The links at the top of the calendar page have been reworked into tabs. They will not show up
-until you clear the caches. Use hook_calendar_links_alter() to alter the links or the titles 
+until you clear the caches. Use hook_calendar_links_alter() to alter the links or the titles
 or to empty the links array if you don't want to see them.
 
 - Issue #1230500, The calendar row logic was failing if there was more than one date field in a node due to a bad return value. Also fixed some errors caused by not returning an empty array for missing values.
@@ -29,7 +29,7 @@ or to empty the links array if you don't want to see them.
 - Issue #1254920 by larsdesigns, calendar.css is not complient with Drupal Coding Standards
 - Issue #1254916 by larsdesigns, calendar-overlap.css is not complient with Drupal Coding Standards
 
-Starting new branch with a total rework of Calendar, using a Views pager plugin for the back/next navigation, 
+Starting new branch with a total rework of Calendar, using a Views pager plugin for the back/next navigation,
 a row plugin to explode the view results into calendar day items, and a style plugin to disply the results in a calendar.
 
 ======================
@@ -159,21 +159,21 @@ Abandoned the 7.x-1.x branch.
 
 Start a new 7.x-2.x branch that will contain a complete re-work of the Views handling.
 
-The 7.x-2.x branch will totally re-work and simplify the Views filters. These changes may/will 
-break some views and will require that you check views that use the date filter or 
+The 7.x-2.x branch will totally re-work and simplify the Views filters. These changes may/will
+break some views and will require that you check views that use the date filter or
 argument to be sure they are still configured correctly.
 
-There is a new date_filter_handler_simple for an individual date field that simplifies 
-the Views handling by using most of the core Views field handling but adds in the 
-possibility to set a default date using options like 'now', along with a choice of a 
+There is a new date_filter_handler_simple for an individual date field that simplifies
+the Views handling by using most of the core Views field handling but adds in the
+possibility to set a default date using options like 'now', along with a choice of a
 month/day/year drop-down selector or popup calendar selector.
 
-The date_filter_handler is an extension of the simple handler that allows you to combine 
-multiple dates into a single filter so that you can control all of them with the same 
+The date_filter_handler is an extension of the simple handler that allows you to combine
+multiple dates into a single filter so that you can control all of them with the same
 filter widget, allowing you to either 'OR' or 'AND' them together.
 
-The arguments will be rewritten in the same way, with a simple argument handler for 
-individual dates and another handler that extends that to control multiple dates with 
+The arguments will be rewritten in the same way, with a simple argument handler for
+individual dates and another handler that extends that to control multiple dates with
 a single argument.
 
 =======================
@@ -186,7 +186,7 @@ Argh! Fixing the field handling broke the handling for system dates. Try again.
 Version 7.x-1.0-alpha2
 =======================
 
-Views made lots of changes to field handling just before the new release, which broke lots of things here. 
+Views made lots of changes to field handling just before the new release, which broke lots of things here.
 Adding some work-arounds to get things working again and waiting until the dust settles on how the new core fields will be handled in Views before doing much more with the Views integration. These changes should get things working with latest Views release.
 
 =======================

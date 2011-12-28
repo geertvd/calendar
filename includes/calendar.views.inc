@@ -2,7 +2,7 @@
 
 /**
  * @file
- * 
+ *
  * Creates calendar displays of Views results.
  */
 /**

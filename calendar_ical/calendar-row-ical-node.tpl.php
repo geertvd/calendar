@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+* 
  *   $event['uid'] - a unique id for the event (usually the url).
  *   $event['summary'] - the name of the event.
  *   $event['start'] - the formatted start date of the event.
@@ -9,10 +9,10 @@
  *   $event['timezone'] - the formatted timezone name of the event, if any.
  *   $event['url'] - the url for the event.
  *   $event['location'] - the name of the event location.
- *   $event['description'] - a description of the event.
+ *   $event['description'] - a description of th event.
  * 
  *   Note that there are empty spaces after RRULE, URL, LOCATION, etc
- *   that are needed to make sure we get the required line break.
+ *   that are needed to make sure we get the required ine break.
  * 
  */
 $date = date_now('UTC');
