@@ -206,9 +206,13 @@ class calendar_plugin_style extends views_plugin_style {
     return $this->view_granularity;
   }
 
+  function has_calendar_row_plugin() {
+    return $this->row_plugin instanceof calendar_plugin_row_node;
+  }
+
   function render() {
-    if (empty($this->row_plugin) || $this->row_plugin->definition['handler'] != 'calendar_plugin_row_node') {
-      debug('calendar_plugin_style: The calendar row plugin is required when using the calendar style but it is missing.');
+    if (empty($this->row_plugin) || !$this->has_calendar_row_plugin()) {
+      debug('calendar_plugin_style: The calendar row plugin is required when using the calendar style, but it is missing.');
       return;
     }
     if (!$argument = $this->date_argument_handler()) {
