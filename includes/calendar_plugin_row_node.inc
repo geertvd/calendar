@@ -244,6 +244,12 @@ class calendar_plugin_row_node extends views_plugin_row {
         // otherwise we are using the simple date field argument handler.
         if ($handler->definition['handler'] != 'date_views_argument_handler') {
           $alias = $handler->table_alias . '.' . $handler->field;
+
+          // Make sure this is not some unexpected field that happens to use the date handler
+          // that we can't process (i.e. node.changed_year is not available in Date Views fields).
+          if (!array_key_exists($alias, $data)) {
+            continue;
+          }
           $info = $data[$alias];
           $field_name  = str_replace(array('_value2', '_value'), '', $info['real_field_name']);
           $date_fields[$field_name] = $info;
