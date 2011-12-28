@@ -710,7 +710,7 @@ function _calc_indents(&$overlapped_items, $start, $end, &$item, $depth = 0) {
         }
       }
       // No, child overlap, so check if we overlap this item
-      if ($start >= $entry['start'] && $start <= $entry['end']) {
+      if ($start >= $entry['start'] && $start < $entry['end']) {
 
         // We overlap, create an overlapping entry
         $entry['children'][] = array('item' => &$item, 'depth' => $depth + 1, 'start' => $start, 'end' => $end, 'children' => array());
