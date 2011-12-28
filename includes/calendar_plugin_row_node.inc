@@ -211,7 +211,6 @@ class calendar_plugin_row_node extends views_plugin_row {
   }
 
   function pre_render($values) {
-
     // @TODO When the date is coming in through a relationship, the nid
     // of the view is not the right node to use, then we need the related node.
     // Need to sort out how that should be handled.
@@ -260,6 +259,13 @@ class calendar_plugin_row_node extends views_plugin_row {
         $this->date_fields = $date_fields;
       }
     }
+
+    // Get the language for this view.
+    $this->language = $this->display->handler->get_option('field_language');
+    $substitutions = views_views_query_substitutions($this->view);
+    if (array_key_exists($this->language, $substitutions)) {
+      $this->language = $substitutions[$this->language];
+    }
   }
 
   function render($row) {
@@ -291,27 +297,24 @@ class calendar_plugin_row_node extends views_plugin_row {
       $tz_handling = $info['tz_handling'];
       $tz_field    = $info['timezone_field'];
       $rrule_field = $info['rrule_field'];
-      $is_field    =  $info['is_field'];
+      $is_field    = $info['is_field'];
      
       // Retrieve the field value that matched our query from the cached node.
       // Find the date and set it to the right timezone.  
    
-      $item = $node->$field_name;
       $node->date_id = array();
       $item_start_date = NULL;
       $item_end_date   = NULL;
-
-      $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
-      $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
       $granularity = 'second';
       $increment = 1;
 
       if ($is_field) {
 
-        // @TODO Not sure if this is the correct way to retrieve the right language value, but I think so.
-        $lang = $node->language;
         $delta = isset($row->$delta_field) ? $row->$delta_field : 0;
-        $item = array_key_exists($lang, $item) ? $item[$lang][$delta] : $item['und'][$delta];
+        $items = field_get_items('node', $node, $field_name, $this->language);
+        $item  = $items[$delta];
+        $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
+        $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
 
         // Set the date_id for the node, used to identify which field value to display for
         // fields that have multiple values. The theme expects it to be an array.
@@ -329,6 +332,9 @@ class calendar_plugin_row_node extends views_plugin_row {
 
       }
       elseif (!$is_field && !empty($item)) {
+        $item = $node->$field_name;
+        $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
+        $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
         $item_start_date = new dateObject($item, $db_tz);
         $item_end_date   = $item_start_date;
         $node->date_id = array('calendar.' . $node->nid . '.' . $field_name . '.0');
