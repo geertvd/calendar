@@ -571,7 +571,7 @@ function theme_calendar_time_row_heading($vars) {
   static $format_hour, $format_ampm;
   if (empty($format_hour)) {
     $format = variable_get('date_format_short', 'm/d/Y - H:i');
-    $format_hour = str_replace(array('a', 'A'), '', date_limit_format($format, array('hour', 'minute')));
+    $format_hour = str_replace(array('a', 'A'), '', date_limit_format($format, array('hour')));
     $format_ampm = strstr($format, 'a') ? 'a' : (strstr($format, 'A') ? 'A' : '');
   }
   if ($start_time == '00:00:00' && $next_start_time == '23:59:59') {
