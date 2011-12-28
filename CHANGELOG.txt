@@ -10,6 +10,7 @@ The links at the top of the calendar page have been reworked into tabs. They wil
 until you clear the caches. Use hook_calendar_links_alter() to alter the links or the titles
 or to empty the links array if you don't want to see them.
 
+- Issue #1383782 by googletorp, Check if module_exists('taxonomy') before creating taxonomy strip options.
 - Issue #1235344 by kenianbei, Make sure items don't overlap if they start and end on the same times.
 - Issue #1323280 by mshepherd, Remove time from time headers.
 - Issue #1322376 by mshepherd, Remove space between hour and am/pm in day and week views.

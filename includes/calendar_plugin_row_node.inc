@@ -148,32 +148,34 @@ class calendar_plugin_row_node extends views_plugin_row {
       '#access' => !empty($vocab_field_options),
     );
 
-    $vocabularies = (array) $this->options['colors']['calendar_colors_vocabulary'];
-    $term_colors = $this->options['colors']['calendar_colors_taxonomy'];
-    foreach ($vocabularies as $vid) {
-      $vocab = taxonomy_get_tree($vid);
-      foreach ($vocab as $tid => $term) {
-        $form['colors']['calendar_colors_taxonomy'][$term->tid] = array(
-          '#title' => t($term->name),
-          '#type' => 'textfield',
-          '#default_value' => isset($term_colors[$term->tid]) ? $term_colors[$term->tid] : '#ffffff',
-          '#size' => 7,
-          '#maxlength' => 7,
-          '#access' => !empty($vocab_field_options),
-          '#dependency' => array('edit-row-options-colors-legend' => array('taxonomy')),
-          '#element_validate' => array('calendar_validate_hex_color'),
-          '#prefix' => '<div class="calendar-colorpicker-wrapper">',
-          '#suffix' => '<div class="calendar-colorpicker"></div></div>',
-          '#attributes' => array('class' => array('edit-calendar-colorpicker')),
-          '#attached' => array(
-            // Add Farbtastic color picker.
-            'library' => array(
-              array('system', 'farbtastic'),
+    if (module_exists('taxonomy')) {
+      $vocabularies = (array) $this->options['colors']['calendar_colors_vocabulary'];
+      $term_colors = $this->options['colors']['calendar_colors_taxonomy'];
+      foreach ($vocabularies as $vid) {
+        $vocab = taxonomy_get_tree($vid);
+        foreach ($vocab as $tid => $term) {
+          $form['colors']['calendar_colors_taxonomy'][$term->tid] = array(
+            '#title' => t($term->name),
+            '#type' => 'textfield',
+            '#default_value' => isset($term_colors[$term->tid]) ? $term_colors[$term->tid] : '#ffffff',
+            '#size' => 7,
+            '#maxlength' => 7,
+            '#access' => !empty($vocab_field_options),
+            '#dependency' => array('edit-row-options-colors-legend' => array('taxonomy')),
+            '#element_validate' => array('calendar_validate_hex_color'),
+            '#prefix' => '<div class="calendar-colorpicker-wrapper">',
+            '#suffix' => '<div class="calendar-colorpicker"></div></div>',
+            '#attributes' => array('class' => array('edit-calendar-colorpicker')),
+            '#attached' => array(
+              // Add Farbtastic color picker.
+              'library' => array(
+                array('system', 'farbtastic'),
+              ),
+              // Add javascript to trigger the colorpicker.
+              'js' => array(drupal_get_path('module', 'calendar') . '/js/calendar_colorpicker.js'),
             ),
-            // Add javascript to trigger the colorpicker.
-            'js' => array(drupal_get_path('module', 'calendar') . '/js/calendar_colorpicker.js'),
-          ),
-        );
+          );
+        }
       }
     }
     if (module_exists('og')) {
