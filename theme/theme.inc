@@ -557,9 +557,6 @@ function template_preprocess_calendar_week_multiple_node(&$vars) {
  * @TODO We need some options about how to combine rendered fields.
  * Fields rendered in multiday containers need to be inline.
  */
-function template_preprocess_calendar_item(&$vars) {
- 
-}
 
 /**
  * Format the time row headings in the week and day view.
@@ -571,7 +568,13 @@ function theme_calendar_time_row_heading($vars) {
   static $format_hour, $format_ampm;
   if (empty($format_hour)) {
     $format = variable_get('date_format_short', 'm/d/Y - H:i');
-    $format_hour = str_replace(array('a', 'A'), '', date_limit_format($format, array('hour')));
+    if (substr($start_time, -5) == '00:00' && substr($next_start_time, -5) == '00:00') {
+      $limit = array('hour');
+    }
+    else {
+      $limit = array('hour', 'minute');
+    }
+    $format_hour = str_replace(array('a', 'A'), '', date_limit_format($format, $limit));
     $format_ampm = strstr($format, 'a') ? 'a' : (strstr($format, 'A') ? 'A' : '');
   }
   if ($start_time == '00:00:00' && $next_start_time == '23:59:59') {
@@ -706,7 +709,6 @@ function _calc_indents(&$overlapped_items, $start, $end, &$item, $depth = 0) {
           return $rc;
         }
       }
-
       // No, child overlap, so check if we overlap this item
       if ($start >= $entry['start'] && $start <= $entry['end']) {
 

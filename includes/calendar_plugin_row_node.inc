@@ -228,7 +228,6 @@ class calendar_plugin_row_node extends views_plugin_row {
     if (!empty($nids)) {
       $this->nodes = node_load_multiple($nids);
     }
-
     // Let the style know if a link to create a new date is required.
     $this->view->date_info->calendar_date_link = $this->options['calendar_date_link'];
 
@@ -272,7 +271,6 @@ class calendar_plugin_row_node extends views_plugin_row {
     global $base_url;
     $rows = array();
     $date_info = $this->date_argument->view->date_info;
-
     $nid = $row->{$this->field_alias};
     if (!is_numeric($nid)) {
       return $rows;
