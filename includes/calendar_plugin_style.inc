@@ -223,7 +223,7 @@ class calendar_plugin_style extends views_plugin_style {
     // There are date arguments that have not been added by Date Views.
     // They will be missing the information we would need to render the field.
     if (empty($argument->min_date)) {
-      //return;
+      return;
     }
 
     // Add information from the date argument to the view.
