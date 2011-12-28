@@ -4,68 +4,6 @@
  * @file
  * Theme functions for the Calendar module.
  */
-/**
- * Implements hook_preprocess_date_views_pager().
- *
- * Creates a calendar_links array which is stored in the session and used
- * in calendar_menu_local_tasks_alter() to display the links as action items and dynamic tabs.
- * The links can be altered or deleted using hook_calendar_links_alter().
- *
- */
-function calendar_preprocess_date_views_pager(&$vars) {
-  $view = $vars['plugin']->view;
-  if ($view->plugin_name != 'calendar_style') {
-    return;
-  }
-  $options = $view->style_options;
-  
-  // If we're not on a view with a path (a page), no links are needed.
-  $current_path = !empty($view->display_handler->options['path']) ? $view->display_handler->options['path'] : '';
-  if (empty($current_path)) {
-    return;
-  }
-
-  // Find all the displays in this view that use the calendar style and have a path and create links to each.
-  $calendar_links[$current_path] = array();
-  $base = array('attributes' => array('rel' => 'nofollow'));
-  foreach($view->display as $id => $display) {
-    // Check for !empty() in case the view is not fully formed or has displays that are marked to be deleted.
-    if (!empty($display->deleted) || empty($display->display_options['style_plugin'])) {
-      continue;
-    }
-    if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
-      $path = $display->display_options['path'];
-      $title = $display->display_title;
-      $type = !empty($display->display_options['style_options']['calendar_type']) ? $display->display_options['style_options']['calendar_type'] : 'month';
-
-      // Make sure the links to other calendar displays use the right path for that display.
-      // Get rid of pager links when swapping between displays to force the base argument 
-      // to be structured correctly for the type of display. This means you can't use
-      // these links in a block or panel.
-      $href = str_replace($current_path, $path, date_pager_url($view, $type, NULL, TRUE, FALSE));
-      $part_path = substr($href,strlen(base_path()));
-
-      // Once we have a path for the links to other displays, add it to our links array.
-      $calendar_links[$current_path]['tabs'][$type] = array('title' => $title, 'path' => $part_path);
-      $calendar_links[$current_path]['types'][] = $type;
-    }
-  }
-
-  // If an 'Add new ... link is provided, add it here.
-  if (!empty($view->date_info->calendar_date_link) && !empty($view->date_info->url)
-  && (user_access("administer nodes") || user_access('create '. $view->date_info->calendar_date_link .' content'))) {
-    $name = node_type_get_name($view->date_info->calendar_date_link);
-    $href = 'node/add/' . str_replace('_', '-', $view->date_info->calendar_date_link);
-    $calendar_links[$current_path]['actions'][] = array('title' => t('Add @name', array('@name' => $name)), 'path' => $href);
-  }
-
-  // Pass this through drupal_alter() so it can be adjusted in custom code or in the theme.
-  drupal_alter('calendar_links', $calendar_links);
-
-  // Add the value to the session so it can be used to create the tabs.
-  $_SESSION['calendar_links'][$current_path] = $calendar_links[$current_path];
-
-}
 
 /**
  * Preprocess an RSS feed
