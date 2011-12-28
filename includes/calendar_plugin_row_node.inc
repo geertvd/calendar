@@ -62,7 +62,7 @@ class calendar_plugin_row_node extends views_plugin_row {
    */
   function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
-    
+
     $form['markup']['#markup'] = t("The calendar row plugin will format view results as calendar items. Make sure this display has a 'Calendar' format and uses a 'Date' contextual filter, or this plugin will not work correctly.");
     $form['calendar_date_link'] = array(
       '#title' => t('Add new date link'),
@@ -70,7 +70,7 @@ class calendar_plugin_row_node extends views_plugin_row {
       '#default_value' => $this->options['calendar_date_link'],
       '#options' => array('' => t('No link')) + node_type_get_names(),
       '#description' => t('Display a link to add a new date of the specified content type. Displayed only to users with appropriate permissions.'),
-      );        
+      );
     $form['colors'] = array(
       '#type' => 'fieldset',
       '#title' => t('Legend Colors'),
@@ -86,7 +86,7 @@ class calendar_plugin_row_node extends views_plugin_row {
     if (!module_exists('og')) {
       unset($form['colors']['legend']['#options']['group']);
     }
-    $colors = $this->options['colors']['calendar_colors_type'];   
+    $colors = $this->options['colors']['calendar_colors_type'];
     $type_names = node_type_get_names();
     foreach ($type_names as $key => $name) {
       $form['colors']['calendar_colors_type'][$key] = array(
@@ -198,8 +198,8 @@ class calendar_plugin_row_node extends views_plugin_row {
             'js' => array(drupal_get_path('module', 'calendar') . '/js/calendar_colorpicker.js'),
           ),
   	    );
-  	  }  
-    }  
+  	  }
+    }
   }
 
   function options_submit(&$form, &$form_state) {
@@ -240,7 +240,7 @@ class calendar_plugin_row_node extends views_plugin_row {
     $date_fields = array();
     foreach ($this->view->argument as $handler) {
       if (date_views_handler_is_date($handler, 'argument')) {
-        // If this is the complex Date argument, the date fields are stored in the handler options, 
+        // If this is the complex Date argument, the date fields are stored in the handler options,
         // otherwise we are using the simple date field argument handler.
         if ($handler->definition['handler'] != 'date_views_argument_handler') {
           $alias = $handler->table_alias . '.' . $handler->field;
@@ -270,27 +270,27 @@ class calendar_plugin_row_node extends views_plugin_row {
 
   function render($row) {
     global $base_url;
+    $rows = array();
     $date_info = $this->date_argument->view->date_info;
 
     $nid = $row->{$this->field_alias};
     if (!is_numeric($nid)) {
-      return;
+      return $rows;
     }
 
-    // Load the specified node:
-    // We have to clone this or nodes on other views on this page,
-    // like an Upcoming block on the same page as a calendar view, 
-    // will end up acquiring the values we set here. 
-    $node = clone($this->nodes[$nid]);
-    if (empty($node)) {
-      return;
-    }
-
-    // There could be more than one date field in a view 
+    // There could be more than one date field in a view
     // so iterate through all of them to find the right values
     // for this view result.
-    $rows = array();
     foreach ($this->date_fields as $field_name => $info) {
+
+      // Load the specified node:
+      // We have to clone this or nodes on other views on this page,
+      // like an Upcoming block on the same page as a calendar view,
+      // will end up acquiring the values we set here.
+      $node = clone($this->nodes[$nid]);
+      if (empty($node)) {
+        return $rows;
+      }
 
       $table_name  = $info['table_name'];
       $delta_field = $info['delta_field'];
@@ -298,10 +298,10 @@ class calendar_plugin_row_node extends views_plugin_row {
       $tz_field    = $info['timezone_field'];
       $rrule_field = $info['rrule_field'];
       $is_field    = $info['is_field'];
-     
+
       // Retrieve the field value that matched our query from the cached node.
-      // Find the date and set it to the right timezone.  
-   
+      // Find the date and set it to the right timezone.
+
       $node->date_id = array();
       $item_start_date = NULL;
       $item_end_date   = NULL;
@@ -319,7 +319,7 @@ class calendar_plugin_row_node extends views_plugin_row {
         // Set the date_id for the node, used to identify which field value to display for
         // fields that have multiple values. The theme expects it to be an array.
         $node->date_id = array('calendar.' . $node->nid . '.' . $field_name . '.' . $delta);
-     
+
         if (!empty($item['value'])) {
           $item_start_date = new dateObject($item['value'], $db_tz);
           $item_end_date   = array_key_exists('value2', $item) ? new dateObject($item['value2'], $db_tz) : $item_start_date;
@@ -339,13 +339,13 @@ class calendar_plugin_row_node extends views_plugin_row {
         $item_end_date   = $item_start_date;
         $node->date_id = array('calendar.' . $node->nid . '.' . $field_name . '.0');
       }
-      
+
       // If we don't have date value, go no further.
       if (empty($item_start_date)) {
-        return;
+        continue;
       }
 
-      // Set the item date to the proper display timezone;      
+      // Set the item date to the proper display timezone;
       $item_start_date->setTimezone(new dateTimezone($to_zone));
       $item_end_date->setTimezone(new dateTimezone($to_zone));
 
@@ -365,7 +365,7 @@ class calendar_plugin_row_node extends views_plugin_row {
 
       // All calendar row plugins should provide a date_id that the theme can use.
       $event->date_id = $node->date_id[0];
-      
+
       $nodes = $this->explode_values($event);
       foreach ($nodes as $node) {
         switch ($this->options['colors']['legend']) {
@@ -389,7 +389,7 @@ class calendar_plugin_row_node extends views_plugin_row {
   function explode_values($event) {
     $rows = array();
 
-    $date_info = $this->date_argument->view->date_info;    
+    $date_info = $this->date_argument->view->date_info;
     $item_start_date = $event->date_start;
     $item_end_date = $event->date_end;
     $to_zone = $event->to_zone;
@@ -397,9 +397,9 @@ class calendar_plugin_row_node extends views_plugin_row {
     $granularity = $event->granularity;
     $increment = $event->increment;
 
-    // Now that we have a 'node' for each view result, we need 
+    // Now that we have a 'node' for each view result, we need
     // to remove anything outside the view date range,
-    // and possibly create additional nodes so that we have a 'node' 
+    // and possibly create additional nodes so that we have a 'node'
     // for each day that this item occupies in this view.
     $now = max($date_info->min_zone_string, $item_start_date->format(DATE_FORMAT_DATE));
     $to  = min($date_info->max_zone_string, $item_end_date->format(DATE_FORMAT_DATE));
@@ -432,18 +432,18 @@ class calendar_plugin_row_node extends views_plugin_row {
       // Get intersection of current day and the node value's duration (as strings in $to_zone timezone).
       $node->calendar_start = $item_start < $start ? $start : $item_start;
       $node->calendar_end = !empty($item_end) ? ($item_end > $end ? $end : $item_end) : $node->calendar_start;
-      
+
       // Make date objects
       $node->calendar_start_date = date_create($node->calendar_start, timezone_open($to_zone));
       $node->calendar_end_date = date_create($node->calendar_end, timezone_open($to_zone));
 
-      // Change string timezones into 
+      // Change string timezones into
       // calendar_start and calendar_end are UTC dates as formatted strings
       $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
       $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
       $node->calendar_all_day = date_is_all_day($node->calendar_start, $node->calendar_end, $granularity, $increment);
 
-      // Change string timezones into 
+      // Change string timezones into
       // calendar_start and calendar_end are UTC dates as formatted strings
       $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
       $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
@@ -456,13 +456,13 @@ class calendar_plugin_row_node extends views_plugin_row {
       }
       else {
         $node->date_id .= '.' . $pos;
-        
+
         $rows[] = $node;
         unset($node);
       }
       date_modify($next, '+1 second');
-      $now = date_format($next, DATE_FORMAT_DATE);  
-      $pos++;    
+      $now = date_format($next, DATE_FORMAT_DATE);
+      $pos++;
 
     }
     return $rows;
@@ -479,13 +479,13 @@ class calendar_plugin_row_node extends views_plugin_row {
     if (empty($node->type)) {
       return;
     }
-  
+
     $type_names = node_type_get_names();
     $type = $node->type;
     if (!(isset($node->stripe))) {
       $node->stripe = array();
       $node->stripe_label = array();
-    }  
+    }
     if (array_key_exists($type, $type_names)) {
       $label = $type_names[$type];
     }
@@ -495,23 +495,23 @@ class calendar_plugin_row_node extends views_plugin_row {
     else {
       $stripe = '';
     }
-  
+
     $node->stripe[] = $stripe;
     $node->stripe_label[] = $label;
     $GLOBALS['calendar_stripe_labels'][][$type] = array('stripe' => $stripe, 'label' => $label);
     return $stripe;
   }
-  
+
    /**
    * Create a stripe based on a taxonomy term.
    */
-  
+
   function calendar_node_taxonomy_stripe(&$event) {
     $term_colors = isset($this->options['colors']['calendar_colors_taxonomy']) ? $this->options['colors']['calendar_colors_taxonomy'] : array();
     if (empty($term_colors)) {
       return;
     }
-  
+
     $node = $event->node;
     $terms = array();
     if ($this->options['colors']['legend'] == 'taxonomy') {
@@ -524,12 +524,12 @@ class calendar_plugin_row_node extends views_plugin_row {
           }
         }
       }
-    }  
-  
+    }
+
     if (empty($terms)) {
       return;
     }
-  
+
     if (!(isset($event->stripe))) {
       $event->stripe = array();
       $event->stripe_label = array();
@@ -550,11 +550,11 @@ class calendar_plugin_row_node extends views_plugin_row {
     else {
       $event->stripe[] = '';
       $event->stripe_label[] = '';
-    } 
+    }
 
     return;
   }
-  
+
   /**
    * Create a stripe based on group.
    */
@@ -586,7 +586,7 @@ class calendar_plugin_row_node extends views_plugin_row {
     else {
       $node->stripe[] = '';
       $node->stripe_label[] = '';
-    } 
+    }
     return $stripe;
   }
 }

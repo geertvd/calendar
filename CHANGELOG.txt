@@ -10,6 +10,7 @@ The links at the top of the calendar page have been reworked into tabs. They wil
 until you clear the caches. Use hook_calendar_links_alter() to alter the links or the titles 
 or to empty the links array if you don't want to see them.
 
+- Issue #1230500, The calendar row logic was failing if there was more than one date field in a node due to a bad return value. Also fixed some errors caused by not returning an empty array for missing values.
 - Issue #1236610, Allow the calendar style to work with any row plugin that extends the calendar_row_plugin.
 - Issue #1265590, The calendar tabs were not showing up for everyone.
 - Issue #1312792, Rework language handling for the calendar row plugin.
