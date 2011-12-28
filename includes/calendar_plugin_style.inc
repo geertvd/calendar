@@ -220,9 +220,10 @@ class calendar_plugin_style extends views_plugin_style {
       return;
     }
 
+    // There are date arguments that have not been added by Date Views.
+    // They will be missing the information we would need to render the field.
     if (empty($argument->min_date)) {
-      //debug('calendar_plugin_style: Empty date argument');
-      return;
+      //return;
     }
 
     // Add information from the date argument to the view.
