@@ -84,8 +84,7 @@
                 $class = '';
               } ?>
             <div class="<?php print $class?>calendar-agenda-hour">
-              <span class="calendar-hour"><?php print $hour['hour']; ?></span>
-              <span class="calendar-ampm"><?php print $hour['ampm']; ?></span>
+              <span class="calendar-hour"><?php print $hour['hour']; ?></span><span class="calendar-ampm"><?php print $hour['ampm']; ?></span>
             </div>
           <?php endforeach; ?>   
         </td>

@@ -186,8 +186,7 @@
               <?php if( $index == 0 ): ?>
               <?php $time = $items[$start_time];?>
               <div class="<?php print $class?>calendar-agenda-hour">
-                <span class="calendar-hour"><?php print $time['hour']; ?></span>
-                <span class="calendar-ampm"><?php print $time['ampm']; ?></span>
+                <span class="calendar-hour"><?php print $time['hour']; ?></span><span class="calendar-ampm"><?php print $time['ampm']; ?></span>
               </div>
               <?php else: ?>
               <div class="<?php print $class?>calendar-agenda-items single-day">
