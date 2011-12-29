@@ -222,6 +222,66 @@ function calendar_node_view($node, $view_mode, $langcode) {
 }
 
 /**
+ * Helper function to link an entity type to a calendar.
+ *
+ * @param $entity_type - the type of entity.
+ * @param $bundle - the entity bundle name.
+ * @param $path - the calendar path to use for this bundle.
+ */
+function calendar_set_link($entity_type, $bundle, $path) {
+  switch ($entity_type) {
+    case 'node':
+      variable_set('calendar_date_link_' . $bundle, $path);
+      break;
+    default:
+      variable_set('calendar_date_link_' . $entity_type . '_' . $bundle, $path);
+      break;
+  }
+}
+
+/**
+ * Helper function to clear previously-set links to calendars.
+ *
+ * @param $bundle, Clear all links for this bundle. If NULL, clear all links.
+ */
+function calendar_clear_link_bundle($bundle = NULL) {
+  if (empty($bundle)) {
+    $result = db_select('variable', 'v')
+      ->fields('v', 'name')
+      ->condition('name', 'calendar_date_link_%', 'LIKE')
+      ->execute()->fetchAll(PDO::FETCH_ASSOC);
+  }
+  else {
+    $result = db_select('variable', 'v')
+      ->fields('v', 'name')
+      ->condition('name', 'calendar_date_link_' . $bundle)
+      ->execute()->fetchAll(PDO::FETCH_ASSOC);
+  }
+  // Iterate over all the values and delete them.
+  foreach ($result as $row) {
+    variable_del($row['name']);
+  }
+}
+
+/**
+ * Helper function to clear previously-set links to calendars.
+ *
+ * @param $path, Clear all links to this path. If NULL, clear all links.
+ */
+function calendar_clear_link_path($path = NULL) {
+  $result = db_select('variable', 'v')
+    ->fields('v', array('name', 'value'))
+    ->condition('name', 'calendar_date_link_%', 'LIKE')
+    ->execute()->fetchAll(PDO::FETCH_ASSOC);
+  // Iterate over all the values and delete them.
+  foreach ($result as $row) {
+    if (empty($path) || unserialize($row['value']) == $path) {
+      variable_del($row['name']);
+    }
+  }
+}
+
+/**
  * Formats the weekday information into table header format
  *
  * @ingroup event_support

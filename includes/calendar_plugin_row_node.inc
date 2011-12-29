@@ -206,9 +206,11 @@ class calendar_plugin_row_node extends views_plugin_row {
 
   function options_submit(&$form, &$form_state) {
     parent::options_submit($form, $form_state);
+    $path = $this->view->display_handler->get_option('path');
+    calendar_clear_link_path($path);
     if (!empty($form_state['values']['row_options']['calendar_date_link'])) {
-      $path = $this->view->display_handler->get_option('path');
-      variable_set('calendar_date_link_' . $form_state['values']['row_options']['calendar_date_link'], $path);
+      $node_type = $form_state['values']['row_options']['calendar_date_link'];
+      calendar_set_link('node', $node_type, $path);
     }
   }
 

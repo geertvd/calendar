@@ -10,6 +10,7 @@ The links at the top of the calendar page have been reworked into tabs. They wil
 until you clear the caches. Use hook_calendar_links_alter() to alter the links or the titles
 or to empty the links array if you don't want to see them.
 
+- Issue #462748, Make sure calendar links can be deleted as well as created.
 - Issue #1301734 by Danny_Joris, Do not show any links to disabled displays.
 - Issue #1383782 by googletorp, Check if module_exists('taxonomy') before creating taxonomy strip options.
 - Issue #1235344 by kenianbei, Make sure items don't overlap if they start and end on the same times.
@@ -34,9 +35,6 @@ or to empty the links array if you don't want to see them.
 - Issue #1254920 by larsdesigns, calendar.css is not complient with Drupal Coding Standards
 - Issue #1254916 by larsdesigns, calendar-overlap.css is not complient with Drupal Coding Standards
 
-Starting new branch with a total rework of Calendar, using a Views pager plugin for the back/next navigation,
-a row plugin to explode the view results into calendar day items, and a style plugin to disply the results in a calendar.
-
 ======================
 Version 7.x-3.0-alpha2
 ======================
@@ -57,6 +55,9 @@ Version 7.x-3.0-alpha1
 ======================
 
 Initial release of 7.3 branch.
+
+Starting new branch with a total rework of Calendar, using a Views pager plugin for the back/next navigation,
+a row plugin to explode the view results into calendar day items, and a style plugin to disply the results in a calendar.
 
 - Get colorpicker working again with an assist from the Examples module Field example.
 - Issue #1227128 The ical feed needs to have a '.ics' extension on it.
