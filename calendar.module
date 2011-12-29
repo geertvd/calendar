@@ -196,6 +196,11 @@ function calendar_theme() {
       'template' => 'calendar-month-row',
       'variables' => array('inner' => NULL, 'class' => NULL, 'iehint' => NULL),
       ),
+    'calendar_month_multiple_entity' => $base + array(
+      'template' => 'calendar-month-multiple-entity',
+      'variables' => array('
+         curday' => NULL, 'count' => NULL, 'view' => NULL, 'ids' => NULL),
+      ),
     );
 }
 

@@ -524,9 +524,11 @@ function template_preprocess_calendar_datebox(&$vars) {
 /**
  * Format an calendar month node for display.
  */
-function template_preprocess_calendar_month_multiple_node(&$vars) {
+function template_preprocess_calendar_month_multiple_entity(&$vars) {
   $view = $vars['view'];
   $curday = $vars['curday'];
+  $count = $vars['count'];
+  $ids = $vars['ids'];
 
   // get the year month and date
   $parts = explode('-', substr($curday, 0, 10));
@@ -535,24 +537,9 @@ function template_preprocess_calendar_month_multiple_node(&$vars) {
   $day = intval($parts[2]);
 
   // create the link to the day
-  $vars['link'] = date_pager_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month) .'-'. date_pad($day));
-}
-
-/**
- * Format an calendar week node for display.
- */
-function template_preprocess_calendar_week_multiple_node(&$vars) {
-  $view = $vars['view'];
-  $curday = $vars['curday'];
-
-  // get the year month and date
-  $parts = explode('-', substr($curday, 0, 10));
-  $year = $parts[0];
-  $month = intval($parts[1]);
-  $day = intval($parts[2]);
-
-  // create the link to the day
-  $vars['link'] = date_pager_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month) .'-'. date_pad($day));
+  $month_path = calendar_granularity_path($view, 'month');
+  $day_path = calendar_granularity_path($view, 'day');
+  $vars['link'] = str_replace($month_path, $day_path, date_pager_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month) .'-'. date_pad($day)));
 }
 
 /**
