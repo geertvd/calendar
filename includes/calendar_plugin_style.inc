@@ -115,8 +115,8 @@ class calendar_plugin_style extends views_plugin_style {
       '#title' => t('Overlapping time style'),
       '#default_value' => $this->options['theme_style'],
       '#type' => 'select',
-      '#options' => array(0 => t('Do not display overlapping items'), 1 => t('Display overlapping items')),
-      '#description' => t('Select whether calendar items are displayed as overlapping items. Only works if some sort of time grouping is chosen!'),
+      '#options' => array(0 => t('Do not display overlapping items'), 1 => t('Display overlapping items, with scrolling'), 2 => t('Display overlapping items, no scrolling')),
+      '#description' => t('Select whether calendar items are displayed as overlapping items. Use scrolling to limit the window to the selected items or omit scrolling to display the whole day. Only works if some sort of time grouping is chosen!'),
       '#dependency' => array('edit-style-options-calendar-type' => array('day', 'week')),
       );
 

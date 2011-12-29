@@ -145,13 +145,17 @@ function template_preprocess_calendar_day(&$vars) {
   $by_hour_count = 0;
   $grouping_field = !empty($view->date_info->style_groupby_field) ? ($view->date_info->style_groupby_field - 1) : NULL;
   $display_overlap = !empty($view->date_info->style_theme_style) && !empty($view->date_info->style_groupby_times);
+  $vars['scroll_content'] = !empty($view->date_info->style_theme_style) && $view->date_info->style_theme_style == 1;
 
   // Add optional css
   if ($display_overlap) {
     $overlapped_items = array();
     drupal_add_css(drupal_get_path('module', 'calendar')  .'/css/calendar-overlap.css');
-    if (empty($view->live_preview)) {
+    if (empty($view->live_preview) && !empty($vars['scroll_content'])) {
       drupal_add_js(drupal_get_path('module', 'calendar') . '/js/calendar_overlap.js');
+    }
+    if (empty($vars['scroll_content'])) {
+      drupal_add_css(drupal_get_path('module', 'calendar')  .'/css/calendar-overlap-no-scroll.css');
     }
   }
 
@@ -340,14 +344,18 @@ function template_preprocess_calendar_week(&$vars) {
 
   // Remove the count for singleday
   $vars['multiday_rows'] = max(0, $rows['total_rows'] - 1); 
-  $display_overlap = ($view->date_info->style_multiday_theme == '1' && $view->date_info->style_theme_style == '1');
+  $display_overlap = ($view->date_info->style_multiday_theme == '1' && !empty($view->date_info->style_theme_style));
   $vars['display_overlap'] = $display_overlap;
+  $vars['scroll_content'] = !empty($view->date_info->style_theme_style) && $view->date_info->style_theme_style == 1;
 
   // Add optional css
   if ($display_overlap) {
     drupal_add_css(drupal_get_path('module', 'calendar')  .'/css/calendar-overlap.css');
-    if (empty($view->live_preview)) {
+    if (empty($view->live_preview) && !empty($vars['scroll_content'])) {
       drupal_add_js(drupal_get_path('module', 'calendar') . '/js/calendar_overlap.js');
+    }
+    if (empty($vars['scroll_content'])) {
+      drupal_add_css(drupal_get_path('module', 'calendar')  .'/css/calendar-overlap-no-scroll.css');
     }
     $overlapped_items = array( array(), array(), array(), array(), array(), array(), array());
 
