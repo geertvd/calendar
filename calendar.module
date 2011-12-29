@@ -33,7 +33,7 @@ function calendar_preprocess_date_views_pager(&$vars) {
   $base = array('attributes' => array('rel' => 'nofollow'));
   foreach($view->display as $id => $display) {
     // Check for !empty() in case the view is not fully formed or has displays that are marked to be deleted.
-    if (!empty($display->deleted) || empty($display->display_options['style_plugin'])) {
+    if (!empty($display->deleted) || empty($display->display_options['style_plugin']) || (isset($display->display_options['enabled']) && $display->display_options['enabled'] == FALSE)) {
       continue;
     }
     if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
@@ -320,7 +320,7 @@ function calendar_granularity_path(&$view, $granularity) {
     $paths[$view->name][$granularity] = '';
     foreach($view->display as $id => $display) {
       // Check for !empty() in case the view is not fully formed or has displays that are marked to be deleted
-      if (!empty($display->deleted) || empty($display->display_options['style_plugin'])) {
+      if (!empty($display->deleted) || empty($display->display_options['style_plugin']) || (isset($display->display_options['enabled']) && $display->display_options['enabled'] == FALSE)) {
         continue;
       }
       if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
