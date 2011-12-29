@@ -445,11 +445,6 @@ class calendar_plugin_row_node extends views_plugin_row {
       $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
       $node->calendar_all_day = date_is_all_day($node->calendar_start, $node->calendar_end, $granularity, $increment);
 
-      // Change string timezones into
-      // calendar_start and calendar_end are UTC dates as formatted strings
-      $node->calendar_start = date_format($node->calendar_start_date, DATE_FORMAT_DATETIME);
-      $node->calendar_end = date_format($node->calendar_end_date, DATE_FORMAT_DATETIME);
-
       unset($node->calendar_fields);
       if (isset($node) && (empty($node->calendar_start))) {
         // if no date for the node and no date in the item

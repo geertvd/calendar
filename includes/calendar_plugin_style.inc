@@ -833,7 +833,7 @@ class calendar_plugin_style extends views_plugin_style {
                 $all_day[] = $item;
               }
               else {
-                $key = date_format($item->date_start, 'H:i:s');
+                $key = date_format($item->calendar_start_date, 'H:i:s');
                 $inner[$key][] = $item;
               }
             }

@@ -3,8 +3,8 @@
 .calendar-calendar .week-view #single-day-container,
 .calendar-calendar .day-view #multi-day-container,
 .calendar-calendar .day-view #single-day-container {
-  overflow-y: auto;
-  overflow-x: auto;
+  overflow-y: hidden;
+  overflow-x: hidden;
 }
  .calendar-calendar .week-view #single-day-container,
  .calendar-calendar .day-view #single-day-container {
