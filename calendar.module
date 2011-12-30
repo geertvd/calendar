@@ -93,7 +93,7 @@ function calendar_menu_local_tasks_alter(&$data, $router_item, $root_path) {
         // redirect back to the calendar.
         $item['localized_options'] += array('query' => array());
         $item['localized_options']['query'] += drupal_get_destination();
-        if ($item['access']) {
+        if (array_key_exists('access', $item) && $item['access']) {
           $data['actions']['output'][] = array(
             '#theme' => 'menu_local_action',
             '#link' => $item,
@@ -111,7 +111,7 @@ function calendar_menu_local_tasks_alter(&$data, $router_item, $root_path) {
           // links to the other views will have been adjusted to keep information
           // about the right year/month/week/day to go to.
           $item['href'] = $tab['path'];
-          if ($item['access']) {
+          if (array_key_exists('access', $item) && $item['access']) {
             $data['tabs'][0]['output'][$delta] = array(
               '#theme' => 'menu_local_task',
               '#link' => $item,
