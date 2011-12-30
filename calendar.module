@@ -104,19 +104,20 @@ function calendar_menu_local_tasks_alter(&$data, $router_item, $root_path) {
     if (!empty($calendar_data['tabs'])) {
       $delta = !empty($data['tabs'][0]['count']) ? $data['tabs'][0]['count'] - 1 : 0;
       foreach ($calendar_data['tabs'] as $tab) {
-        $item = menu_get_item($tab['path']);
+        $clean_path = str_replace('?q=', '', $tab['path']);
+        $item = menu_get_item($clean_path);
         if (!empty($item)) {
           $item['title'] = $tab['title'];
           // If we have moved off the default page for the calendar, the
           // links to the other views will have been adjusted to keep information
           // about the right year/month/week/day to go to.
-          $item['href'] = $tab['path'];
+          $item['href'] = $clean_path;
           if (array_key_exists('access', $item) && $item['access']) {
             $data['tabs'][0]['output'][$delta] = array(
               '#theme' => 'menu_local_task',
               '#link' => $item,
             );
-            if (strpos($tab['path'], $root_path) === 0) {
+            if (strpos($clean_path, $root_path) === 0) {
               $data['tabs'][0]['output'][$delta]['#active'] = TRUE;
             }
             $delta++;
