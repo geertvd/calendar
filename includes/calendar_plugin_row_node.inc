@@ -133,7 +133,7 @@ class calendar_plugin_row_node extends views_plugin_row {
       }
       $taxonomy_field = field_info_field($this->options['colors']['taxonomy_field']);
       $vocab_names[] = array();
-      foreach ($taxonomy_field['settings']['allowed_values'] as $delta => $options) {
+      foreach ((array) $taxonomy_field['settings']['allowed_values'] as $delta => $options) {
         $vocab_names[] = $options['vocabulary'];
       }
       $taxonomies = taxonomy_get_vocabularies();
@@ -555,6 +555,7 @@ class calendar_plugin_row_node extends views_plugin_row {
    */
   function calendar_node_group_stripe(&$node) {
     $colors_group = isset($this->options['colors']['calendar_colors_group']) ? $this->options['colors']['calendar_colors_group'] : array();
+
     if (empty($colors_group)) {
       return;
     }
@@ -582,7 +583,7 @@ class calendar_plugin_row_node extends views_plugin_row {
       $node->stripe[] = '';
       $node->stripe_label[] = '';
     }
-    return $stripe;
+    return;
   }
 }
 
