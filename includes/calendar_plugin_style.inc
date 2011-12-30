@@ -218,7 +218,7 @@ class calendar_plugin_style extends views_plugin_style {
       return;
     }
     if (!$argument = $this->date_argument_handler()) {
-      debug('calendar_plugin_style: A date argument is required when using the calendar style, but it is missing.');
+      debug('calendar_plugin_style: A date argument is required when using the calendar style, but it is missing or is not using the default date.');
       return;
     }
 
