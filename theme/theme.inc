@@ -264,11 +264,21 @@ function template_preprocess_calendar_day(&$vars) {
     foreach ($grouped_items[$start_time]['values'] as $column => &$items) {
       foreach ($items as $index => &$item) {
         if ($display_overlap) {
-          $offset = round(date_format($item->calendar_start_date, 'i') / 15);
-          $end = new DateObject('1970-01-01 ' . $item->time_end);
-          $start = new DateObject('1970-01-01 ' . $item->time_start);
-          $duration = $end->difference($start);
-          $duration = round($duration / (15 * 60));
+          switch ($view->style_options['groupby_times']) {
+            case 'half':
+              $group_time = 30;
+              $divisor = 7.5;
+              break;
+            case 'hour':
+              $group_time = 60;
+              $divisor = 15;
+              break;
+            default:
+              continue;
+          }
+          $start_minute = intval(substr($start_time, 3, 2));
+          $offset = round((date_format($item->date_start, 'i') - $start_minute) / $divisor);
+          $duration = round(($item->date_end->format('U') - $item->date_start->format('U')) / 60 / $divisor);
           $item->class = 'd_'. $duration . ' o_'. $offset . ' i_' . $item->indent . ' md_' . min($item->max_depth, 5);
         }
         $grouped_items[$start_time]['values'][$column][$index] = theme('calendar_item', array('view' => $view, 'rendered_fields' => $item->rendered_fields, 'item' => $item));
@@ -464,9 +474,21 @@ function template_preprocess_calendar_week(&$vars) {
       foreach ($grouped_items[$start_time]['values'] as $wday => &$items) {
         foreach ($items as &$item) {
           if ($display_overlap) {
-            $offset = round(date_format($item['item']->date_start, 'i') / 15);
-            $duration = $item['item']->date_end->format('U') - $item['item']->date_start->format('U');
-            $duration = round($duration / (15 * 60));
+            switch ($view->style_options['groupby_times']) {
+              case 'half':
+                $group_time = 30;
+                $divisor = 7.5;
+                break;
+              case 'hour':
+                $group_time = 60;
+                $divisor = 15;
+                break;
+              default:
+                continue;
+            }
+            $start_minute = intval(substr($start_time, 3, 2));
+            $offset = round((date_format($item['item']->date_start, 'i') - $start_minute) / $divisor);
+            $duration = round(($item['item']->date_end->format('U') - $item['item']->date_start->format('U')) / 60 / $divisor);
             $item['class'] = 'd_'. $duration . ' o_'. $offset . ' i_' . $item['indent'] . ' md_' . min($item['max_depth'], 5);
           }
         } 

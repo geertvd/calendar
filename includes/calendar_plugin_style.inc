@@ -115,7 +115,7 @@ class calendar_plugin_style extends views_plugin_style {
       '#default_value' => $this->options['theme_style'],
       '#type' => 'select',
       '#options' => array(0 => t('Do not display overlapping items'), 1 => t('Display overlapping items, with scrolling'), 2 => t('Display overlapping items, no scrolling')),
-      '#description' => t('Select whether calendar items are displayed as overlapping items. Use scrolling to limit the window to the selected items or omit scrolling to display the whole day. Only works if some sort of time grouping is chosen!'),
+      '#description' => t('Select whether calendar items are displayed as overlapping items. Use scrolling to shrink the window and focus on the selected items, or omit scrolling to display the whole day. This only works if hour or half hour time grouping is chosen!'),
       '#dependency' => array('edit-style-options-calendar-type' => array('day', 'week')),
       );
 
@@ -150,11 +150,14 @@ class calendar_plugin_style extends views_plugin_style {
     if ($values['groupby_times'] == 'custom' && empty($values['groupby_times_custom'])) {
       form_set_error('style_options][groupby_times_custom', t('Custom groupby times cannot be empty.'));
     }
-    if (!empty($values['theme_style']) && empty($values['groupby_times'])) {
-      form_set_error('style_options][theme_style', t('You cannot use overlapping items unless there are groupby times selected.'));
+    if (!empty($values['theme_style']) && (empty($values['groupby_times']) || !in_array($values['groupby_times'], array('hour', 'half')))) {
+      form_set_error('style_options][theme_style', t('Overlapping items only work with hour or half hour groupby times.'));
     }
     if (!empty($values['theme_style']) && !empty($values['groupby_field'])) {
       form_set_error('style_options][theme_style', t('You cannot use overlapping items and also try to group by a field value.'));
+    }
+    if ($values['groupby_times'] != 'custom') {
+      form_set_value($form['groupby_times_custom'], NULL, $form_state);
     }
 
   }
