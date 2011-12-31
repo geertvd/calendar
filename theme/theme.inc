@@ -23,7 +23,7 @@ function template_preprocess_calendar_month(&$vars) {
   if (empty($rows)) {
     $rows = array();
     $day_names = array();
-  } 
+  }
   elseif (sizeof($rows) > 1) {
     $day_names = array_shift($rows);
   }
@@ -80,10 +80,10 @@ function template_preprocess_calendar_mini(&$vars) {
 
   $view = $vars['view'];
 
-  // Make sure that the calendar title links go to the month view, 
+  // Make sure that the calendar title links go to the month view,
   // not the year view (if this is embedded in a year display).
-  $view->override_path =  calendar_granularity_path($view, 'month');  
-    
+  $view->override_path =  calendar_granularity_path($view, 'month');
+
   $view->date_info->show_title = !empty($view->date_info->show_title) ? $view->date_info->show_title : FALSE;
   $vars['show_title'] = $view->date_info->show_title;
   $vars['view'] = $view;
@@ -94,8 +94,8 @@ function template_preprocess_calendar_mini(&$vars) {
  */
 function template_preprocess_calendar_year(&$vars) {
 
-  // Construct a calendar for each month, adjusting the $view passed 
-  // to the theme so it will produce the right results.  
+  // Construct a calendar for each month, adjusting the $view passed
+  // to the theme so it will produce the right results.
   $view = clone($vars['view']);
   $year = date_format($view->date_info->min_date, 'Y');
   $view->date_info->style_with_weekno = FALSE;
@@ -113,8 +113,8 @@ function template_preprocess_calendar_year(&$vars) {
     date_modify($view->date_info->max_date, '+1 month');
     date_modify($view->date_info->max_date, '-1 second');
     $variables = array(
-      'view' => $view, 
-      'options' => $vars['options'], 
+      'view' => $view,
+      'options' => $vars['options'],
       'rows' => $month_rows,
     );
     $months[$month] = theme('calendar_mini', $variables);
@@ -150,12 +150,12 @@ function template_preprocess_calendar_day(&$vars) {
   // Add optional css
   if ($display_overlap) {
     $overlapped_items = array();
-    drupal_add_css(drupal_get_path('module', 'calendar')  .'/css/calendar-overlap.css');
+    drupal_add_css(drupal_get_path('module', 'calendar') . '/css/calendar-overlap.css');
     if (empty($view->live_preview) && !empty($vars['scroll_content'])) {
       drupal_add_js(drupal_get_path('module', 'calendar') . '/js/calendar_overlap.js');
     }
     if (empty($vars['scroll_content'])) {
-      drupal_add_css(drupal_get_path('module', 'calendar')  .'/css/calendar-overlap-no-scroll.css');
+      drupal_add_css(drupal_get_path('module', 'calendar') . '/css/calendar-overlap-no-scroll.css');
     }
   }
 
@@ -176,7 +176,7 @@ function template_preprocess_calendar_day(&$vars) {
   $grouped_items = array();
   foreach ($rows['all_day'] as $item) {
     if (!empty($item->rendered_fields[$grouping_field])) {
-      $column = $item->rendered_fields[$grouping_field];        
+      $column = $item->rendered_fields[$grouping_field];
       unset($item->rendered_fields[$grouping_field]); // Remove the grouping field from the results.
       if (!in_array($column, $columns)) {
         $columns[] = $column;
@@ -192,7 +192,7 @@ function template_preprocess_calendar_day(&$vars) {
 
   // Moved timed items into the right columns and render them.
   $start_times = $view->date_info->style_groupby_times;
-  $show_empty_times = $view->date_info->style_show_empty_times; 
+  $show_empty_times = $view->date_info->style_show_empty_times;
   $end_start_time = '23:59:59';
   $start_time = array_shift($start_times);
   $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
@@ -215,7 +215,7 @@ function template_preprocess_calendar_day(&$vars) {
       // slots if the option to show empty times was chosen.
       while ($time >= $next_start_time && $time < $end_start_time) {
         if ((!empty($show_empty_times) || $display_overlap) && !array_key_exists($start_time, $grouped_items)) {
-          $grouped_items[$start_time]['values'] = array();        
+          $grouped_items[$start_time]['values'] = array();
         }
         $start_time = $next_start_time;
         $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
@@ -224,7 +224,7 @@ function template_preprocess_calendar_day(&$vars) {
       if ($display_overlap) {
         $time_end = date_format($item->calendar_end_date, 'H:i:s');
         $item->time_start = $time;
-        $item->time_end = $time_end; 
+        $item->time_end = $time_end;
         _calc_indents($overlapped_items, $time, $time_end, $item);
       }
       $item_count++;
@@ -241,7 +241,7 @@ function template_preprocess_calendar_day(&$vars) {
         $next_start_time = array_shift($start_times);
       }
       if (!array_key_exists($start_time, $grouped_items)) {
-        $grouped_items[$start_time]['values'] = array();        
+        $grouped_items[$start_time]['values'] = array();
       }
       $start_time = $next_start_time;
       $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
@@ -254,13 +254,13 @@ function template_preprocess_calendar_day(&$vars) {
   foreach ($start_times as $start_time) {
     $next_start_time = array_key_exists($i + 1, $start_times) ? $start_times[$i + 1] : '23:59:59';
     $variables = array(
-      'start_time' => $start_time, 
-      'next_start_time' => $next_start_time, 
+      'start_time' => $start_time,
+      'next_start_time' => $next_start_time,
       'curday_date' => $rows['date'],
     );
     $heading = theme('calendar_time_row_heading', $variables);
     $grouped_items[$start_time]['hour'] = $heading['hour'];
-    $grouped_items[$start_time]['ampm'] = $heading['ampm']; 
+    $grouped_items[$start_time]['ampm'] = $heading['ampm'];
     foreach ($grouped_items[$start_time]['values'] as $column => &$items) {
       foreach ($items as $index => &$item) {
         if ($display_overlap) {
@@ -279,12 +279,12 @@ function template_preprocess_calendar_day(&$vars) {
           $start_minute = intval(substr($start_time, 3, 2));
           $offset = round((date_format($item->date_start, 'i') - $start_minute) / $divisor);
           $duration = round(($item->date_end->format('U') - $item->date_start->format('U')) / 60 / $divisor);
-          $item->class = 'd_'. $duration . ' o_'. $offset . ' i_' . $item->indent . ' md_' . min($item->max_depth, 5);
+          $item->class = 'd_' . $duration . ' o_' . $offset . ' i_' . $item->indent . ' md_' . min($item->max_depth, 5);
         }
         $grouped_items[$start_time]['values'][$column][$index] = theme('calendar_item', array('view' => $view, 'rendered_fields' => $item->rendered_fields, 'item' => $item));
-      } 
+      }
     }
-    $i++;      
+    $i++;
   }
   ksort($grouped_items);
   $vars['rows']['items'] = $grouped_items;
@@ -344,7 +344,7 @@ function template_preprocess_calendar_week(&$vars) {
   }
 
   // Moved timed items into the right columns and render them.
-  $show_empty_times = $view->date_info->style_show_empty_times; 
+  $show_empty_times = $view->date_info->style_show_empty_times;
   $end_start_time = '23:59:59';
 
   $grouped_items = array();
@@ -353,19 +353,19 @@ function template_preprocess_calendar_week(&$vars) {
   $vars['all_day'] = $rows['multiday_buckets'];
 
   // Remove the count for singleday
-  $vars['multiday_rows'] = max(0, $rows['total_rows'] - 1); 
+  $vars['multiday_rows'] = max(0, $rows['total_rows'] - 1);
   $display_overlap = ($view->date_info->style_multiday_theme == '1' && !empty($view->date_info->style_theme_style));
   $vars['display_overlap'] = $display_overlap;
   $vars['scroll_content'] = !empty($view->date_info->style_theme_style) && $view->date_info->style_theme_style == 1;
 
   // Add optional css
   if ($display_overlap) {
-    drupal_add_css(drupal_get_path('module', 'calendar')  .'/css/calendar-overlap.css');
+    drupal_add_css(drupal_get_path('module', 'calendar') . '/css/calendar-overlap.css');
     if (empty($view->live_preview) && !empty($vars['scroll_content'])) {
       drupal_add_js(drupal_get_path('module', 'calendar') . '/js/calendar_overlap.js');
     }
     if (empty($vars['scroll_content'])) {
-      drupal_add_css(drupal_get_path('module', 'calendar')  .'/css/calendar-overlap-no-scroll.css');
+      drupal_add_css(drupal_get_path('module', 'calendar') . '/css/calendar-overlap-no-scroll.css');
     }
     $overlapped_items = array( array(), array(), array(), array(), array(), array(), array());
 
@@ -380,7 +380,7 @@ function template_preprocess_calendar_week(&$vars) {
           $first_time = $time;
           $first_time_index = $i;
         }
-      } 
+      }
     }
     if ($first_time_index > -1) {
       $rows['singleday_buckets'][$first_time_index][$first_time][0]['is_first'] = TRUE;
@@ -399,9 +399,9 @@ function template_preprocess_calendar_week(&$vars) {
       }
     }
     if ( $add_row ) {
-      $vars['multiday_rows']++; 
+      $vars['multiday_rows']++;
     }
-  } 
+  }
   else {
     foreach ($rows['singleday_buckets'] as $wday => $singleday_row) {
       $columns[] = $wday;
@@ -416,23 +416,23 @@ function template_preprocess_calendar_week(&$vars) {
             if ($vars['multiday_rows'] == 0) {
               $vars['multiday_rows']++;
             }
-          } 
+          }
           else {
             // Find the next time slot and fill it. Populate the skipped
             // slots if the option to show empty times was chosen.
             while ($time >= $next_start_time && $time < $end_start_time) {
               if (($show_empty_times || $display_overlap) && !array_key_exists($start_time, $grouped_items)) {
-                $grouped_items[$start_time]['values'][$wday] = array();   
+                $grouped_items[$start_time]['values'][$wday] = array();
               }
               $start_time = $next_start_time;
               $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
             }
-            $grouped_items[$start_time]['values'][$wday][] = &$item; 
+            $grouped_items[$start_time]['values'][$wday][] = &$item;
             if ($display_overlap) {
               $date_end = date_format($item['item']->date_end, 'H:i:s');
               _calc_indents($overlapped_items[$wday], $time, $date_end, $item);
             }
-            $item_count++; 
+            $item_count++;
             $by_hour_count++;
           }
         }
@@ -446,7 +446,7 @@ function template_preprocess_calendar_week(&$vars) {
             $next_start_time = array_shift($start_times);
           }
           if (!array_key_exists($start_time, $grouped_items)) {
-            $grouped_items[$start_time]['values'][$wday] = array();        
+            $grouped_items[$start_time]['values'][$wday] = array();
           }
           $start_time = $next_start_time;
           $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
@@ -462,8 +462,8 @@ function template_preprocess_calendar_week(&$vars) {
   foreach ($start_times as $start_time) {
     $next_start_time = array_key_exists($i + 1, $start_times) ? $start_times[$i + 1] : '23:59:59';
     $variables = array(
-      'start_time' => $start_time, 
-      'next_start_time' => $next_start_time, 
+      'start_time' => $start_time,
+      'next_start_time' => $next_start_time,
       'curday_date' => (isset($row['data'])) ? $row['data']['date'] : NULL,
     );
     $heading = theme('calendar_time_row_heading', $variables);
@@ -489,14 +489,14 @@ function template_preprocess_calendar_week(&$vars) {
             $start_minute = intval(substr($start_time, 3, 2));
             $offset = round((date_format($item['item']->date_start, 'i') - $start_minute) / $divisor);
             $duration = round(($item['item']->date_end->format('U') - $item['item']->date_start->format('U')) / 60 / $divisor);
-            $item['class'] = 'd_'. $duration . ' o_'. $offset . ' i_' . $item['indent'] . ' md_' . min($item['max_depth'], 5);
+            $item['class'] = 'd_' . $duration . ' o_' . $offset . ' i_' . $item['indent'] . ' md_' . min($item['max_depth'], 5);
           }
-        } 
+        }
       }
     }
   }
 
-  $vars['items'] = $grouped_items;  
+  $vars['items'] = $grouped_items;
 
   $vars['day_names'] = $day_names;
   $vars['columns'] = $columns;
@@ -561,7 +561,7 @@ function template_preprocess_calendar_month_multiple_entity(&$vars) {
   // create the link to the day
   $month_path = calendar_granularity_path($view, 'month');
   $day_path = calendar_granularity_path($view, 'day');
-  $vars['link'] = str_replace($month_path, $day_path, date_pager_url($view, NULL, date_pad($year, 4) .'-'. date_pad($month) .'-'. date_pad($day)));
+  $vars['link'] = str_replace($month_path, $day_path, date_pager_url($view, NULL, date_pad($year, 4) . '-' . date_pad($month) . '-' . date_pad($day)));
 }
 
 /**
@@ -570,14 +570,14 @@ function template_preprocess_calendar_month_multiple_entity(&$vars) {
  * $vars['rendered_fields'] = An array of the rendered display of each field in the View.
  * $vars['item'] = The source data for this item.
  * $vars['view'] = The view that this item is displayed on.
- * 
+ *
  * @TODO We need some options about how to combine rendered fields.
  * Fields rendered in multiday containers need to be inline.
  */
 
 /**
  * Format the time row headings in the week and day view.
- */ 
+ */
 function theme_calendar_time_row_heading($vars) {
   $start_time = $vars['start_time'];
   $next_start_time = $vars['next_start_time'];
@@ -598,11 +598,11 @@ function theme_calendar_time_row_heading($vars) {
     $hour = t('All times');
   }
   elseif ($start_time == '00:00:00') {
-    $date = date_create($curday_date .' '. $next_start_time);
+    $date = date_create($curday_date . ' ' . $next_start_time);
     $hour = t('Before @time', array('@time' => date_format($date, $format_hour)));
   }
   else {
-    $date = date_create($curday_date .' '. $start_time);
+    $date = date_create($curday_date . ' ' . $start_time);
     $hour = date_format($date, $format_hour);
   }
   if (!empty($date)) {
@@ -626,16 +626,16 @@ function theme_calendar_stripe_legend() {
       array('class' => 'calendar-legend', 'data' => t('Key'))
       );
   $rows = array();
-  $output = '';    
+  $output = '';
   foreach ((array) $GLOBALS['calendar_stripes'] as $label => $stripe) {
     if ($stripe) {
-      $rows[] = array($label, '<div style="background-color:'. $stripe .';color:'. $stripe .'" class="stripe" title="Key: '. $label .'">&nbsp;</div>');
+      $rows[] = array($label, '<div style="background-color:' . $stripe . ';color:' . $stripe . '" class="stripe" title="Key: ' . $label . '">&nbsp;</div>');
     }
   }
   if (!empty($rows)) {
     $variables = array(
-      'header' => $header, 
-      'rows' => $rows, 
+      'header' => $header,
+      'rows' => $rows,
       'attributes' => array('class' => array('mini', 'calendar-legend')),
     );
     $output .= theme('table', $variables);
@@ -704,7 +704,7 @@ function _calc_indents(&$overlapped_items, $start, $end, &$item, $depth = 0) {
   if (!empty($overlapped_items)) {
 
     // Iterate for each item as this depth and see if we overlap
-    foreach ($overlapped_items as $index => &$entry) { 
+    foreach ($overlapped_items as $index => &$entry) {
 
       // We search depth-first, so if there are children for this item, recurse into
       // each child tree looking for an overlap

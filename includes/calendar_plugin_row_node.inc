@@ -90,7 +90,7 @@ class calendar_plugin_row_node extends views_plugin_row {
     $type_names = node_type_get_names();
     foreach ($type_names as $key => $name) {
       $form['colors']['calendar_colors_type'][$key] = array(
-        '#title' => $name,
+        '#title' => check_plain($name),
         '#type' => 'textfield',
         '#default_value' => isset($colors[$key]) ? $colors[$key] : '#ffffff',
         '#size' => 7,
@@ -154,7 +154,7 @@ class calendar_plugin_row_node extends views_plugin_row {
         $vocab = taxonomy_get_tree($vid);
         foreach ($vocab as $tid => $term) {
           $form['colors']['calendar_colors_taxonomy'][$term->tid] = array(
-            '#title' => t($term->name),
+            '#title' => check_plain(t($term->name)),
             '#type' => 'textfield',
             '#default_value' => isset($term_colors[$term->tid]) ? $term_colors[$term->tid] : '#ffffff',
             '#size' => 7,
@@ -180,11 +180,11 @@ class calendar_plugin_row_node extends views_plugin_row {
     if (module_exists('og')) {
       $colors_group = $this->options['colors']['calendar_colors_group'];
       $groups = og_get_all_group();
-      foreach ($groups as $gid){
+      foreach ($groups as $gid) {
         $form['colors']['calendar_colors_group'][$gid] = array(
-  	      '#title' => t(og_label($gid)),
-  	      '#type' => 'textfield',
-  	      '#default_value' => isset($colors_group[$gid]) ? $colors_group[$gid] : '#ffffff',
+          '#title' => check_plain(t(og_label($gid))),
+          '#type' => 'textfield',
+          '#default_value' => isset($colors_group[$gid]) ? $colors_group[$gid] : '#ffffff',
           '#dependency' => array('edit-row-options-colors-legend' => array('group')),
           '#element_validate' => array('calendar_validate_hex_color'),
           '#prefix' => '<div class="calendar-colorpicker-wrapper">',
@@ -198,8 +198,8 @@ class calendar_plugin_row_node extends views_plugin_row {
             // Add javascript to trigger the colorpicker.
             'js' => array(drupal_get_path('module', 'calendar') . '/js/calendar_colorpicker.js'),
           ),
-  	    );
-  	  }
+        );
+      }
     }
   }
 
@@ -563,12 +563,12 @@ class calendar_plugin_row_node extends views_plugin_row {
       return;
     }
     $groups_for_node = og_get_entity_groups('node', $node);
-    if(!(isset($node->stripe))){
+    if (!(isset($node->stripe))) {
       $node->stripe = array();
       $node->stripe_label = array();
     }
-    if (count($groups_for_node)){
-      foreach($groups_for_node as $gid => $group_name){
+    if (count($groups_for_node)) {
+      foreach ($groups_for_node as $gid => $group_name) {
         if (!array_key_exists($gid, $colors_group)) {
           continue;
         }

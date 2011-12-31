@@ -391,7 +391,7 @@ class calendar_plugin_style extends views_plugin_style {
         // If we're displaying the week number, add it as the
         // first cell in the week.
         if ($i == 0 && !empty($this->date_info->style_with_weekno) && !in_array($this->date_info->granularity, array('day', 'week'))) {
-          $url = $this->view->get_path() .'/'. $this->date_info->year .'-W'. $week;
+          $url = $this->view->get_path() . '/' . $this->date_info->year . '-W' . $week;
           if (!empty($this->date_info->display_types['week'])) {
             $weekno = l($week, $url, array('query' => !empty($this->date_info->append) ? $this->date_info->append : ''));
           }
@@ -468,7 +468,7 @@ class calendar_plugin_style extends views_plugin_style {
                   // Calculate on which day of this week this item ends on..
                   $end_day = clone($this->curday);
                   $span = $item['colspan'] - 1;
-                  date_modify($end_day, '+' . $span .' day');
+                  date_modify($end_day, '+' . $span . ' day');
                   $endday_date = date_format($end_day, DATE_FORMAT_DATE);
 
                   // If it ends today, add class
@@ -621,7 +621,7 @@ class calendar_plugin_style extends views_plugin_style {
 
     for ($i = 0; $i < 7; $i++) {
       if ($check_month && ($curday_date < $this->date_info->min_date_date || $curday_date > $this->date_info->max_date_date || date_format($this->curday, 'n') != $month)) {
-        $class = strtolower($weekdays[$i]) .' empty';
+        $class = strtolower($weekdays[$i]) . ' empty';
         $singleday_buckets[$i][][] = array(
           'entry' => theme('calendar_empty_day', array(
              'curday' => $curday_date,
@@ -789,7 +789,7 @@ class calendar_plugin_style extends views_plugin_style {
 
     // Add a more link if necessary
     if ($max_events != CALENDAR_SHOW_ALL && $total_cnt > 0 && $cur_cnt < $total_cnt) {
-      $entry = theme('calendar_'. $this->date_info->calendar_type .'_multiple_entity', array(
+      $entry = theme('calendar_' . $this->date_info->calendar_type . '_multiple_entity', array(
           'curday' => $curday_date,
           'count' => $total_cnt,
           'view' => $this->view,
@@ -853,7 +853,7 @@ class calendar_plugin_style extends views_plugin_style {
         $all_day = array();
         $inner = array();
       }
-      $link = theme('calendar_'. $this->date_info->calendar_type .'_multiple_node', array(
+      $link = theme('calendar_' . $this->date_info->calendar_type . '_multiple_node', array(
         'curday' => $curday_date,
         'count' => $count,
         'view' => $this->view,
