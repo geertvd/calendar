@@ -5,6 +5,10 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+======================
+Version 7.x-3.0-alpha3
+======================
+
 NOTES:
 The links at the top of the calendar page have been reworked into tabs. They will not show up
 until you clear the caches. Use hook_calendar_links_alter() to alter the links or the titles
