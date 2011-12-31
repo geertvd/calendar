@@ -6,7 +6,7 @@ Version 7.x-3.x-dev
 ===================
 
 ======================
-Version 7.x-3.0-alpha3
+Version 7.x-3.0-alpha2
 ======================
 
 NOTES:
@@ -48,11 +48,6 @@ or to empty the links array if you don't want to see them.
 - Issue #1254922 by larsdesigns, calendar_multiday.css is not complient with Drupal Coding Standards
 - Issue #1254920 by larsdesigns, calendar.css is not complient with Drupal Coding Standards
 - Issue #1254916 by larsdesigns, calendar-overlap.css is not complient with Drupal Coding Standards
-
-======================
-Version 7.x-3.0-alpha2
-======================
-
 - Add update hook to remove old style calendar legend blocks from system.
 - Issue #742146, Add option to remove X-WR-CALNAME if VEVENT is not a feed.
 - Add option to change method from PUBLISH to REQUEST in VCALENDAR.
