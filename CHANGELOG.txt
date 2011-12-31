@@ -10,6 +10,7 @@ The links at the top of the calendar page have been reworked into tabs. They wil
 until you clear the caches. Use hook_calendar_links_alter() to alter the links or the titles
 or to empty the links array if you don't want to see them.
 
+- Issue #1302052 by benjifisher, penguin25, and helmo, Fix linespace ending problems in ical files.
 - Issue #704068, Avoid undefined variable error by not returning a value we don't even need.
 - Issue #1388364, Do some clean up of the handling for taxonomy stripes.
 - Issue #1303458. Make sure calendar tabs work right without clean urls.
