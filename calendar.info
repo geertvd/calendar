@@ -12,6 +12,7 @@ files[] = calendar.module
 files[] = includes/calendar.views.inc
 files[] = includes/calendar_plugin_style.inc
 files[] = includes/calendar_plugin_row_node.inc
+files[] = includes/calendar_plugin_row.inc
 files[] = theme/theme.inc
 files[] = theme/calendar-style.tpl.php
 files[] = theme/calendar-row-node.tpl.php

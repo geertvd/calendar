@@ -209,7 +209,7 @@ class calendar_plugin_style extends views_plugin_style {
   }
 
   function has_calendar_row_plugin() {
-    return $this->row_plugin instanceof calendar_plugin_row_node;
+    return $this->row_plugin instanceof calendar_plugin_row || $this->row_plugin instanceof calendar_plugin_row_node;
   }
 
   function render() {
