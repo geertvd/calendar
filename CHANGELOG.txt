@@ -5,6 +5,8 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Follow up to Issue #1302052 by benjifisher, More clean up of ical line endings.
+
 ======================
 Version 7.x-3.0-alpha2
 ======================
