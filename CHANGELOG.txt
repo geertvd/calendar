@@ -3,9 +3,10 @@ Views Calendar 6.x
 
 See documentation at http://drupal.org/node/262064.
 
-Version 2.0 dev
+Version 6.2-dev
 =================
 
+- Issue #1391374 & #1302052 by benjifisher, CRLF line endings cause problems with git apply
 - Issue #742146, Add option to remove X-WR-CALNAME if VEVENT is not a feed.
 - Add option to change method from PUBLISH to REQUEST in VCALENDAR.
 - Issue #1087798 by anj, Fix X-WR-CALNAME in VCALENDAR.
