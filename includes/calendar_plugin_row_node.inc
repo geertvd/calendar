@@ -222,7 +222,6 @@ class calendar_plugin_row_node extends views_plugin_row {
     // Provides all the node values relatively cheaply, and we don't
     // need to do it repeatedly for the same node if there are
     // multiple results for one node.
-    dsm($this, 'this');
     $nids = array();
     foreach ($values as $row) {
       // Use the $nid as the key so we don't create more than one value per node.
