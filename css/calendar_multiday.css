@@ -831,14 +831,6 @@ table.calendar-legend tr.even .stripe {
   font-weight: bold;
 }
 
-.view-content:after {
-  content: ".";
-  display: block;
-  height: 0;
-  clear: both;
-  visibility: hidden;
-}
-
 .attachment .calendar-calendar {
   margin-top: 20px;
   clear: both;

@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Issue #1400322 by Digidog, Remove clear-fix style from css.
 - Issue #1433046 by thekevinday, Fix broken continue buried in switch.
 - Issue #1392306 by johnv and KarenS, Fix broken taxonomy striping.
 - Issue #1264520 by bennettee and jackalope, Items without end date displayed as all day.
