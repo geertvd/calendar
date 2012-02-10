@@ -151,7 +151,7 @@ class calendar_plugin_row extends views_plugin_row {
       }
       $taxonomies = taxonomy_get_vocabularies();
       foreach ($taxonomies as $vid => $vocab) {
-        if (in_array($vocab->name, $vocab_names)) {
+        if (in_array($vocab->machine_name, $vocab_names)) {
           $this->options['colors']['calendar_colors_vocabulary'][] = $vid;
         }
       }
@@ -532,11 +532,11 @@ class calendar_plugin_row extends views_plugin_row {
       return;
     }
 
-    $entity = $event->entity;
     $terms = array();
     if ($this->options['colors']['legend'] == 'taxonomy') {
       $term_field_name = $this->options['colors']['taxonomy_field'];
-      if ($term_field = field_get_items($this->view->base_table, $entity, $term_field_name)) {
+
+      if ($term_field = field_get_items($this->view->base_table, $entity->entity, $term_field_name)) {
         foreach ($term_field as $delta => $items) {
           foreach ($items as $item) {
             $terms[] = $item['tid'];
@@ -549,9 +549,9 @@ class calendar_plugin_row extends views_plugin_row {
       return;
     }
 
-    if (!(isset($event->stripe))) {
-      $event->stripe = array();
-      $event->stripe_label = array();
+    if (!(isset($entity->stripe))) {
+      $entity->stripe = array();
+      $entity->stripe_label = array();
     }
     if (count($terms)) {
       foreach ($terms as $tid) {
@@ -561,14 +561,14 @@ class calendar_plugin_row extends views_plugin_row {
         }
         $stripe = $term_colors[$term_for_entity->tid];
         $stripe_label = $term_for_entity->name;
-        $event->stripe[] = $stripe;
-        $event->stripe_label[] = $stripe_label;
+        $entity->stripe[] = $stripe;
+        $entity->stripe_label[] = $stripe_label;
         $GLOBALS['calendar_stripe_labels'][][$term_for_entity->tid] = array('stripe' => $stripe, 'label' => $stripe_label);
       }
     }
     else {
-      $event->stripe[] = '';
-      $event->stripe_label[] = '';
+      $entity->stripe[] = '';
+      $entity->stripe_label[] = '';
     }
 
     return;
