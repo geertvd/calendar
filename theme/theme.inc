@@ -264,17 +264,16 @@ function template_preprocess_calendar_day(&$vars) {
     foreach ($grouped_items[$start_time]['values'] as $column => &$items) {
       foreach ($items as $index => &$item) {
         if ($display_overlap) {
-          switch ($view->style_options['groupby_times']) {
-            case 'half':
-              $group_time = 30;
-              $divisor = 7.5;
-              break;
-            case 'hour':
-              $group_time = 60;
-              $divisor = 15;
-              break;
-            default:
-              continue;
+          if ($view->style_options['groupby_times'] == 'half'){
+            $group_time = 30;
+            $divisor = 7.5;
+          }
+          else if ($view->style_options['groupby_times'] == 'hour'){
+            $group_time = 60;
+            $divisor = 15;
+          } else {
+            $item->class = '';
+            continue;
           }
           $start_minute = intval(substr($start_time, 3, 2));
           $offset = round((date_format($item->date_start, 'i') - $start_minute) / $divisor);
@@ -474,17 +473,16 @@ function template_preprocess_calendar_week(&$vars) {
       foreach ($grouped_items[$start_time]['values'] as $wday => &$items) {
         foreach ($items as &$item) {
           if ($display_overlap) {
-            switch ($view->style_options['groupby_times']) {
-              case 'half':
-                $group_time = 30;
-                $divisor = 7.5;
-                break;
-              case 'hour':
-                $group_time = 60;
-                $divisor = 15;
-                break;
-              default:
-                continue;
+            if ($view->style_options['groupby_times'] == 'half'){
+              $group_time = 30;
+              $divisor = 7.5;
+            }
+            else if ($view->style_options['groupby_times'] == 'hour'){
+              $group_time = 60;
+              $divisor = 15;
+            } else {
+              $item['class'] = '';
+              continue;
             }
             $start_minute = intval(substr($start_time, 3, 2));
             $offset = round((date_format($item['item']->date_start, 'i') - $start_minute) / $divisor);
