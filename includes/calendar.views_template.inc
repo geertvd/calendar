@@ -26,12 +26,13 @@ function calendar_views_templates() {
   $processed = array();
 
   foreach ($entity_info as $entity_type => $info) {
+    $items = field_info_instances($entity_type);
     $views_fields = date_views_fields($info['base table']);
+    return $views;
     foreach ($views_fields['name'] as $name => $data) {
   
       // For of the Field date fields, we need to find the bundle and entities this field is used on.
       if ($data['is_field']) {
-        $items = field_info_instances($entity_type);
         foreach ($items as $bundle => $widgets) {
           foreach ($widgets as $field_name => $widget) {
             $field = field_info_field($field_name);
