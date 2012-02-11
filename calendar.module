@@ -21,6 +21,7 @@ function calendar_preprocess_date_views_pager(&$vars) {
     return;
   }
   $options = $view->style_options;
+  $pager_format = $view->date_info->date_pager_format;
 
   // If we're not on a view with a path (a page), no links are needed.
   $current_path = !empty($view->display_handler->options['path']) ? $view->display_handler->options['path'] : '';
@@ -39,17 +40,8 @@ function calendar_preprocess_date_views_pager(&$vars) {
     if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
       $path = $display->display_options['path'];
       $title = $display->display_title;
-      $type = !empty($display->display_options['style_options']['calendar_type']) ? $display->display_options['style_options']['calendar_type'] : 'month';
-
-      // Make sure the links to other calendar displays use the right path for that display.
-      // Get rid of pager links when swapping between displays to force the base argument
-      // to be structured correctly for the type of display. This means you can't use
-      // these links in a block or panel.
-      $href = str_replace($current_path, $path, date_pager_url($view, $type, NULL, TRUE, FALSE));
-      $part_path = substr($href, strlen(base_path()));
-
-      // Once we have a path for the links to other displays, add it to our links array.
-      $calendar_links[$current_path]['tabs'][$type] = array('title' => $title, 'path' => $part_path);
+      $type = !empty($display->display_options['style_options']['calendar_type']) ? $display->display_options['style_options']['calendar_type'] : '';
+      $calendar_links[$current_path]['tabs'][$type] = array('title' => $title, 'path' => $path);
       $calendar_links[$current_path]['types'][] = $type;
     }
   }
