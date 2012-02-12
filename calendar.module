@@ -38,9 +38,10 @@ function calendar_preprocess_date_views_pager(&$vars) {
       continue;
     }
     if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
-      $path = $display->display_options['path'];
+      //$path = $display->display_options['path'];
       $title = $display->display_title;
       $type = !empty($display->display_options['style_options']['calendar_type']) ? $display->display_options['style_options']['calendar_type'] : '';
+      $path = calendar_granularity_path($view, $type);
       $calendar_links[$current_path]['tabs'][$type] = array('title' => $title, 'path' => $path);
       $calendar_links[$current_path]['types'][] = $type;
     }
@@ -384,7 +385,19 @@ function calendar_granularity_path(&$view, $granularity) {
       if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
         $type = !empty($display->display_options['style_options']['calendar_type']) ? $display->display_options['style_options']['calendar_type'] : 'month';
         if ($type == $granularity) {
-          $paths[$view->name][$granularity] = $display->display_options['path'];
+          $part_path =  $display->display_options['path'];
+          $parts = explode('/', $part_path);
+          if (in_array('%', $parts)) {
+            $current_path = parse_url($_GET['q']);
+            $current_parts = explode('/', $current_path['path']);
+            foreach ($parts as $key => $part) {
+              if ($part == '%') {
+                $parts[$key] = $current_parts[$key];
+              }
+            }
+            $part_path = implode('/', $parts);
+          }
+          $paths[$view->name][$granularity] = $part_path;
         }
       }
     }
