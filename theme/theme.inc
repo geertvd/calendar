@@ -410,7 +410,7 @@ function template_preprocess_calendar_week(&$vars) {
         $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
         foreach ($row as &$item) {
           $time = date_format($item['item']->date_start, 'H:i:s');
-          if ($item['item']->calendar_all_day || ($item['item']->date_start == $item['item']->date_end)) {
+          if ($item['item']->calendar_all_day) {
             $vars['all_day'][$item['wday']][] = $item;
             if ($vars['multiday_rows'] == 0) {
               $vars['multiday_rows']++;
