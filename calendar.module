@@ -6,6 +6,54 @@ define('CALENDAR_HIDE_ALL', -1);
  * @file
  * Adds calendar filtering and displays to Views.
  */
+/**
+ * Implements hook_menu().
+ */
+function calendar_menu() {
+  $items = array();
+  $items['admin/config/date/calendar'] = array(
+    'title' => 'Calendar',
+    'description' => 'Calendar administration.',
+    'page callback' => 'calendar_admin',
+    'access callback' => 'user_access',
+    'access arguments' => array('administer site configuration'),
+  );
+  return $items;
+}
+/**
+ * General Calendar administration.
+ */
+function calendar_admin() {
+
+  $content = t('<h2>Deleting Calendars</h2>Calendars that were created using older versions of the !date_wizard cannot be deleted in the Views listing. You can delete them using the links below. The newer version of the Date Wizard creates views from templates that can be deleted normally.', array('!date_wizard' => l(t('Date wizard'), 'admin/config/date/tools/date_wizard')));
+
+
+  $calendar_options = variable_get('calendar_default_view_options', array());
+  $calendars = array();
+  $node_types = node_type_get_names();
+  foreach ($calendar_options as $key => $option) {
+    $bundle = str_replace(array('calendar_', 'cal_'), '', $key);
+    if (array_key_exists($bundle, $node_types)) {
+      $type = $node_types[$bundle];
+      $calendars[] = array(
+        l($type, 'admin/structure/types/manage/' . $bundle . '/fields'),
+        l($key, 'admin/structure/views/edit/' . $key),
+        t('The calendar %view is a default calendar created for the content type %bundle. ', array('%view' => $key, '%bundle' => $type)),
+        l(t('remove !view', array('!view' => $key)), 'admin/structure/date/remove/' . $key),
+      );
+    }
+    else {
+      // Do some cleanup while we're here if we have default calendars
+      // for non-existent content types.
+      calendar_remove($bundle);
+    }
+  }
+  if (!empty($calendars)) {
+    $header = array(t('Content Type'), t('Calendar'), t('Description'), t('Operations'));
+    $content .= theme('table', array('header' => $header, 'rows' => $calendars));
+  }
+  return $content;
+}
 
 /**
  * Implements hook_preprocess_date_views_pager().
