@@ -5,6 +5,8 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Clean up new Calendar administration screen and move some more code from Date Tools related to removing the old calendar variables.
+
 ======================
 Version 7.x-3.0-rc1
 ======================

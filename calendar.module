@@ -18,41 +18,91 @@ function calendar_menu() {
     'access callback' => 'user_access',
     'access arguments' => array('administer site configuration'),
   );
+  $items['admin/config/date/calendar/remove'] = array(
+    'title'    => 'Remove calendar',
+    'access arguments'   => array('administer views'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('calendar_remove_form', 4),
+    'type' => MENU_CALLBACK,
+  );
   return $items;
 }
+
 /**
  * General Calendar administration.
  */
 function calendar_admin() {
 
-  $content = t('<h2>Deleting Calendars</h2>Calendars that were created using older versions of the !date_wizard cannot be deleted in the Views listing. You can delete them using the links below. The newer version of the Date Wizard creates views from templates that can be deleted normally.', array('!date_wizard' => l(t('Date wizard'), 'admin/config/date/tools/date_wizard')));
-
+  $content = '<h2>Calendar Administration</h2>';
+  $content .= t('This is the future home for calendar administration tasks.');
 
   $calendar_options = variable_get('calendar_default_view_options', array());
-  $calendars = array();
-  $node_types = node_type_get_names();
-  foreach ($calendar_options as $key => $option) {
-    $bundle = str_replace(array('calendar_', 'cal_'), '', $key);
-    if (array_key_exists($bundle, $node_types)) {
-      $type = $node_types[$bundle];
-      $calendars[] = array(
-        l($type, 'admin/structure/types/manage/' . $bundle . '/fields'),
-        l($key, 'admin/structure/views/edit/' . $key),
-        t('The calendar %view is a default calendar created for the content type %bundle. ', array('%view' => $key, '%bundle' => $type)),
-        l(t('remove !view', array('!view' => $key)), 'admin/structure/date/remove/' . $key),
-      );
+
+  if (!empty($calendar_options)) {
+    $content .= t('<h2>Deleting Calendars</h2>Calendars that were created using older versions of the !date_wizard cannot be deleted in the Views listing. You can delete them using the links below. The newer version of the Date Wizard creates views from templates that can be deleted normally.', array('!date_wizard' => l(t('Date wizard'), 'admin/config/date/tools/date_wizard')));
+
+    $calendars = array();
+    $node_types = node_type_get_names();
+    foreach ($calendar_options as $key => $option) {
+      $bundle = str_replace(array('calendar_', 'cal_'), '', $key);
+      if (array_key_exists($bundle, $node_types)) {
+        $type = $node_types[$bundle];
+        $calendars[] = array(
+          l($type, 'admin/structure/types/manage/' . $bundle . '/fields'),
+          l($key, 'admin/structure/views/edit/' . $key),
+          t('The calendar %view is a default calendar created for the content type %bundle. ', array('%view' => $key, '%bundle' => $type)),
+          l(t('remove !view', array('!view' => $key)), 'admin/structure/date/remove/' . $key),
+        );
+      }
+      else {
+        // Do some cleanup while we're here if we have default calendars
+        // for non-existent content types.
+        calendar_remove($bundle);
+      }
     }
-    else {
-      // Do some cleanup while we're here if we have default calendars
-      // for non-existent content types.
-      calendar_remove($bundle);
+    if (!empty($calendars)) {
+      $header = array(t('Content Type'), t('Calendar'), t('Description'), t('Operations'));
+      $content .= theme('table', array('header' => $header, 'rows' => $calendars));
     }
-  }
-  if (!empty($calendars)) {
-    $header = array(t('Content Type'), t('Calendar'), t('Description'), t('Operations'));
-    $content .= theme('table', array('header' => $header, 'rows' => $calendars));
+
   }
   return $content;
+}
+
+/**
+ * Form constructor for the date field removal form.
+ *
+ * Path: admin/config/date/tools/remove
+ *
+ * @see date_tools_remove_form_submit()
+ */
+function calendar_remove_form($form, &$form_state, $view_name) {
+  $form = array();
+  $form['view_name'] = array(
+    '#type' => 'value',
+    '#value' => $view_name,
+  );
+  $output = confirm_form($form,
+    t('Are you sure you want to remove the view %view?', array('%view' => $view_name)),
+    'admin/config/date/calendar',
+    t('This action cannot be undone.'),
+    t('Remove'), t('Cancel')
+  );
+
+  return $output;
+}
+
+/**
+ * Form submission handler for date_tools_remove_form().
+ */
+function calendar_remove_form_submit($form, &$form_state) {
+  $form_values = $form_state['values'];
+  $view_name = $form_values['view_name'];
+  if ($view_name && $form_values['confirm']) {
+    calendar_remove($view_name);
+    drupal_set_message(t('Removed calendar %calendar.', array('%calendar' => $view_name)));
+  }
+  $form_state['redirect'] = 'admin/config/date';
 }
 
 /**
