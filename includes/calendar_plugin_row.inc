@@ -245,7 +245,7 @@ class calendar_plugin_row extends views_plugin_row {
       $id = $row->{$this->field_alias};
       $ids[$id] = $id;
     }
-    $base_tables = array_flip(date_views_base_tables());
+    $base_tables = date_views_base_tables();
     $this->entity_type = $base_tables[$this->view->base_table];
     if (!empty($ids)) {
       $this->entities = entity_load($this->entity_type, $ids);
@@ -322,16 +322,25 @@ class calendar_plugin_row extends views_plugin_row {
 
       $info = entity_get_info($this->entity_type);
       $this->id_field = $info['entity keys']['id'];
-      $this->bundle = $info['entity keys']['bundle'];
-      $this->title_field = $info['entity keys']['label'];
+      $this->id = $entity->{$this->id_field};
+      $this->type = !empty($info['entity keys']['bundle']) ? $info['entity keys']['bundle'] : $this->entity_type;
+
+      if (!empty($info['label callback'])) {
+        $function = $info['label callback'];
+        $this->title = $function($this->id);
+      }
+      else {
+        $this->title_field = $info['entity keys']['label'];
+        $this->title = $entity->{$this->title_field};
+      }
 
       if (!empty($info['uri callback'])) {
         $callback = $info['uri callback'];
         $path = $callback($entity);
-        $entity->url = $path['path'];
+        $this->url = $path['path'];
       }
       else {
-        $entity->url = NULL;
+        $this->url = NULL;
       }
 
       // Retrieve the field value(s) that matched our query from the cached node.
@@ -385,9 +394,9 @@ class calendar_plugin_row extends views_plugin_row {
       $item_end_date->setTimezone(new dateTimezone($to_zone));
 
       $event = new stdClass();
-      $event->id = $entity->{$this->id_field};
-      $event->title = $entity->{$this->title_field};
-      $event->type = !empty($entity->{$this->bundle}) ? $entity->{$this->bundle} : $this->entity_type;
+      $event->id = $this->id;
+      $event->title = $this->title;
+      $event->type = $this->type;
       $event->date_start = $item_start_date;
       $event->date_end = $item_end_date;
       $event->db_tz = $db_tz;
@@ -395,7 +404,7 @@ class calendar_plugin_row extends views_plugin_row {
       $event->granularity = $granularity;
       $event->increment = $increment;
       $event->field = $is_field ? $item : NULL;
-      $event->url = $entity->url;
+      $event->url = $this->url;
       $event->row = $row;
       $event->entity = $entity;
 
