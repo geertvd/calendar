@@ -230,6 +230,7 @@ class calendar_plugin_row extends views_plugin_row {
   }
 
   function pre_render($values) {
+
     // @TODO When the date is coming in through a relationship, the nid
     // of the view is not the right node to use, then we need the related node.
     // Need to sort out how that should be handled.
@@ -244,8 +245,10 @@ class calendar_plugin_row extends views_plugin_row {
       $id = $row->{$this->field_alias};
       $ids[$id] = $id;
     }
+    $base_tables = array_flip(date_views_base_tables());
+    $this->entity_type = $base_tables[$this->view->base_table];
     if (!empty($ids)) {
-      $this->entities = entity_load($this->view->base_table, $ids);
+      $this->entities = entity_load($this->entity_type, $ids);
     }
 
     // Let the style know if a link to create a new date is required.
@@ -317,12 +320,19 @@ class calendar_plugin_row extends views_plugin_row {
       $rrule_field = $info['rrule_field'];
       $is_field    = $info['is_field'];
 
-      $info = entity_get_info($this->view->base_table);
+      $info = entity_get_info($this->entity_type);
       $this->id_field = $info['entity keys']['id'];
       $this->bundle = $info['entity keys']['bundle'];
-      $callback = $info['uri callback'];
-      $path = $callback($entity);
-      $entity->url = $path['path'];
+      $this->title_field = $info['entity keys']['label'];
+
+      if (!empty($info['uri callback'])) {
+        $callback = $info['uri callback'];
+        $path = $callback($entity);
+        $entity->url = $path['path'];
+      }
+      else {
+        $entity->url = NULL;
+      }
 
       // Retrieve the field value(s) that matched our query from the cached node.
       // Find the date and set it to the right timezone.
@@ -376,8 +386,8 @@ class calendar_plugin_row extends views_plugin_row {
 
       $event = new stdClass();
       $event->id = $entity->{$this->id_field};
-      $event->title = $entity->title;
-      $event->type = $entity->{$this->bundle};
+      $event->title = $entity->{$this->title_field};
+      $event->type = !empty($entity->{$this->bundle}) ? $entity->{$this->bundle} : $this->entity_type;
       $event->date_start = $item_start_date;
       $event->date_end = $item_end_date;
       $event->db_tz = $db_tz;

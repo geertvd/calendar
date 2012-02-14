@@ -17,9 +17,7 @@ function calendar_views_templates() {
 
   // Map the base tables to entity types.
   $entity_info = entity_get_info();
-  foreach ($entity_info as $entity_type => $info) {
-    $base_tables[$entity_type] = $info['base table'];
-  }
+  $base_tables = date_views_base_tables();
 
   // Find all the date fields we know about.
 

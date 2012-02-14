@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Get the file created date working in a calendar to be sure entity handling is right.
 - Clean up new Calendar administration screen and move some more code from Date Tools related to removing the old calendar variables.
 
 ======================
