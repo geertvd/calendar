@@ -9,6 +9,7 @@ Version 7.x-3.x-dev
 Version 7.x-3.0-rc1
 ======================
 
+
 - Issue #1264596, Make sure week view tests only the all_day value, not whether start date == end date.
 - Issue #1399964, Make sure calendar paths all take into account arguments ahead of the calendar arguments when creating links.
 - Issue #1253482, Get rid of attempt to keep track of current location when switching between calendar views, each one will go back to default.
