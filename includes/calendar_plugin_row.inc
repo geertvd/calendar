@@ -243,7 +243,16 @@ class calendar_plugin_row extends views_plugin_row {
     foreach ($values as $row) {
       // Use the $id as the key so we don't create more than one value per entity.
       $id = $row->{$this->field_alias};
-      $ids[$id] = $id;
+
+      // Node revisions need special loading.
+      if ($this->view->base_table == 'node_revision') {
+        $this->entities[$id] = node_load(NULL, $id);
+      }
+      // For other entities we just create an array of ids to pass
+      // to entity_load().
+      else {
+        $ids[$id] = $id;
+      }
     }
     $base_tables = date_views_base_tables();
     $this->entity_type = $base_tables[$this->view->base_table];
@@ -274,6 +283,14 @@ class calendar_plugin_row extends views_plugin_row {
           foreach ($handler->options['date_fields'] as $alias) {
             $info = $data[$alias];
             $field_name  = str_replace(array('_value2', '_value'), '', $info['real_field_name']);
+
+            // This is ugly and hacky but I can't figure out any generic way to
+            // recognize that the node module is going to give some the revision timestamp
+            // a different field name on the entity than the actual column name in the database.
+            if ($this->view->base_table == 'node_revision' && $field_name == 'timestamp') {
+              $field_name = 'revision_timestamp';
+            }
+
             $date_fields[$field_name] = $info;
           }
         }
@@ -351,7 +368,6 @@ class calendar_plugin_row extends views_plugin_row {
       $item_end_date   = NULL;
       $granularity = 'second';
       $increment = 1;
-
       if ($is_field) {
 
         $delta = isset($row->$delta_field) ? $row->$delta_field : 0;
