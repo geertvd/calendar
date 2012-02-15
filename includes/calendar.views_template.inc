@@ -154,6 +154,7 @@ $handler->display->display_options['row_plugin'] = 'calendar_entity';
 switch ($base_table) {
 
   case 'node':
+  case 'node_revision':
     $handler->display->display_options['fields']['title']['id'] = 'title';
     $handler->display->display_options['fields']['title']['table'] = $base_table;
     $handler->display->display_options['fields']['title']['field'] = 'title';

@@ -134,10 +134,10 @@ foreach ($date_fields as $field_name) {
 
 $view = new view;
 $view->name = $name;
-$view->description = $description;
+$view->description = t("DEPRECATED: Create new calendars using 'add view from template'.") . ' ' . $description;
 $view->tag = 'Calendar';
 $view->base_table = 'node';
-$view->human_name = ucfirst($name);
+$view->human_name =  ucfirst($name) . ' ' . t("(DEPRECATED)");
 $view->core = 7;
 $view->api_version = '3.0-alpha1';
 $view->disabled = $name == 'calendar' ? TRUE : FALSE; /* Edit this to true to make a default view disabled initially */

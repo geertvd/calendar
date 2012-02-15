@@ -254,6 +254,7 @@ class calendar_plugin_row extends views_plugin_row {
         $ids[$id] = $id;
       }
     }
+
     $base_tables = date_views_base_tables();
     $this->entity_type = $base_tables[$this->view->base_table];
     if (!empty($ids)) {
