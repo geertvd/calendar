@@ -115,9 +115,6 @@ function calendar_remove_form_submit($form, &$form_state) {
  */
 function calendar_preprocess_date_views_pager(&$vars) {
   $view = $vars['plugin']->view;
-  if ($view->plugin_name != 'calendar_style') {
-    return;
-  }
   $options = $view->style_options;
   $pager_format = $view->date_info->date_pager_format;
 
@@ -135,10 +132,16 @@ function calendar_preprocess_date_views_pager(&$vars) {
     if (!empty($display->deleted) || empty($display->display_options['style_plugin']) || (isset($display->display_options['enabled']) && $display->display_options['enabled'] == FALSE)) {
       continue;
     }
-    if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
+    if ($display->display_plugin != 'feed' && !empty($display->display_options['path'])) {
       //$path = $display->display_options['path'];
       $title = $display->display_title;
-      $type = !empty($display->display_options['style_options']['calendar_type']) ? $display->display_options['style_options']['calendar_type'] : '';
+      foreach ($display->display_options['arguments'] as $name => $argument) {
+        if (!empty($argument['granularity'])) {
+          $type = $argument['granularity'];
+        }
+      }
+
+      //$type = !empty($display->display_options['style_options']['calendar_type']) ? $display->display_options['style_options']['calendar_type'] : '';
       $path = calendar_granularity_path($view, $type);
       $calendar_links[$current_path]['tabs'][$type] = array('title' => $title, 'path' => $path);
       $calendar_links[$current_path]['types'][] = $type;
@@ -208,7 +211,24 @@ function calendar_menu_local_tasks_alter(&$data, $router_item, $root_path) {
               '#theme' => 'menu_local_task',
               '#link' => $item,
             );
-            if (strpos($clean_path, $root_path) === 0) {
+            $path_parts = explode('/', $root_path);
+            if (in_array('%', $path_parts)) {
+              $clean_parts = explode('/', $clean_path);
+              $count = count($clean_parts);
+              $match = TRUE;
+              foreach ($path_parts as $key => $part) {
+                if (empty($clean_parts[$key])) {
+                  $match = FALSE;
+                }
+                elseif ($part != '%' &&  $part != $clean_parts[$key]) {
+                  $match = FALSE;
+                }
+              }
+              if ($match) {
+                $data['tabs'][0]['output'][$delta]['#active'] = TRUE;
+              }
+            }
+            elseif (strpos($clean_path, $root_path) === 0) {
               $data['tabs'][0]['output'][$delta]['#active'] = TRUE;
             }
             $delta++;
@@ -480,8 +500,14 @@ function calendar_granularity_path(&$view, $granularity) {
       if (!empty($display->deleted) || empty($display->display_options['style_plugin']) || (isset($display->display_options['enabled']) && $display->display_options['enabled'] == FALSE)) {
         continue;
       }
-      if ($display->display_options['style_plugin'] == 'calendar_style' && !empty($display->display_options['path'])) {
-        $type = !empty($display->display_options['style_options']['calendar_type']) ? $display->display_options['style_options']['calendar_type'] : 'month';
+
+      if ($display->display_plugin != 'feed' && !empty($display->display_options['path'])) {
+        foreach ($display->display_options['arguments'] as $name => $argument) {
+          if (!empty($argument['granularity'])) {
+            $type = $argument['granularity'];
+          }
+        }
+
         if ($type == $granularity) {
           $part_path =  $display->display_options['path'];
           $parts = explode('/', $part_path);
