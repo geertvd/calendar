@@ -119,10 +119,12 @@ function template_preprocess_calendar_year(&$vars) {
     );
     $months[$month] = theme('calendar_mini', $variables);
   }
+  $view->date_info->mini = FALSE;
+
   $vars['months'] = $months;
   $vars['view']->date_info->hide_nav = FALSE;
   $vars['view']->date_info->granularity = 'year';
-  $vars['mini'] = $view->date_info->mini;
+  $vars['mini'] = FALSE;
 
 }
 
