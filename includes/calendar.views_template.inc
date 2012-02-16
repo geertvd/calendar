@@ -40,9 +40,9 @@ function calendar_views_templates() {
             if ($alias == $name && !in_array($alias, $processed)) {
               $base_table = $base_tables[$entity_type];
               $calendar_option = array(
-                'name' => 'calendar_' . $base_table . '_' . $field_name,
-                'description' => t("A calendar view of the @base_table base table and the @field_name date field.", array('@base_table' => $base_table, '@field_name' => $field_name)),
-                'path' => 'calendar-' . $base_table . '-' . $field_name,
+                'name' => 'calendar_' . $field_name,
+                'description' => t("A calendar view of the '@field_name' field in the '@base_table' base table.", array('@base_table' => $base_table, '@field_name' => $field_name)),
+                'path' => 'calendar-' . str_replace('_', '-', $field_name),
                 'base_table' => $base_table,
                 'field_name' => $field_name,
               );
@@ -60,9 +60,9 @@ function calendar_views_templates() {
         $base_table = $parts[0];
         $field_name = $parts[1];
         $calendar_option = array(
-          'name' => 'calendar_' . $base_table . '_' . $field_name,
-          'description' => t("A calendar view of the @base_table base table and the @field_name date field.", array('@base_table' => $base_table, '@field_name' => $field_name)),
-          'path' => 'calendar-' . $base_table . '-' . $field_name,
+          'name' => 'calendar_' . $field_name,
+          'description' => t("A calendar view of the '@field_name' field in the '@base_table' base table.", array('@base_table' => $base_table, '@field_name' => $field_name)),
+          'path' => 'calendar-' . str_replace('_', '-', $field_name),
           'base_table' => $base_table,
           'field_name' => $field_name,
         );
@@ -123,9 +123,9 @@ $view->name = $name;
 $view->description = $description;
 $view->tag = 'Calendar';
 $view->base_table = $base_table;
-$view->human_name = t("Calendar (@base_table: @field_name)", array('@base_table' => $base_table, '@field_name' => $field_name));
+$view->human_name = t("Calendar");
 $view->core = 7;
-$view->api_version = '3.0-alpha1';
+$view->api_version = '3.0';
 $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 
 /* Display: Master */

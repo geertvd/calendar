@@ -538,6 +538,8 @@ class calendar_plugin_row extends views_plugin_row {
 
     $type_names = node_type_get_names();
     $type = $entity->type;
+    $label = '';
+    $stripe = '';
     if (!(isset($entity->stripe))) {
       $entity->stripe = array();
       $entity->stripe_label = array();
@@ -547,9 +549,6 @@ class calendar_plugin_row extends views_plugin_row {
     }
     if (array_key_exists($type, $colors)) {
       $stripe = $colors[$type];
-    }
-    else {
-      $stripe = '';
     }
 
     $entity->stripe[] = $stripe;
