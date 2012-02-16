@@ -28,7 +28,7 @@ function calendar_views_templates() {
     $views_fields = date_views_fields($info['base table']);
     foreach ($views_fields['name'] as $name => $data) {
   
-      // For of the Field date fields, we need to find the bundle and entities this field is used on.
+      // For each of the Field date fields, we need to find the bundle and entities this field is used on.
       if ($data['is_field']) {
         foreach ($items as $bundle => $widgets) {
           foreach ($widgets as $field_name => $widget) {
@@ -131,7 +131,7 @@ $view->disabled = FALSE; /* Edit this to true to make a default view disabled in
 /* Display: Master */
 
 $handler = $view->new_display('default', 'Master', 'default');
-$handler->display->display_options['title'] = $name;
+$handler->display->display_options['title'] = '';
 $handler->display->display_options['link_display'] = 'page_1';
 $handler->display->display_options['access']['type'] = 'perm';
 $handler->display->display_options['cache']['type'] = 'none';
