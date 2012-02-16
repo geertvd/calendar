@@ -115,6 +115,12 @@ function calendar_remove_form_submit($form, &$form_state) {
  */
 function calendar_preprocess_date_views_pager(&$vars) {
   $view = $vars['plugin']->view;
+
+  // If no one has added date information, nothing to do here.
+  if (empty($view->date_info) || empty($view->argument)) {
+    return;
+  }
+
   $options = $view->style_options;
   $pager_format = $view->date_info->date_pager_format;
 
@@ -160,8 +166,9 @@ function calendar_preprocess_date_views_pager(&$vars) {
   drupal_alter('calendar_links', $calendar_links);
 
   // Add the value to the session so it can be used to create the tabs.
-  $_SESSION['calendar_links'][$current_path] = $calendar_links[$current_path];
-
+  if (!empty($calendar_links[$current_path])) {
+    $_SESSION['calendar_links'][$current_path] = $calendar_links[$current_path];
+  }
 }
 
 /**
