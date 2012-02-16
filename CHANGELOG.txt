@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Issue #1438792 by johnv, Remove unneeded $GLOBALS['calendar_stripe_labels'].
 - Issue #1393086, Make sure that links to the day view work even if the day view is not a calendar view.
 - Additional handling is needed so that revisions are handled correctly in Views.
 - Rework the Date Views hooks that queue up the right fields and base tables so they work better across all types of entities.
