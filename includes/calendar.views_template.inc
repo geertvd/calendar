@@ -42,7 +42,7 @@ function calendar_views_templates() {
               $calendar_option = array(
                 'name' => 'calendar_' . $base_table . '_' . $field_name,
                 'description' => t("A calendar view of the @base_table base table and the @field_name date field.", array('@base_table' => $base_table, '@field_name' => $field_name)),
-                'path' => 'calendar-' . $base_table . '_' . $field_name,
+                'path' => 'calendar-' . $base_table . '-' . $field_name,
                 'base_table' => $base_table,
                 'field_name' => $field_name,
               );
@@ -62,7 +62,7 @@ function calendar_views_templates() {
         $calendar_option = array(
           'name' => 'calendar_' . $base_table . '_' . $field_name,
           'description' => t("A calendar view of the @base_table base table and the @field_name date field.", array('@base_table' => $base_table, '@field_name' => $field_name)),
-          'path' => 'calendar-' . $base_table . '_' . $field_name,
+          'path' => 'calendar-' . $base_table . '-' . $field_name,
           'base_table' => $base_table,
           'field_name' => $field_name,
         );
