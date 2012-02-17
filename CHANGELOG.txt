@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Issue #1284170 by benjifisher, Lots of cleanup of the iCal export and its template to be sure all day items are exported correctly.
 - Issue #1346424, The calendar title got left out of the latest ical template changes.
 - Issue #1371730, The Prev/Next text was missing from the year view.
 - Issue #1438792 by johnv, Remove unneeded $GLOBALS['calendar_stripe_labels'].
