@@ -20,7 +20,7 @@
  */
 class calendar_plugin_row extends views_plugin_row {
 
-  // Stores the nodes loaded with pre_render.
+  // Stores the entities loaded with pre_render.
   var $entities = array();
 
   function init(&$view, &$display, $options = NULL) {
@@ -342,24 +342,8 @@ class calendar_plugin_row extends views_plugin_row {
       $this->id_field = $info['entity keys']['id'];
       $this->id = $entity->{$this->id_field};
       $this->type = !empty($info['entity keys']['bundle']) ? $info['entity keys']['bundle'] : $this->entity_type;
-
-      if (!empty($info['label callback'])) {
-        $function = $info['label callback'];
-        $this->title = $function($this->id);
-      }
-      else {
-        $this->title_field = $info['entity keys']['label'];
-        $this->title = $entity->{$this->title_field};
-      }
-
-      if (!empty($info['uri callback'])) {
-        $callback = $info['uri callback'];
-        $path = $callback($entity);
-        $this->url = $path['path'];
-      }
-      else {
-        $this->url = NULL;
-      }
+      $this->title = entity_label($this->entity_type, $entity);
+      $this->url = entity_uri($this->entity_type, $entity);
 
       // Retrieve the field value(s) that matched our query from the cached node.
       // Find the date and set it to the right timezone.
