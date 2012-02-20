@@ -60,7 +60,7 @@ function calendar_views_templates() {
         $base_table = $parts[0];
         $field_name = $parts[1];
         $calendar_option = array(
-          'name' => 'calendar_' . $field_name,
+          'name' => 'calendar_' . $entity_type . '_' . $field_name,
           'description' => t("A calendar view of the '@field_name' field in the '@base_table' base table.", array('@base_table' => $base_table, '@field_name' => $field_name)),
           'path' => 'calendar-' . str_replace('_', '-', $field_name),
           'base_table' => $base_table,
