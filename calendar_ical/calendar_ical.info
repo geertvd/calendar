@@ -1,5 +1,5 @@
-name = Calendar iCal
-description = Adds ical feeds to views.
+name = Calendar iCal DEPRECATED!
+description = DEPRECATED, Use Date iCal instead.
 dependencies[] = views
 dependencies[] = date_api
 dependencies[] = date_views
