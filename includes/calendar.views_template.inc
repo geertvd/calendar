@@ -24,6 +24,9 @@ function calendar_views_templates() {
   $processed = array();
 
   foreach ($entity_info as $entity_type => $info) {
+    if (!$info['fieldable']) {
+      continue;
+    }
     $items = field_info_instances($entity_type);
     $views_fields = date_views_fields($info['base table']);
     foreach ($views_fields['name'] as $name => $data) {
