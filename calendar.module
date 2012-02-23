@@ -522,7 +522,7 @@ function calendar_granularity_path(&$view, $granularity) {
             $current_path = parse_url($_GET['q']);
             $current_parts = explode('/', $current_path['path']);
             foreach ($parts as $key => $part) {
-              if ($part == '%') {
+              if ($part == '%' && !empty($current_parts[$key])) {
                 $parts[$key] = $current_parts[$key];
               }
             }
