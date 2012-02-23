@@ -453,13 +453,13 @@ $handler->display->display_options['arguments']['date_argument']['date_fields'] 
 $handler->display->display_options['arguments']['date_argument']['date_method'] = 'OR';
 $handler->display->display_options['arguments']['date_argument']['date_group'] = 'date';
 
-if (module_exists('calendar_ical')) {
+if (module_exists('date_ical')) {
 
 /* Display: iCal */
 $handler = $view->new_display('feed', 'iCal', 'feed_1');
 $handler->display->display_options['pager']['type'] = 'some';
-$handler->display->display_options['style_plugin'] = 'ical';
-$handler->display->display_options['row_plugin'] = 'ical_node';
+$handler->display->display_options['style_plugin'] = 'date_ical';
+$handler->display->display_options['row_plugin'] = 'date_ical';
 $handler->display->display_options['row_options']['date_field'] = $aliases[0];
 $handler->display->display_options['defaults']['filters'] = FALSE;
 /* Filter criterion: Content: Published */
