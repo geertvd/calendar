@@ -40,7 +40,7 @@ function calendar_views_templates() {
             // See if this is a date field. Since fields might be shared
             // across bundles, make sure we haven't already processed this field.
             $alias = 'field_data_' . $field_name . '.' . $field_name . '_value';
-            if ($alias == $name && !in_array($alias, $processed)) {
+            if ($alias == $name && !in_array($alias, $processed) && array_key_exists($entity_type, $base_tables)) {
               $base_table = $base_tables[$entity_type];
               $calendar_option = array(
                 'name' => 'calendar_' . $field_name,

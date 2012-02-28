@@ -5,6 +5,8 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Make sure calendar_views_templates() doesn't try to create templates for base tables without fields.
+
 ======================
 Version 7.x-3.0
 ======================
