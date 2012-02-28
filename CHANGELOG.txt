@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Stripe logic got goofed up somewhere.
 - Make sure calendar_plugin_row doesn't try to render fields that no longer exist, as happens when they've been deleted.
 - Make sure calendar_views_templates() doesn't try to create templates for base tables without fields.
 

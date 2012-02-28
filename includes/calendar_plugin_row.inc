@@ -517,11 +517,12 @@ class calendar_plugin_row extends views_plugin_row {
   /**
    * Create a stripe base on node type.
    */
-  function calendar_node_type_stripe(&$entity) {
+  function calendar_node_type_stripe(&$item) {
     $colors = isset($this->options['colors']['calendar_colors_type']) ? $this->options['colors']['calendar_colors_type'] : array();
     if (empty($colors)) {
       return;
     }
+    $entity = $item->entity;
     if (empty($entity->type)) {
       return;
     }
@@ -530,9 +531,9 @@ class calendar_plugin_row extends views_plugin_row {
     $type = $entity->type;
     $label = '';
     $stripe = '';
-    if (!(isset($entity->stripe))) {
-      $entity->stripe = array();
-      $entity->stripe_label = array();
+    if (!(isset($item->stripe))) {
+      $item->stripe = array();
+      $item->stripe_label = array();
     }
     if (array_key_exists($type, $type_names)) {
       $label = $type_names[$type];
@@ -541,8 +542,8 @@ class calendar_plugin_row extends views_plugin_row {
       $stripe = $colors[$type];
     }
 
-    $entity->stripe[] = $stripe;
-    $entity->stripe_label[] = $label;
+    $item->stripe[] = $stripe;
+    $item->stripe_label[] = $label;
     return $stripe;
   }
 
@@ -550,12 +551,12 @@ class calendar_plugin_row extends views_plugin_row {
    * Create a stripe based on a taxonomy term.
    */
 
-  function calendar_taxonomy_stripe(&$entity) {
+  function calendar_taxonomy_stripe(&$item) {
     $term_colors = isset($this->options['colors']['calendar_colors_taxonomy']) ? $this->options['colors']['calendar_colors_taxonomy'] : array();
     if (empty($term_colors)) {
       return;
     }
-
+    $entity = $item->entity;
     $terms = array();
     if ($this->options['colors']['legend'] == 'taxonomy') {
       $term_field_name = $this->options['colors']['taxonomy_field'];
@@ -573,9 +574,9 @@ class calendar_plugin_row extends views_plugin_row {
       return;
     }
 
-    if (!(isset($entity->stripe))) {
-      $entity->stripe = array();
-      $entity->stripe_label = array();
+    if (!(isset($item->stripe))) {
+      $item->stripe = array();
+      $item->stripe_label = array();
     }
     if (count($terms)) {
       foreach ($terms as $tid) {
@@ -585,13 +586,13 @@ class calendar_plugin_row extends views_plugin_row {
         }
         $stripe = $term_colors[$term_for_entity->tid];
         $stripe_label = $term_for_entity->name;
-        $entity->stripe[] = $stripe;
-        $entity->stripe_label[] = $stripe_label;
+        $item->stripe[] = $stripe;
+        $item->stripe_label[] = $stripe_label;
       }
     }
     else {
-      $entity->stripe[] = '';
-      $entity->stripe_label[] = '';
+      $item->stripe[] = '';
+      $item->stripe_label[] = '';
     }
 
     return;
@@ -600,7 +601,7 @@ class calendar_plugin_row extends views_plugin_row {
   /**
    * Create a stripe based on group.
    */
-  function calendar_group_stripe(&$entity) {
+  function calendar_group_stripe(&$item) {
     $colors_group = isset($this->options['colors']['calendar_colors_group']) ? $this->options['colors']['calendar_colors_group'] : array();
 
     if (empty($colors_group)) {
@@ -609,10 +610,11 @@ class calendar_plugin_row extends views_plugin_row {
     if (!function_exists('og_get_entity_groups')) {
       return;
     }
+    $entity = $item->entity;
     $groups_for_entity = og_get_entity_groups($this->view->base_table, $entity);
-    if (!(isset($entity->stripe))) {
-      $entity->stripe = array();
-      $entity->stripe_label = array();
+    if (!(isset($item->stripe))) {
+      $item->stripe = array();
+      $item->stripe_label = array();
     }
     if (count($groups_for_entity)) {
       foreach ($groups_for_entity as $gid => $group_name) {
@@ -621,13 +623,13 @@ class calendar_plugin_row extends views_plugin_row {
         }
         $stripe = $colors_group[$gid];
         $stripe_label = $group_name;
-        $entity->stripe[] = $stripe;
-        $entity->stripe_label[] = $stripe_label;
+        $item->stripe[] = $stripe;
+        $item->stripe_label[] = $stripe_label;
       }
     }
     else {
-      $entity->stripe[] = '';
-      $entity->stripe_label[] = '';
+      $item->stripe[] = '';
+      $item->stripe_label[] = '';
     }
     return;
   }
