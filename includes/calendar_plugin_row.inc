@@ -517,12 +517,12 @@ class calendar_plugin_row extends views_plugin_row {
   /**
    * Create a stripe base on node type.
    */
-  function calendar_node_type_stripe(&$item) {
+  function calendar_node_type_stripe(&$result) {
     $colors = isset($this->options['colors']['calendar_colors_type']) ? $this->options['colors']['calendar_colors_type'] : array();
     if (empty($colors)) {
       return;
     }
-    $entity = $item->entity;
+    $entity = $result->entity;
     if (empty($entity->type)) {
       return;
     }
@@ -531,9 +531,9 @@ class calendar_plugin_row extends views_plugin_row {
     $type = $entity->type;
     $label = '';
     $stripe = '';
-    if (!(isset($item->stripe))) {
-      $item->stripe = array();
-      $item->stripe_label = array();
+    if (!(isset($result->stripe))) {
+      $result->stripe = array();
+      $result->stripe_label = array();
     }
     if (array_key_exists($type, $type_names)) {
       $label = $type_names[$type];
@@ -542,8 +542,8 @@ class calendar_plugin_row extends views_plugin_row {
       $stripe = $colors[$type];
     }
 
-    $item->stripe[] = $stripe;
-    $item->stripe_label[] = $label;
+    $result->stripe[] = $stripe;
+    $result->stripe_label[] = $label;
     return $stripe;
   }
 
@@ -551,17 +551,17 @@ class calendar_plugin_row extends views_plugin_row {
    * Create a stripe based on a taxonomy term.
    */
 
-  function calendar_taxonomy_stripe(&$item) {
+  function calendar_taxonomy_stripe(&$result) {
     $term_colors = isset($this->options['colors']['calendar_colors_taxonomy']) ? $this->options['colors']['calendar_colors_taxonomy'] : array();
     if (empty($term_colors)) {
       return;
     }
-    $entity = $item->entity;
+    $entity = $result->entity;
     $terms = array();
     if ($this->options['colors']['legend'] == 'taxonomy') {
       $term_field_name = $this->options['colors']['taxonomy_field'];
 
-      if ($term_field = field_get_items($this->view->base_table, $entity->entity, $term_field_name)) {
+      if ($term_field = field_get_items($this->view->base_table, $entity, $term_field_name)) {
         foreach ($term_field as $delta => $items) {
           foreach ($items as $item) {
             $terms[] = $item['tid'];
@@ -575,8 +575,8 @@ class calendar_plugin_row extends views_plugin_row {
     }
 
     if (!(isset($item->stripe))) {
-      $item->stripe = array();
-      $item->stripe_label = array();
+      $result->stripe = array();
+      $result->stripe_label = array();
     }
     if (count($terms)) {
       foreach ($terms as $tid) {
@@ -586,13 +586,13 @@ class calendar_plugin_row extends views_plugin_row {
         }
         $stripe = $term_colors[$term_for_entity->tid];
         $stripe_label = $term_for_entity->name;
-        $item->stripe[] = $stripe;
-        $item->stripe_label[] = $stripe_label;
+        $result->stripe[] = $stripe;
+        $result->stripe_label[] = $stripe_label;
       }
     }
     else {
-      $item->stripe[] = '';
-      $item->stripe_label[] = '';
+      $result->stripe[] = '';
+      $result->stripe_label[] = '';
     }
 
     return;
@@ -601,7 +601,7 @@ class calendar_plugin_row extends views_plugin_row {
   /**
    * Create a stripe based on group.
    */
-  function calendar_group_stripe(&$item) {
+  function calendar_group_stripe(&$result) {
     $colors_group = isset($this->options['colors']['calendar_colors_group']) ? $this->options['colors']['calendar_colors_group'] : array();
 
     if (empty($colors_group)) {
@@ -610,11 +610,11 @@ class calendar_plugin_row extends views_plugin_row {
     if (!function_exists('og_get_entity_groups')) {
       return;
     }
-    $entity = $item->entity;
+    $entity = $result->entity;
     $groups_for_entity = og_get_entity_groups($this->view->base_table, $entity);
-    if (!(isset($item->stripe))) {
-      $item->stripe = array();
-      $item->stripe_label = array();
+    if (!(isset($result->stripe))) {
+      $result->stripe = array();
+      $result->stripe_label = array();
     }
     if (count($groups_for_entity)) {
       foreach ($groups_for_entity as $gid => $group_name) {
@@ -623,13 +623,13 @@ class calendar_plugin_row extends views_plugin_row {
         }
         $stripe = $colors_group[$gid];
         $stripe_label = $group_name;
-        $item->stripe[] = $stripe;
-        $item->stripe_label[] = $stripe_label;
+        $result->stripe[] = $stripe;
+        $result->stripe_label[] = $stripe_label;
       }
     }
     else {
-      $item->stripe[] = '';
-      $item->stripe_label[] = '';
+      $result->stripe[] = '';
+      $result->stripe_label[] = '';
     }
     return;
   }
