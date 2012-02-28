@@ -282,6 +282,10 @@ class calendar_plugin_row extends views_plugin_row {
         }
         else {
           foreach ($handler->options['date_fields'] as $alias) {
+            // If this date field is unknown (as when it has been deleted), ignore it.
+            if (!array_key_exists($alias, $data)) {
+              continue;
+            }
             $info = $data[$alias];
             $field_name  = str_replace(array('_value2', '_value'), '', $info['real_field_name']);
 
