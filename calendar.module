@@ -138,7 +138,7 @@ function calendar_preprocess_date_views_pager(&$vars) {
     if (!empty($display->deleted) || empty($display->display_options['style_plugin']) || (isset($display->display_options['enabled']) && $display->display_options['enabled'] == FALSE)) {
       continue;
     }
-    if ($display->display_plugin != 'feed' && !empty($display->display_options['path'])) {
+    if ($display->display_plugin != 'feed' && !empty($display->display_options['path']) && !empty($display->display_options['arguments'])) {
       //$path = $display->display_options['path'];
       $title = $display->display_title;
       foreach ($display->display_options['arguments'] as $name => $argument) {
