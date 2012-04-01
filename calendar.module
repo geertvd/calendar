@@ -130,6 +130,16 @@ function calendar_preprocess_date_views_pager(&$vars) {
     return;
   }
 
+  // If this display has been set up as a default tab, the current path
+  // is actually the base path, i.e. if the path is 'calendar/month'
+  // and this is a default tab, the path for this display will actually
+  // be 'calendar'.
+  if ($view->display_handler->options['menu']['type'] == 'default tab') {
+    $parts = explode('/', $current_path);
+    array_pop($parts);
+    $current_path = implode('/', $parts);
+  }
+
   // Find all the displays in this view that use the calendar style and have a path and create links to each.
   $calendar_links[$current_path] = array();
   $base = array('attributes' => array('rel' => 'nofollow'));
@@ -202,6 +212,7 @@ function calendar_menu_local_tasks_alter(&$data, $router_item, $root_path) {
         }
       }
     }
+
     if (!empty($calendar_data['tabs'])) {
       $delta = !empty($data['tabs'][0]['count']) ? $data['tabs'][0]['count'] - 1 : 0;
       foreach ($calendar_data['tabs'] as $tab) {

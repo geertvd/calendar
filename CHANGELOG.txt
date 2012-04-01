@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Adjust the calendar tab paths to allow for the slightly different path used when a display is a default tab.
 - Issue #1445228 by dealancer, More notices about displays missing arguments.
 - Issue #1485790, Fix undefined index arguments for displays that are missing arguments.
 - Stripe logic got goofed up somewhere.
