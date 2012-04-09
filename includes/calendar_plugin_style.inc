@@ -736,7 +736,7 @@ class calendar_plugin_style extends views_plugin_style {
                   // Add continuation attributes
                   $item->continuation =  ($item->date_start < $this->curday);
                   $item->continues = ( $days > $bucket_cnt );
-                  $item->is_multi_day = $is_multi_day;
+                  $item->is_multi_day = TRUE;
 
                   // Assign the item to the available bucket
                   $multiday_buckets[$wday][$bucket_index] = array(
