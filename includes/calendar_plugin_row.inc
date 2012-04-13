@@ -231,10 +231,6 @@ class calendar_plugin_row extends views_plugin_row {
 
   function pre_render($values) {
 
-    // @TODO When the date is coming in through a relationship, the nid
-    // of the view is not the right node to use, then we need the related node.
-    // Need to sort out how that should be handled.
-
     // Preload each entity used in this view from the cache.
     // Provides all the entity values relatively cheaply, and we don't
     // need to do it repeatedly for the same entity if there are
@@ -242,6 +238,7 @@ class calendar_plugin_row extends views_plugin_row {
     $ids = array();
     foreach ($values as $row) {
       // Use the $id as the key so we don't create more than one value per entity.
+      // This alias will automatically adjust to be the id of related entity, if applicable.
       $id = $row->{$this->field_alias};
 
       // Node revisions need special loading.
@@ -361,16 +358,18 @@ class calendar_plugin_row extends views_plugin_row {
       $increment = 1;
       if ($is_field) {
 
-        $delta = isset($row->$delta_field) ? $row->$delta_field : 0;
-        $items = field_get_items($this->view->base_table, $entity, $field_name, $this->language);
-        $item  = $items[$delta];
-        $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
-        $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
-
         // Set the date_id for the node, used to identify which field value to display for
         // fields that have multiple values. The theme expects it to be an array.
-        $entity->date_id = array('calendar.' . $id . '.' . $field_name . '.' . $delta);
+        $date_id = 'date_id_' . $field_name;
+        $date_delta = 'date_delta_' . $field_name;
+        if (!empty($row->$date_id)) {
+          $entity->date_id = array('calendar.' . $row->$date_id . '.' . $field['field_name'] . '.' . $row->$date_delta);
+        }
 
+        $items = field_get_items($this->view->base_table, $entity, $field_name, $this->language);
+        $item  = $items[$row->$date_delta];
+        $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
+        $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
         if (!empty($item['value'])) {
           $item_start_date = new dateObject($item['value'], $db_tz);
           $item_end_date   = array_key_exists('value2', $item) ? new dateObject($item['value2'], $db_tz) : $item_start_date;

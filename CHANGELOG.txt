@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Issue #1221530, Fix row plugin to handle relationships properly, and also use new date_id and date_delta values.
 - Issue #1446726, Fix broken remove calendar functionality.
 - Adjust the calendar tab paths to allow for the slightly different path used when a display is a default tab.
 - Issue #1445228 by dealancer, More notices about displays missing arguments.
