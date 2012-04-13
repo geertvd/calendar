@@ -22,7 +22,7 @@ function calendar_menu() {
     'title'    => 'Remove calendar',
     'access arguments'   => array('administer views'),
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('calendar_remove_form', 4),
+    'page arguments' => array('calendar_remove_form', 5),
     'type' => MENU_CALLBACK,
   );
   return $items;
@@ -51,7 +51,7 @@ function calendar_admin() {
           l($type, 'admin/structure/types/manage/' . $bundle . '/fields'),
           l($key, 'admin/structure/views/edit/' . $key),
           t('The calendar %view is a default calendar created for the content type %bundle. ', array('%view' => $key, '%bundle' => $type)),
-          l(t('remove !view', array('!view' => $key)), 'admin/structure/date/remove/' . $key),
+          l(t('remove !view', array('!view' => $key)), 'admin/config/date/calendar/remove/' . $key),
         );
       }
       else {
@@ -72,9 +72,9 @@ function calendar_admin() {
 /**
  * Form constructor for the date field removal form.
  *
- * Path: admin/config/date/tools/remove
+ * Path: admin/config/date/calendar/remove
  *
- * @see date_tools_remove_form_submit()
+ * @see calendar_remove_form_submit()
  */
 function calendar_remove_form($form, &$form_state, $view_name) {
   $form = array();
@@ -84,7 +84,7 @@ function calendar_remove_form($form, &$form_state, $view_name) {
   );
   $output = confirm_form($form,
     t('Are you sure you want to remove the view %view?', array('%view' => $view_name)),
-    'admin/config/date/calendar',
+    'admin/config/date/calendar/remove',
     t('This action cannot be undone.'),
     t('Remove'), t('Cancel')
   );
@@ -93,7 +93,7 @@ function calendar_remove_form($form, &$form_state, $view_name) {
 }
 
 /**
- * Form submission handler for date_tools_remove_form().
+ * Form submission handler for calendar_remove_form().
  */
 function calendar_remove_form_submit($form, &$form_state) {
   $form_values = $form_state['values'];
@@ -102,7 +102,24 @@ function calendar_remove_form_submit($form, &$form_state) {
     calendar_remove($view_name);
     drupal_set_message(t('Removed calendar %calendar.', array('%calendar' => $view_name)));
   }
-  $form_state['redirect'] = 'admin/config/date';
+  $form_state['redirect'] = 'admin/config/date/calendar';
+}
+
+/**
+ * Callback to remove a default calendar from the system.
+ */
+function calendar_remove($view_name) {
+  // Remove any variable that creates a default view with this name.
+  $calendar_options = variable_get('calendar_default_view_options', array());
+  if (array_key_exists($view_name, $calendar_options)) {
+    unset($calendar_options[$view_name]);
+  }
+  variable_set('calendar_default_view_options', $calendar_options);
+  // Delete it from the database, if stored there.
+  if ($view = views_get_view($view_name)) {
+    $view->delete();
+  }
+  views_invalidate_cache();
 }
 
 /**
@@ -545,23 +562,6 @@ function calendar_granularity_path(&$view, $granularity) {
     }
   }
   return $paths[$view->name][$granularity];
-}
-
-/**
- * Callback to remove a default calendar from the system.
- */
-function calendar_remove($view_name) {
-  // Remove any variable that creates a default view with this name.
-  $calendar_options = variable_get('calendar_default_view_options', array());
-  if (array_key_exists($view_name, $calendar_options)) {
-    unset($calendar_options[$view_name]);
-  }
-  variable_set('calendar_default_view_options', $calendar_options);
-  // Delete it from the database, if stored there.
-  if ($view = views_get_view($view_name)) {
-    $view->delete();
-  }
-  views_invalidate_cache();
 }
 
 /**
