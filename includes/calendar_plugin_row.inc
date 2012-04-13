@@ -363,7 +363,7 @@ class calendar_plugin_row extends views_plugin_row {
         $date_id = 'date_id_' . $field_name;
         $date_delta = 'date_delta_' . $field_name;
         if (!empty($row->$date_id)) {
-          $entity->date_id = array('calendar.' . $row->$date_id . '.' . $field['field_name'] . '.' . $row->$date_delta);
+          $entity->date_id = array('calendar.' . $row->$date_id . '.' . $field_name. '.' . $row->$date_delta);
         }
 
         $items = field_get_items($this->view->base_table, $entity, $field_name, $this->language);
