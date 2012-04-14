@@ -192,10 +192,32 @@ class calendar_plugin_row extends views_plugin_row_fields {
     }
     if (module_exists('og')) {
       $colors_group = $this->options['colors']['calendar_colors_group'];
-      $groups = og_get_all_group();
-      foreach ($groups as $gid) {
+      $options = array();
+
+      // The 7.1 version of OG.
+      if (function_exists('og_label')) {
+        $gids = og_get_all_group();
+        foreach ($gids as $gid) {
+          $options[$gid] = check_plain(t(og_label($gid)));
+        }
+      }
+
+      // The 7.2 version of OG.
+      else {
+        $types = og_get_all_group_entity();
+        foreach ($types as $entity_type => $name) {
+          $gids = og_get_all_group($entity_type);
+          $entities = entity_load($entity_type, $gids);
+          foreach ($entities as $entity) {
+            list($gid) = entity_extract_ids($entity_type, $entity);
+            $options[$gid] = check_plain(t(entity_label($entity_type, $entity)));
+          }
+        }
+      }
+
+      foreach ($options as $gid => $title) {
         $form['colors']['calendar_colors_group'][$gid] = array(
-          '#title' => check_plain(t(og_label($gid))),
+          '#title' => $title,
           '#default_value' => isset($colors_group[$gid]) ? $colors_group[$gid] : '#ffffff',
           '#dependency' => array('edit-row-options-colors-legend' => array('group')),
           '#type' => 'textfield',
@@ -633,16 +655,33 @@ class calendar_plugin_row extends views_plugin_row_fields {
 
     $entity = $result->entity;
     $groups_for_entity = og_get_entity_groups($this->view->base_table, $entity);
-    if (count($groups_for_entity)) {
-      foreach ($groups_for_entity as $gid => $group_name) {
-        if (!array_key_exists($gid, $colors)) {
-          continue;
+
+    // The 7.1 version of OG.
+    if (function_exists('og_label')) {
+      if (count($groups_for_entity)) {
+        foreach ($groups_for_entity as $gid => $group_name) {
+          if (!array_key_exists($gid, $colors)) {
+            continue;
+          }
+          $result->stripe[] = $colors[$gid];
+          $result->stripe_label[] = $group_name;
         }
-        $result->stripe[] = $colors[$gid];
-        $result->stripe_label[] = $group_name;
       }
     }
-
+    // The 7.2 version of OG.
+    else {
+      if (count($groups_for_entity)) {
+        foreach ($groups_for_entity as $entity_type => $gids) {
+          foreach ($gids as $gid => $group_name) {
+            if (!array_key_exists($gid, $colors)) {
+              continue;
+            }
+            $result->stripe[] = $colors[$gid];
+            $result->stripe_label[] = $group_name;
+          }
+        }
+      }
+    }
     return;
   }
 }

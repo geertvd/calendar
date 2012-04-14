@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Issue #1491140 by Morten Najbjerg and KarenS, Fix OG stripe options so they work with 7.2 version of OG.
 - Issue #1392306 by johnv, Calendar stripe code consistency changes.
 - Issue #1460134, Last column in week view isn't quite wide enough.
 - Issue #1298546, Get more field style settings to be reflected in the calendar.
