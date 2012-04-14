@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Issue #1392306 by johnv, Calendar stripe code consistency changes.
 - Issue #1460134, Last column in week view isn't quite wide enough.
 - Issue #1298546, Get more field style settings to be reflected in the calendar.
 - Issue #1221530, Fix row plugin to handle relationships properly, and also use new date_id and date_delta values.

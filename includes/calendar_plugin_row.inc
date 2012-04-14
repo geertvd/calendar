@@ -104,12 +104,12 @@ class calendar_plugin_row extends views_plugin_row_fields {
       foreach ($type_names as $key => $name) {
         $form['colors']['calendar_colors_type'][$key] = array(
           '#title' => check_plain($name),
-          '#type' => 'textfield',
           '#default_value' => isset($colors[$key]) ? $colors[$key] : '#ffffff',
+          '#dependency' => array('edit-row-options-colors-legend' => array('type')),
+          '#type' => 'textfield',
           '#size' => 7,
           '#maxlength' => 7,
           '#element_validate' => array('calendar_validate_hex_color'),
-          '#dependency' => array('edit-row-options-colors-legend' => array('type')),
           '#prefix' => '<div class="calendar-colorpicker-wrapper">',
           '#suffix' => '<div class="calendar-colorpicker"></div></div>',
           '#attributes' => array('class' => array('edit-calendar-colorpicker')),
@@ -196,9 +196,11 @@ class calendar_plugin_row extends views_plugin_row_fields {
       foreach ($groups as $gid) {
         $form['colors']['calendar_colors_group'][$gid] = array(
           '#title' => check_plain(t(og_label($gid))),
-          '#type' => 'textfield',
           '#default_value' => isset($colors_group[$gid]) ? $colors_group[$gid] : '#ffffff',
           '#dependency' => array('edit-row-options-colors-legend' => array('group')),
+          '#type' => 'textfield',
+          '#size' => 7,
+          '#maxlength' => 7,
           '#element_validate' => array('calendar_validate_hex_color'),
           '#prefix' => '<div class="calendar-colorpicker-wrapper">',
           '#suffix' => '<div class="calendar-colorpicker"></div></div>',
@@ -419,6 +421,8 @@ class calendar_plugin_row extends views_plugin_row_fields {
       $event->url = $this->url;
       $event->row = $row;
       $event->entity = $entity;
+      $event->stripe = array();
+      $event->stripe_label = array();
 
       // All calendar row plugins should provide a date_id that the theme can use.
       $event->date_id = $entity->date_id[0];
@@ -551,10 +555,6 @@ class calendar_plugin_row extends views_plugin_row_fields {
     $type = $entity->type;
     $label = '';
     $stripe = '';
-    if (!(isset($result->stripe))) {
-      $result->stripe = array();
-      $result->stripe_label = array();
-    }
     if (array_key_exists($type, $type_names)) {
       $label = $type_names[$type];
     }
@@ -564,7 +564,7 @@ class calendar_plugin_row extends views_plugin_row_fields {
 
     $result->stripe[] = $stripe;
     $result->stripe_label[] = $label;
-    return $stripe;
+    return;
   }
 
    /**
@@ -622,36 +622,27 @@ class calendar_plugin_row extends views_plugin_row_fields {
    * Create a stripe based on group.
    */
   function calendar_group_stripe(&$result) {
-    $colors_group = isset($this->options['colors']['calendar_colors_group']) ? $this->options['colors']['calendar_colors_group'] : array();
+    $colors = isset($this->options['colors']['calendar_colors_group']) ? $this->options['colors']['calendar_colors_group'] : array();
 
-    if (empty($colors_group)) {
+    if (empty($colors)) {
       return;
     }
     if (!function_exists('og_get_entity_groups')) {
       return;
     }
+
     $entity = $result->entity;
     $groups_for_entity = og_get_entity_groups($this->view->base_table, $entity);
-    if (!(isset($result->stripe))) {
-      $result->stripe = array();
-      $result->stripe_label = array();
-    }
     if (count($groups_for_entity)) {
       foreach ($groups_for_entity as $gid => $group_name) {
-        if (!array_key_exists($gid, $colors_group)) {
+        if (!array_key_exists($gid, $colors)) {
           continue;
         }
-        $stripe = $colors_group[$gid];
-        $stripe_label = $group_name;
-        $result->stripe[] = $stripe;
-        $result->stripe_label[] = $stripe_label;
+        $result->stripe[] = $colors[$gid];
+        $result->stripe_label[] = $group_name;
       }
     }
-    else {
-      $result->stripe[] = '';
-      $result->stripe_label[] = '';
-    }
+
     return;
   }
 }
-
