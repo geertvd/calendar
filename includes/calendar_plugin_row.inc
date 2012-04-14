@@ -18,7 +18,7 @@
  * Plugin which creates a view on the resulting object
  * and formats it as a Calendar node.
  */
-class calendar_plugin_row extends views_plugin_row {
+class calendar_plugin_row extends views_plugin_row_fields {
 
   // Stores the entities loaded with pre_render.
   var $entities = array();
@@ -314,6 +314,7 @@ class calendar_plugin_row extends views_plugin_row {
     $rows = array();
     $date_info = $this->date_argument->view->date_info;
     $id = $row->{$this->field_alias};
+
     if (!is_numeric($id)) {
       return $rows;
     }
@@ -328,6 +329,7 @@ class calendar_plugin_row extends views_plugin_row {
       // like an Upcoming block on the same page as a calendar view,
       // will end up acquiring the values we set here.
       $entity = clone($this->entities[$id]);
+
       if (empty($entity)) {
         return $rows;
       }
@@ -417,6 +419,20 @@ class calendar_plugin_row extends views_plugin_row {
       // All calendar row plugins should provide a date_id that the theme can use.
       $event->date_id = $entity->date_id[0];
 
+      // We are working with an array of partially rendered items
+      // as we process the calendar, so we can group and organize them.
+      // At the end of our processing we'll need to swap in the fully formatted
+      // display of the row. We save it here and switch it in
+      // template_preprocess_calendar_item().
+      if (!empty($this->view->row_index)) {
+        $event->rendered = theme($this->theme_functions(),
+        array(
+          'view' => $this->view,
+          'options' => $this->options,
+          'row' => $row,
+          'field_alias' => isset($this->field_alias) ? $this->field_alias : '',
+        ));
+      }
       $entities = $this->explode_values($event);
       foreach ($entities as $entity) {
         switch ($this->options['colors']['legend']) {
@@ -434,6 +450,7 @@ class calendar_plugin_row extends views_plugin_row {
       }
 
     }
+
     return $rows;
   }
 

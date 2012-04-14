@@ -516,6 +516,19 @@ function template_preprocess_calendar_week(&$vars) {
 }
 
 /**
+ * Implementation of hook_preprocess_calendar_item().
+ */
+function template_preprocess_calendar_item(&$vars) {
+  // At the last possible minute we replace our array of rendered
+  // items with the actual rendered content of the row. But only
+  // if this is not a multiday item.
+  $item = $vars['item'];
+  if (!empty($item->rendered) && empty($item->is_multi_day)) {
+    $vars['rendered_fields'] = array($item->rendered);
+  }
+}
+
+/**
  * Create the calendar date box.
  */
 function template_preprocess_calendar_datebox(&$vars) {

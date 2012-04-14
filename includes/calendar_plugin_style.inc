@@ -280,7 +280,7 @@ class calendar_plugin_style extends views_plugin_style {
     $keys = array();
     foreach ($this->view->field as $key => $handler) {
       if (empty($handler->options['exclude'])) {
-        $keys[] = $key;
+        $keys[$key] = $handler;
       }
     }
 
@@ -289,14 +289,15 @@ class calendar_plugin_style extends views_plugin_style {
     $items = array();
     foreach ($this->view->result as $row_index => $row) {
       $this->view->row_index = $row_index;
-      foreach ($this->row_plugin->render($row) as $item) {
+      $rows = $this->row_plugin->render($row);
+      foreach ($rows as $item) {
         $item->granularity = $this->date_info->granularity;
         $rendered_fields = array();
         $item_start = date_format($item->calendar_start_date, DATE_FORMAT_DATE);
         $item_end = date_format($item->calendar_end_date, DATE_FORMAT_DATE);
         $time_start = date_format($item->calendar_start_date, 'H:i:s');
-        foreach ($keys as $field) {
-          $rendered_fields[] = $this->get_field($row_index, $field);
+        foreach ($keys as $key => $field) {
+          $rendered_fields[] = $this->get_field($row_index, $key);
         }
         $item->rendered_fields = $rendered_fields;
         $items[$item_start][$time_start][] = $item;
@@ -728,6 +729,7 @@ class calendar_plugin_style extends views_plugin_style {
                   // Add continuation attributes
                   $item->continuation =  ($item->date_start < $this->curday);
                   $item->continues = ( $days > $bucket_cnt );
+                  $item->is_multi_day = $is_multi_day;
 
                   // Assign the item to the available bucket
                   $multiday_buckets[$wday][$bucket_index] = array(
