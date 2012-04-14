@@ -366,10 +366,14 @@ class calendar_plugin_row extends views_plugin_row_fields {
         $date_delta = 'date_delta_' . $field_name;
         if (!empty($row->$date_id)) {
           $entity->date_id = array('calendar.' . $row->$date_id . '.' . $field_name. '.' . $row->$date_delta);
+          $delta_field = $date_delta;
+        }
+        else {
+          $entity->date_id = array('calendar.' . $id . '.' . $field_name . '.' . $row->$delta_field);
         }
 
         $items = field_get_items($this->view->base_table, $entity, $field_name, $this->language);
-        $item  = $items[$row->$date_delta];
+        $item  = $items[$row->$delta_field];
         $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
         $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
         if (!empty($item['value'])) {
