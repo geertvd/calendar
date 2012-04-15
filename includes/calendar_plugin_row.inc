@@ -125,6 +125,7 @@ class calendar_plugin_row extends views_plugin_row_fields {
       }
     }
     if (module_exists('taxonomy')) {
+      // Get the field names.
       $vocab_field_options = array();
       $fields = $this->display->handler->get_option('fields');
       foreach ($fields as $name => $field) {
@@ -144,36 +145,48 @@ class calendar_plugin_row extends views_plugin_row_fields {
         $form['colors']['taxonomy_field']['#options'] = array('' => '');
         $form['colors']['taxonomy_field']['#suffix'] = t('You must add a term field to this view to use taxonomy stripe values. This works best for vocabularies with only a limited number of possible terms.');
       }
-      $taxonomy_field = field_info_field($this->options['colors']['taxonomy_field']);
-      $vocab_names[] = array();
-      foreach ((array) $taxonomy_field['settings']['allowed_values'] as $delta => $options) {
-        $vocab_names[] = $options['vocabulary'];
-      }
-      $taxonomies = taxonomy_get_vocabularies();
-      foreach ($taxonomies as $vid => $vocab) {
-        if (in_array($vocab->machine_name, $vocab_names)) {
-          $this->options['colors']['calendar_colors_vocabulary'][] = $vid;
+
+      // Get the Vocabulary names.
+      $vocab_names = array();
+      foreach ($vocab_field_options as $field_name) {
+        $taxonomy_field = field_info_field($field_name);
+        foreach ((array) $taxonomy_field['settings']['allowed_values'] as $delta => $options) {
+          $vocab_names[$field_name] = $options['vocabulary'];
         }
       }
+
+      // Get the Vocabulary id's.
+      $vocab_vids = array();
+      foreach ($vocab_names as $field_name => $vocab_name) {
+          $vocab = taxonomy_vocabulary_machine_name_load($vocab_name);
+          $vocab_vids[$field_name] = $vocab->vid;
+      }
+
+      $this->options['colors']['calendar_colors_vocabulary'] = $vocab_vids;
+
       $form['colors']['calendar_colors_vocabulary'] = array(
         '#title' => t('Vocabulary Legend Types'),
         '#type' => 'value',
-        '#value' => $this->options['colors']['calendar_colors_vocabulary'],
+        '#value' => $vocab_vids,
       );
 
-      $vocabularies = (array) $this->options['colors']['calendar_colors_vocabulary'];
+      // Get the Vocabulary term id's and map to colors.
       $term_colors = $this->options['colors']['calendar_colors_taxonomy'];
-      foreach ($vocabularies as $vid) {
+      foreach ($vocab_vids as $field_name => $vid) {
         $vocab = taxonomy_get_tree($vid);
         foreach ($vocab as $tid => $term) {
           $form['colors']['calendar_colors_taxonomy'][$term->tid] = array(
             '#title' => check_plain(t($term->name)),
-            '#type' => 'textfield',
             '#default_value' => isset($term_colors[$term->tid]) ? $term_colors[$term->tid] : '#ffffff',
+            '#access' => !empty($vocab_field_options),
+            '#dependency_count' => 2, // All 2 of the following #dependencies must be met.
+            '#dependency' => array(
+                                   'edit-row-options-colors-legend' => array('taxonomy'),
+                                   'edit-row-options-colors-taxonomy-field' => array($field_name),
+                             ),
+            '#type' => 'textfield',
             '#size' => 7,
             '#maxlength' => 7,
-            '#access' => !empty($vocab_field_options),
-            '#dependency' => array('edit-row-options-colors-legend' => array('taxonomy')),
             '#element_validate' => array('calendar_validate_hex_color'),
             '#prefix' => '<div class="calendar-colorpicker-wrapper">',
             '#suffix' => '<div class="calendar-colorpicker"></div></div>',
@@ -594,47 +607,22 @@ class calendar_plugin_row extends views_plugin_row_fields {
    */
 
   function calendar_taxonomy_stripe(&$result) {
-    $term_colors = isset($this->options['colors']['calendar_colors_taxonomy']) ? $this->options['colors']['calendar_colors_taxonomy'] : array();
-    if (empty($term_colors)) {
+    $colors = isset($this->options['colors']['calendar_colors_taxonomy']) ? $this->options['colors']['calendar_colors_taxonomy'] : array();
+    if (empty($colors)) {
       return;
     }
+
     $entity = $result->entity;
-    $terms = array();
-    if ($this->options['colors']['legend'] == 'taxonomy') {
-      $term_field_name = $this->options['colors']['taxonomy_field'];
-
-      if ($term_field = field_get_items($this->view->base_table, $entity, $term_field_name)) {
-        foreach ($term_field as $delta => $items) {
-          foreach ($items as $item) {
-            $terms[] = $item['tid'];
-          }
-        }
-      }
-    }
-
-    if (empty($terms)) {
-      return;
-    }
-
-    if (!(isset($item->stripe))) {
-      $result->stripe = array();
-      $result->stripe_label = array();
-    }
-    if (count($terms)) {
-      foreach ($terms as $tid) {
-        $term_for_entity = taxonomy_term_load($tid);
-        if (!array_key_exists($term_for_entity->tid, $term_colors)) {
+    $term_field_name = $this->options['colors']['taxonomy_field'];
+    if ($terms_for_entity = field_get_items($this->view->base_table, $entity, $term_field_name)) {
+      foreach ($terms_for_entity as $delta => $item) {
+        $term_for_entity = taxonomy_term_load($item['tid']);
+        if (!array_key_exists($term_for_entity->tid, $colors)) {
           continue;
         }
-        $stripe = $term_colors[$term_for_entity->tid];
-        $stripe_label = $term_for_entity->name;
-        $result->stripe[] = $stripe;
-        $result->stripe_label[] = $stripe_label;
+        $result->stripe[] = $colors[$term_for_entity->tid];
+        $result->stripe_label[] = $term_for_entity->name;
       }
-    }
-    else {
-      $result->stripe[] = '';
-      $result->stripe_label[] = '';
     }
 
     return;
