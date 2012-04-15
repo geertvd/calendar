@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Fix the Date/Calendar link to link to the default display instead of the current display.
 - Hide more of the deprecated elements and remove the old default view. Will remove the rest in the next release. Waiting a bit to avoid registry errors for people who haven't made the switch.
 - Issue #1447176 by johnv, Rework taxonomy stripe logic.
 - Issue #1533466, Bad logic in the calendar template sometimes tries to create the wrong type of date field resulting in a broken handler.
