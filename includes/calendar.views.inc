@@ -57,6 +57,7 @@ function calendar_views_plugins() {
         'uses options' => TRUE,
         'uses fields' => TRUE,
         'type' => 'normal',
+        'no ui' => TRUE,
       ),
       'calendar_entity' => array(
         'title' => t('Calendar Entities'),

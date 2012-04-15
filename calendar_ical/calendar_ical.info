@@ -6,6 +6,7 @@ dependencies[] = date_views
 dependencies[] = calendar
 package = Date/Time
 core = 7.x
+hidden = TRUE
 files[] = calendar_ical.install
 files[] = calendar_ical.module
 files[] = calendar_plugin_style_ical.inc
