@@ -108,8 +108,9 @@ $base_table  = $options['base_table'];
 $field_name  = $options['field_name'];
 
 $colors      = array();
+$field_info = field_info_field($field_name);
 
-if (substr($field_name, 0, 6) == 'field_') {
+if (!empty($field_info)) {
   $table = 'field_data_' . $field_name;
   $alias = $table . '.' . $field_name . '_value';
   $is_field = TRUE;
