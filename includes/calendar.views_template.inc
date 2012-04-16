@@ -30,7 +30,7 @@ function calendar_views_templates() {
     $items = field_info_instances($entity_type);
     $views_fields = date_views_fields($info['base table']);
     foreach ($views_fields['name'] as $name => $data) {
-  
+
       // For each of the Field date fields, we need to find the bundle and entities this field is used on.
       if ($data['is_field']) {
         foreach ($items as $bundle => $widgets) {
@@ -50,7 +50,7 @@ function calendar_views_templates() {
                 'field_name' => $field_name,
               );
               $view = calendar_views_template_construct($calendar_option);
-              $views[$view->name] = $view;        
+              $views[$view->name] = $view;
               $processed[] = $alias;
             }
           }
@@ -70,7 +70,7 @@ function calendar_views_templates() {
           'field_name' => $field_name,
         );
         $view = calendar_views_template_construct($calendar_option);
-        $views[$view->name] = $view;        
+        $views[$view->name] = $view;
       }
     }
   }
@@ -80,7 +80,7 @@ function calendar_views_templates() {
 /**
  * Helper function to construct a calendar template from an array of values.
  *
- * @param $options: 
+ * @param $options:
  *   An array of options to create calendar templates.
  *
  * Possible options include:
@@ -151,6 +151,7 @@ $handler->display->display_options['style_options']['with_weekno'] = '0';
 $handler->display->display_options['style_options']['multiday_theme'] = '1';
 $handler->display->display_options['style_options']['theme_style'] = '1';
 $handler->display->display_options['style_options']['max_items'] = '0';
+$handler->display->display_options['style_options']['track_date'] = '1';
 $handler->display->display_options['row_plugin'] = 'calendar_entity';
 
 /* Field: Title */
@@ -201,7 +202,7 @@ switch ($base_table) {
     $handler->display->display_options['fields']['name']['link_to_user'] = 1;
     $handler->display->display_options['fields']['name']['overwrite_anonymous'] = 0;
   break;
-  
+
 }
 
 /* Date Field */
@@ -289,6 +290,7 @@ $handler->display->display_options['style_options']['with_weekno'] = '0';
 $handler->display->display_options['style_options']['multiday_theme'] = '1';
 $handler->display->display_options['style_options']['theme_style'] = '1';
 $handler->display->display_options['style_options']['max_items'] = '0';
+$handler->display->display_options['style_options']['track_date'] = '1';
 $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
 $handler->display->display_options['row_plugin'] = 'calendar_entity';
@@ -298,6 +300,7 @@ $handler->display->display_options['row_options']['colors']['calendar_colors_typ
 $handler->display->display_options['row_options']['colors']['calendar_colors_vocabulary'] = array();
 $handler->display->display_options['defaults']['row_options'] = FALSE;
 $handler->display->display_options['defaults']['arguments'] = FALSE;
+
 
 /* Contextual filter: Date */
 
@@ -314,12 +317,16 @@ $handler->display->display_options['arguments']['date_argument']['add_delta'] = 
 $handler->display->display_options['arguments']['date_argument']['date_fields'] = $aliases;
 $handler->display->display_options['arguments']['date_argument']['date_method'] = 'OR';
 $handler->display->display_options['arguments']['date_argument']['date_group'] = 'date';
+
 $handler->display->display_options['path'] = $path . '/month';
+$handler->display->display_options['menu']['type'] = 'default tab';
 $handler->display->display_options['menu']['title'] = 'Month';
 $handler->display->display_options['menu']['weight'] = '0';
+$handler->display->display_options['menu']['context'] = 0;
 $handler->display->display_options['tab_options']['type'] = 'normal';
 $handler->display->display_options['tab_options']['title'] = 'Month';
 $handler->display->display_options['tab_options']['weight'] = '0';
+
 
 /* Display: Week */
 
@@ -339,6 +346,7 @@ $handler->display->display_options['style_options']['multiday_theme'] = '1';
 $handler->display->display_options['style_options']['groupby_times'] = 'hour';
 $handler->display->display_options['style_options']['theme_style'] = '1';
 $handler->display->display_options['style_options']['max_items'] = '0';
+$handler->display->display_options['style_options']['track_date'] = '1';
 $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
 $handler->display->display_options['row_plugin'] = 'calendar_entity';
@@ -360,9 +368,12 @@ $handler->display->display_options['arguments']['date_argument']['add_delta'] = 
 $handler->display->display_options['arguments']['date_argument']['date_fields'] = $aliases;
 $handler->display->display_options['arguments']['date_argument']['date_method'] = 'OR';
 $handler->display->display_options['arguments']['date_argument']['date_group'] = 'date';
+
 $handler->display->display_options['path'] = $path . '/week';
+$handler->display->display_options['menu']['type'] = 'tab';
 $handler->display->display_options['menu']['title'] = 'Week';
 $handler->display->display_options['menu']['weight'] = '2';
+$handler->display->display_options['menu']['context'] = 0;
 
 /* Display: Day */
 
@@ -382,6 +393,7 @@ $handler->display->display_options['style_options']['multiday_theme'] = '1';
 $handler->display->display_options['style_options']['theme_style'] = '1';
 $handler->display->display_options['style_options']['max_items'] = '0';
 $handler->display->display_options['style_options']['groupby_times'] = 'hour';
+$handler->display->display_options['style_options']['track_date'] = '1';
 $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
 $handler->display->display_options['row_plugin'] = 'calendar_entity';
@@ -403,9 +415,12 @@ $handler->display->display_options['arguments']['date_argument']['add_delta'] = 
 $handler->display->display_options['arguments']['date_argument']['date_fields'] = $aliases;
 $handler->display->display_options['arguments']['date_argument']['date_method'] = 'OR';
 $handler->display->display_options['arguments']['date_argument']['date_group'] = 'date';
+
 $handler->display->display_options['path'] = $path . '/day';
+$handler->display->display_options['menu']['type'] = 'tab';
 $handler->display->display_options['menu']['title'] = 'Day';
 $handler->display->display_options['menu']['weight'] = '3';
+$handler->display->display_options['menu']['context'] = 0;
 
 /* Display: Year */
 
@@ -424,6 +439,7 @@ $handler->display->display_options['style_options']['with_weekno'] = '0';
 $handler->display->display_options['style_options']['multiday_theme'] = '1';
 $handler->display->display_options['style_options']['theme_style'] = '1';
 $handler->display->display_options['style_options']['max_items'] = '0';
+$handler->display->display_options['style_options']['track_date'] = '1';
 $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
 $handler->display->display_options['row_plugin'] = 'calendar_entity';
@@ -445,9 +461,12 @@ $handler->display->display_options['arguments']['date_argument']['add_delta'] = 
 $handler->display->display_options['arguments']['date_argument']['date_fields'] = $aliases;
 $handler->display->display_options['arguments']['date_argument']['date_method'] = 'OR';
 $handler->display->display_options['arguments']['date_argument']['date_group'] = 'date';
+
 $handler->display->display_options['path'] = $path . '/year';
+$handler->display->display_options['menu']['type'] = 'tab';
 $handler->display->display_options['menu']['title'] = 'Year';
 $handler->display->display_options['menu']['weight'] = '4';
+$handler->display->display_options['menu']['context'] = 0;
 
 /* Display: Block */
 

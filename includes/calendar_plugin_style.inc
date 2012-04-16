@@ -43,6 +43,7 @@ class calendar_plugin_style extends views_plugin_style {
     $options['groupby_times'] = array('default' => 'hour');
     $options['groupby_times_custom'] = array('default' => '');
     $options['groupby_field'] = array('default' => '');
+    $options['track_date'] = array('default' => 0);
     return $options;
   }
 
@@ -143,6 +144,13 @@ class calendar_plugin_style extends views_plugin_style {
       '#description' => t('If selected, items which span multiple days will displayed as a multi-column row.  If not selected, items will be displayed as an individual column.'),
       '#dependency' => array('edit-style-options-calendar-type' => array('month', 'week')),
       );
+    $form['track_date'] = array(
+      '#title' => t('Track current date in session'),
+      '#type' => 'radios',
+      '#options' => array(0 => t("Never"), 1 => t('For authenticated users'), 2 => t('For all users')),
+      '#default_value' => $this->options['track_date'],
+      '#description' => t("Store session information about the user's current date as they move back and forth through the calendar. Without this setting users will revert to the current day each time they choose a new calendar period (year, month, week, or day). With this option set they will move to a day that conforms to the time period they were viewing before they switched. Requires session tracking which is not ordinarily enabled for anonymous users."),
+      );
   }
 
   function options_validate(&$form, &$form_state) {
@@ -210,6 +218,51 @@ class calendar_plugin_style extends views_plugin_style {
 
   function has_calendar_row_plugin() {
     return $this->row_plugin instanceof calendar_plugin_row || $this->row_plugin instanceof calendar_plugin_row_node;
+  }
+
+  function query() {
+    global $user;
+    if (!empty($this->options['track_date']) && ($this->options['track_date'] == 2 || !empty($user->uid))) {
+      foreach ($this->view->argument as $id => &$argument) {
+        if (date_views_handler_is_date($argument, 'argument')) {
+
+          // If this is a default date, i.e. we are visiting a new calendar display,
+          // set the default date for the display. See if we already have a session
+          // date to use. If so, use it. Otherwise the default is the current date.
+          if (!empty($argument->is_default)) {
+            if (!empty($_SESSION[$this->view->name]['default_date'])) {
+              $default_date = $_SESSION[$this->view->name]['default_date'];
+            }
+            else {
+              $default_date = date_now();
+              $_SESSION[$this->view->name]['default_date'] = $default_date;
+            }
+            // Get the current date from the session.
+            $value = $default_date->format($argument->arg_format);
+            // Find the date range of this view.
+            $date_range = $argument->date_handler->arg_range($value);
+            // Set the argument to the beginning of this range.
+            $argument->argument = $date_range[0]->format($argument->arg_format);
+            $argument->date_range = $date_range;
+            $argument->min_date = $date_range[0];
+            $argument->max_date = $date_range[1];
+            $argument->is_default = FALSE;
+          }
+
+          // If this is not a default date, i.e. we have browsed to a new calendar
+          // period on a display we were already on, store the midpoint of the current
+          // view as the current date in a session.
+          else {
+            $date_range = $argument->date_handler->arg_range($argument->argument);
+            $session_date = $date_range[0];
+            $days = intval(($date_range[1]->format('U') - $date_range[0]->format('U')) / 3600 / 24 / 2);
+            date_modify($session_date, "+$days days");
+            $_SESSION[$this->view->name]['default_date'] = $session_date;
+          }
+        }
+      }
+    }
+    parent::query();
   }
 
   function render() {
