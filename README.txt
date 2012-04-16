@@ -1,9 +1,8 @@
 Creates calendar displays of Views results.
 
-Create a new calendar by enabling or cloning the default calendar,
-changing the date argument to use the correct date field(s), and setting
-up the year, month, day, week, and block views with the desired styles
-and fields.
+Create a new calendar by using the calendar template for the desired
+date field. See a link to create a view from a template at the top
+of the Views listing page.
 
 If the Calendar iCal module is enabled, an iCal feed can be
 attached to the view.
@@ -11,7 +10,6 @@ attached to the view.
 For a quick and easy start, install the Date Tools module, then use
 the Date Tools Wizard to create a content type with a date field
 and a calendar that displays that field, all in a single step!
-
 
 
 NOTES WHEN SWITCHING FROM 7.2 to 7.3

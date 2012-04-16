@@ -5,7 +5,31 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+DEPRECATED ELEMENTS:
+
+- The default calendar has been removed. If you have calendars created with the old default calendar you should re-create them using the new template.
+- The Calendar iCal module has been hidden so you can't enable it and will be deleted completely in the next release. Use the new Date iCal module instead.
+- The Calendar Items row plugin has been removed from the UI and will be deleted completely in the next release.
+
+
+NEW FEATURES:
 - Issue #1535346, Rework the calendar tab handling to get rid of custom tabs and add in a setting to track the current date.
+
+There have been numerous problems with the way the tabs are working. They revert to the current day when you switch from one display to another. They are not translating correctly. Sometimes the paths are incorrect (i.e. if there are other arguments in the display). Some people don't want the tabs. Other people want additional tabs.
+
+I am reworking them completely. I was originally trying to control them so we could do 'smart' switching to keep track of the current date as people clicked from one display to another. That wouldn't work with normal tabs, which can only display the default view. But overriding the normal menu items is fraught with problems and I finally figured out a way to keep track of the current date without controlling the tabs.
+
+So I am getting rid of all the custom tab handling. You can create tabs on the calendar the way you create tabs on any other view -- with the menu setting in the display. That way you can totally control the tabs in your calendar. I am changing the calendar template to add the tabs to it.
+
+To track the current date as you move around the calendar I am adding a query override in the style handler. Basically it stores the current date in a session as you move around the calendar. When you switch to a new display, it computes the default date for that display based on the last date in your session. So if you go 3 months into the future and then switch to the day view, you will see a day in that month, not the current day.
+
+Because the session handling may only be desirable on certain calendars I added a setting where you can enable or disable this behavior. It's a setting on the calendar style. You can choose to turn that off, enable it only for authenticated users, or enable it for everyone.
+
+If you have an existing calendar you can add the menu tabs and turn on the date tracking for each display in your calendar (year, month, day, and week). Or you can delete your calendar and create a new one from a template and it will have all this set up.
+
+
+BUGFIXES:
+
 - Fix the Date/Calendar link to link to the default display instead of the current display.
 - Hide more of the deprecated elements and remove the old default view. Will remove the rest in the next release. Waiting a bit to avoid registry errors for people who haven't made the switch.
 - Issue #1447176 by johnv, Rework taxonomy stripe logic.
