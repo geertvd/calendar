@@ -284,13 +284,8 @@ class calendar_plugin_style extends views_plugin_style {
     date_timezone_set($date, $display_timezone);
     $this->date_info->max_zone_string = date_format($date, DATE_FORMAT_DATE);
 
-    // Identify the fields that need to be displayed on each item.
-    $keys = array();
-    foreach ($this->view->field as $key => $handler) {
-      if (empty($handler->options['exclude'])) {
-        $keys[$key] = $handler;
-      }
-    }
+    // Let views render fields the way it thinks they should look before we start massaging them.
+    $this->render_fields($this->view->result);
 
     // Invoke the row plugin to massage each result row into calendar items.
     // Gather the row items into an array grouped by date and time.
@@ -298,18 +293,14 @@ class calendar_plugin_style extends views_plugin_style {
     foreach ($this->view->result as $row_index => $row) {
       $this->view->row_index = $row_index;
       $rows = $this->row_plugin->render($row);
-      foreach ($rows as $item) {
+      foreach ($rows as $key => $item) {
         $item->granularity = $this->date_info->granularity;
         $rendered_fields = array();
         $item_start = date_format($item->calendar_start_date, DATE_FORMAT_DATE);
         $item_end = date_format($item->calendar_end_date, DATE_FORMAT_DATE);
         $time_start = date_format($item->calendar_start_date, 'H:i:s');
-        foreach ($keys as $key => $field) {
-          $rendered_fields[] = $this->get_field($row_index, $key);
-        }
-        $item->rendered_fields = $rendered_fields;
+        $item->rendered_fields = $this->rendered_fields[$key];
         $items[$item_start][$time_start][] = $item;
-        $this->view->row_index++;
       }
     }
 

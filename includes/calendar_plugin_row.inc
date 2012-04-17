@@ -401,13 +401,13 @@ class calendar_plugin_row extends views_plugin_row_fields {
         // fields that have multiple values. The theme expects it to be an array.
         $date_id = 'date_id_' . $field_name;
         $date_delta = 'date_delta_' . $field_name;
-        if (!empty($row->$date_id)) {
+        if (isset($row->$date_id)) {
           $delta = $row->$date_delta;
           $entity->date_id = array('calendar.' . $row->$date_id . '.' . $field_name. '.' . $delta);
           $delta_field = $date_delta;
         }
         else {
-          $delta = !empty($row->$delta_field) ? $row->$delta_field : 0;
+          $delta = isset($row->$delta_field) ? $row->$delta_field : 0;
           $entity->date_id = array('calendar.' . $id . '.' . $field_name . '.' . $delta);
         }
 
@@ -415,7 +415,7 @@ class calendar_plugin_row extends views_plugin_row_fields {
         $item  = $items[$delta];
         $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
         $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
-        if (!empty($item['value'])) {
+        if (isset($item['value'])) {
           $item_start_date = new dateObject($item['value'], $db_tz);
           $item_end_date   = array_key_exists('value2', $item) ? new dateObject($item['value2'], $db_tz) : $item_start_date;
         }
@@ -469,15 +469,13 @@ class calendar_plugin_row extends views_plugin_row_fields {
       // At the end of our processing we'll need to swap in the fully formatted
       // display of the row. We save it here and switch it in
       // template_preprocess_calendar_item().
-      if (!empty($this->view->row_index)) {
-        $event->rendered = theme($this->theme_functions(),
-        array(
-          'view' => $this->view,
-          'options' => $this->options,
-          'row' => $row,
-          'field_alias' => isset($this->field_alias) ? $this->field_alias : '',
-        ));
-      }
+      $event->rendered = theme($this->theme_functions(),
+      array(
+        'view' => $this->view,
+        'options' => $this->options,
+        'row' => $row,
+        'field_alias' => isset($this->field_alias) ? $this->field_alias : '',
+      ));
       $entities = $this->explode_values($event);
       foreach ($entities as $entity) {
         switch ($this->options['colors']['legend']) {
