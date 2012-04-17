@@ -14,6 +14,7 @@ DEPRECATED ELEMENTS:
 
 NEW FEATURES:
 - Issue #1535346, Rework the calendar tab handling to get rid of custom tabs and add in a setting to track the current date.
+- Issue #1535346 continuation, rework the current date tracking to use the new date_default_argument_alter hook.
 
 There have been numerous problems with the way the tabs are working. They revert to the current day when you switch from one display to another. They are not translating correctly. Sometimes the paths are incorrect (i.e. if there are other arguments in the display). Some people don't want the tabs. Other people want additional tabs.
 

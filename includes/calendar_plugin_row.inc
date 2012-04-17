@@ -402,15 +402,17 @@ class calendar_plugin_row extends views_plugin_row_fields {
         $date_id = 'date_id_' . $field_name;
         $date_delta = 'date_delta_' . $field_name;
         if (!empty($row->$date_id)) {
-          $entity->date_id = array('calendar.' . $row->$date_id . '.' . $field_name. '.' . $row->$date_delta);
+          $delta = $row->$date_delta;
+          $entity->date_id = array('calendar.' . $row->$date_id . '.' . $field_name. '.' . $delta);
           $delta_field = $date_delta;
         }
         else {
-          $entity->date_id = array('calendar.' . $id . '.' . $field_name . '.' . $row->$delta_field);
+          $delta = !empty($row->$delta_field) ? $row->$delta_field : 0;
+          $entity->date_id = array('calendar.' . $id . '.' . $field_name . '.' . $delta);
         }
 
         $items = field_get_items($this->view->base_table, $entity, $field_name, $this->language);
-        $item  = $items[$row->$delta_field];
+        $item  = $items[$delta];
         $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
         $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
         if (!empty($item['value'])) {

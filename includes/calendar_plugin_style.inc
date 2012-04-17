@@ -220,51 +220,6 @@ class calendar_plugin_style extends views_plugin_style {
     return $this->row_plugin instanceof calendar_plugin_row || $this->row_plugin instanceof calendar_plugin_row_node;
   }
 
-  function query() {
-    global $user;
-    if (!empty($this->options['track_date']) && ($this->options['track_date'] == 2 || !empty($user->uid))) {
-      foreach ($this->view->argument as $id => &$argument) {
-        if (date_views_handler_is_date($argument, 'argument')) {
-
-          // If this is a default date, i.e. we are visiting a new calendar display,
-          // set the default date for the display. See if we already have a session
-          // date to use. If so, use it. Otherwise the default is the current date.
-          if (!empty($argument->is_default)) {
-            if (!empty($_SESSION[$this->view->name]['default_date'])) {
-              $default_date = $_SESSION[$this->view->name]['default_date'];
-            }
-            else {
-              $default_date = date_now();
-              $_SESSION[$this->view->name]['default_date'] = $default_date;
-            }
-            // Get the current date from the session.
-            $value = $default_date->format($argument->arg_format);
-            // Find the date range of this view.
-            $date_range = $argument->date_handler->arg_range($value);
-            // Set the argument to the beginning of this range.
-            $argument->argument = $date_range[0]->format($argument->arg_format);
-            $argument->date_range = $date_range;
-            $argument->min_date = $date_range[0];
-            $argument->max_date = $date_range[1];
-            $argument->is_default = FALSE;
-          }
-
-          // If this is not a default date, i.e. we have browsed to a new calendar
-          // period on a display we were already on, store the midpoint of the current
-          // view as the current date in a session.
-          else {
-            $date_range = $argument->date_handler->arg_range($argument->argument);
-            $session_date = $date_range[0];
-            $days = intval(($date_range[1]->format('U') - $date_range[0]->format('U')) / 3600 / 24 / 2);
-            date_modify($session_date, "+$days days");
-            $_SESSION[$this->view->name]['default_date'] = $session_date;
-          }
-        }
-      }
-    }
-    parent::query();
-  }
-
   function render() {
     if (empty($this->row_plugin) || !$this->has_calendar_row_plugin()) {
       debug('calendar_plugin_style: The calendar row plugin is required when using the calendar style, but it is missing.');

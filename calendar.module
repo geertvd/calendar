@@ -172,6 +172,57 @@ function calendar_preprocess_date_views_pager(&$vars) {
 }
 
 /**
+ * Implements hook_date_default_argument_alter().
+ *
+ * Adjust the default date for a view based on the stored session value.
+ */
+function calendar_date_default_argument_alter(&$argument, &$value) {
+  global $user;
+  $style_options = $argument->view->display_handler->get_option('style_options');
+  if (!empty($style_options['track_date']) && ($style_options['track_date'] == 2 || !empty($user->uid))) {
+
+    // If this is a default date, i.e. we are visiting a new calendar display,
+    // set the default date for the display. See if we already have a session
+    // date to use. If so, use it. Otherwise the default is the current date.
+    if (!empty($_SESSION[$argument->view->name]['default_date'])) {
+      $default_date = $_SESSION[$argument->view->name]['default_date'];
+    }
+    else {
+      $default_date = date_now();
+      $_SESSION[$argument->view->name]['default_date'] = $default_date;
+    }
+    // Get the current date from the session.
+    $value = $default_date->format($argument->arg_format);
+  }
+}
+
+/**
+ * Implements hook_views_pre_render().
+ *
+ * Track the current date as the user moves from calendar display to calendar display.
+ */
+function calendar_views_pre_render(&$view) {
+  global $user;
+
+  $style_options = $view->display_handler->get_option('style_options');
+  if (!empty($style_options['track_date']) && ($style_options['track_date'] == 2 || !empty($user->uid))) {
+    foreach ($view->argument as $id => &$argument) {
+
+      // If this is not a default date, i.e. we have browsed to a new calendar
+      // period on a display we were already on, store the midpoint of the current
+      // view as the current date in a session.
+      if (date_views_handler_is_date($argument, 'argument') && empty($argument->is_default)) {
+        $date_range = $argument->date_handler->arg_range($argument->argument);
+        $session_date = $date_range[0];
+        $days = intval(($date_range[1]->format('U') - $date_range[0]->format('U')) / 3600 / 24 / 2);
+        date_modify($session_date, "+$days days");
+        $_SESSION[$view->name]['default_date'] = $session_date;
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_menu_local_tasks_alter().
  *
  * Takes the calendar links created in calendar_preprocess_date_views_pager()
