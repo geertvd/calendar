@@ -361,6 +361,7 @@ class calendar_plugin_style extends views_plugin_style {
    * Build one month.
    */
   function calendar_build_month() {
+    $translated_days = date_week_days_ordered(date_week_days(TRUE));
     $month = date_format($this->curday, 'n');
     $curday_date = date_format($this->curday, DATE_FORMAT_DATE);
     $weekdays = calendar_untranslated_days($this->items, $this->view);
@@ -404,7 +405,7 @@ class calendar_plugin_style extends views_plugin_style {
             'colspan' => 1,
             'rowspan' => $total_rows + 1,
             'id' => $this->view->name . '-weekno-' . $curday_date,
-            'class' => 'week'
+            'class' => 'week',
           );
           $inner .= theme('calendar_month_col', array('item' => $item));
         }
@@ -436,7 +437,8 @@ class calendar_plugin_style extends views_plugin_style {
               'rowspan' => 1,
               'class' => 'date-box',
               'date' => $curday_date,
-              'id' => $this->view->name . '-' . $curday_date . '-date-box'
+              'id' => $this->view->name . '-' . $curday_date . '-date-box',
+              'axis' => $translated_days[$wday],
             );
             $item['class'] .= ($curday_date == $today && $in_month ? ' today' : '') .
               ($curday_date < $today ? ' past' : '') .
@@ -519,7 +521,8 @@ class calendar_plugin_style extends views_plugin_style {
                 'rowspan' => $rowspan,
                 'class' => $class,
                 'date' => $curday_date,
-                'id' => $this->view->name . '-' . $curday_date . '-' . $index
+                'id' => $this->view->name . '-' . $curday_date . '-' . $index,
+                'axis' => $translated_days[$wday],
               );
 
               // Hack for ie to help it properly space single day rows

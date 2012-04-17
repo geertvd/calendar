@@ -13,6 +13,7 @@ DEPRECATED ELEMENTS:
 
 
 NEW FEATURES:
+- Add the axis attribute to multiday calendar templates.
 - Issue #1535346, Rework the calendar tab handling to get rid of custom tabs and add in a setting to track the current date.
 - Issue #1535346 continuation, rework the current date tracking to use the new date_default_argument_alter hook.
 

@@ -422,8 +422,9 @@ function calendar_week_header($view) {
 
   // create week header
   $untranslated_days = calendar_untranslated_days();
+  $full_translated_days = date_week_days_ordered(date_week_days(TRUE));
   if ($len == 99) {
-    $translated_days = date_week_days_ordered(date_week_days(TRUE));
+    $translated_days = $full_translated_days;
   }
   else {
     $translated_days = date_week_days_ordered(date_week_days_abbr(TRUE));
@@ -433,7 +434,7 @@ function calendar_week_header($view) {
   }
   foreach ($untranslated_days as $delta => $day) {
     $label = $len < 3 ? drupal_substr($translated_days[$delta], 0 , $len) : $translated_days[$delta];
-    $row[] = array('header' => TRUE, 'class' => "days " . $day, 'data' => $label);
+    $row[] = array('header' => TRUE, 'class' => "days " . $day, 'data' => $label, 'axis' => $full_translated_days[$delta]);
   }
   return $row;
 }
