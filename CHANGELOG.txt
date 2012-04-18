@@ -13,6 +13,7 @@ DEPRECATED ELEMENTS:
 
 
 NEW FEATURES:
+- The legend block has been reworked to eliminate storing stripes in $GLOBALS, making it cacheable. A new configuration option sets the view that is used for the stipe options.
 - Add the headers attribute to multiday calendar tables for html5 compliance and accessibility.
 - Issue #1535346, Rework the calendar tab handling to get rid of custom tabs and add in a setting to track the current date.
 - Issue #1535346 continuation, rework the current date tracking to use the new date_default_argument_alter hook.

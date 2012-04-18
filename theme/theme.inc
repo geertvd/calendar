@@ -630,21 +630,73 @@ function theme_calendar_time_row_heading($vars) {
 /**
  * Format a node stripe legend
  */
-function theme_calendar_stripe_legend() {
-  if (empty($GLOBALS['calendar_stripes'])) {
+function theme_calendar_stripe_legend($vars) {
+  if (empty($vars) || !$view = $vars['view']) {
     return '';
   }
+
+  list($view_name, $display_id) = explode(':', $view);
+
+  $view = views_get_view($view_name);
+  $view->set_display($display_id);
+  $row_options = $view->display_handler->get_option('row_options');
+
+  $legend_type = $row_options['colors']['legend'];
+  $display_options = $row_options['colors']['calendar_colors_' . $legend_type];
+  $options = array();
+  switch ($legend_type) {
+
+    case 'type':
+      $options = node_type_get_names();
+      break;
+
+    case 'taxonomy':
+      $vocabularies = (array) $row_options['colors']['calendar_colors_vocabulary'];
+      $term_colors = $row_options['colors']['calendar_colors_taxonomy'];
+      foreach ($vocabularies as $field_name => $vid) {
+        $vocab = taxonomy_get_tree($vid);
+        foreach ($vocab as $key => $term) {
+          $options[$term->tid] = $term->name;
+        }
+      }
+      break;
+
+    case 'group':
+      // The 7.1 version of OG.
+      if (function_exists('og_label')) {
+        $gids = og_get_all_group();
+        foreach ($gids as $gid) {
+          $options[$gid] = check_plain(t(og_label($gid)));
+        }
+      }
+
+      // The 7.2 version of OG.
+      else {
+        $types = og_get_all_group_entity();
+        foreach ($types as $entity_type => $name) {
+          $gids = og_get_all_group($entity_type);
+          $entities = entity_load($entity_type, $gids);
+          foreach ($entities as $entity) {
+            list($gid) = entity_extract_ids($entity_type, $entity);
+            $options[$gid] = check_plain(t(entity_label($entity_type, $entity)));
+          }
+        }
+      }
+      break;
+  }
+
   $header = array(
       array('class' => 'calendar-legend', 'data' => t('Item')),
       array('class' => 'calendar-legend', 'data' => t('Key'))
       );
+
   $rows = array();
   $output = '';
-  foreach ((array) $GLOBALS['calendar_stripes'] as $label => $stripe) {
-    if ($stripe) {
-      $rows[] = array($label, '<div style="background-color:' . $stripe . ';color:' . $stripe . '" class="stripe" title="Key: ' . $label . '">&nbsp;</div>');
-    }
+  foreach ($options as $key => $label) {
+    $stripe = $display_options[$key];
+    $rows[] = array($label, '<div style="background-color:' . $stripe . ';color:' . $stripe . '" class="stripe" title="Key: ' . $label . '">&nbsp;</div>');
   }
+
   if (!empty($rows)) {
     $variables = array(
       'header' => $header,
@@ -669,7 +721,6 @@ function theme_calendar_stripe_stripe($vars) {
   if (is_array($item->stripe_label)) {
     foreach ($item->stripe_label as $k => $stripe_label) {
       if (!empty($item->stripe[$k]) && !empty($stripe_label)) {
-        $GLOBALS['calendar_stripes'][$stripe_label] = $item->stripe[$k];
         $output .= '<div style="background-color:' . $item->stripe[$k] . ';color:' . $item->stripe[$k] . '" class="stripe" title="Key: ' . $item->stripe_label[$k] . '">&nbsp;</div>' . "\n";
       }
     }

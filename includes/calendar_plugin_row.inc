@@ -174,7 +174,7 @@ class calendar_plugin_row extends views_plugin_row_fields {
       $term_colors = $this->options['colors']['calendar_colors_taxonomy'];
       foreach ($vocab_vids as $field_name => $vid) {
         $vocab = taxonomy_get_tree($vid);
-        foreach ($vocab as $tid => $term) {
+        foreach ($vocab as $key => $term) {
           $form['colors']['calendar_colors_taxonomy'][$term->tid] = array(
             '#title' => check_plain(t($term->name)),
             '#default_value' => isset($term_colors[$term->tid]) ? $term_colors[$term->tid] : '#ffffff',

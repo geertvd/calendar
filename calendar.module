@@ -304,7 +304,7 @@ function calendar_theme() {
       'variables' => array('curday' => NULL, 'view' => NULL),
       ),
     'calendar_stripe_legend' => $base + array(
-      'variables' => array('stripe_labels' => NULL),
+      'variables' => array('view' => NULL),
       ),
     'calendar_stripe_stripe' => $base + array(
       'variables' => array('node' => NULL),
@@ -476,15 +476,58 @@ function calendar_groupby_times($type = '') {
   return $times;
 }
 
+function calendar_list_views() {
+  $calendar_views = array();
+  $views = views_get_enabled_views();
+  foreach ($views as $view) {
+    $displays = array();
+    $view->init_display();   // Make sure all the handlers are set up
+    foreach ($view->display as $display_id => $display) {
+      if ($display_id != 'default' && !empty($display->display_options['style_plugin']) && $display->display_options['style_plugin'] == 'calendar_style') {
+        $index = $view->name . ':' . $display_id;
+        $calendar_views[$index] = ucfirst($view->name) . ' ' . strtolower($view->display[$display_id]->display_title) . ' [' . $view->name . ':' . $display_id . ']';
+      }
+    }
+  }
+  return $calendar_views;
+}
+
 /**
  *  Implementation of hook_block_info()
  */
 function calendar_block_info() {
   $blocks['calendar_legend'] = array(
     'info' => t('Calendar Legend'),
-    'cache' => DRUPAL_NO_CACHE,
   );
   return $blocks;
+}
+
+/**
+ * Implementation of hook_block_configure().
+ */
+function calendar_block_configure($delta = '') {
+  switch ($delta) {
+    case 'calendar_legend':
+    $options = calendar_list_views();
+    $form['calendar_legend_view'] = array(
+      '#type' => 'select',
+      '#title' => t('Legend View'),
+      '#description' => t('Choose the view display that contains the settings for the stripes that should be displayed in a legend in this block. Note that if you change the stripe values in that view you will need to clear the cache to pick up the new values in this block.'),
+      '#default_value' => variable_get('calendar_legend_view_' . $delta, ''),
+      '#options' => $options,
+    );
+    return $form;
+  }
+}
+
+/**
+ * Implementation of hook_block_save().
+ */
+function calendar_block_save($delta, $edit = array()) {
+  if ($delta == 'calendar_legend') {
+    variable_set('calendar_legend_view_' . $delta, $edit['calendar_legend_view']);
+    drupal_set_message(t('The view for the calendar legend has been set.'));
+  }
 }
 
 /**
@@ -495,7 +538,8 @@ function calendar_block_view($delta = '') {
     case 'calendar_legend':
       // Create the content before returning the block
       // so empty content won't still create the block.
-      $content = theme('calendar_stripe_legend');
+      $view = variable_get('calendar_legend_view_' . $delta, '');
+      $content = theme('calendar_stripe_legend', array('view' => $view));
       $block['subject'] = t('Calendar Legend');
       $block['content'] = $content;
       return $block;
