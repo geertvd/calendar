@@ -515,6 +515,9 @@ function calendar_granularity_path(&$view, $granularity) {
       }
 
       if ($display->display_plugin != 'feed' && !empty($display->display_options['path']) && !empty($display->display_options['arguments'])) {
+
+        // Set to the default value, reset below if another value is found.
+        $type = 'month';
         foreach ($display->display_options['arguments'] as $name => $argument) {
           if (!empty($argument['granularity'])) {
             $type = $argument['granularity'];

@@ -32,6 +32,7 @@ If you have an existing calendar you can add the menu tabs and turn on the date 
 
 BUGFIXES:
 
+- Issue #1445228, Make sure calendar_granularity_paths works on a default view that is missing granularity (as from an export).
 - Fix the Date/Calendar link to link to the default display instead of the current display.
 - Hide more of the deprecated elements and remove the old default view. Will remove the rest in the next release. Waiting a bit to avoid registry errors for people who haven't made the switch.
 - Issue #1447176 by johnv, Rework taxonomy stripe logic.
