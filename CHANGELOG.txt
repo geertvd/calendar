@@ -33,6 +33,7 @@ If you have an existing calendar you can add the menu tabs and turn on the date 
 
 BUGFIXES:
 
+- The group by field option was not working right, fix it.
 - The calendar legend block was appearing even if empty. Create the content earlier to keep that from happening.
 - Issue #1445228, Make sure calendar_granularity_paths works on a default view that is missing granularity (as from an export).
 - Fix the Date/Calendar link to link to the default display instead of the current display.

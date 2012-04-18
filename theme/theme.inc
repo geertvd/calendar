@@ -145,7 +145,7 @@ function template_preprocess_calendar_day(&$vars) {
 
   $item_count = 0;
   $by_hour_count = 0;
-  $grouping_field = !empty($view->date_info->style_groupby_field) ? ($view->date_info->style_groupby_field - 1) : NULL;
+  $grouping_field = !empty($view->date_info->style_groupby_field) ? ($view->date_info->style_groupby_field) : NULL;
   $display_overlap = !empty($view->date_info->style_theme_style) && !empty($view->date_info->style_groupby_times);
   $vars['scroll_content'] = !empty($view->date_info->style_theme_style) && $view->date_info->style_theme_style == 1;
 
@@ -179,7 +179,6 @@ function template_preprocess_calendar_day(&$vars) {
   foreach ($rows['all_day'] as $item) {
     if (!empty($item->rendered_fields[$grouping_field])) {
       $column = $item->rendered_fields[$grouping_field];
-      unset($item->rendered_fields[$grouping_field]); // Remove the grouping field from the results.
       if (!in_array($column, $columns)) {
         $columns[] = $column;
       }
@@ -205,7 +204,6 @@ function template_preprocess_calendar_day(&$vars) {
       $time = date_format($item->calendar_start_date, 'H:i:s');
       if (!empty($item->rendered_fields[$grouping_field])) {
         $column = $item->rendered_fields[$grouping_field];
-        unset($item->rendered_fields[$grouping_field]); // Remove the grouping field from the results.
         if (!in_array($column, $columns)) {
           $columns[] = $column;
         }

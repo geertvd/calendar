@@ -122,11 +122,9 @@ class calendar_plugin_style extends views_plugin_style {
 
     // Create a list of fields that are available for grouping,
     $field_options = array();
-    $i = 1;
     $fields = $this->display->handler->get_option('fields');
     foreach ($fields as $field_name => $field) {
-      $field_options[$i] = $field['field'];
-      $i++;
+      $field_options[$field_name] = $field['field'];
     }
     $form['groupby_field'] = array(
       '#title' => t('Field grouping'),
