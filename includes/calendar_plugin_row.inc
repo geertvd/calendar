@@ -411,7 +411,7 @@ class calendar_plugin_row extends views_plugin_row_fields {
           $entity->date_id = array('calendar.' . $id . '.' . $field_name . '.' . $delta);
         }
 
-        $items = field_get_items($this->view->base_table, $entity, $field_name, $this->language);
+        $items = field_get_items($this->entity_type, $entity, $field_name, $this->language);
         $item  = $items[$delta];
         $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
         $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
@@ -421,7 +421,7 @@ class calendar_plugin_row extends views_plugin_row_fields {
         }
 
         $cck_field = field_info_field($field_name);
-        $instance = field_info_instance($this->view->base_table, $field_name, $entity->type);
+        $instance = field_info_instance($this->entity_type, $field_name, $this->type);
         $granularity = date_granularity_precision($cck_field['settings']['granularity']);
         $increment = $instance['widget']['settings']['increment'];
 

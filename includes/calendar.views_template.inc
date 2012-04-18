@@ -39,19 +39,23 @@ function calendar_views_templates() {
 
             // See if this is a date field. Since fields might be shared
             // across bundles, make sure we haven't already processed this field.
-            $alias = 'field_data_' . $field_name . '.' . $field_name . '_value';
-            if ($alias == $name && !in_array($alias, $processed) && array_key_exists($entity_type, $base_tables)) {
-              $base_table = $base_tables[$entity_type];
+            // $alias = 'field_data_' . $field_name . '.' . $field_name . '_value';
+            // $alias will not work because $alias can be from multiple base_tables
+            // and we would not want to exclude a field from other base tables because
+            // it was used in one.
+
+            // Limiting the fields to date fields will make this loop more efficient
+            if ($field['module'] == 'date') {
+              $base_table = $info['base table'];
               $calendar_option = array(
-                'name' => 'calendar_' . $field_name,
+                'name' => 'calendar_' . $base_table . '_' . $field_name,
                 'description' => t("A calendar view of the '@field_name' field in the '@base_table' base table.", array('@base_table' => $base_table, '@field_name' => $field_name)),
-                'path' => 'calendar-' . str_replace('_', '-', $field_name),
+                'path' => str_replace('_', '-', 'calendar-' . $base_table . '-' . $field_name),
                 'base_table' => $base_table,
                 'field_name' => $field_name,
               );
               $view = calendar_views_template_construct($calendar_option);
               $views[$view->name] = $view;
-              $processed[] = $alias;
             }
           }
         }
