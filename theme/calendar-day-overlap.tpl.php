@@ -111,7 +111,7 @@
             <div class="calendar item-wrapper">
             <?php endif; ?>
               <div class="inner">
-               <?php print isset($hour['values'][$column]) ? implode($hour['values'][$column]) : '&nbsp;'; ?>
+               <?php print !empty($hour['values']) && is_array($hour['values']) && array_key_exists($column, $hour['values']) ? implode($hour['values'][$column]) : '&nbsp;'; ?>
               </div>
             </div>
           </div>
