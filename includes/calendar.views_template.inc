@@ -324,7 +324,7 @@ $handler->display->display_options['menu']['title'] = 'Month';
 $handler->display->display_options['menu']['weight'] = '0';
 $handler->display->display_options['menu']['context'] = 0;
 $handler->display->display_options['tab_options']['type'] = 'normal';
-$handler->display->display_options['tab_options']['title'] = 'Month';
+$handler->display->display_options['tab_options']['title'] = 'Calendar';
 $handler->display->display_options['tab_options']['weight'] = '0';
 
 
