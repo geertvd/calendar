@@ -493,10 +493,11 @@ function calendar_block_info() {
 function calendar_block_view($delta = '') {
   switch ($delta) {
     case 'calendar_legend':
+      // Create the content before returning the block
+      // so empty content won't still create the block.
+      $content = theme('calendar_stripe_legend');
       $block['subject'] = t('Calendar Legend');
-      $block['content'] = array(
-        '#theme' => 'calendar_stripe_legend',
-      );
+      $block['content'] = $content;
       return $block;
   }
 }
