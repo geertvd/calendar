@@ -27,9 +27,9 @@
 //dsm($rows);
 //dsm($items);
 $index = 0;
-$axis = array();
+$header_ids = array();
 foreach ($day_names as $key => $value) {
-  $axis[$key] = $value['axis'];
+  $header_ids[$key] = $value['header_id'];
 }
 ?>
 <div class="calendar-calendar"><div class="week-view">
@@ -40,7 +40,7 @@ foreach ($day_names as $key => $value) {
       <th class="calendar-agenda-hour"><?php print t('Time')?></th>
       <?php endif;?>
       <?php foreach ($day_names as $cell): ?>
-        <th class="<?php print $cell['class']; ?>" axis="<?php print $cell['axis']; ?>">
+        <th class="<?php print $cell['class']; ?>" id="<?php print $cell['header_id']; ?>">
           <?php print $cell['data']; ?>
         </th>
       <?php endforeach; ?>
@@ -99,7 +99,7 @@ foreach ($day_names as $key => $value) {
         </td>
         <?php endfor; ?>   
         <?php $curpos = $colpos + 1;?>
-        <td class="calendar-agenda-items single-day" axis="<?php print $axis[$index] ?>">
+        <td class="calendar-agenda-items single-day" headers="<?php print $header_ids[$index] ?>">
           <div class="calendar">
           <div class="inner">
             <?php if(!empty($time['values'][$column])) :?>

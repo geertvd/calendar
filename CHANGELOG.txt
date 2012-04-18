@@ -13,7 +13,7 @@ DEPRECATED ELEMENTS:
 
 
 NEW FEATURES:
-- Add the axis attribute to multiday calendar templates.
+- Add the headers attribute to multiday calendar tables for html5 compliance and accessibility.
 - Issue #1535346, Rework the calendar tab handling to get rid of custom tabs and add in a setting to track the current date.
 - Issue #1535346 continuation, rework the current date tracking to use the new date_default_argument_alter hook.
 
@@ -32,6 +32,7 @@ If you have an existing calendar you can add the menu tabs and turn on the date 
 
 BUGFIXES:
 
+- Get rid of border on container-inline-date.
 - Fix the Date/Calendar link to link to the default display instead of the current display.
 - Hide more of the deprecated elements and remove the old default view. Will remove the rest in the next release. Waiting a bit to avoid registry errors for people who haven't made the switch.
 - Issue #1447176 by johnv, Rework taxonomy stripe logic.

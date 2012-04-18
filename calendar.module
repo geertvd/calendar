@@ -434,7 +434,7 @@ function calendar_week_header($view) {
   }
   foreach ($untranslated_days as $delta => $day) {
     $label = $len < 3 ? drupal_substr($translated_days[$delta], 0 , $len) : $translated_days[$delta];
-    $row[] = array('header' => TRUE, 'class' => "days " . $day, 'data' => $label, 'axis' => $full_translated_days[$delta]);
+    $row[] = array('header' => TRUE, 'class' => "days " . $day, 'data' => $label, 'header_id' => $full_translated_days[$delta]);
   }
   return $row;
 }

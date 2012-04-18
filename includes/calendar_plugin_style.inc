@@ -438,7 +438,8 @@ class calendar_plugin_style extends views_plugin_style {
               'class' => 'date-box',
               'date' => $curday_date,
               'id' => $this->view->name . '-' . $curday_date . '-date-box',
-              'axis' => $translated_days[$wday],
+              'header_id' => $translated_days[$wday],
+              'day_of_month' => $this->curday->format('j'),
             );
             $item['class'] .= ($curday_date == $today && $in_month ? ' today' : '') .
               ($curday_date < $today ? ' past' : '') .
@@ -522,7 +523,8 @@ class calendar_plugin_style extends views_plugin_style {
                 'class' => $class,
                 'date' => $curday_date,
                 'id' => $this->view->name . '-' . $curday_date . '-' . $index,
-                'axis' => $translated_days[$wday],
+                'header_id' => $translated_days[$wday],
+                'day_of_month' => $this->curday->format('j'),
               );
 
               // Hack for ie to help it properly space single day rows
