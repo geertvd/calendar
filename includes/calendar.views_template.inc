@@ -471,11 +471,11 @@ $handler->display->display_options['menu']['context'] = 0;
 /* Display: Block */
 
 $handler = $view->new_display('block', 'Block', 'block_1');
+$handler->display->display_options['defaults']['use_ajax'] = FALSE;
+$handler->display->display_options['use_ajax'] = TRUE;
 $handler->display->display_options['defaults']['pager'] = FALSE;
 $handler->display->display_options['pager']['type'] = 'date_views_pager';
 $handler->display->display_options['pager']['options']['date_id'] = 'mini';
-$handler->display->display_options['pager']['options']['pager_position'] = 'top';
-$handler->display->display_options['pager']['options']['link_format'] = 'clean';
 $handler->display->display_options['defaults']['style_plugin'] = FALSE;
 $handler->display->display_options['style_plugin'] = 'calendar_style';
 $handler->display->display_options['style_options']['calendar_type'] = 'month';
@@ -554,6 +554,7 @@ $handler->display->display_options['displays'] = array(
   'page_2' => 'page_2',
   'page_3' => 'page_3',
   'block_1' => 'block_1',
+  'block_2' => 'block_2',
   'default' => 0,
 );
 
@@ -563,6 +564,9 @@ $handler->display->display_options['displays'] = array(
 
 $handler = $view->new_display('block', 'Upcoming', 'block_2');
 $handler->display->display_options['display_description'] = 'Upcoming events block';
+$handler->display->display_options['defaults']['use_more'] = FALSE;
+$handler->display->display_options['use_more'] = TRUE;
+$handler->display->display_options['use_more_always'] = TRUE;
 $handler->display->display_options['defaults']['pager'] = FALSE;
 $handler->display->display_options['pager']['type'] = 'some';
 $handler->display->display_options['pager']['options']['items_per_page'] = '5';
