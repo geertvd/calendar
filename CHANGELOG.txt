@@ -33,6 +33,7 @@ If you have an existing calendar you can add the menu tabs and turn on the date 
 
 BUGFIXES:
 
+- Issue #1397986, Fix Undefined index groupby_times.
 - Issue #1466698 by alex.neblett and johnv, Make sure that all available fields appear on the template, even when shared across entity types.
 - The group by field option was not working right, fix it.
 - The calendar legend block was appearing even if empty. Create the content earlier to keep that from happening.
