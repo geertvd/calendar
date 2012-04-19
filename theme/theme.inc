@@ -263,22 +263,26 @@ function template_preprocess_calendar_day(&$vars) {
     $grouped_items[$start_time]['ampm'] = $heading['ampm'];
     foreach ($grouped_items[$start_time]['values'] as $column => &$items) {
       foreach ($items as $index => &$item) {
+        $group_time = NULL;
+        $divisor = NULL;
         if ($display_overlap) {
-          if ($view->date_info->style_groupby_times == 'half'){
+          if ($view->style_options['groupby_times'] == 'half') {
             $group_time = 30;
             $divisor = 7.5;
           }
-          else if ($view->date_info->style_groupby_times == 'hour'){
+          elseif ($view->style_options['groupby_times'] == 'hour') {
             $group_time = 60;
             $divisor = 15;
-          } else {
-            $item->class = '';
-            continue;
           }
-          $start_minute = intval(substr($start_time, 3, 2));
-          $offset = round((date_format($item->date_start, 'i') - $start_minute) / $divisor);
-          $duration = round(($item->date_end->format('U') - $item->date_start->format('U')) / 60 / $divisor);
-          $item->class = 'd_' . $duration . ' o_' . $offset . ' i_' . $item->indent . ' md_' . min($item->max_depth, 5);
+          else {
+            $item->class = '';
+          }
+          if (!empty($group_time) && !empty($divisor)) {
+            $start_minute = intval(substr($start_time, 3, 2));
+            $offset = round((date_format($item->date_start, 'i') - $start_minute) / $divisor);
+            $duration = round(($item->date_end->format('U') - $item->date_start->format('U')) / 60 / $divisor);
+            $item->class = 'd_' . $duration . ' o_' . $offset . ' i_' . $item->indent . ' md_' . min($item->max_depth, 5);
+          }
         }
         $grouped_items[$start_time]['values'][$column][$index] = theme('calendar_item', array('view' => $view, 'rendered_fields' => $item->rendered_fields, 'item' => $item));
       }
