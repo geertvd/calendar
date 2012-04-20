@@ -5,6 +5,12 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+======================
+Version 7.x-3.2
+======================
+
+Please read the notes for the 3.1 release as well.
+
 - Issue #1537598, Fix misc errors in day display caused when some items were not getting rendered due to a badly placed 'continue' in the loop.
 
 ======================
