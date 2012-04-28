@@ -7,7 +7,6 @@ Version 7.x-3.x-dev
 
 - Issue #1541938, Fix error when displaying the week number.
 - Issue #1550836, Fix logic error in overlapping week view that was keeping the overlap classes from getting set.
-- The date page adds padding below itself to keep it clear of content. We don't want this extra space in a calendar.
 - Style tweaks, make the day window bigger by not ending it at the bottom of the browser screen.
 
 ======================
