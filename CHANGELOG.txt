@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- The date page adds padding below itself to keep it clear of content. We don't want this extra space in a calendar.
 - Style tweaks, make the day window bigger by not ending it at the bottom of the browser screen.
 
 ======================
