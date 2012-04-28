@@ -477,21 +477,25 @@ function template_preprocess_calendar_week(&$vars) {
       foreach ($grouped_items[$start_time]['values'] as $wday => &$items) {
         foreach ($items as &$item) {
           if ($display_overlap) {
-            if ($view->date_info->style_groupby_times == 'half'){
+            $group_time = NULL;
+            $divisor = NULL;
+            if ($view->style_options['groupby_times'] == 'half'){
               $group_time = 30;
               $divisor = 7.5;
             }
-            else if ($view->date_info->style_groupby_times == 'hour'){
+            elseif ($view->style_options['groupby_times'] == 'hour'){
               $group_time = 60;
               $divisor = 15;
-            } else {
+            } 
+            else {
               $item['class'] = '';
-              continue;
             }
-            $start_minute = intval(substr($start_time, 3, 2));
-            $offset = round((date_format($item['item']->date_start, 'i') - $start_minute) / $divisor);
-            $duration = round(($item['item']->date_end->format('U') - $item['item']->date_start->format('U')) / 60 / $divisor);
-            $item['class'] = 'd_' . $duration . ' o_' . $offset . ' i_' . $item['indent'] . ' md_' . min($item['max_depth'], 5);
+            if (!empty($group_time) && !empty($divisor)) {
+              $start_minute = intval(substr($start_time, 3, 2));
+              $offset = round((date_format($item['item']->date_start, 'i') - $start_minute) / $divisor);
+              $duration = round(($item['item']->date_end->format('U') - $item['item']->date_start->format('U')) / 60 / $divisor);
+              $item['class'] = 'd_' . $duration . ' o_' . $offset . ' i_' . $item['indent'] . ' md_' . min($item['max_depth'], 5);
+            }
           }
         }
       }
