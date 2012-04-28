@@ -5,6 +5,8 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Style tweaks, make the day window bigger by not ending it at the bottom of the browser screen.
+
 ======================
 Version 7.x-3.2
 ======================
