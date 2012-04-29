@@ -256,12 +256,14 @@ class calendar_plugin_row extends views_plugin_row_fields {
   function options_submit(&$form, &$form_state) {
     parent::options_submit($form, $form_state);
     if ($this->view->base_table == 'node') {
-      $default_display = $this->view->display['default']->display_options['link_display'];
-      $path = $this->view->display[$default_display]->handler->get_option('path');
-      calendar_clear_link_path($path);
-      if (!empty($form_state['values']['row_options']['calendar_date_link'])) {
-        $node_type = $form_state['values']['row_options']['calendar_date_link'];
-        calendar_set_link('node', $node_type, $path);
+      if (!empty($this->view->display['default']->display_options['link_display'])) {
+        $default_display = $this->view->display['default']->display_options['link_display'];
+        $path = $this->view->display[$default_display]->handler->get_option('path');
+        calendar_clear_link_path($path);
+        if (!empty($form_state['values']['row_options']['calendar_date_link'])) {
+          $node_type = $form_state['values']['row_options']['calendar_date_link'];
+          calendar_set_link('node', $node_type, $path);
+        }
       }
     }
   }
