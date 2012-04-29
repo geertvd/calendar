@@ -1,6 +1,7 @@
 <?php
 define('CALENDAR_SHOW_ALL', 0);
 define('CALENDAR_HIDE_ALL', -1);
+define('CALENDAR_DEFAULT_STRIPE', '#ffffff');
 
 /**
  * @file
