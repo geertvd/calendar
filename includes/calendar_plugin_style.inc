@@ -44,6 +44,7 @@ class calendar_plugin_style extends views_plugin_style {
     $options['groupby_times_custom'] = array('default' => '');
     $options['groupby_field'] = array('default' => '');
     $options['track_date'] = array('default' => 0);
+    $options['multiday_hidden'] = array('default' => array());
     return $options;
   }
 
@@ -142,6 +143,14 @@ class calendar_plugin_style extends views_plugin_style {
       '#description' => t('If selected, items which span multiple days will displayed as a multi-column row.  If not selected, items will be displayed as an individual column.'),
       '#dependency' => array('edit-style-options-calendar-type' => array('month', 'week')),
       );
+    $form['multiday_hidden'] = array(
+      '#title' => t('Fields to hide in Multi-day rows'),
+      '#default_value' => $this->options['multiday_hidden'],
+      '#type' => 'checkboxes',
+      '#options' => $field_options,
+      '#description' => t('Choose fields to hide when displayed in multi-day rows. Usually you only want to see the title or Colorbox selector in multi-day rows and would hide all other fields.'),
+      '#dependency' => array('edit-style-options-calendar-type' => array('month', 'week')),
+      );
     $form['track_date'] = array(
       '#title' => t('Track current date in session'),
       '#type' => 'radios',
@@ -166,6 +175,10 @@ class calendar_plugin_style extends views_plugin_style {
       form_set_value($form['groupby_times_custom'], NULL, $form_state);
     }
 
+  }
+
+  function options_submit($form, &$form_state, &$options = array()) {
+    $form_state['values']['style_options']['multiday_hidden'] = array_filter($form_state['values']['style_options']['multiday_hidden']);
   }
 
   /**

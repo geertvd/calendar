@@ -14,7 +14,8 @@ function calendar_menu() {
   $items['admin/config/date/calendar'] = array(
     'title' => 'Calendar',
     'description' => 'Calendar administration.',
-    'page callback' => 'calendar_admin',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('calendar_admin_settings'),
     'access callback' => 'user_access',
     'access arguments' => array('administer site configuration'),
   );
@@ -31,15 +32,23 @@ function calendar_menu() {
 /**
  * General Calendar administration.
  */
-function calendar_admin() {
+function calendar_admin_settings() {
+  $form = array();
 
-  $content = '<h2>Calendar Administration</h2>';
-  $content .= t('This is the future home for calendar administration tasks.');
+  $form['#prefix']  = '<h2>Calendar Administration</h2>';
+
+  $form['calendar_add_colorbox'] = array(
+    '#title' => t('Add Colorbox settings to Node calendar templates'),
+    '#default_value' => variable_get('calendar_add_colorbox'),
+    '#type' => 'radios',
+    '#options' => array(0 => t('No'), 1 => t('Yes')),
+    '#description' => t('To try the Colorbox settings, choose the option to add Colorbox settings to the calendar templates. Install and enable the Colorbox module, following the instructions on the Colorbox project page, then create a new calendar from a template using any date field in the Node base table. The calendar will be set up to display the calendar items in a Colorbox.'),
+    );
 
   $calendar_options = variable_get('calendar_default_view_options', array());
 
   if (!empty($calendar_options)) {
-    $content .= t('<h2>Deleting Calendars</h2>Calendars that were created using older versions of the !date_wizard cannot be deleted in the Views listing. You can delete them using the links below. The newer version of the Date Wizard creates views from templates that can be deleted normally.', array('!date_wizard' => l(t('Date wizard'), 'admin/config/date/tools/date_wizard')));
+    $form['#suffix'] = t('<h2>Deleting Calendars</h2>Calendars that were created using older versions of the !date_wizard cannot be deleted in the Views listing. You can delete them using the links below. The newer version of the Date Wizard creates views from templates that can be deleted normally.', array('!date_wizard' => l(t('Date wizard'), 'admin/config/date/tools/date_wizard')));
 
     $calendars = array();
     $node_types = node_type_get_names();
@@ -62,11 +71,11 @@ function calendar_admin() {
     }
     if (!empty($calendars)) {
       $header = array(t('Content Type'), t('Calendar'), t('Description'), t('Operations'));
-      $content .= theme('table', array('header' => $header, 'rows' => $calendars));
+      $form['#suffix'] .= theme('table', array('header' => $header, 'rows' => $calendars));
     }
 
   }
-  return $content;
+  return system_settings_form($form);
 }
 
 /**

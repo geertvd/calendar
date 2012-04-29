@@ -476,6 +476,7 @@ class calendar_plugin_row extends views_plugin_row_fields {
         'row' => $row,
         'field_alias' => isset($this->field_alias) ? $this->field_alias : '',
       ));
+
       $entities = $this->explode_values($event);
       foreach ($entities as $entity) {
         switch ($this->options['colors']['legend']) {

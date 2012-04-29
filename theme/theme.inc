@@ -486,7 +486,7 @@ function template_preprocess_calendar_week(&$vars) {
             elseif ($view->style_options['groupby_times'] == 'hour'){
               $group_time = 60;
               $divisor = 15;
-            } 
+            }
             else {
               $item['class'] = '';
             }
@@ -525,12 +525,21 @@ function template_preprocess_calendar_week(&$vars) {
  * Implementation of hook_preprocess_calendar_item().
  */
 function template_preprocess_calendar_item(&$vars) {
-  // At the last possible minute we replace our array of rendered
-  // items with the actual rendered content of the row. But only
-  // if this is not a multiday item.
+  // At the last possible minute we fix the values in rendered_fields so it
+  // contains the correct rendered content for the type of item and item display.
   $item = $vars['item'];
+
+  $multiday_hidden = !empty($vars['view']->style_options['multiday_hidden']) ? $vars['view']->style_options['multiday_hidden'] : array();
+
   if (!empty($item->rendered) && empty($item->is_multi_day)) {
     $vars['rendered_fields'] = array($item->rendered);
+  }
+  else {
+    foreach ($vars['view']->field as $id => $field) {
+      if ($field->options['exclude'] || (!empty($item->is_multi_day) && in_array($id, $multiday_hidden))) {
+        unset($vars['rendered_fields'][$field->field]);
+      }
+    }
   }
 }
 
