@@ -12,6 +12,7 @@ NEW FEATURES:
 - A new calendar style option has been added to choose fields to exclude from multi-day rows, so multi-day rows can be set up to display only the Colorbox picker.
 
 BUGFIXES:
+- Issue #1291768, Document caching options and add default caching to the templates.
 - Issue #1541938, Fix error when displaying the week number.
 - Issue #1550836, Fix logic error in overlapping week view that was keeping the overlap classes from getting set.
 - Style tweaks, make the day window bigger by not ending it at the bottom of the browser screen.
