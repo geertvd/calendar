@@ -13,6 +13,7 @@ NEW FEATURES:
 
 BUGFIXES:
 
+- Delete all the code used to remove default calendars, no longer needed now that the default calendar has been removed.
 - Issue #1543930 by johnv, Fix taxonomy stripe settings so they don't depend on formatter.
 - Move session tracking option to be a global option instead of a per-display option.
 - Issue #1551112, Make sure items without colors don't show up in the legend.
