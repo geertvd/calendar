@@ -125,12 +125,14 @@ class calendar_plugin_row extends views_plugin_row_fields {
       }
     }
     if (module_exists('taxonomy')) {
-      // Get the field names.
+      // Get the display's field names of taxonomy fields.
       $vocab_field_options = array();
       $fields = $this->display->handler->get_option('fields');
-      foreach ($fields as $name => $field) {
-        if (!empty($field['type']) && $field['type'] == 'taxonomy_term_reference_link') {
-          $vocab_field_options[$field['field']] = $field['field'];
+      foreach ($fields as $name => $field_info) {
+        $field = field_info_field($name);
+        // Select the proper field type.
+        if (!empty($field['type']) && $field['type'] == 'taxonomy_term_reference') {
+          $vocab_field_options[$name] = $field_info['label'];
         }
       }
       $form['colors']['taxonomy_field'] = array(
@@ -148,7 +150,7 @@ class calendar_plugin_row extends views_plugin_row_fields {
 
       // Get the Vocabulary names.
       $vocab_names = array();
-      foreach ($vocab_field_options as $field_name) {
+      foreach ($vocab_field_options as $field_name => $label) {
         $taxonomy_field = field_info_field($field_name);
         foreach ((array) $taxonomy_field['settings']['allowed_values'] as $delta => $options) {
           $vocab_names[$field_name] = $options['vocabulary'];
