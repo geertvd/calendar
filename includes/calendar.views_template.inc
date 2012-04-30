@@ -167,7 +167,6 @@ $handler->display->display_options['style_options']['with_weekno'] = '0';
 $handler->display->display_options['style_options']['multiday_theme'] = '1';
 $handler->display->display_options['style_options']['theme_style'] = '1';
 $handler->display->display_options['style_options']['max_items'] = '0';
-$handler->display->display_options['style_options']['track_date'] = '1';
 $handler->display->display_options['row_plugin'] = 'calendar_entity';
 
 /* Field: Title */
@@ -365,7 +364,6 @@ $handler->display->display_options['style_options']['with_weekno'] = '0';
 $handler->display->display_options['style_options']['multiday_theme'] = '1';
 $handler->display->display_options['style_options']['theme_style'] = '1';
 $handler->display->display_options['style_options']['max_items'] = '0';
-$handler->display->display_options['style_options']['track_date'] = '1';
 
 if ($with_colorbox) {
 $handler->display->display_options['style_options']['multiday_hidden'] = array(
@@ -430,7 +428,6 @@ $handler->display->display_options['style_options']['multiday_theme'] = '1';
 $handler->display->display_options['style_options']['groupby_times'] = 'hour';
 $handler->display->display_options['style_options']['theme_style'] = '1';
 $handler->display->display_options['style_options']['max_items'] = '0';
-$handler->display->display_options['style_options']['track_date'] = '1';
 
 if ($with_colorbox) {
 $handler->display->display_options['style_options']['multiday_hidden'] = array(
@@ -486,7 +483,6 @@ $handler->display->display_options['style_options']['multiday_theme'] = '1';
 $handler->display->display_options['style_options']['theme_style'] = '1';
 $handler->display->display_options['style_options']['max_items'] = '0';
 $handler->display->display_options['style_options']['groupby_times'] = 'hour';
-$handler->display->display_options['style_options']['track_date'] = '1';
 $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
 $handler->display->display_options['row_plugin'] = 'calendar_entity';
@@ -532,7 +528,6 @@ $handler->display->display_options['style_options']['with_weekno'] = '0';
 $handler->display->display_options['style_options']['multiday_theme'] = '1';
 $handler->display->display_options['style_options']['theme_style'] = '1';
 $handler->display->display_options['style_options']['max_items'] = '0';
-$handler->display->display_options['style_options']['track_date'] = '1';
 $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
 $handler->display->display_options['row_plugin'] = 'calendar_entity';

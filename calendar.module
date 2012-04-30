@@ -1,7 +1,7 @@
 <?php
 define('CALENDAR_SHOW_ALL', 0);
 define('CALENDAR_HIDE_ALL', -1);
-define('CALENDAR_DEFAULT_STRIPE', '#ffffff');
+define('CALENDAR_EMPTY_STRIPE', '#ffffff');
 
 /**
  * @file
@@ -37,6 +37,14 @@ function calendar_admin_settings() {
   $form = array();
 
   $form['#prefix']  = '<h2>Calendar Administration</h2>';
+
+  $form['calendar_track_date'] = array(
+    '#title' => t('Track current date in session'),
+    '#type' => 'radios',
+    '#options' => array(0 => t("Never"), 1 => t('For authenticated users'), 2 => t('For all users')),
+    '#default_value' => variable_get('calendar_track_date', 1),
+    '#description' => t("Store session information about the user's current date as they move back and forth through the calendar. Without this setting users will revert to the current day each time they choose a new calendar period (year, month, week, or day). With this option set they will move to a day that conforms to the time period they were viewing before they switched. Requires session tracking which is not ordinarily enabled for anonymous users."),
+    );
 
   $form['calendar_add_colorbox'] = array(
     '#title' => t('Add Colorbox settings to Node calendar templates'),
@@ -189,7 +197,8 @@ function calendar_preprocess_date_views_pager(&$vars) {
 function calendar_date_default_argument_alter(&$argument, &$value) {
   global $user;
   $style_options = $argument->view->display_handler->get_option('style_options');
-  if (!empty($style_options['track_date']) && ($style_options['track_date'] == 2 || !empty($user->uid))) {
+  $tracking = variable_get('calendar_track_date', 1);
+  if (!empty($tracking) && ($tracking == 2 || !empty($user->uid))) {
 
     // If this is a default date, i.e. we are visiting a new calendar display,
     // set the default date for the display. See if we already have a session
@@ -215,7 +224,8 @@ function calendar_views_pre_render(&$view) {
   global $user;
 
   $style_options = $view->display_handler->get_option('style_options');
-  if (!empty($style_options['track_date']) && ($style_options['track_date'] == 2 || !empty($user->uid))) {
+  $tracking = variable_get('calendar_track_date', 1);
+  if (!empty($tracking) && ($tracking == 2 || !empty($user->uid))) {
     foreach ($view->argument as $id => &$argument) {
 
       // If this is not a default date, i.e. we have browsed to a new calendar

@@ -13,6 +13,7 @@ NEW FEATURES:
 
 BUGFIXES:
 
+- Move session tracking option to be a global option instead of a per-display option.
 - Issue #1551112, Make sure items without colors don't show up in the legend.
 - Issue #1545240, Don't try to set the date link if there is no link_display set.
 - Issue #1291768, Document caching options and add default caching to the templates.
