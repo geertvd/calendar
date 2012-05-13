@@ -148,7 +148,7 @@ class calendar_plugin_style extends views_plugin_style {
       '#type' => 'checkboxes',
       '#options' => $field_options,
       '#description' => t('Choose fields to hide when displayed in multi-day rows. Usually you only want to see the title or Colorbox selector in multi-day rows and would hide all other fields.'),
-      '#dependency' => array('edit-style-options-calendar-type' => array('month', 'week')),
+      '#dependency' => array('edit-style-options-calendar-type' => array('month', 'week', 'day')),
       );
   }
 
@@ -840,6 +840,7 @@ class calendar_plugin_style extends views_plugin_style {
             }
             if (empty($this->date_info->mini) && ($max_events == CALENDAR_SHOW_ALL || $count <= $max_events || ($count > 0 && $max_events == CALENDAR_HIDE_ALL))) {
               if ($item->calendar_all_day) {
+                $item->is_multi_day = TRUE;
                 $all_day[] = $item;
               }
               else {
