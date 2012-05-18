@@ -169,7 +169,7 @@ class calendar_plugin_style extends views_plugin_style {
 
   }
 
-  function options_submit($form, &$form_state, &$options = array()) {
+  function options_submit(&$form, &$form_state, &$options = array()) {
     $form_state['values']['style_options']['multiday_hidden'] = array_filter($form_state['values']['style_options']['multiday_hidden']);
   }
 
