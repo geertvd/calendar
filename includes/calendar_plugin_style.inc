@@ -395,8 +395,9 @@ class calendar_plugin_style extends views_plugin_style {
         // If we're displaying the week number, add it as the
         // first cell in the week.
         if ($i == 0 && !empty($this->date_info->style_with_weekno) && !in_array($this->date_info->granularity, array('day', 'week'))) {
-          $url = $this->view->get_path() . '/' . $this->date_info->year . '-W' . $week;
-          if (!empty($this->date_info->display_types['week'])) {
+          $path = calendar_granularity_path($this->view, 'week');
+          if (!empty($path)) {
+            $url = $path . '/' . $this->date_info->year . '-W' . $week;
             $weekno = l($week, $url, array('query' => !empty($this->date_info->append) ? $this->date_info->append : ''));
           }
           else {
