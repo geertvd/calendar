@@ -5,6 +5,7 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Remove calendar_row_node completely.
 - Remove Calendar iCal completely.
 - Change default tracking behavior to be off. 
 - Issue #1556180 by hass, Error: Strict warning: Declaration of calendar_plugin_style::options_submit().
