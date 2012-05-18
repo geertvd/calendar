@@ -338,6 +338,12 @@ function calendar_clear_link_path($path = NULL) {
       variable_del($row['name']);
     }
   }
+  if (isset($_SESSION['calendar_links'][$path]['actions'])) {
+    unset($_SESSION['calendar_links'][$path]['actions']);
+    if (empty($_SESSION['calendar_links'][$path])) {
+      unset($_SESSION['calendar_links'][$path]);
+    }
+  }
 }
 
 /**
