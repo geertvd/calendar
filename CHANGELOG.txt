@@ -5,6 +5,10 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+======================
+Version 7.x-3.4
+======================
+
 - Remove calendar_row_node completely.
 - Remove Calendar iCal completely.
 - Issue #1552212, Week numbers in the month view lost their links.
