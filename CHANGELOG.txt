@@ -5,6 +5,8 @@ Calendar Module 7.x
 Version 7.x-3.x-dev
 ===================
 
+- Issue #1792368 by rdela, Day template missing % after $first_column_width
+
 ======================
 Version 7.x-3.4
 ======================
