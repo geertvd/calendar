@@ -920,6 +920,23 @@ class calendar_plugin_style extends views_plugin_style {
     date_modify($this->curday, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
     $curday_date = date_format($this->curday, DATE_FORMAT_DATE);
 
+    if (!empty($this->date_info->style_with_weekno)) {
+      $path = calendar_granularity_path($this->view, 'week');
+      if (!empty($path)) {
+        $url = $path . '/' . $this->date_info->year . '-W' . $week;
+        $weekno = l($week, $url, array('query' => !empty($this->date_info->append) ? $this->date_info->append : ''));
+      }
+      else {
+        // Do not link week numbers, if Week views are disabled.
+        $weekno = $week;
+      }
+      $rows[$week][] = array(
+        'data' => $weekno,
+        'class' => 'mini week',
+        'id' => $this->view->name . '-weekno-' . $curday_date,
+      );
+    }
+
     for ($i = 0; $i < 7; $i++) {
       $curday_date = date_format($this->curday, DATE_FORMAT_DATE);
       $class = strtolower($weekdays[$i] . ' mini');
