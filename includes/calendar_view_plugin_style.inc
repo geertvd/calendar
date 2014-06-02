@@ -88,7 +88,14 @@ class calendar_view_plugin_style extends calendar_plugin_style {
     $form['max_items'] = array(
       '#title' => t('Maximum items'),
       '#type' => in_array($calendar_type, array('month')) ? 'select' : 'value',
-      '#options' => array(CALENDAR_SHOW_ALL => t('Unlimited'), CALENDAR_HIDE_ALL => t('No items'), 3 => t('3 items'), 5 => t('5 items'), 10 => t('10 items')),
+      '#options' => array(
+	CALENDAR_SHOW_ALL => t('Unlimited'),
+	CALENDAR_HIDE_ALL => t('No items'),
+        1 => format_plural( 1, '1 item', '@count items'),
+        3 => format_plural( 3, '1 item', '@count items'),
+        5 => format_plural( 5, '1 item', '@count items'),
+       10 => format_plural(10, '1 item', '@count items'),
+      ),
       '#default_value' => $calendar_type != 'day' ? $this->options['max_items'] : 0,
       '#description' => t('Maximum number of items to show in calendar cells, used to keep the calendar from expanding to a huge size when there are lots of items in one day. '),
       );
