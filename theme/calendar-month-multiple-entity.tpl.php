@@ -17,11 +17,17 @@
     <div class="view-item <?php //print views_css_safe('view-item-'. $view->name) ?>">
       <?php if ($view->date_info->style_max_items_behavior != 'more'): ?>
         <div class="multiple-events"> 
-          <?php print l(t('Click to see all @count events', array('@count' => $count)), $link) ?>
+          <?php // @FIXME
+// l() expects a Url object, created from a route name or external URI.
+// print l(t('Click to see all @count events', array('@count' => $count)), $link)
+ ?>
         </div>    
     </div>
     <?php else: ?>
-      <div class="calendar-more"><?php print l(t('more'), $link) ?>»</div>
+      <div class="calendar-more"><?php // @FIXME
+// l() expects a Url object, created from a route name or external URI.
+// print l(t('more'), $link)
+ ?>»</div>
     <?php endif; ?>
   </div>    
 </div>

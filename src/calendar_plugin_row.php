@@ -1,18 +1,5 @@
 <?php
-/**
- * @file
- * Contains the Calendar row style plugin.
- *
- * This plugin takes the view results, finds the date value for each,
- * then compares that date to the date range for the current view.
- * Items that started before or ended after the current date range
- * are shortened to the current range. Items that extend over more
- * than one day are cloned to create a calendar item for each day.
- * The resulting array of results (which may have a different number
- * of items than the original view result) are then passed back
- * to the style plugin so they can be displayed in a calendar.
- *
- */
+namespace Drupal\calendar;
 
 /**
  * Plugin which creates a view on the resulting object

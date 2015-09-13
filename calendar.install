@@ -21,7 +21,7 @@ function calendar_update_7000() {
  * Uninstall Calendar iCal module so it can be removed.
  */
 function calendar_update_7001() {
-  if (module_exists('calendar_ical')) {
+  if (\Drupal::moduleHandler()->moduleExists('calendar_ical')) {
     module_disable(array('calendar_ical'));
   }
 }
@@ -30,5 +30,5 @@ function calendar_update_7001() {
  * Delete calendar_default_view_options(), which was used by the old default view and is no longer used.
  */
 function calendar_update_7002() {
-  variable_del('calendar_default_view_options');
+  \Drupal::config('calendar.settings')->clear('calendar_default_view_options')->save();
 }

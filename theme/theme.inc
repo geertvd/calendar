@@ -10,7 +10,7 @@
  */
 function template_preprocess_calendar_style(&$vars) {
   global $base_url;
-  global $language;
+  $language = \Drupal::languageManager()->getCurrentLanguage();
 
 }
 
@@ -120,7 +120,16 @@ function template_preprocess_calendar_year(&$vars) {
       'options' => $vars['options'],
       'rows' => $month_rows,
     );
-    $months[$month] = theme('calendar_mini', $variables);
+    // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// $months[$month] = theme('calendar_mini', $variables);
+
   }
   $view->date_info->mini = FALSE;
 
@@ -155,12 +164,36 @@ function template_preprocess_calendar_day(&$vars) {
   // Add optional css
   if ($display_overlap) {
     $overlapped_items = array();
-    drupal_add_css(drupal_get_path('module', 'calendar') . '/css/calendar-overlap.css');
+    // @FIXME
+// The Assets API has totally changed. CSS, JavaScript, and libraries are now
+// attached directly to render arrays using the #attached property.
+// 
+// 
+// @see https://www.drupal.org/node/2169605
+// @see https://www.drupal.org/node/2408597
+// drupal_add_css(drupal_get_path('module', 'calendar') . '/css/calendar-overlap.css');
+
     if (empty($view->live_preview) && !empty($vars['scroll_content'])) {
-      drupal_add_js(drupal_get_path('module', 'calendar') . '/js/calendar_overlap.js');
+      // @FIXME
+// The Assets API has totally changed. CSS, JavaScript, and libraries are now
+// attached directly to render arrays using the #attached property.
+// 
+// 
+// @see https://www.drupal.org/node/2169605
+// @see https://www.drupal.org/node/2408597
+// drupal_add_js(drupal_get_path('module', 'calendar') . '/js/calendar_overlap.js');
+
     }
     if (empty($vars['scroll_content'])) {
-      drupal_add_css(drupal_get_path('module', 'calendar') . '/css/calendar-overlap-no-scroll.css');
+      // @FIXME
+// The Assets API has totally changed. CSS, JavaScript, and libraries are now
+// attached directly to render arrays using the #attached property.
+// 
+// 
+// @see https://www.drupal.org/node/2169605
+// @see https://www.drupal.org/node/2408597
+// drupal_add_css(drupal_get_path('module', 'calendar') . '/css/calendar-overlap-no-scroll.css');
+
     }
   }
 
@@ -189,7 +222,16 @@ function template_preprocess_calendar_day(&$vars) {
     else {
       $column = t('Items');
     }
-    $grouped_items[$column][] = theme('calendar_item', array('view' => $view, 'rendered_fields' => $item->rendered_fields, 'item' => $item));
+    // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// $grouped_items[$column][] = theme('calendar_item', array('view' => $view, 'rendered_fields' => $item->rendered_fields, 'item' => $item));
+
     $item_count++;
   }
   $vars['rows']['all_day'] = $grouped_items;
@@ -261,7 +303,16 @@ function template_preprocess_calendar_day(&$vars) {
       'next_start_time' => $next_start_time,
       'curday_date' => $rows['date'],
     );
-    $heading = theme('calendar_time_row_heading', $variables);
+    // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// $heading = theme('calendar_time_row_heading', $variables);
+
     $grouped_items[$start_time]['hour'] = $heading['hour'];
     $grouped_items[$start_time]['ampm'] = $heading['ampm'];
     foreach ($grouped_items[$start_time]['values'] as $column => &$items) {
@@ -287,7 +338,16 @@ function template_preprocess_calendar_day(&$vars) {
             $item->class = 'd_' . $duration . ' o_' . $offset . ' i_' . $item->indent . ' md_' . min($item->max_depth, 5);
           }
         }
-        $grouped_items[$start_time]['values'][$column][$index] = theme('calendar_item', array('view' => $view, 'rendered_fields' => $item->rendered_fields, 'item' => $item));
+        // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// $grouped_items[$start_time]['values'][$column][$index] = theme('calendar_item', array('view' => $view, 'rendered_fields' => $item->rendered_fields, 'item' => $item));
+
       }
     }
     $i++;
@@ -366,12 +426,36 @@ function template_preprocess_calendar_week(&$vars) {
 
   // Add optional css
   if ($display_overlap) {
-    drupal_add_css(drupal_get_path('module', 'calendar') . '/css/calendar-overlap.css');
+    // @FIXME
+// The Assets API has totally changed. CSS, JavaScript, and libraries are now
+// attached directly to render arrays using the #attached property.
+// 
+// 
+// @see https://www.drupal.org/node/2169605
+// @see https://www.drupal.org/node/2408597
+// drupal_add_css(drupal_get_path('module', 'calendar') . '/css/calendar-overlap.css');
+
     if (empty($view->live_preview) && !empty($vars['scroll_content'])) {
-      drupal_add_js(drupal_get_path('module', 'calendar') . '/js/calendar_overlap.js');
+      // @FIXME
+// The Assets API has totally changed. CSS, JavaScript, and libraries are now
+// attached directly to render arrays using the #attached property.
+// 
+// 
+// @see https://www.drupal.org/node/2169605
+// @see https://www.drupal.org/node/2408597
+// drupal_add_js(drupal_get_path('module', 'calendar') . '/js/calendar_overlap.js');
+
     }
     if (empty($vars['scroll_content'])) {
-      drupal_add_css(drupal_get_path('module', 'calendar') . '/css/calendar-overlap-no-scroll.css');
+      // @FIXME
+// The Assets API has totally changed. CSS, JavaScript, and libraries are now
+// attached directly to render arrays using the #attached property.
+// 
+// 
+// @see https://www.drupal.org/node/2169605
+// @see https://www.drupal.org/node/2408597
+// drupal_add_css(drupal_get_path('module', 'calendar') . '/css/calendar-overlap-no-scroll.css');
+
     }
     $overlapped_items = array( array(), array(), array(), array(), array(), array(), array());
 
@@ -472,7 +556,16 @@ function template_preprocess_calendar_week(&$vars) {
       'next_start_time' => $next_start_time,
       'curday_date' => (isset($row['data'])) ? $row['data']['date'] : NULL,
     );
-    $heading = theme('calendar_time_row_heading', $variables);
+    // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// $heading = theme('calendar_time_row_heading', $variables);
+
     $grouped_items[$start_time]['hour'] = $heading['hour'];
     $grouped_items[$start_time]['ampm'] = $heading['ampm'];
     $grouped_items[$start_time]['time'] = $start_time;
@@ -558,7 +651,10 @@ function template_preprocess_calendar_datebox(&$vars) {
   $year_path = calendar_granularity_path($view, 'year');
   $day_path = calendar_granularity_path($view, 'day');
   $vars['url'] = str_replace(array($month_path, $year_path), $day_path, date_pager_url($view, NULL, $date, $force_view_url));
-  $vars['link'] = !empty($day_path) ? l($vars['day'], $vars['url']) : $vars['day'];
+  // @FIXME
+// l() expects a Url object, created from a route name or external URI.
+// $vars['link'] = !empty($day_path) ? l($vars['day'], $vars['url']) : $vars['day'];
+
   $vars['granularity'] = $view->date_info->granularity;
   $vars['mini'] = !empty($view->date_info->mini);
   if ($vars['mini']) {
@@ -615,7 +711,12 @@ function theme_calendar_time_row_heading($vars) {
   $curday_date = $vars['curday_date'];
   static $format_hour, $format_ampm;
   if (empty($format_hour)) {
-    $format = variable_get('date_format_short', 'm/d/Y - H:i');
+    // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// $format = variable_get('date_format_short', 'm/d/Y - H:i');
+
     if (substr($start_time, -5) == '00:00' && substr($next_start_time, -5) == '00:00') {
       $limit = array('hour');
     }
@@ -672,7 +773,7 @@ function theme_calendar_stripe_legend($vars) {
       $vocabularies = (array) $row_options['colors']['calendar_colors_vocabulary'];
       $term_colors = $row_options['colors']['calendar_colors_taxonomy'];
       foreach ($vocabularies as $field_name => $vid) {
-        $vocab = taxonomy_get_tree($vid);
+        $vocab = \Drupal::entityManager()->getStorage("taxonomy_term")->loadTree($vid);
         foreach ($vocab as $key => $term) {
           $options[$term->tid] = $term->name;
         }
@@ -684,7 +785,7 @@ function theme_calendar_stripe_legend($vars) {
       if (function_exists('og_label')) {
         $gids = og_get_all_group();
         foreach ($gids as $gid) {
-          $options[$gid] = check_plain(t(og_label($gid)));
+          $options[$gid] = \Drupal\Component\Utility\SafeMarkup::checkPlain(t(og_label($gid)));
         }
       }
 
@@ -693,10 +794,10 @@ function theme_calendar_stripe_legend($vars) {
         $types = og_get_all_group_entity();
         foreach ($types as $entity_type => $name) {
           $gids = og_get_all_group($entity_type);
-          $entities = entity_load($entity_type, $gids);
+          $entities = \Drupal::entityManager()->getStorage($entity_type);
           foreach ($entities as $entity) {
             list($gid) = entity_extract_ids($entity_type, $entity);
-            $options[$gid] = check_plain(t(entity_label($entity_type, $entity)));
+            $options[$gid] = \Drupal\Component\Utility\SafeMarkup::checkPlain(t($entity->label()));
           }
         }
       }
@@ -723,7 +824,16 @@ function theme_calendar_stripe_legend($vars) {
       'rows' => $rows,
       'attributes' => array('class' => array('mini', 'calendar-legend')),
     );
-    $output .= theme('table', $variables);
+    // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// $output .= theme('table', $variables);
+
     $output = '<div class="calendar legend">' . $output . '</div>';
   }
   return $output;

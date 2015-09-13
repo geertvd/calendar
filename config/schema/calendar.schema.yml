@@ -1,0 +1,8 @@
+calendar.settings:
+  type: mapping
+  label: Settings
+  mapping:
+    calendar_add_colorbox:
+      type: integer
+    calendar_track_date:
+      type: integer

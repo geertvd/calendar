@@ -1,14 +1,5 @@
 <?php
-
-/**
- * @file
- * Views style plugin for the Calendar module.
- *
- * The style plugin is responsible for setting global values needed by
- * the row plugin. It then gathers up an array of view results (as restructured
- * by the row plugin) and organizes them into year/month/day/time
- * arrays that the theme can use to display the results in a calendar.
- */
+namespace Drupal\calendar;
 
 /**
  * Default style plugin to render an iCal feed.

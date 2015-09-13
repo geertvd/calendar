@@ -35,13 +35,17 @@ function calendar_admin_settings() {
     '#title' => t('Track current date in session'),
     '#type' => 'radios',
     '#options' => array(0 => t("Never"), 1 => t('For authenticated users'), 2 => t('For all users')),
-    '#default_value' => variable_get('calendar_track_date', 0),
+    '#default_value' => \Drupal::config('calendar.settings')->get('calendar_track_date'),
     '#description' => t("Store session information about the user's current date as they move back and forth through the calendar. Without this setting users will revert to the current day each time they choose a new calendar period (year, month, week, or day). With this option set they will move to a day that conforms to the time period they were viewing before they switched. Requires session tracking which is not ordinarily enabled for anonymous users."),
     );
 
-  $form['calendar_add_colorbox'] = array(
+  // @FIXME
+// Could not extract the default value because it is either indeterminate, or
+// not scalar. You'll need to provide a default value in
+// config/install/calendar.settings.yml and config/schema/calendar.schema.yml.
+$form['calendar_add_colorbox'] = array(
     '#title' => t('Add Colorbox settings to Node calendar templates'),
-    '#default_value' => variable_get('calendar_add_colorbox'),
+    '#default_value' => \Drupal::config('calendar.settings')->get('calendar_add_colorbox'),
     '#type' => 'radios',
     '#options' => array(0 => t('No'), 1 => t('Yes')),
     '#description' => t('To try the Colorbox settings, choose the option to add Colorbox settings to the calendar templates. Install and enable the Colorbox module, following the instructions on the Colorbox project page, then create a new calendar from a template using any date field in the Node base table. The calendar will be set up to display the calendar items in a Colorbox.'),
@@ -84,14 +88,14 @@ function calendar_preprocess_date_views_pager(&$vars) {
 
   // If an 'Add new ... link is provided, add it here.
   if (!empty($view->date_info->calendar_date_link) && !empty($view->date_info->url)
-  && (user_access("administer nodes") || user_access('create ' . $view->date_info->calendar_date_link . ' content'))) {
+  && (\Drupal::currentUser()->hasPermission("administer nodes") || \Drupal::currentUser()->hasPermission('create ' . $view->date_info->calendar_date_link . ' content'))) {
     $name = node_type_get_name($view->date_info->calendar_date_link);
     $href = 'node/add/' . str_replace('_', '-', $view->date_info->calendar_date_link);
     $calendar_links[$current_path]['actions'][] = array('title' => t('Add @name', array('@name' => $name)), 'path' => $href);
   }
 
   // Pass this through drupal_alter() so it can be adjusted in custom code or in the theme.
-  drupal_alter('calendar_links', $calendar_links);
+  \Drupal::moduleHandler()->alter('calendar_links', $calendar_links);
 
   // Add the value to the session so it can be used to create the action links.
   if (!empty($calendar_links[$current_path])) {
@@ -105,9 +109,9 @@ function calendar_preprocess_date_views_pager(&$vars) {
  * Adjust the default date for a view based on the stored session value.
  */
 function calendar_date_default_argument_alter(&$argument, &$value) {
-  global $user;
+  $user = \Drupal::currentUser();
   $style_options = $argument->view->display_handler->get_option('style_options');
-  $tracking = variable_get('calendar_track_date', 0);
+  $tracking = \Drupal::config('calendar.settings')->get('calendar_track_date');
   if (!empty($tracking) && ($tracking == 2 || !empty($user->uid))) {
 
     // If this is a default date, i.e. we are visiting a new calendar display,
@@ -131,10 +135,10 @@ function calendar_date_default_argument_alter(&$argument, &$value) {
  * Track the current date as the user moves from calendar display to calendar display.
  */
 function calendar_views_pre_render(&$view) {
-  global $user;
+  $user = \Drupal::currentUser();
 
   $style_options = $view->display_handler->get_option('style_options');
-  $tracking = variable_get('calendar_track_date', 0);
+  $tracking = \Drupal::config('calendar.settings')->get('calendar_track_date');
   if (!empty($tracking) && ($tracking == 2 || !empty($user->uid))) {
     foreach ($view->argument as $id => &$argument) {
 
@@ -164,7 +168,14 @@ function calendar_menu_local_tasks_alter(&$data, $router_item, $root_path) {
     $calendar_data = $_SESSION['calendar_links'][$root_path];
     if (!empty($calendar_data['actions'])) {
       foreach ($calendar_data['actions'] as $action) {
-        $item = menu_get_item($action['path']);
+        // @FIXME
+// menu_get_item() has been removed. To retrieve route information, use the
+// RouteMatch object, which you can retrieve by calling \Drupal::routeMatch().
+// 
+// 
+// @see https://www.drupal.org/node/2203305
+// $item = menu_get_item($action['path']);
+
         $item['title'] = $action['title'];
         // The add new content page would redirect to the new event
         // if we did not override that here. This way they will
@@ -209,7 +220,7 @@ function calendar_display_types() {
 function calendar_help($section, $arg) {
   switch ($section) {
     case 'admin/help#calendar':
-      return t("<p>View complete documentation at !link.</p>", array('!link' => l(t('Date and Calendar Documentation'), 'http://drupal.org/node/262062')));
+      return t("<p>View complete documentation at !link.</p>", array('!link' => \Drupal::l(t('Date and Calendar Documentation'), \Drupal\Core\Url::fromUri('http://drupal.org/node/262062'))));
   }
 }
 
@@ -268,7 +279,12 @@ function calendar_theme() {
  * Controlled by value of 'calendar_date_link' in the view.
  */
 function calendar_node_view($node, $view_mode, $langcode) {
-  $path = variable_get('calendar_date_link_' . $node->type);
+  // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// $path = variable_get('calendar_date_link_' . $node->type);
+
   if (!empty($path)) {
     $links['calendar_link'] = array(
       'title' => t('Calendar'),
@@ -293,10 +309,20 @@ function calendar_node_view($node, $view_mode, $langcode) {
 function calendar_set_link($entity_type, $bundle, $path) {
   switch ($entity_type) {
     case 'node':
-      variable_set('calendar_date_link_' . $bundle, $path);
+      // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// variable_set('calendar_date_link_' . $bundle, $path);
+
       break;
     default:
-      variable_set('calendar_date_link_' . $entity_type . '_' . $bundle, $path);
+      // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// variable_set('calendar_date_link_' . $entity_type . '_' . $bundle, $path);
+
       break;
   }
 }
@@ -308,20 +334,29 @@ function calendar_set_link($entity_type, $bundle, $path) {
  */
 function calendar_clear_link_bundle($bundle = NULL) {
   if (empty($bundle)) {
-    $result = db_select('variable', 'v')
-      ->fields('v', 'name')
-      ->condition('name', 'calendar_date_link_%', 'LIKE')
-      ->execute()->fetchAll(PDO::FETCH_ASSOC);
+    // @FIXME
+// $result = db_select('variable', 'v')
+//       ->fields('v', 'name')
+//       ->condition('name', 'calendar_date_link_%', 'LIKE')
+//       ->execute()->fetchAll(PDO::FETCH_ASSOC);
+
   }
   else {
-    $result = db_select('variable', 'v')
-      ->fields('v', 'name')
-      ->condition('name', 'calendar_date_link_' . $bundle)
-      ->execute()->fetchAll(PDO::FETCH_ASSOC);
+    // @FIXME
+// $result = db_select('variable', 'v')
+//       ->fields('v', 'name')
+//       ->condition('name', 'calendar_date_link_' . $bundle)
+//       ->execute()->fetchAll(PDO::FETCH_ASSOC);
+
   }
   // Iterate over all the values and delete them.
   foreach ($result as $row) {
-    variable_del($row['name']);
+    // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// variable_del($row['name']);
+
   }
 }
 
@@ -331,14 +366,21 @@ function calendar_clear_link_bundle($bundle = NULL) {
  * @param $path, Clear all links to this path. If NULL, clear all links.
  */
 function calendar_clear_link_path($path = NULL) {
-  $result = db_select('variable', 'v')
-    ->fields('v', array('name', 'value'))
-    ->condition('name', 'calendar_date_link_%', 'LIKE')
-    ->execute()->fetchAll(PDO::FETCH_ASSOC);
+  // @FIXME
+// $result = db_select('variable', 'v')
+//     ->fields('v', array('name', 'value'))
+//     ->condition('name', 'calendar_date_link_%', 'LIKE')
+//     ->execute()->fetchAll(PDO::FETCH_ASSOC);
+
   // Iterate over all the values and delete them.
   foreach ($result as $row) {
     if (empty($path) || unserialize($row['value']) == $path) {
-      variable_del($row['name']);
+      // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// variable_del($row['name']);
+
     }
   }
   if (isset($_SESSION['calendar_links'][$path]['actions'])) {
@@ -372,7 +414,7 @@ function calendar_week_header($view) {
     $row[] = array('header' => TRUE, 'class' => "days week", 'data' => '&nbsp;', 'header_id' => 'Week');
   }
   foreach ($untranslated_days as $delta => $day) {
-    $label = $len < 3 ? drupal_substr($translated_days[$delta], 0 , $len) : $translated_days[$delta];
+    $label = $len < 3 ? \Drupal\Component\Utility\Unicode::substr($translated_days[$delta], 0 , $len) : $translated_days[$delta];
     $row[] = array('header' => TRUE, 'class' => "days " . $day, 'data' => $label, 'header_id' => $full_translated_days[$delta]);
   }
   return $row;
@@ -448,13 +490,18 @@ function calendar_block_configure($delta = '') {
   switch ($delta) {
     case 'calendar_legend':
     $options = calendar_list_views();
-    $form['calendar_legend_view'] = array(
-      '#type' => 'select',
-      '#title' => t('Legend View'),
-      '#description' => t('Choose the view display that contains the settings for the stripes that should be displayed in a legend in this block. Note that if you change the stripe values in that view you will need to clear the cache to pick up the new values in this block.'),
-      '#default_value' => variable_get('calendar_legend_view_' . $delta, ''),
-      '#options' => $options,
-    );
+    // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// $form['calendar_legend_view'] = array(
+//       '#type' => 'select',
+//       '#title' => t('Legend View'),
+//       '#description' => t('Choose the view display that contains the settings for the stripes that should be displayed in a legend in this block. Note that if you change the stripe values in that view you will need to clear the cache to pick up the new values in this block.'),
+//       '#default_value' => variable_get('calendar_legend_view_' . $delta, ''),
+//       '#options' => $options,
+//     );
+
     return $form;
   }
 }
@@ -464,7 +511,12 @@ function calendar_block_configure($delta = '') {
  */
 function calendar_block_save($delta, $edit = array()) {
   if ($delta == 'calendar_legend') {
-    variable_set('calendar_legend_view_' . $delta, $edit['calendar_legend_view']);
+    // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// variable_set('calendar_legend_view_' . $delta, $edit['calendar_legend_view']);
+
     drupal_set_message(t('The view for the calendar legend has been set.'));
   }
 }
@@ -477,8 +529,22 @@ function calendar_block_view($delta = '') {
     case 'calendar_legend':
       // Create the content before returning the block
       // so empty content won't still create the block.
-      $view = variable_get('calendar_legend_view_' . $delta, '');
-      $content = theme('calendar_stripe_legend', array('view' => $view));
+      // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// $view = variable_get('calendar_legend_view_' . $delta, '');
+
+      // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// $content = theme('calendar_stripe_legend', array('view' => $view));
+
       $block['subject'] = t('Calendar Legend');
       $block['content'] = $content;
       return $block;
@@ -540,6 +606,6 @@ function calendar_validate_hex_color($element, &$form_state) {
     form_error($element, t("'@color' is not a valid hex color", array('@color' => $element['#value'])));
   }
   else {
-    form_set_value($element, $element['#value'], $form_state);
+    $form_state->setValueForElement($element, $element['#value']);
   }
 }

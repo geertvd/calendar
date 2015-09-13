@@ -43,7 +43,16 @@ $index = 0;
 <div class="<?php print !empty($item->class) ? $item->class : 'item'; ?>">
   <div class="view-item view-item-<?php print $view->name ?>">
   <div class="calendar <?php print $item->granularity; ?>view">
-    <?php print theme('calendar_stripe_stripe', array('item' => $item)); ?>
+    <?php // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// print theme('calendar_stripe_stripe', array('item' => $item));
+ ?>
     <div class="<?php print $item->date_id ?> contents">
       <?php foreach ($rendered_fields as $field): ?>
         <?php if ($index++ == 0 && (isset($item->continuation) && $item->continuation)) : ?>

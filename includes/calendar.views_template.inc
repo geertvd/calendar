@@ -16,10 +16,10 @@ function calendar_views_templates() {
   $views = array();
 
   // Map the base tables to entity types.
-  $entity_info = entity_get_info();
+  $entity_info = \Drupal::entityManager()->getDefinitions();
   $base_tables = date_views_base_tables();
 
-  $with_ical = module_exists('date_ical');
+  $with_ical = \Drupal::moduleHandler()->moduleExists('date_ical');
 
   // Find all the date fields we know about.
 
@@ -31,7 +31,7 @@ function calendar_views_templates() {
     }
     $items = field_info_instances($entity_type);
     $views_fields = date_views_fields($info['base table']);
-    $with_colorbox = $entity_type == 'node' && module_exists('colorbox') && variable_get('calendar_add_colorbox', 0);
+    $with_colorbox = $entity_type == 'node' && \Drupal::moduleHandler()->moduleExists('colorbox') && \Drupal::config('calendar.settings')->get('calendar_add_colorbox');
 
     foreach ($views_fields['name'] as $name => $data) {
 
