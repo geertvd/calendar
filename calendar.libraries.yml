@@ -1,0 +1,4 @@
+calendar-colorpicker:
+  version: 1.x
+  js:
+    js/calendar_colorpicker.js: {}
