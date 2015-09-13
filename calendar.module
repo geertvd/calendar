@@ -3,6 +3,8 @@ define('CALENDAR_SHOW_ALL', 0);
 define('CALENDAR_HIDE_ALL', -1);
 define('CALENDAR_EMPTY_STRIPE', '#ffffff');
 
+use Drupal\views\ViewExecutable;
+
 /**
  * @file
  * Adds calendar filtering and displays to Views.
@@ -88,10 +90,9 @@ function calendar_date_default_argument_alter(&$argument, &$value) {
  *
  * Track the current date as the user moves from calendar display to calendar display.
  */
-function calendar_views_pre_render(&$view) {
+function calendar_views_pre_render(ViewExecutable $view) {
   $user = \Drupal::currentUser();
 
-  $style_options = $view->display_handler->get_option('style_options');
   $tracking = \Drupal::config('calendar.settings')->get('calendar_track_date');
   if (!empty($tracking) && ($tracking == 2 || !empty($user->uid))) {
     foreach ($view->argument as $id => &$argument) {
@@ -689,4 +690,25 @@ function date_week_days_untranslated($refresh = TRUE) {
     );
   }
   return $weekdays;
+}
+
+/**
+ * @deprecated Find the right d8 alternative.
+ *
+ * The instanceof function makes this work for any handler that was derived
+ * from 'views_handler_filter_date' or 'views_handler_argument_date',
+ * which includes core date fields like the node updated field.
+ *
+ * The test for $handler->min_date tells us that this is an argument that
+ * not only is derived from the views date handler but also has been processed
+ * by the Date Views filter or argument code.
+ */
+function date_views_handler_is_date($handler, $type = 'argument') {
+  switch ($type) {
+    case 'filter':
+      return $handler instanceof \Drupal\datetime\Plugin\views\filter\Date && !empty($handler->min_date);
+    case 'argument':
+      return $handler instanceof \Drupal\datetime\Plugin\views\argument\Date && !empty($handler->min_date);
+  }
+  return FALSE;
 }
