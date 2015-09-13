@@ -7,52 +7,6 @@ define('CALENDAR_EMPTY_STRIPE', '#ffffff');
  * @file
  * Adds calendar filtering and displays to Views.
  */
-/**
- * Implements hook_menu().
- */
-function calendar_menu() {
-  $items = array();
-  $items['admin/config/date/calendar'] = array(
-    'title' => 'Calendar',
-    'description' => 'Calendar administration.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('calendar_admin_settings'),
-    'access callback' => 'user_access',
-    'access arguments' => array('administer site configuration'),
-  );
-  return $items;
-}
-
-/**
- * General Calendar administration.
- */
-function calendar_admin_settings() {
-  $form = array();
-
-  $form['#prefix']  = '<h2>Calendar Administration</h2>';
-
-  $form['calendar_track_date'] = array(
-    '#title' => t('Track current date in session'),
-    '#type' => 'radios',
-    '#options' => array(0 => t("Never"), 1 => t('For authenticated users'), 2 => t('For all users')),
-    '#default_value' => \Drupal::config('calendar.settings')->get('calendar_track_date'),
-    '#description' => t("Store session information about the user's current date as they move back and forth through the calendar. Without this setting users will revert to the current day each time they choose a new calendar period (year, month, week, or day). With this option set they will move to a day that conforms to the time period they were viewing before they switched. Requires session tracking which is not ordinarily enabled for anonymous users."),
-    );
-
-  // @FIXME
-// Could not extract the default value because it is either indeterminate, or
-// not scalar. You'll need to provide a default value in
-// config/install/calendar.settings.yml and config/schema/calendar.schema.yml.
-$form['calendar_add_colorbox'] = array(
-    '#title' => t('Add Colorbox settings to Node calendar templates'),
-    '#default_value' => \Drupal::config('calendar.settings')->get('calendar_add_colorbox'),
-    '#type' => 'radios',
-    '#options' => array(0 => t('No'), 1 => t('Yes')),
-    '#description' => t('To try the Colorbox settings, choose the option to add Colorbox settings to the calendar templates. Install and enable the Colorbox module, following the instructions on the Colorbox project page, then create a new calendar from a template using any date field in the Node base table. The calendar will be set up to display the calendar items in a Colorbox.'),
-    );
-
-  return system_settings_form($form);
-}
 
 /**
  * Implements hook_preprocess_date_views_pager().
