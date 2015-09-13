@@ -2,12 +2,12 @@
 
 /**
  * @file
- * Contains \Drupal\calendar\Plugin\views\style\CalendarStyle.
+ * Contains \Drupal\calendar\Plugin\views\style\Calendar.
  */
 
 namespace Drupal\calendar\Plugin\views\style;
 
-use Drupal\calendar\Plugin\views\row\CalendarRow;
+use Drupal\calendar\Plugin\views\row\Calendar as CalendarRow;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\style\StylePluginBase;
@@ -27,7 +27,7 @@ use Drupal\views\ViewExecutable;
  *   even_empty = TRUE
  * )
  */
-class CalendarStyle extends StylePluginBase {
+class Calendar extends StylePluginBase {
 
   /**
    * Does the style plugin for itself support to add fields to it's output.
@@ -67,7 +67,7 @@ class CalendarStyle extends StylePluginBase {
       // @todo This should become a dedicated dateInfo class.
       $this->dateInfo = new \stdClass();
     }
-    $this->dateInfo = &$this->view->dateInfo;
+    //$this->dateInfo = &$this->view->dateInfo;
   }
 
   /**
@@ -275,14 +275,14 @@ class CalendarStyle extends StylePluginBase {
    */
   protected function dateArgumentHandler() {
     // @todo Fix this, check core/modules/datetime/datetime.views.inc.
-//    $i = 0;
-//    foreach ($this->view->argument as $name => $handler) {
-//      if (date_views_handler_is_date($handler, 'argument')) {
-//        $this->dateInfo->date_arg_pos = $i;
-//        return $handler;
-//      }
-//      $i++;
-//    }
+    $i = 0;
+    foreach ($this->view->argument as $name => $handler) {
+      if (date_views_handler_is_date($handler, 'argument')) {
+        $this->dateInfo->date_arg_pos = $i;
+        return $handler;
+      }
+      $i++;
+    }
     return FALSE;
   }
 
@@ -338,10 +338,12 @@ class CalendarStyle extends StylePluginBase {
 
     // There are date arguments that have not been added by Date Views.
     // They will be missing the information we would need to render the field.
-    // @todo Check if this works.
-    if (empty($argument->min_date)) {
-      return;
-    }
+    // @todo uncomment this when we find a fix for the date range issue.
+//    if (empty($argument->min_date)) {
+//      return;
+//    }
+    $argument->min_date = new \DateTime('-3 months');
+    $argument->max_date = new \DateTime('+3 months');
 
     // Add information from the date argument to the view.
     $this->dateInfo->granularity = $this->granularity();
@@ -357,9 +359,10 @@ class CalendarStyle extends StylePluginBase {
     $this->dateInfo->min_date = $argument->min_date;
     $this->dateInfo->max_date = $argument->max_date;
     $this->dateInfo->limit = $argument->limit;
-    $this->dateInfo->url = $this->view->get_url();
-    $this->dateInfo->min_date_date = date_format($this->dateInfo->min_date, DATETIME_DATE_STORAGE_FORMAT);
-    $this->dateInfo->max_date_date = date_format($this->dateInfo->max_date, DATETIME_DATE_STORAGE_FORMAT);
+    // @todo What if the display doesn't have a route?
+    //$this->dateInfo->url = $this->view->getUrl();
+//    $this->dateInfo->min_date_date = date_format($this->dateInfo->min_date, DATETIME_DATE_STORAGE_FORMAT);
+//    $this->dateInfo->max_date_date = date_format($this->dateInfo->max_date, DATETIME_DATE_STORAGE_FORMAT);
     $this->dateInfo->forbid = isset($argument->forbid) ? $argument->forbid : FALSE;
 
     // Add calendar style information to the view.
@@ -386,7 +389,9 @@ class CalendarStyle extends StylePluginBase {
     $display_timezone = date_timezone_get($this->dateInfo->min_date);
     $this->dateInfo->display_timezone = $display_timezone;
     $this->dateInfo->display_timezone_name = timezone_name_get($display_timezone);
+
     $date = clone($this->dateInfo->min_date);
+
     date_timezone_set($date, $display_timezone);
     $this->dateInfo->min_zone_string = date_format($date, DATETIME_DATE_STORAGE_FORMAT);
     $date = clone($this->dateInfo->max_date);
@@ -399,7 +404,7 @@ class CalendarStyle extends StylePluginBase {
 
     // Invoke the row plugin to massage each result row into calendar items.
     // Gather the row items into an array grouped by date and time.
-    $items = array();
+    $items = [];
     foreach ($this->view->result as $row_index => $row) {
       $this->view->row_index = $row_index;
       $rows = $this->view->rowPlugin->preRender($row);
@@ -417,30 +422,30 @@ class CalendarStyle extends StylePluginBase {
 
     ksort($items);
 
-    $rows = array();
-    $this->curday = clone($this->dateInfo->min_date);
+    $rows = [];
+    $this->currentDay = clone($this->dateInfo->min_date);
     $this->items = $items;
 
     // Retrieve the results array using a the right method for the granularity of the display.
     switch ($this->options['calendar_type']) {
       case 'year':
-        $rows = array();
+        $rows = [];
         $this->dateInfo->mini = TRUE;
         for ($i = 1; $i <= 12; $i++) {
-          $rows[$i] = $this->calendar_build_mini_month();
+          $rows[$i] = $this->calendarBuildMiniMonth();
         }
         $this->dateInfo->mini = FALSE;
         break;
       case 'month':
-        $rows = !empty($this->dateInfo->mini) ? $this->calendar_build_mini_month() : $this->calendarBuildMonth();
+        $rows = !empty($this->dateInfo->mini) ? $this->calendarBuildMiniMonth() : $this->calendarBuildMonth();
         break;
       case 'day':
-        $rows = $this->calendar_build_day();
+        $rows = $this->calendarBuildDay();
         break;
       case 'week':
-        $rows = $this->calendar_build_week();
+        $rows = $this->calendarBuildWeek();
         // Merge the day names in as the first row.
-        $rows = array_merge(array(calendar_week_header($this->view)), $rows);
+        $rows = array_merge([calendar_week_header($this->view)], $rows);
         break;
     }
 
@@ -454,24 +459,17 @@ class CalendarStyle extends StylePluginBase {
       $this->definition['theme'] = 'calendar_mini';
     }
     // If the overlap option was selected, choose the overlap version of the theme.
-    elseif (in_array($this->options['calendar_type'], array('week', 'day')) && !empty($this->options['multiday_theme']) && !empty($this->options['theme_style'])) {
+    elseif (in_array($this->options['calendar_type'], ['week', 'day']) && !empty($this->options['multiday_theme']) && !empty($this->options['theme_style'])) {
       $this->definition['theme'] .= '_overlap';
     }
 
-    // @FIXME
-    // theme() has been renamed to _theme() and should NEVER be called directly.
-    // Calling _theme() directly can alter the expected output and potentially
-    // introduce security issues (see https://www.drupal.org/node/2195739). You
-    // should use renderable arrays instead.
-    // @see https://www.drupal.org/node/2195739
-    // $output = theme($this->theme_functions(),
-    //       array(
-    //         'view' => $this->view,
-    //         'options' => $this->options,
-    //         'rows' => $rows
-    //       ));
+    $output = [
+      '#theme' => $this->themeFunctions(),
+      '#view' => $this->view,
+      '#options' => $this->options,
+      '#rows' => $rows,
+    ];
 
-    $output = 'test';
     unset($this->view->row_index);
     return $output;
   }
@@ -490,14 +488,14 @@ class CalendarStyle extends StylePluginBase {
   public function calendarBuildMiniMonth() {
     $month = date_format($this->currentDay, 'n');
     date_modify($this->currentDay, '-' . strval(date_format($this->currentDay, 'j')-1) . ' days');
-    $rows = array();
+    $rows = [];
     do {
       $rows = array_merge($rows, $this->calendarBuildMiniWeek());
       $curday_date = date_format($this->currentDay, DATETIME_DATE_STORAGE_FORMAT);
       $curday_month = date_format($this->currentDay, 'n');
     } while ($curday_month == $month && $curday_date <= $this->dateInfo->max_date_date);
     // Merge the day names in as the first row.
-    $rows = array_merge(array(calendar_week_header($this->view)), $rows);
+    $rows = array_merge([calendar_week_header($this->view)], $rows);
     return $rows;
   }
 

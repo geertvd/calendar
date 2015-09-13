@@ -190,6 +190,9 @@ function calendar_theme() {
     'path' => "$module_path/theme",
   );
   return array(
+    'calendar_mini' => [
+      'variables' => ['view' => NULL, 'options' => [], 'rows' => []],
+    ],
     'calendar_item' => $base + array(
       'template' => 'calendar-item',
       'variables' => array('view' => NULL, 'rendered_fields' => NULL, 'item' => NULL),
@@ -582,9 +585,10 @@ function date_week($date) {
   $date = substr($date, 0, 10);
   $parts = explode('-', $date);
 
-  $date = new DateTime($date . ' 12:00:00', 'UTC');
+  $timezone = new DateTimeZone('UTC');
+  $date = new DateTime($date . ' 12:00:00', $timezone);
 
-  $year_date = new DateTime($parts[0] . '-01-01 12:00:00', 'UTC');
+  $year_date = new DateTime($parts[0] . '-01-01 12:00:00', $timezone);
   $week = intval($date->format('W'));
   $year_week = intval(date_format($year_date, 'W'));
   $date_year = intval($date->format('o'));
@@ -706,9 +710,65 @@ function date_week_days_untranslated($refresh = TRUE) {
 function date_views_handler_is_date($handler, $type = 'argument') {
   switch ($type) {
     case 'filter':
-      return $handler instanceof \Drupal\datetime\Plugin\views\filter\Date && !empty($handler->min_date);
+      return $handler instanceof \Drupal\views\Plugin\views\filter\Date && !empty($handler->min_date);
     case 'argument':
-      return $handler instanceof \Drupal\datetime\Plugin\views\argument\Date && !empty($handler->min_date);
+      return $handler instanceof \Drupal\views\Plugin\views\argument\Date;
   }
   return FALSE;
+}
+
+/**
+ * @deprecated Find the right d8 alternative.
+ *
+ * Helper function to left pad date parts with zeros.
+ *
+ * Provided because this is needed so often with dates.
+ *
+ * @param int $value
+ *   The value to pad.
+ * @param int $size
+ *   (optional) Total size expected, usually 2 or 4. Defaults to 2.
+ *
+ * @return string
+ *   The padded value.
+ */
+function date_pad($value, $size = 2) {
+  return sprintf("%0" . $size . "d", $value);
+}
+
+
+/**
+ * @deprecated Find the right d8 alternative.
+ *
+ * Constructs a translated array of week day abbreviations.
+ *
+ * @param bool $required
+ *   (optional) If FALSE, the returned array will include a blank value.
+ *   Defaults to FALSE.
+ * @param bool $refresh
+ *   (optional) Whether to refresh the list. Defaults to TRUE.
+ * @param int $length
+ *   (optional) The length of the abbreviation. Defaults to 3.
+ *
+ * @return array
+ *   An array of week day abbreviations
+ */
+function date_week_days_abbr($required = FALSE, $refresh = TRUE, $length = 3) {
+  $weekdays = array();
+  switch ($length) {
+    case 1:
+      $context = 'day_abbr1';
+      break;
+    case 2:
+      $context = 'day_abbr2';
+      break;
+    default:
+      $context = '';
+      break;
+  }
+  foreach (date_week_days_untranslated() as $key => $day) {
+    $weekdays[$key] = t(substr($day, 0, $length), array(), array('context' => $context));
+  }
+  $none = array('' => '');
+  return !$required ? $none + $weekdays : $weekdays;
 }

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\calendar\Plugin\views\row\CalendarRow.
+ * Contains \Drupal\calendar\Plugin\views\row\Calendar.
  */
 
 namespace Drupal\calendar\Plugin\views\row;
@@ -15,7 +15,7 @@ use Drupal\views\ViewExecutable;
 
 /**
  * Plugin which creates a view on the resulting object and formats it as a
- * Calendar node.
+ * Calendar entity.
  *
  * @ViewsRow(
  *   id = "calendar_row",
@@ -25,7 +25,7 @@ use Drupal\views\ViewExecutable;
  *   register_theme = FALSE,
  * )
  */
-class CalendarRow extends RowPluginBase {
+class Calendar extends RowPluginBase {
 
   // Stores the entities loaded with pre_render.
   // @TODO redefine
