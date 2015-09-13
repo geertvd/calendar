@@ -7,92 +7,148 @@
 
 namespace Drupal\calendar\Plugin\views\row;
 
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\row\RowPluginBase;
+use Drupal\views\ViewExecutable;
 
 /**
- * Plugin which creates a view on the resulting object
- * and formats it as a Calendar node.
+ * Plugin which creates a view on the resulting object and formats it as a
+ * Calendar node.
+ *
+ * @ViewsRow(
+ *   id = "calendar_row",
+ *   title = @Translation("Calendar entities"),
+ *   help = @Translation("Display the content as calendar entities."),
+ *   theme = "views_view_row_calendar",
+ *   register_theme = FALSE,
+ * )
  */
 class CalendarRow extends RowPluginBase {
 
   // Stores the entities loaded with pre_render.
+  // @TODO redefine
   var $entities = array();
 
-  function init(&$view, &$display, $options = NULL) {
+  /**
+   * {@inheritdoc}
+   */
+  public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL) {
     parent::init($view, $display, $options);
-    $this->base_table = $view->base_table;
-    $this->base_field = $view->base_field;
+
+    // TODO needed?
+//     $this->base_table = $view->base_table;
+    // $this->base_field = $view->base_field;
   }
 
   /**
-   * Helper function to find the date argument handler for this view.
+   * {@inheritdoc}
    */
-  function date_argument_handler() {
-    foreach ($this->view->argument as $name => $handler) {
-      if (date_views_handler_is_date($handler, 'argument')) {
-        return $handler;
-      }
-    }
+  protected function defineOptions() {
+    $options = parent::defineOptions();
+    $options['date_fields'] = ['default' => []];
+    $options['calendar_date_link'] = ['default' => ''];
+    $options['colors'] = [
+      'contains' => [
+        'legend' => ['default' => ''],
+        'calendar_colors_type' => ['default' => array()],
+        'taxonomy_field' => ['default' => ''],
+        'calendar_colors_vocabulary' => ['default' => array()],
+        'calendar_colors_taxonomy' => ['default' => array()],
+        'calendar_colors_group' => ['default' => array()],
+      ]];
+    return $options;
   }
 
-  function option_definition() {
-    $options = parent::option_definition();
-    $options['date_fields'] = array('default' => array());
-    $options['calendar_date_link'] = array('default' => '');
-    $options['colors'] = array(
-      'contains' => array(
-        'legend' => array('default' => ''),
-        'calendar_colors_type' => array('default' => array()),
-        'taxonomy_field' => array('default' => ''),
-        'calendar_colors_vocabulary' => array('default' => array()),
-        'calendar_colors_taxonomy' => array('default' => array()),
-        'calendar_colors_group' => array('default' => array()),
-    ));
-    return $options;
+  /**
+   * {@inheritdoc}
+   */
+  public function buildOptionsForm(&$form, FormStateInterface $form_state) {
+    parent::buildOptionsForm($form, $form_state);
+
+    $form = [];
+
+    $form['markup'] = [
+      '#markup' => $this->t("The calendar row plugin will format view results as calendar items. Make sure this display has a 'Calendar' format and uses a 'Date' contextual filter, or this plugin will not work correctly."),
+    ];
+
+    $form['calendar_date_link'] = [
+      '#title' => t('Add new date link'),
+      '#type' => 'select',
+      '#default_value' => $this->options['calendar_date_link'],
+      '#options' => [
+        '' => $this->t('No link'),
+      ] + node_type_get_names(),
+      '#description' => $this->t('Display a link to add a new date of the specified content type. Displayed only to users with appropriate permissions.'),
+    ];
+
+    $form['colors'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Legend Colors'),
+      '#description' =>  $this->t('Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Items with empty values will have no stripe in the calendar and will not be added to the legend.'),
+    ];
+
+    $options = [];
+    if ($this->view->getBaseTables()['node_field_data']) {
+      $options['type'] = $this->t('Based on Content Type');
+    }
+    if (\Drupal::moduleHandler()->moduleExists('taxonomy')) {
+      $options['taxonomy'] = $this->t('Based on Taxonomy');
+    }
+    if (\Drupal::moduleHandler()->moduleExists('og')) {
+      $options['group'] = $this->t('Based on Organic Group');
+    }
+
+    // If no option is available, stop here.
+    if (empty($options)) {
+      return;
+    }
+
+    $form['colors']['legend'] = [
+      '#title' => $this->t('Stripes'),
+      '#description' => $this->t('Add stripes to calendar items.'),
+      '#type' => 'select',
+      '#options' => $options,
+      '#empty_value' => $this->t('None'),
+      '#default_value' => $this->options['colors']['legend'],
+    ];
+
+    if ($this->view->getBaseTables()['node_field_data']) {
+      $colors = $this->options['colors']['calendar_colors_type'];
+      $type_names = node_type_get_names();
+      foreach ($type_names as $key => $name) {
+        $form['colors']['calendar_colors_type'][$key] = [
+          '#title' => $name,
+          '#default_value' => isset($colors[$key]) ? $colors[$key] : CALENDAR_EMPTY_STRIPE,
+          '#dependency' => ['edit-row-options-colors-legend' => ['type']],
+          '#type' => 'textfield',
+          '#size' => 7,
+          '#maxlength' => 7,
+          '#element_validate' => ['calendar_validate_hex_color'],
+          '#prefix' => '<div class="calendar-colorpicker-wrapper">',
+          '#suffix' => '<div class="calendar-colorpicker"></div></div>',
+          '#attributes' => ['class' => ['edit-calendar-colorpicker']],
+          '#attached' => [
+            // Add Farbtastic color picker.
+            'library' => [
+              ['system', 'farbtastic'],
+            ],
+            // Add javascript to trigger the colorpicker.
+            'js' => [
+              drupal_get_path('module', 'calendar') . '/js/calendar_colorpicker.js'
+            ],
+          ],
+        ];
+      }
+    }
+
   }
 
   /**
    * Provide a form for setting options.
    */
   function options_form(&$form, &$form_state) {
-    parent::options_form($form, $form_state);
 
-    $form['markup']['#markup'] = t("The calendar row plugin will format view results as calendar items. Make sure this display has a 'Calendar' format and uses a 'Date' contextual filter, or this plugin will not work correctly.");
-    $form['calendar_date_link'] = array(
-      '#title' => t('Add new date link'),
-      '#type' => 'select',
-      '#default_value' => $this->options['calendar_date_link'],
-      '#options' => array('' => t('No link')) + node_type_get_names(),
-      '#description' => t('Display a link to add a new date of the specified content type. Displayed only to users with appropriate permissions.'),
-      );
-    $form['colors'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Legend Colors'),
-      '#description' =>  t('Set a hex color value (like #ffffff) to use in the calendar legend for each content type. Items with empty values will have no stripe in the calendar and will not be added to the legend.'),
-    );
-    $options = array(
-      '' => t('None')
-    );
-    if ($this->view->base_table == 'node') {
-      $options['type'] = t('Based on Content Type');
-    }
-    if (\Drupal::moduleHandler()->moduleExists('taxonomy')) {
-      $options['taxonomy'] = t('Based on Taxonomy');
-    }
-    if (\Drupal::moduleHandler()->moduleExists('og')) {
-      $options['group'] = t('Based on Organic Group');
-    }
-    // If none of the options but the None option is available, stop here.
-    if (count($options) == 1) {
-      return;
-    }
-    $form['colors']['legend'] = array(
-      '#title' => t('Stripes'),
-      '#description' => t('Add stripes to calendar items.'),
-      '#type' => 'select',
-      '#options' => $options,
-      '#default_value' => $this->options['colors']['legend'],
-    );
     if ($this->view->base_table == 'node') {
       $colors = $this->options['colors']['calendar_colors_type'];
       $type_names = node_type_get_names();
@@ -246,6 +302,17 @@ class CalendarRow extends RowPluginBase {
             'js' => array(drupal_get_path('module', 'calendar') . '/js/calendar_colorpicker.js'),
           ),
         );
+      }
+    }
+  }
+
+  /**
+   * Helper function to find the date argument handler for this view.
+   */
+  function date_argument_handler() {
+    foreach ($this->view->argument as $name => $handler) {
+      if (date_views_handler_is_date($handler, 'argument')) {
+        return $handler;
       }
     }
   }
@@ -562,7 +629,8 @@ class CalendarRow extends RowPluginBase {
 
       // Get intersection of current day and the node value's duration (as strings in $to_zone timezone).
       $entity->calendar_start = $item_start < $start ? $start : $item_start;
-      $entity->calendar_end = !empty($item_end) ? ($item_end > $end ? $end : $item_end) : $node->calendar_start;
+      $entity->calendar_end = !empty($item_end) ? ($item_end > $end ? $end : $item_end) : NULL;
+//      $entity->calendar_end = !empty($item_end) ? ($item_end > $end ? $end : $item_end) : $node->calendar_start;
 
       // Make date objects
       $entity->calendar_start_date = date_create($entity->calendar_start, timezone_open($to_zone));
