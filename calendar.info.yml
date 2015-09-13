@@ -2,8 +2,6 @@ name: Calendar
 description: 'Views plugin to display views containing dates as Calendars.'
 dependencies:
   - views
-  - date_api
-  - date_views
 package: Date/Time
 core: 8.x
 stylesheets:
