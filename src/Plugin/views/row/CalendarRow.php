@@ -1,11 +1,19 @@
 <?php
-namespace Drupal\calendar;
+
+/**
+ * @file
+ * Contains \Drupal\calendar\Plugin\views\row\CalendarRow.
+ */
+
+namespace Drupal\calendar\Plugin\views\row;
+
+use Drupal\views\Plugin\views\row\RowPluginBase;
 
 /**
  * Plugin which creates a view on the resulting object
  * and formats it as a Calendar node.
  */
-class calendar_plugin_row extends views_plugin_row_fields {
+class CalendarRow extends RowPluginBase {
 
   // Stores the entities loaded with pre_render.
   var $entities = array();

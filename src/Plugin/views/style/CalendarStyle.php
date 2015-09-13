@@ -2,11 +2,12 @@
 
 /**
  * @file
- * Contains \Drupal\calendar\Plugin\views\style\Calendar.
+ * Contains \Drupal\calendar\Plugin\views\style\CalendarStyle.
  */
 
 namespace Drupal\calendar\Plugin\views\style;
 
+use Drupal\calendar\Plugin\views\row\CalendarRow;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Plugin\views\style\StylePluginBase;
 
@@ -24,7 +25,7 @@ use Drupal\views\Plugin\views\style\StylePluginBase;
  *   even_empty = TRUE
  * )
  */
-class Calendar extends StylePluginBase {
+class CalendarStyle extends StylePluginBase {
 
   /**
    * Does the style plugin for itself support to add fields to it's output.
@@ -87,8 +88,8 @@ class Calendar extends StylePluginBase {
       '#default_value' => $this->options['mini'],
       '#type' => 'radios',
       '#options' => [
-        FALSE => $this->t('No'),
-        TRUE => $this->t('Yes'),
+        0 => $this->t('No'),
+        1 => $this->t('Yes'),
       ],
       '#description' => $this->t('Display the mini style calendar, with no item details. Suitable for a calendar displayed in a block.'),
       '#dependency' => ['edit-style-options-calendar-type' => ['month']],
@@ -113,8 +114,8 @@ class Calendar extends StylePluginBase {
       '#default_value' => $this->options['with_weekno'],
       '#type' => 'radios',
       '#options' => [
-        FALSE => $this->t('No'),
-        TRUE => $this->t('Yes'),
+        0 => $this->t('No'),
+        1 => $this->t('Yes'),
       ],
       '#description' => $this->t('Whether or not to show week numbers in the left column of calendar weeks and months.'),
       '#dependency' => ['edit-style-options-calendar-type' => ['month']],
@@ -220,20 +221,83 @@ class Calendar extends StylePluginBase {
     ];
   }
 
-  function options_validate(&$form, &$form_state) {
-    $values = $form_state['values']['style_options'];
-    if ($values['groupby_times'] == 'custom' && empty($values['groupby_times_custom'])) {
-      form_set_error('style_options][groupby_times_custom', t('Custom groupby times cannot be empty.'));
+  /**
+   * {@inheritdoc}
+   */
+  public function validateOptionsForm(&$form, FormStateInterface $form_state) {
+    $groupby_times = $form_state->getValue(['style_options', 'groupby_times']);
+    if ($groupby_times == 'custom' && $form_state->isValueEmpty(['style_options', 'groupby_times_custom'])) {
+      $form_state->setErrorByName('groupby_times_custom', $this->t('Custom groupby times cannot be empty.'));
     }
-    if (!empty($values['theme_style']) && (empty($values['groupby_times']) || !in_array($values['groupby_times'], array('hour', 'half')))) {
-      form_set_error('style_options][theme_style', t('Overlapping items only work with hour or half hour groupby times.'));
+    if ((!$form_state->isValueEmpty(['style_options', 'theme_style']) && empty($groupby_times)) || !in_array($groupby_times, ['hour', 'half'])) {
+      $form_state->setErrorByName('theme_style', $this->t('Overlapping items only work with hour or half hour groupby times.'));
     }
-    if (!empty($values['theme_style']) && !empty($values['groupby_field'])) {
-      form_set_error('style_options][theme_style', t('You cannot use overlapping items and also try to group by a field value.'));
+    if (!$form_state->isValueEmpty(['style_options', 'theme_style']) && !$form_state->isValueEmpty(['style_options', 'group_by_field'])) {
+      $form_state->setErrorByName('theme_style', $this->t('ou cannot use overlapping items and also try to group by a field value.'));
     }
-    if ($values['groupby_times'] != 'custom') {
-      $form_state->setValueForElement($form['groupby_times_custom'], NULL);
+    if ($groupby_times != 'custom') {
+      $form_state->setValue(['style_options', 'groupby_times_custom'], NULL);
     }
+  }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function submitOptionsForm(&$form, FormStateInterface $form_state) {
+    $multiday_hidden = $form_state->getValue(['style_options', 'multiday_hidden']);
+    $form_state->setValue(['style_options', 'multiday_hidden'], array_filter($multiday_hidden));
+  }
+
+  /**
+   * Helper function to find the date argument handler for this view.
+   */
+  protected function dateArgumentHandler() {
+    // @todo Fix this, check core/modules/datetime/datetime.views.inc.
+//    $i = 0;
+//    foreach ($this->view->argument as $name => $handler) {
+//      if (date_views_handler_is_date($handler, 'argument')) {
+//        $this->date_info->date_arg_pos = $i;
+//        return $handler;
+//      }
+//      $i++;
+//    }
+    return FALSE;
+  }
+
+  /**
+   * Inspect argument and view information to see which calendar period we
+   * should show. The argument tells us what to use if there is no value, the
+   * view args tell us what to use if there are values.
+   */
+  protected function granularity() {
+    // @todo Document this.
+    if (!$handler = $this->dateArgumentHandler()) {
+      return 'month';
+    }
+    $default_granularity = !empty($handler) && !empty($handler->granularity) ? $handler->granularity : 'month';
+    $wildcard = !empty($handler) ? $handler->options['exception']['value'] : '';
+    $argument = $handler->argument;
+
+    // @todo Anything else we need to do for 'all' arguments?
+    if ($argument == $wildcard) {
+      $this->view_granularity = $default_granularity;
+    }
+    elseif (!empty($argument)) {
+      module_load_include('inc', 'date_api', 'date_api_sql');
+
+      $date_handler = new date_sql_handler();
+      $this->view_granularity = $date_handler->arg_granularity($argument);
+    }
+    else {
+      $this->view_granularity = $default_granularity;
+    }
+    return $this->view_granularity;
+  }
+
+  /**
+   * @todo Document this.
+   */
+  protected function hasCalendarRowPlugin() {
+    return $this->view->rowPlugin instanceof CalendarRow;
   }
 }
