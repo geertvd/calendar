@@ -9,7 +9,9 @@ namespace Drupal\calendar\Plugin\views\style;
 
 use Drupal\calendar\Plugin\views\row\CalendarRow;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\style\StylePluginBase;
+use Drupal\views\ViewExecutable;
 
 /**
  * Views style plugin for the Calendar module.
@@ -47,6 +49,26 @@ class CalendarStyle extends StylePluginBase {
    * @var bool
    */
   protected $usesGrouping = FALSE;
+
+
+  protected $dateInfo;
+  protected $items;
+  protected $currentDay;
+
+  /**
+   * Overrides \Drupal\views\Plugin\views\style\StylePluginBase::init().
+   *
+   * @todo Document why we override.
+   */
+  public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL) {
+    parent::init($view, $display, $options);
+
+    if (empty($view->dateInfo)) {
+      // @todo This should become a dedicated dateInfo class.
+      $this->dateInfo = new \stdClass();
+    }
+    $this->dateInfo = &$this->view->dateInfo;
+  }
 
   /**
    * {@inheritdoc}
@@ -256,7 +278,7 @@ class CalendarStyle extends StylePluginBase {
 //    $i = 0;
 //    foreach ($this->view->argument as $name => $handler) {
 //      if (date_views_handler_is_date($handler, 'argument')) {
-//        $this->date_info->date_arg_pos = $i;
+//        $this->dateInfo->date_arg_pos = $i;
 //        return $handler;
 //      }
 //      $i++;
@@ -299,5 +321,218 @@ class CalendarStyle extends StylePluginBase {
    */
   protected function hasCalendarRowPlugin() {
     return $this->view->rowPlugin instanceof CalendarRow;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function render() {
+    if (empty($this->view->rowPlugin) || !$this->hasCalendarRowPlugin()) {
+      debug('\Drupal\calendar\Plugin\views\style\CalendarStyle: The calendar row plugin is required when using the calendar style, but it is missing.');
+      return;
+    }
+    if (!$argument = $this->dateArgumentHandler()) {
+      debug('\Drupal\calendar\Plugin\views\style\CalendarStyle: A date argument is required when using the calendar style, but it is missing or is not using the default date.');
+      return;
+    }
+
+    // There are date arguments that have not been added by Date Views.
+    // They will be missing the information we would need to render the field.
+    // @todo Check if this works.
+    if (empty($argument->min_date)) {
+      return;
+    }
+
+    // Add information from the date argument to the view.
+    $this->dateInfo->granularity = $this->granularity();
+    $this->dateInfo->calendar_type = $this->options['calendar_type'];
+    $this->dateInfo->date_arg = $argument->argument;
+    // @todo Can we fix these with formatters?
+    $this->dateInfo->year = date_format($argument->min_date, 'Y');
+    $this->dateInfo->month = date_format($argument->min_date, 'n');;
+    $this->dateInfo->day = date_format($argument->min_date, 'j');
+    // @todo We shouldn't use DATETIME_DATE_STORAGE_FORMAT.
+    $this->dateInfo->week = date_week(date_format($argument->min_date, DATETIME_DATE_STORAGE_FORMAT));
+    $this->dateInfo->date_range = $argument->date_range;
+    $this->dateInfo->min_date = $argument->min_date;
+    $this->dateInfo->max_date = $argument->max_date;
+    $this->dateInfo->limit = $argument->limit;
+    $this->dateInfo->url = $this->view->get_url();
+    $this->dateInfo->min_date_date = date_format($this->dateInfo->min_date, DATETIME_DATE_STORAGE_FORMAT);
+    $this->dateInfo->max_date_date = date_format($this->dateInfo->max_date, DATETIME_DATE_STORAGE_FORMAT);
+    $this->dateInfo->forbid = isset($argument->forbid) ? $argument->forbid : FALSE;
+
+    // Add calendar style information to the view.
+    $this->dateInfo->calendar_popup = $this->displayHandler->getOption('calendar_popup');
+    $this->dateInfo->style_name_size = $this->options['name_size'];
+    $this->dateInfo->mini = $this->options['mini'];
+    $this->dateInfo->style_with_weekno = $this->options['with_weekno'];
+    $this->dateInfo->style_multiday_theme = $this->options['multiday_theme'];
+    $this->dateInfo->style_theme_style = $this->options['theme_style'];
+    $this->dateInfo->style_max_items = $this->options['max_items'];
+    $this->dateInfo->style_max_items_behavior = $this->options['max_items_behavior'];
+    if (!empty($this->options['groupby_times_custom'])) {
+      $this->dateInfo->style_groupby_times = explode(',', $this->options['groupby_times_custom']);
+    }
+    else {
+      $this->dateInfo->style_groupby_times = calendar_groupby_times($this->options['groupby_times']);
+    }
+    $this->dateInfo->style_groupby_field = $this->options['groupby_field'];
+
+    // TODO make this an option setting.
+    $this->dateInfo->style_show_empty_times = !empty($this->options['groupby_times_custom']) ? TRUE : FALSE;
+
+    // Set up parameters for the current view that can be used by the row plugin.
+    $display_timezone = date_timezone_get($this->dateInfo->min_date);
+    $this->dateInfo->display_timezone = $display_timezone;
+    $this->dateInfo->display_timezone_name = timezone_name_get($display_timezone);
+    $date = clone($this->dateInfo->min_date);
+    date_timezone_set($date, $display_timezone);
+    $this->dateInfo->min_zone_string = date_format($date, DATETIME_DATE_STORAGE_FORMAT);
+    $date = clone($this->dateInfo->max_date);
+    date_timezone_set($date, $display_timezone);
+    $this->dateInfo->max_zone_string = date_format($date, DATETIME_DATE_STORAGE_FORMAT);
+
+    // Let views render fields the way it thinks they should look before we
+    // start massaging them.
+    $this->renderFields($this->view->result);
+
+    // Invoke the row plugin to massage each result row into calendar items.
+    // Gather the row items into an array grouped by date and time.
+    $items = array();
+    foreach ($this->view->result as $row_index => $row) {
+      $this->view->row_index = $row_index;
+      $rows = $this->view->rowPlugin->preRender($row);
+      foreach ($rows as $key => $item) {
+        // @todo Check what comes out here.
+//        $item->granularity = $this->dateInfo->granularity;
+//        $rendered_fields = array();
+//        $item_start = date_format($item->calendar_start_date, DATE_FORMAT_DATE);
+//        $item_end = date_format($item->calendar_end_date, DATE_FORMAT_DATE);
+//        $time_start = date_format($item->calendar_start_date, 'H:i:s');
+//        $item->rendered_fields = $this->rendered_fields[$row_index];
+//        $items[$item_start][$time_start][] = $item;
+      }
+    }
+
+    ksort($items);
+
+    $rows = array();
+    $this->curday = clone($this->dateInfo->min_date);
+    $this->items = $items;
+
+    // Retrieve the results array using a the right method for the granularity of the display.
+    switch ($this->options['calendar_type']) {
+      case 'year':
+        $rows = array();
+        $this->dateInfo->mini = TRUE;
+        for ($i = 1; $i <= 12; $i++) {
+          $rows[$i] = $this->calendar_build_mini_month();
+        }
+        $this->dateInfo->mini = FALSE;
+        break;
+      case 'month':
+        $rows = !empty($this->dateInfo->mini) ? $this->calendar_build_mini_month() : $this->calendarBuildMonth();
+        break;
+      case 'day':
+        $rows = $this->calendar_build_day();
+        break;
+      case 'week':
+        $rows = $this->calendar_build_week();
+        // Merge the day names in as the first row.
+        $rows = array_merge(array(calendar_week_header($this->view)), $rows);
+        break;
+    }
+
+    // Send the sorted rows to the right theme for this type of calendar.
+    $this->definition['theme'] = 'calendar_' . $this->options['calendar_type'];
+
+    // Adjust the theme to match the currently selected default.
+    // Only the month view needs the special 'mini' class,
+    // which is used to retrieve a different, more compact, theme.
+    if ($this->options['calendar_type'] == 'month' && !empty($this->dateInfo->mini)) {
+      $this->definition['theme'] = 'calendar_mini';
+    }
+    // If the overlap option was selected, choose the overlap version of the theme.
+    elseif (in_array($this->options['calendar_type'], array('week', 'day')) && !empty($this->options['multiday_theme']) && !empty($this->options['theme_style'])) {
+      $this->definition['theme'] .= '_overlap';
+    }
+
+    // @FIXME
+    // theme() has been renamed to _theme() and should NEVER be called directly.
+    // Calling _theme() directly can alter the expected output and potentially
+    // introduce security issues (see https://www.drupal.org/node/2195739). You
+    // should use renderable arrays instead.
+    // @see https://www.drupal.org/node/2195739
+    // $output = theme($this->theme_functions(),
+    //       array(
+    //         'view' => $this->view,
+    //         'options' => $this->options,
+    //         'rows' => $rows
+    //       ));
+
+    $output = 'test';
+    unset($this->view->row_index);
+    return $output;
+  }
+
+  /**
+   * Build one month.
+   */
+  public function calendarBuildMonth() {
+    // @todo Implement.
+    return 'month';
+  }
+
+  /**
+   * Build one mini month.
+   */
+  public function calendarBuildMiniMonth() {
+    $month = date_format($this->currentDay, 'n');
+    date_modify($this->currentDay, '-' . strval(date_format($this->currentDay, 'j')-1) . ' days');
+    $rows = array();
+    do {
+      $rows = array_merge($rows, $this->calendarBuildMiniWeek());
+      $curday_date = date_format($this->currentDay, DATETIME_DATE_STORAGE_FORMAT);
+      $curday_month = date_format($this->currentDay, 'n');
+    } while ($curday_month == $month && $curday_date <= $this->dateInfo->max_date_date);
+    // Merge the day names in as the first row.
+    $rows = array_merge(array(calendar_week_header($this->view)), $rows);
+    return $rows;
+  }
+
+  /**
+   * Build one week row.
+   */
+  public function calendarBuildWeek() {
+    // @todo Implement.
+    return 'week';
+  }
+
+  /**
+   * Build one mini week row.
+   */
+  public function calendarBuildMiniWeek() {
+    // @todo Implement.
+    return ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+  }
+
+  /**
+   * Build the contents of a single day for the $rows results.
+   */
+  public function calendarBuildWeekDay() {
+    // @todo Implement.
+    return 'weekday';
+  }
+
+  /**
+   * Build the contents of a single day for the $rows results.
+   *
+   * @todo find out that the difference is with calendarBuildWeekDay() and
+   * document accordingly.
+   */
+  public function calendarBuildDay() {
+    // @todo Implement.
+    return 'day';
   }
 }

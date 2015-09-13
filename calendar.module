@@ -563,3 +563,130 @@ function calendar_validate_hex_color($element, &$form_state) {
     $form_state->setValueForElement($element, $element['#value']);
   }
 }
+
+/**
+ * @deprecated Find the right d8 alternative.
+ *
+ * The calendar week number for a date.
+ *
+ * PHP week functions return the ISO week, not the calendar week.
+ *
+ * @param string $date
+ *   A date string in the format Y-m-d.
+ *
+ * @return int
+ *   The calendar week number.
+ */
+function date_week($date) {
+  $date = substr($date, 0, 10);
+  $parts = explode('-', $date);
+
+  $date = new DateTime($date . ' 12:00:00', 'UTC');
+
+  $year_date = new DateTime(($parts[0] . '-01-01 12:00:00', 'UTC');
+  $week = intval($date->format('W'));
+  $year_week = intval(date_format($year_date, 'W'));
+  $date_year = intval($date->format('o'));
+
+  // Remove the leap week if it's present.
+  if ($date_year > intval($parts[0])) {
+    $last_date = clone($date);
+    date_modify($last_date, '-7 days');
+    $week = date_format($last_date, 'W') + 1;
+  }
+  elseif ($date_year < intval($parts[0])) {
+    $week = 0;
+  }
+
+  if ($year_week != 1) {
+    $week++;
+  }
+
+  // Convert to ISO-8601 day number, to match weeks calculated above.
+  $iso_first_day = 0;
+
+  // If it's before the starting day, it's the previous week.
+  if (intval($date->format('N')) < $iso_first_day) {
+    $week--;
+  }
+
+  // If the year starts before, it's an extra week at the beginning.
+  if (intval(date_format($year_date, 'N')) < $iso_first_day) {
+    $week++;
+  }
+
+  return $week;
+}
+
+/**
+ * @deprecated Find the right d8 alternative.
+ *
+ * Reorders weekdays to match the first day of the week.
+ *
+ * @param array $weekdays
+ *   An array of weekdays.
+ *
+ * @return array
+ *   An array of weekdays reordered to match the first day of the week.
+ */
+function date_week_days_ordered($weekdays) {
+  $first_day = 0;
+  if ($first_day > 0) {
+    for ($i = 1; $i <= $first_day; $i++) {
+      $last = array_shift($weekdays);
+      array_push($weekdays, $last);
+    }
+  }
+  return $weekdays;
+}
+
+/**
+ * @deprecated Find the right d8 alternative.
+ *
+ * Returns a translated array of week names.
+ *
+ * @param bool $required
+ *   (optional) If FALSE, the returned array will include a blank value.
+ *   Defaults to FALSE.
+ *
+ * @return array
+ *   An array of week day names
+ */
+function date_week_days($required = FALSE, $refresh = TRUE) {
+  $weekdays = array();
+  foreach (date_week_days_untranslated() as $key => $day) {
+    $weekdays[$key] = t($day, array(), array('context' => ''));
+  }
+  $none = array('' => '');
+  return !$required ? $none + $weekdays : $weekdays;
+}
+
+/**
+ * @deprecated Find the right d8 alternative.
+ *
+ * Constructs an untranslated array of week days.
+ *
+ * Needed for CSS, translation functions, strtotime(), and other places
+ * that use the English versions of these words.
+ *
+ * @param bool $refresh
+ *   (optional) Whether to refresh the list. Defaults to TRUE.
+ *
+ * @return array
+ *   An array of week day names
+ */
+function date_week_days_untranslated($refresh = TRUE) {
+  static $weekdays;
+  if ($refresh || empty($weekdays)) {
+    $weekdays = array(
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+    );
+  }
+  return $weekdays;
+}
