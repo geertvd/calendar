@@ -8,7 +8,6 @@
 namespace Drupal\calendar\Plugin\views\style;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 use Drupal\views\Plugin\views\style\StylePluginBase;
 
 /**
@@ -22,7 +21,7 @@ use Drupal\views\Plugin\views\style\StylePluginBase;
  *   help = @Translation("Present view results as a Calendar."),
  *   theme = "calendar_style",
  *   display_types = {"normal"},
- *   even empty = TRUE
+ *   even_empty = TRUE
  * )
  */
 class Calendar extends StylePluginBase {
@@ -87,7 +86,10 @@ class Calendar extends StylePluginBase {
       '#title' => $this->t('Display as mini calendar'),
       '#default_value' => $this->options['mini'],
       '#type' => 'radios',
-      '#options' => [0 => $this->t('No'), 1 => $this->t('Yes')],
+      '#options' => [
+        FALSE => $this->t('No'),
+        TRUE => $this->t('Yes'),
+      ],
       '#description' => $this->t('Display the mini style calendar, with no item details. Suitable for a calendar displayed in a block.'),
       '#dependency' => ['edit-style-options-calendar-type' => ['month']],
     ];
@@ -110,7 +112,10 @@ class Calendar extends StylePluginBase {
       '#title' => $this->t('Show week numbers'),
       '#default_value' => $this->options['with_weekno'],
       '#type' => 'radios',
-      '#options' => [0 => $this->t('No'), 1 => $this->t('Yes')],
+      '#options' => [
+        FALSE => $this->t('No'),
+        TRUE => $this->t('Yes'),
+      ],
       '#description' => $this->t('Whether or not to show week numbers in the left column of calendar weeks and months.'),
       '#dependency' => ['edit-style-options-calendar-type' => ['month']],
     ];
@@ -119,10 +124,10 @@ class Calendar extends StylePluginBase {
       '#type' => 'select',
       '#options' => [
         0 => $this->t('Unlimited'),
-        1 => format_plural(1, '1 item', '@count items'),
-        3 => format_plural(3, '1 item', '@count items'),
-        5 => format_plural(5, '1 item', '@count items'),
-        10 => format_plural(10, '1 item', '@count items'),
+        1 => $this->formatPlural(1, '1 item', '@count items'),
+        3 => $this->formatPlural(3, '1 item', '@count items'),
+        5 => $this->formatPlural(5, '1 item', '@count items'),
+        10 => $this->formatPlural(10, '1 item', '@count items'),
       ],
       '#default_value' => $this->options['calendar_type'] != 'day' ? $this->options['max_items'] : 0,
       '#description' => $this->t('Maximum number of items to show in calendar cells, used to keep the calendar from expanding to a huge size when there are lots of items in one day.'),
@@ -178,7 +183,7 @@ class Calendar extends StylePluginBase {
 
     // Create a list of fields that are available for grouping.
     $field_options = [];
-    $fields = $this->display->handler->get_option('fields');
+    $fields = $this->view->display_handler->getOption('fields');
     foreach ($fields as $field_name => $field) {
       $field_options[$field_name] = $field['field'];
     }
@@ -213,5 +218,22 @@ class Calendar extends StylePluginBase {
         'edit-style-options-calendar-type' => ['month', 'week', 'day'],
       ],
     ];
+  }
+
+  function options_validate(&$form, &$form_state) {
+    $values = $form_state['values']['style_options'];
+    if ($values['groupby_times'] == 'custom' && empty($values['groupby_times_custom'])) {
+      form_set_error('style_options][groupby_times_custom', t('Custom groupby times cannot be empty.'));
+    }
+    if (!empty($values['theme_style']) && (empty($values['groupby_times']) || !in_array($values['groupby_times'], array('hour', 'half')))) {
+      form_set_error('style_options][theme_style', t('Overlapping items only work with hour or half hour groupby times.'));
+    }
+    if (!empty($values['theme_style']) && !empty($values['groupby_field'])) {
+      form_set_error('style_options][theme_style', t('You cannot use overlapping items and also try to group by a field value.'));
+    }
+    if ($values['groupby_times'] != 'custom') {
+      $form_state->setValueForElement($form['groupby_times_custom'], NULL);
+    }
+
   }
 }
