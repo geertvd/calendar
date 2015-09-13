@@ -583,7 +583,7 @@ function date_week($date) {
 
   $date = new DateTime($date . ' 12:00:00', 'UTC');
 
-  $year_date = new DateTime(($parts[0] . '-01-01 12:00:00', 'UTC');
+  $year_date = new DateTime($parts[0] . '-01-01 12:00:00', 'UTC');
   $week = intval($date->format('W'));
   $year_week = intval(date_format($year_date, 'W'));
   $date_year = intval($date->format('o'));
