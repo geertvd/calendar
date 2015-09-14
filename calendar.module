@@ -1,15 +1,16 @@
 <?php
-define('CALENDAR_SHOW_ALL', 0);
-define('CALENDAR_HIDE_ALL', -1);
-define('CALENDAR_EMPTY_STRIPE', '#ffffff');
+
+/**
+ * @file
+ * This is the Calendar module for calendar filtering and display in views.
+ */
 
 use Drupal\Core\Datetime\DateHelper;
 use Drupal\views\ViewExecutable;
 
-/**
- * @file
- * Adds calendar filtering and displays to Views.
- */
+define('CALENDAR_SHOW_ALL', 0);
+define('CALENDAR_HIDE_ALL', -1);
+define('CALENDAR_EMPTY_STRIPE', '#ffffff');
 
 /**
  * Implements hook_preprocess_date_views_pager().
