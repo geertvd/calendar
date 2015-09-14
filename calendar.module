@@ -401,13 +401,13 @@ function calendar_groupby_times($type = '') {
   switch ($type) {
     case 'hour':
       for ($i = 0; $i <= 23; $i++) {
-        $times[] = date_pad($i) . ':00:00';
+        $times[] = \Drupal\Component\Datetime\DateTimePlus::datePad(($i) . ':00:00';
       }
       break;
     case 'half':
       for ($i = 0; $i <= 23; $i++) {
-        $times[] = date_pad($i) . ':00:00';
-        $times[] = date_pad($i) . ':30:00';
+        $times[] = \Drupal\Component\Datetime\DateTimePlus::datePad($i) . ':00:00';
+        $times[] = \Drupal\Component\Datetime\DateTimePlus::datePad($i) . ':30:00';
       }
       break;
     default:
@@ -643,23 +643,4 @@ function date_views_handler_is_date($handler, $type = 'argument') {
       return $handler instanceof \Drupal\views\Plugin\views\argument\Date;
   }
   return FALSE;
-}
-
-/**
- * @deprecated Find the right d8 alternative.
- *
- * Helper function to left pad date parts with zeros.
- *
- * Provided because this is needed so often with dates.
- *
- * @param int $value
- *   The value to pad.
- * @param int $size
- *   (optional) Total size expected, usually 2 or 4. Defaults to 2.
- *
- * @return string
- *   The padded value.
- */
-function date_pad($value, $size = 2) {
-  return sprintf("%0" . $size . "d", $value);
 }

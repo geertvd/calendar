@@ -110,8 +110,8 @@ function template_preprocess_calendar_year(&$vars) {
     $view->date_info->mini = TRUE;
     $view->date_info->hide_nav = TRUE;
     $view->date_info->show_title = TRUE;
-    $view->date_info->url = date_pager_url($view, NULL, date_pad($year, 4) . '-' . date_pad($month));
-    $view->date_info->min_date = new DateObject($view->date_info->year . '-' . date_pad($month) . '-01 00:00:00', date_default_timezone());
+    $view->date_info->url = date_pager_url($view, NULL, \Drupal\Component\Datetime\DateTimePlus::datePad($year, 4) . '-' . \Drupal\Component\Datetime\DateTimePlus::datePad($month));
+    $view->date_info->min_date = new DateObject($view->date_info->year . '-' . \Drupal\Component\Datetime\DateTimePlus::datePad($month) . '-01 00:00:00', date_default_timezone());
     $view->date_info->max_date = clone($view->date_info->min_date);
     date_modify($view->date_info->max_date, '+1 month');
     date_modify($view->date_info->max_date, '-1 second');
@@ -688,7 +688,7 @@ function template_preprocess_calendar_month_multiple_entity(&$vars) {
   // create the link to the day
   $month_path = calendar_granularity_path($view, 'month');
   $day_path = calendar_granularity_path($view, 'day');
-  $vars['link'] = str_replace($month_path, $day_path, date_pager_url($view, NULL, date_pad($year, 4) . '-' . date_pad($month) . '-' . date_pad($day)));
+  $vars['link'] = str_replace($month_path, $day_path, date_pager_url($view, NULL, \Drupal\Component\Datetime\DateTimePlus::datePad($year, 4) . '-' . \Drupal\Component\Datetime\DateTimePlus::datePad($month) . '-' . \Drupal\Component\Datetime\DateTimePlus::datePad($day)));
 }
 
 /**
