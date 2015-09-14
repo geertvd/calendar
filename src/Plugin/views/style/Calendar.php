@@ -355,10 +355,12 @@ class Calendar extends StylePluginBase {
     $this->dateInfo->day = date_format($argument->min_date, 'j');
     // @todo We shouldn't use DATETIME_DATE_STORAGE_FORMAT.
     $this->dateInfo->week = date_week(date_format($argument->min_date, DATETIME_DATE_STORAGE_FORMAT));
-    $this->dateInfo->date_range = $argument->date_range;
+    // @todo implement date range
+//    $this->dateInfo->date_range = $argument->date_range;
     $this->dateInfo->min_date = $argument->min_date;
     $this->dateInfo->max_date = $argument->max_date;
-    $this->dateInfo->limit = $argument->limit;
+    // @todo implement limit
+//    $this->dateInfo->limit = $argument->limit;
     // @todo What if the display doesn't have a route?
     //$this->dateInfo->url = $this->view->getUrl();
 //    $this->dateInfo->min_date_date = date_format($this->dateInfo->min_date, DATETIME_DATE_STORAGE_FORMAT);
@@ -489,11 +491,12 @@ class Calendar extends StylePluginBase {
     $month = date_format($this->currentDay, 'n');
     date_modify($this->currentDay, '-' . strval(date_format($this->currentDay, 'j')-1) . ' days');
     $rows = [];
-    do {
-      $rows = array_merge($rows, $this->calendarBuildMiniWeek());
-      $curday_date = date_format($this->currentDay, DATETIME_DATE_STORAGE_FORMAT);
-      $curday_month = date_format($this->currentDay, 'n');
-    } while ($curday_month == $month && $curday_date <= $this->dateInfo->max_date_date);
+    // @todo the check in the while loop is not correct
+//    do {
+//      $rows = array_merge($rows, $this->calendarBuildMiniWeek());
+//      $curday_date = date_format($this->currentDay, DATETIME_DATE_STORAGE_FORMAT);
+//      $curday_month = date_format($this->currentDay, 'n');
+//    } while ($curday_month == $month && $curday_date <= $this->dateInfo->max_date);
     // Merge the day names in as the first row.
     $rows = array_merge([calendar_week_header($this->view)], $rows);
     return $rows;

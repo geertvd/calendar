@@ -39,7 +39,7 @@ class Calendar extends RowPluginBase {
 
     // TODO needed?
 //     $this->base_table = $view->base_table;
-    // $this->base_field = $view->base_field;
+//     $this->baseField = $view->base_field;
   }
 
   /**
@@ -251,16 +251,17 @@ class Calendar extends RowPluginBase {
     }
   }
 
-
-
-  function pre_render($values) {
+  /**
+   * {@inheritdoc}
+   */
+  public function _preRender($result) {
 
     // Preload each entity used in this view from the cache.
     // Provides all the entity values relatively cheaply, and we don't
     // need to do it repeatedly for the same entity if there are
     // multiple results for one entity.
     $ids = array();
-    foreach ($values as $row) {
+    foreach ($result as $row) {
       // Use the $id as the key so we don't create more than one value per entity.
       // This alias will automatically adjust to be the id of related entity, if applicable.
       $id = $row->{$this->field_alias};
@@ -333,9 +334,12 @@ class Calendar extends RowPluginBase {
     }
   }
 
-  function render($row) {
-    global $base_url;
-    $rows = array();
+  /**
+   * {@inheritdoc}
+   */
+  public function render($row) {
+    $rows = [];
+
     $date_info = $this->date_argument->view->date_info;
     $id = $row->{$this->field_alias};
 
