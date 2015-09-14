@@ -96,9 +96,6 @@ class Calendar extends RowPluginBase {
     if (\Drupal::moduleHandler()->moduleExists('taxonomy')) {
       $options['taxonomy'] = $this->t('Based on Taxonomy');
     }
-    if (\Drupal::moduleHandler()->moduleExists('og')) {
-      $options['group'] = $this->t('Based on Organic Group');
-    }
 
     // If no option is available, stop here.
     if (empty($options)) {
@@ -147,13 +144,14 @@ class Calendar extends RowPluginBase {
       foreach ($fields as $name => $field_info) {
         // Select the proper field type.
         if (!empty($field_info['type']) && $field_info['type'] == 'entity_reference_label') {
-          $vocabulary_field_options[$name] = $field_info['label'];
+          $vocabulary_field_options[$name] = $field_info['label'] ?: $name;
         }
       }
       $form['colors']['taxonomy_field'] = [
         '#title' => t('Term field'),
         '#type' => !empty($vocabulary_field_options) ? 'select' : 'hidden',
         '#default_value' => $this->options['colors']['taxonomy_field'],
+        '#empty_value' => $this->t('None'),
         '#description' => $this->t("Select the taxonomy term field to use when setting stripe colors. This works best for vocabularies with only a limited number of possible terms."),
         '#options' => $vocabulary_field_options,
         '#dependency' => ['edit-row-options-colors-legend' => ['taxonomy']],
@@ -165,7 +163,6 @@ class Calendar extends RowPluginBase {
       }
 
       // Get the Vocabulary names.
-      $vocabulary_names = [];
       $vocab_vids = array();
       foreach ($vocabulary_field_options as $field_name => $label) {
         $field_config = \Drupal::entityManager()->getStorage('field_config')->loadByProperties(['field_name' => $field_name]);
@@ -182,7 +179,6 @@ class Calendar extends RowPluginBase {
 
       }
 
-      // @TODO finish this
       $this->options['colors']['calendar_colors_vocabulary'] = $vocab_vids;
 
       $form['colors']['calendar_colors_vocabulary'] = array(
@@ -196,165 +192,31 @@ class Calendar extends RowPluginBase {
       foreach ($vocab_vids as $field_name => $vid) {
         $vocab = \Drupal::entityManager()->getStorage("taxonomy_term")->loadTree($vid);
         foreach ($vocab as $key => $term) {
-          $form['colors']['calendar_colors_taxonomy'][$term->tid] = array(
-            '#title' => \Drupal\Component\Utility\SafeMarkup::checkPlain(t($term->name)),
+          $form['colors']['calendar_colors_taxonomy'][$term->tid] = [
+            '#title' => $this->t($term->name),
             '#default_value' => isset($term_colors[$term->tid]) ? $term_colors[$term->tid] : CALENDAR_EMPTY_STRIPE,
             '#access' => !empty($vocabulary_field_options),
-            '#dependency_count' => 2, // All 2 of the following #dependencies must be met.
-            '#dependency' => array(
-              'edit-row-options-colors-legend' => array('taxonomy'),
-              'edit-row-options-colors-taxonomy-field' => array($field_name),
-            ),
+            '#dependency_count' => 2,
+            '#dependency' => [
+              'edit-row-options-colors-legend' => ['taxonomy'],
+              'edit-row-options-colors-taxonomy-field' => [$field_name],
+            ],
             '#type' => 'textfield',
             '#size' => 7,
             '#maxlength' => 7,
-            '#element_validate' => array('calendar_validate_hex_color'),
+            '#element_validate' => [ 'calendar_validate_hex_color' ],
             '#prefix' => '<div class="calendar-colorpicker-wrapper">',
             '#suffix' => '<div class="calendar-colorpicker"></div></div>',
-            '#attributes' => array('class' => array('edit-calendar-colorpicker')),
-            '#attached' => array(
+            '#attributes' => ['class' => ['edit-calendar-colorpicker']],
+            '#attached' => [
               // Add Farbtastic color picker.
-              'library' => array(
-                array('system', 'farbtastic', 'calendar/calendar-colorpicker'),
-              ),
-            ),
-          );
+              // @TODO make this actually work
+              'library' => [
+                ['system', 'farbtastic', 'calendar/calendar-colorpicker'],
+              ],
+            ],
+          ];
         }
-      }
-    }
-  }
-
-  /**
-   * Provide a form for setting options.
-   */
-  function options_form(&$form, &$form_state) {
-    if (\Drupal::moduleHandler()->moduleExists('taxonomy')) {
-      // Get the display's field names of taxonomy fields.
-      $vocab_field_options = array();
-      $fields = $this->display->handler->get_option('fields');
-      foreach ($fields as $name => $field_info) {
-        $field = field_info_field($name);
-        // Select the proper field type.
-        if (!empty($field['type']) && $field['type'] == 'taxonomy_term_reference') {
-          $vocab_field_options[$name] = $field_info['label'];
-        }
-      }
-      $form['colors']['taxonomy_field'] = array(
-        '#title' => t('Term field'),
-        '#type' => !empty($vocab_field_options) ? 'select' : 'hidden',
-        '#default_value' => $this->options['colors']['taxonomy_field'],
-        '#description' => t("Select the taxonomy term field to use when setting stripe colors. This works best for vocabularies with only a limited number of possible terms."),
-        '#options' => $vocab_field_options,
-        '#dependency' => array('edit-row-options-colors-legend' => array('taxonomy')),
-        );
-      if (empty($vocab_field_options)) {
-        $form['colors']['taxonomy_field']['#options'] = array('' => '');
-        $form['colors']['taxonomy_field']['#suffix'] = t('You must add a term field to this view to use taxonomy stripe values. This works best for vocabularies with only a limited number of possible terms.');
-      }
-
-      // Get the Vocabulary names.
-      $vocab_names = array();
-      foreach ($vocab_field_options as $field_name => $label) {
-        $taxonomy_field = field_info_field($field_name);
-        foreach ((array) $taxonomy_field['settings']['allowed_values'] as $delta => $options) {
-          $vocab_names[$field_name] = $options['vocabulary'];
-        }
-      }
-
-      // Get the Vocabulary id's.
-      $vocab_vids = array();
-      foreach ($vocab_names as $field_name => $vocab_name) {
-          $vocab = taxonomy_vocabulary_machine_name_load($vocab_name);
-          $vocab_vids[$field_name] = $vocab->vid;
-      }
-
-      $this->options['colors']['calendar_colors_vocabulary'] = $vocab_vids;
-
-      $form['colors']['calendar_colors_vocabulary'] = array(
-        '#title' => t('Vocabulary Legend Types'),
-        '#type' => 'value',
-        '#value' => $vocab_vids,
-      );
-
-      // Get the Vocabulary term id's and map to colors.
-      $term_colors = $this->options['colors']['calendar_colors_taxonomy'];
-      foreach ($vocab_vids as $field_name => $vid) {
-        $vocab = \Drupal::entityManager()->getStorage("taxonomy_term")->loadTree($vid);
-        foreach ($vocab as $key => $term) {
-          $form['colors']['calendar_colors_taxonomy'][$term->tid] = array(
-            '#title' => \Drupal\Component\Utility\SafeMarkup::checkPlain(t($term->name)),
-            '#default_value' => isset($term_colors[$term->tid]) ? $term_colors[$term->tid] : CALENDAR_EMPTY_STRIPE,
-            '#access' => !empty($vocab_field_options),
-            '#dependency_count' => 2, // All 2 of the following #dependencies must be met.
-            '#dependency' => array(
-                                   'edit-row-options-colors-legend' => array('taxonomy'),
-                                   'edit-row-options-colors-taxonomy-field' => array($field_name),
-                             ),
-            '#type' => 'textfield',
-            '#size' => 7,
-            '#maxlength' => 7,
-            '#element_validate' => array('calendar_validate_hex_color'),
-            '#prefix' => '<div class="calendar-colorpicker-wrapper">',
-            '#suffix' => '<div class="calendar-colorpicker"></div></div>',
-            '#attributes' => array('class' => array('edit-calendar-colorpicker')),
-            '#attached' => array(
-              // Add Farbtastic color picker.
-              'library' => array(
-                array('system', 'farbtastic'),
-              ),
-              // Add javascript to trigger the colorpicker.
-              'js' => array(drupal_get_path('module', 'calendar') . '/js/calendar_colorpicker.js'),
-            ),
-          );
-        }
-      }
-    }
-    if (\Drupal::moduleHandler()->moduleExists('og')) {
-      $colors_group = $this->options['colors']['calendar_colors_group'];
-      $options = array();
-
-      // The 7.1 version of OG.
-      if (function_exists('og_label')) {
-        $gids = og_get_all_group();
-        foreach ($gids as $gid) {
-          $options[$gid] = \Drupal\Component\Utility\SafeMarkup::checkPlain(t(og_label($gid)));
-        }
-      }
-
-      // The 7.2 version of OG.
-      else {
-        $types = og_get_all_group_entity();
-        foreach ($types as $entity_type => $name) {
-          $gids = og_get_all_group($entity_type);
-          $entities = \Drupal::entityManager()->getStorage($entity_type);
-          foreach ($entities as $entity) {
-            list($gid) = entity_extract_ids($entity_type, $entity);
-            $options[$gid] = \Drupal\Component\Utility\SafeMarkup::checkPlain(t($entity->label()));
-          }
-        }
-      }
-
-      foreach ($options as $gid => $title) {
-        $form['colors']['calendar_colors_group'][$gid] = array(
-          '#title' => $title,
-          '#default_value' => isset($colors_group[$gid]) ? $colors_group[$gid] : CALENDAR_EMPTY_STRIPE,
-          '#dependency' => array('edit-row-options-colors-legend' => array('group')),
-          '#type' => 'textfield',
-          '#size' => 7,
-          '#maxlength' => 7,
-          '#element_validate' => array('calendar_validate_hex_color'),
-          '#prefix' => '<div class="calendar-colorpicker-wrapper">',
-          '#suffix' => '<div class="calendar-colorpicker"></div></div>',
-          '#attributes' => array('class' => array('edit-calendar-colorpicker')),
-          '#attached' => array(
-            // Add Farbtastic color picker.
-            'library' => array(
-              array('system', 'farbtastic'),
-            ),
-            // Add javascript to trigger the colorpicker.
-            'js' => array(drupal_get_path('module', 'calendar') . '/js/calendar_colorpicker.js'),
-          ),
-        );
       }
     }
   }
