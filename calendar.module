@@ -362,7 +362,7 @@ function calendar_week_header($view) {
 
   // create week header
   $untranslated_days = calendar_untranslated_days();
-  $full_translated_days = DateHelper::weekDaysOrdered(date_week_days(TRUE));
+  $full_translated_days = DateHelper::weekDaysOrdered(DateHelper::weekDays(TRUE));
   if ($len == 99) {
     $translated_days = $full_translated_days;
   }
@@ -622,27 +622,6 @@ function date_week($date) {
   }
 
   return $week;
-}
-
-/**
- * @deprecated Find the right d8 alternative.
- *
- * Returns a translated array of week names.
- *
- * @param bool $required
- *   (optional) If FALSE, the returned array will include a blank value.
- *   Defaults to FALSE.
- *
- * @return array
- *   An array of week day names
- */
-function date_week_days($required = FALSE, $refresh = TRUE) {
-  $weekdays = array();
-  foreach (DateHelper::weekDaysUntranslated() as $key => $day) {
-    $weekdays[$key] = t($day, array(), array('context' => ''));
-  }
-  $none = array('' => '');
-  return !$required ? $none + $weekdays : $weekdays;
 }
 
 /**
