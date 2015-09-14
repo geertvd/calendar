@@ -221,10 +221,16 @@ class Calendar extends RowPluginBase {
     }
   }
 
-  function options_submit(&$form, &$form_state) {
-    parent::options_submit($form, $form_state);
-    if ($this->view->base_table == 'node') {
-      if (isset($this->view->display['default']->display_options['link_display'])) {
+  /**
+   * {@inheritdoc}
+   */
+  public function submitOptionsForm(&$form, FormStateInterface $form_state) {
+    parent::submitOptionsForm($form, $form_state);
+
+    if ($this->view->getBaseTables()['node_field_data']) {
+      $link_display = $this->view->getDisplay()->getOption('link_display');
+      if (isset($link_display)) {
+        // @ TODO fix this
         $default_display = $this->view->display['default']->display_options['link_display'];
         $path = $this->view->display[$default_display]->handler->get_option('path');
         // If this display has been set up as a default tab, the current path
@@ -244,6 +250,8 @@ class Calendar extends RowPluginBase {
       }
     }
   }
+
+
 
   function pre_render($values) {
 
