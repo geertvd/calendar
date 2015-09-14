@@ -367,7 +367,7 @@ function calendar_week_header($view) {
     $translated_days = $full_translated_days;
   }
   else {
-    $translated_days = DateHelper::weekDaysOrdered(date_week_days_abbr(TRUE));
+    $translated_days = DateHelper::weekDaysOrdered(DateHelper::weekDaysAbbr(TRUE));
   }
   if ($with_week) {
     $row[] = array('header' => TRUE, 'class' => "days week", 'data' => '&nbsp;', 'header_id' => 'Week');
@@ -662,41 +662,4 @@ function date_views_handler_is_date($handler, $type = 'argument') {
  */
 function date_pad($value, $size = 2) {
   return sprintf("%0" . $size . "d", $value);
-}
-
-
-/**
- * @deprecated Find the right d8 alternative.
- *
- * Constructs a translated array of week day abbreviations.
- *
- * @param bool $required
- *   (optional) If FALSE, the returned array will include a blank value.
- *   Defaults to FALSE.
- * @param bool $refresh
- *   (optional) Whether to refresh the list. Defaults to TRUE.
- * @param int $length
- *   (optional) The length of the abbreviation. Defaults to 3.
- *
- * @return array
- *   An array of week day abbreviations
- */
-function date_week_days_abbr($required = FALSE, $refresh = TRUE, $length = 3) {
-  $weekdays = array();
-  switch ($length) {
-    case 1:
-      $context = 'day_abbr1';
-      break;
-    case 2:
-      $context = 'day_abbr2';
-      break;
-    default:
-      $context = '';
-      break;
-  }
-  foreach (DateHelper::weekDaysUntranslated() as $key => $day) {
-    $weekdays[$key] = t(substr($day, 0, $length), array(), array('context' => $context));
-  }
-  $none = array('' => '');
-  return !$required ? $none + $weekdays : $weekdays;
 }
