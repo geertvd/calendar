@@ -362,12 +362,12 @@ function calendar_week_header($view) {
 
   // create week header
   $untranslated_days = calendar_untranslated_days();
-  $full_translated_days = date_week_days_ordered(date_week_days(TRUE));
+  $full_translated_days = DateHelper::weekDaysOrdered(date_week_days(TRUE));
   if ($len == 99) {
     $translated_days = $full_translated_days;
   }
   else {
-    $translated_days = date_week_days_ordered(date_week_days_abbr(TRUE));
+    $translated_days = DateHelper::weekDaysOrdered(date_week_days_abbr(TRUE));
   }
   if ($with_week) {
     $row[] = array('header' => TRUE, 'class' => "days week", 'data' => '&nbsp;', 'header_id' => 'Week');
@@ -386,7 +386,7 @@ function calendar_week_header($view) {
  * The untranslated day abbreviation is used in css classes.
  */
 function calendar_untranslated_days() {
-  $untranslated_days = date_week_days_ordered(DateHelper::weekDaysUntranslated());
+  $untranslated_days = DateHelper::weekDaysOrdered(DateHelper::weekDaysUntranslated());
   foreach ($untranslated_days as $delta => $day) {
     $untranslated_days[$delta] = strtolower(substr($day, 0, 3));
   }
@@ -622,28 +622,6 @@ function date_week($date) {
   }
 
   return $week;
-}
-
-/**
- * @deprecated Find the right d8 alternative.
- *
- * Reorders weekdays to match the first day of the week.
- *
- * @param array $weekdays
- *   An array of weekdays.
- *
- * @return array
- *   An array of weekdays reordered to match the first day of the week.
- */
-function date_week_days_ordered($weekdays) {
-  $first_day = 0;
-  if ($first_day > 0) {
-    for ($i = 1; $i <= $first_day; $i++) {
-      $last = array_shift($weekdays);
-      array_push($weekdays, $last);
-    }
-  }
-  return $weekdays;
 }
 
 /**
