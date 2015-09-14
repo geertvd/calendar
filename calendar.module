@@ -5,7 +5,6 @@
  * This is the Calendar module for calendar filtering and display in views.
  */
 
-use Drupal\Core\Datetime\DateHelper;
 use Drupal\views\ViewExecutable;
 
 define('CALENDAR_SHOW_ALL', 0);
@@ -349,49 +348,6 @@ function calendar_clear_link_path($path = NULL) {
       unset($_SESSION['calendar_links'][$path]);
     }
   }
-}
-
-/**
- * Formats the weekday information into table header format
- *
- * @ingroup event_support
- * @return array with weekday table header data
- */
-function calendar_week_header($view) {
-  $len = isset($view->date_info->style_name_size) ? $view->date_info->style_name_size : (!empty($view->date_info->mini) ? 1 : 3);
-  $with_week = !empty($view->date_info->style_with_weekno);
-
-  // create week header
-  $untranslated_days = calendar_untranslated_days();
-  $full_translated_days = DateHelper::weekDaysOrdered(DateHelper::weekDays(TRUE));
-  if ($len == 99) {
-    $translated_days = $full_translated_days;
-  }
-  else {
-    $translated_days = DateHelper::weekDaysOrdered(DateHelper::weekDaysAbbr(TRUE));
-  }
-  if ($with_week) {
-    $row[] = array('header' => TRUE, 'class' => "days week", 'data' => '&nbsp;', 'header_id' => 'Week');
-  }
-  foreach ($untranslated_days as $delta => $day) {
-    $label = $len < 3 ? \Drupal\Component\Utility\Unicode::substr($translated_days[$delta], 0 , $len) : $translated_days[$delta];
-    $row[] = array('header' => TRUE, 'class' => "days " . $day, 'data' => $label, 'header_id' => $full_translated_days[$delta]);
-  }
-  return $row;
-}
-
-/**
- * Array of untranslated day name abbreviations, forced to lowercase
- * and ordered appropriately for the site setting for the first day of week.
- *
- * The untranslated day abbreviation is used in css classes.
- */
-function calendar_untranslated_days() {
-  $untranslated_days = DateHelper::weekDaysOrdered(DateHelper::weekDaysUntranslated());
-  foreach ($untranslated_days as $delta => $day) {
-    $untranslated_days[$delta] = strtolower(substr($day, 0, 3));
-  }
-  return $untranslated_days;
 }
 
 /**

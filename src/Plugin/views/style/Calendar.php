@@ -7,6 +7,7 @@
 
 namespace Drupal\calendar\Plugin\views\style;
 
+use Drupal\calendar\Util\CalendarHelper;
 use Drupal\calendar\Plugin\views\row\Calendar as CalendarRow;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
@@ -410,8 +411,8 @@ class Calendar extends StylePluginBase {
     foreach ($this->view->result as $row_index => $row) {
       $this->view->row_index = $row_index;
       $rows = $this->view->rowPlugin->preRender($row);
-      foreach ($rows as $key => $item) {
-        // @todo Check what comes out here.
+      // @todo Check what comes out here.
+//      foreach ($rows as $key => $item) {
 //        $item->granularity = $this->dateInfo->granularity;
 //        $rendered_fields = array();
 //        $item_start = date_format($item->calendar_start_date, DATE_FORMAT_DATE);
@@ -419,7 +420,7 @@ class Calendar extends StylePluginBase {
 //        $time_start = date_format($item->calendar_start_date, 'H:i:s');
 //        $item->rendered_fields = $this->rendered_fields[$row_index];
 //        $items[$item_start][$time_start][] = $item;
-      }
+//      }
     }
 
     ksort($items);
@@ -498,9 +499,10 @@ class Calendar extends StylePluginBase {
 //      $curday_month = date_format($this->currentDay, 'n');
 //    } while ($curday_month == $month && $curday_date <= $this->dateInfo->max_date);
     // Merge the day names in as the first row.
-    $rows = array_merge([calendar_week_header($this->view)], $rows);
+    $rows = array_merge([CalendarHelper::weekHeader($this->view)], $rows);
     return $rows;
   }
+
 
   /**
    * Build one week row.

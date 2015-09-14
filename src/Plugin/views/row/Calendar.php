@@ -261,7 +261,8 @@ class Calendar extends RowPluginBase {
     // need to do it repeatedly for the same entity if there are
     // multiple results for one entity.
     $ids = array();
-    foreach ($result as $row) {
+    $rows = [];
+    foreach ($rows as $row) {
       // Use the $id as the key so we don't create more than one value per entity.
       // This alias will automatically adjust to be the id of related entity, if applicable.
       $id = $row->{$this->field_alias};
