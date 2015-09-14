@@ -3,6 +3,7 @@ define('CALENDAR_SHOW_ALL', 0);
 define('CALENDAR_HIDE_ALL', -1);
 define('CALENDAR_EMPTY_STRIPE', '#ffffff');
 
+use Drupal\Core\Datetime\DateHelper;
 use Drupal\views\ViewExecutable;
 
 /**
@@ -385,7 +386,7 @@ function calendar_week_header($view) {
  * The untranslated day abbreviation is used in css classes.
  */
 function calendar_untranslated_days() {
-  $untranslated_days = date_week_days_ordered(date_week_days_untranslated());
+  $untranslated_days = date_week_days_ordered(DateHelper::weekDaysUntranslated());
   foreach ($untranslated_days as $delta => $day) {
     $untranslated_days[$delta] = strtolower(substr($day, 0, 3));
   }
@@ -659,41 +660,11 @@ function date_week_days_ordered($weekdays) {
  */
 function date_week_days($required = FALSE, $refresh = TRUE) {
   $weekdays = array();
-  foreach (date_week_days_untranslated() as $key => $day) {
+  foreach (DateHelper::weekDaysUntranslated() as $key => $day) {
     $weekdays[$key] = t($day, array(), array('context' => ''));
   }
   $none = array('' => '');
   return !$required ? $none + $weekdays : $weekdays;
-}
-
-/**
- * @deprecated Find the right d8 alternative.
- *
- * Constructs an untranslated array of week days.
- *
- * Needed for CSS, translation functions, strtotime(), and other places
- * that use the English versions of these words.
- *
- * @param bool $refresh
- *   (optional) Whether to refresh the list. Defaults to TRUE.
- *
- * @return array
- *   An array of week day names
- */
-function date_week_days_untranslated($refresh = TRUE) {
-  static $weekdays;
-  if ($refresh || empty($weekdays)) {
-    $weekdays = array(
-      'Sunday',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-    );
-  }
-  return $weekdays;
 }
 
 /**
@@ -766,7 +737,7 @@ function date_week_days_abbr($required = FALSE, $refresh = TRUE, $length = 3) {
       $context = '';
       break;
   }
-  foreach (date_week_days_untranslated() as $key => $day) {
+  foreach (DateHelper::weekDaysUntranslated() as $key => $day) {
     $weekdays[$key] = t(substr($day, 0, $length), array(), array('context' => $context));
   }
   $none = array('' => '');
