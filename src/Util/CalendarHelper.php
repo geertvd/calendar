@@ -21,9 +21,7 @@ class CalendarHelper extends DateHelper {
    *   An array with weekday table header data.
    */
   public static function weekHeader($view) {
-    // @todo make this not hard-coded
-    //  $len = isset($view->date_info->style_name_size) ? $view->date_info->style_name_size : (!empty($view->date_info->mini) ? 1 : 3);
-    $len = 3;
+    $len = isset($view->date_info->style_name_size) ? $view->date_info->style_name_size : (!empty($view->date_info->mini) ? 1 : 3);
     $with_week = !empty($view->date_info->style_with_weekno);
 
     // create week header

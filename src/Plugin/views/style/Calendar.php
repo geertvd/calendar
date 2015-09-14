@@ -494,7 +494,7 @@ class Calendar extends StylePluginBase {
     $rows = [];
     // @todo the check in the while loop is not correct
 //    do {
-//      $rows = array_merge($rows, $this->calendarBuildMiniWeek());
+      $rows = array_merge($rows, $this->calendarBuildMiniWeek());
 //      $curday_date = date_format($this->currentDay, DATETIME_DATE_STORAGE_FORMAT);
 //      $curday_month = date_format($this->currentDay, 'n');
 //    } while ($curday_month == $month && $curday_date <= $this->dateInfo->max_date);
