@@ -488,9 +488,6 @@ class Calendar extends RowPluginBase {
           case 'taxonomy':
             $this->calendar_taxonomy_stripe($entity);
             break;
-          case 'group':
-            $this->calendar_group_stripe($entity);
-            break;
         }
         $rows[] = $entity;
       }
@@ -632,48 +629,4 @@ class Calendar extends RowPluginBase {
     return;
   }
 
-  /**
-   * Create a stripe based on group.
-   */
-  function calendar_group_stripe(&$result) {
-    $colors = isset($this->options['colors']['calendar_colors_group']) ? $this->options['colors']['calendar_colors_group'] : array();
-
-    if (empty($colors)) {
-      return;
-    }
-    if (!function_exists('og_get_entity_groups')) {
-      return;
-    }
-
-    $entity = $result->entity;
-    $groups_for_entity = og_get_entity_groups($this->view->base_table, $entity);
-
-    // The 7.1 version of OG.
-    if (function_exists('og_label')) {
-      if (count($groups_for_entity)) {
-        foreach ($groups_for_entity as $gid => $group_name) {
-          if (!array_key_exists($gid, $colors) || $colors[$gid] == CALENDAR_EMPTY_STRIPE) {
-            continue;
-          }
-          $result->stripe[] = $colors[$gid];
-          $result->stripe_label[] = $group_name;
-        }
-      }
-    }
-    // The 7.2 version of OG.
-    else {
-      if (count($groups_for_entity)) {
-        foreach ($groups_for_entity as $entity_type => $gids) {
-          foreach ($gids as $gid => $group_name) {
-            if (!array_key_exists($gid, $colors) || $colors[$gid] == CALENDAR_EMPTY_STRIPE) {
-              continue;
-            }
-            $result->stripe[] = $colors[$gid];
-            $result->stripe_label[] = $group_name;
-          }
-        }
-      }
-    }
-    return;
-  }
 }
