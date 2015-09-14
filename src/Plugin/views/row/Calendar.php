@@ -221,17 +221,6 @@ class Calendar extends RowPluginBase {
     }
   }
 
-  /**
-   * Helper function to find the date argument handler for this view.
-   */
-  function date_argument_handler() {
-    foreach ($this->view->argument as $name => $handler) {
-      if (date_views_handler_is_date($handler, 'argument')) {
-        return $handler;
-      }
-    }
-  }
-
   function options_submit(&$form, &$form_state) {
     parent::options_submit($form, $form_state);
     if ($this->view->base_table == 'node') {
