@@ -81,6 +81,7 @@ class Calendar extends StylePluginBase {
       // @todo This should become a dedicated dateInfo class.
       $this->dateInfo = new \stdClass();
     }
+    $this->dateInfo = &$this->view->dateInfo;
   }
 
   /**

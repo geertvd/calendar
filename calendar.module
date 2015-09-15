@@ -467,7 +467,9 @@ function calendar_block_view($delta = '') {
 /**
  * Find the path for the calendar display that has a specific granularity.
  */
-function calendar_granularity_path(&$view, $granularity) {
+function calendar_granularity_path(ViewExecutable &$view, $granularity) {
+  // @todo Find out what should happen here.
+  return;
   $paths = &drupal_static(__FUNCTION__, array());
   if (!array_key_exists($view->name, $paths) || !(array_key_exists($granularity, $paths[$view->name]))) {
     $paths[$view->name][$granularity] = '';
