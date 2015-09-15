@@ -190,7 +190,7 @@ function calendar_theme() {
     'file' => 'theme.inc',
     'path' => "$module_path/theme",
   );
-  return array(
+  return [
     'calendar_mini' => [
       'variables' => ['view' => NULL, 'options' => [], 'rows' => []],
     ],
@@ -199,6 +199,7 @@ function calendar_theme() {
     ],
     'calendar_datebox' => [
       'variables' => ['date' => NULL, 'view' => NULL, 'items' => NULL, 'selected' => NULL],
+      'file' => 'calendar.theme.inc',
     ],
     'calendar_empty_day' => [
       'variables' => ['curday' => NULL, 'view' => NULL],
@@ -224,7 +225,7 @@ function calendar_theme() {
       'template' => 'calendar-month-row',
       'variables' => array('inner' => NULL, 'class' => NULL, 'iehint' => NULL),
       ),
-  );
+  ];
 }
 
 /**

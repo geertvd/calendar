@@ -646,17 +646,17 @@ function template_preprocess_calendar_datebox(&$vars) {
   $date = $vars['date'];
   $view = $vars['view'];
   $vars['day'] = intval(substr($date, 8, 2));
-  $force_view_url = !empty($view->date_info->block) ? TRUE : FALSE;
+  $force_view_url = !empty($view->dateInfo->block) ? TRUE : FALSE;
   $month_path = calendar_granularity_path($view, 'month');
   $year_path = calendar_granularity_path($view, 'year');
   $day_path = calendar_granularity_path($view, 'day');
-  $vars['url'] = str_replace(array($month_path, $year_path), $day_path, date_pager_url($view, NULL, $date, $force_view_url));
+  //$vars['url'] = str_replace(array($month_path, $year_path), $day_path, date_pager_url($view, NULL, $date, $force_view_url));
   // @FIXME
 // l() expects a Url object, created from a route name or external URI.
 // $vars['link'] = !empty($day_path) ? l($vars['day'], $vars['url']) : $vars['day'];
 
-  $vars['granularity'] = $view->date_info->granularity;
-  $vars['mini'] = !empty($view->date_info->mini);
+  $vars['granularity'] = $view->dateInfo->granularity;
+  $vars['mini'] = !empty($view->dateInfo->mini);
   if ($vars['mini']) {
     if (!empty($vars['selected'])) {
       $vars['class'] = 'mini-day-on';
@@ -805,9 +805,9 @@ function theme_calendar_stripe_legend($vars) {
   }
 
   $header = array(
-      array('class' => 'calendar-legend', 'data' => t('Item')),
-      array('class' => 'calendar-legend', 'data' => t('Key'))
-      );
+    array('class' => 'calendar-legend', 'data' => t('Item')),
+    array('class' => 'calendar-legend', 'data' => t('Key'))
+  );
 
   $rows = array();
   $output = '';
@@ -936,12 +936,12 @@ function _calc_indents(&$overlapped_items, $start, $end, &$item, $depth = 0) {
     if ($depth > 0) {
       return array('overlap' => FALSE, 'max_depth' => 0);
     }
-   }
+  }
 
   // No overlap at any depth, reset the array of overlaps
   if ($depth == 0) {
-   reset($overlapped_items);
-   $overlapped_items[0] = array('item' => &$item, 'depth' => $depth, 'start' => $start, 'end' => $end, 'children' => array());
+    reset($overlapped_items);
+    $overlapped_items[0] = array('item' => &$item, 'depth' => $depth, 'start' => $start, 'end' => $end, 'children' => array());
   }
   else {
     $overlapped_items[] = array('item' => &$item, 'depth' => $depth, 'start' => $start, 'end' => $end, 'children' => array());
