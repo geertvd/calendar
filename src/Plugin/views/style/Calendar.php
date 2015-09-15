@@ -8,11 +8,13 @@
 namespace Drupal\calendar\Plugin\views\style;
 
 use Drupal\calendar\Util\CalendarHelper;
+use Drupal\Core\Datetime\DateFormatter;
 use Drupal\calendar\Plugin\views\row\Calendar as CalendarRow;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\style\StylePluginBase;
 use Drupal\views\ViewExecutable;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Views style plugin for the Calendar module.
@@ -51,9 +53,21 @@ class Calendar extends StylePluginBase {
    */
   protected $usesGrouping = FALSE;
 
+  /**
+   * The date formatter service.
+   *
+   * @var \Drupal\Core\Datetime\DateFormatter
+   */
+  protected $dateFormatter;
 
   protected $dateInfo;
   protected $items;
+
+  /**
+   * $the current day date object.
+   *
+   * @var \DateTime
+   */
   protected $currentDay;
 
   /**
@@ -63,12 +77,35 @@ class Calendar extends StylePluginBase {
    */
   public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL) {
     parent::init($view, $display, $options);
-
     if (empty($view->dateInfo)) {
       // @todo This should become a dedicated dateInfo class.
       $this->dateInfo = new \stdClass();
     }
-    //$this->dateInfo = &$this->view->dateInfo;
+  }
+
+  /**
+   * Constructs a Calendar object.
+   *
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Datetime\DateFormatter $date_formatter
+   *   The date formatter service.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, DateFormatter $date_formatter) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->definition = $plugin_definition + $configuration;
+    $this->dateFormatter = $date_formatter;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static($configuration, $plugin_id, $plugin_definition, $container->get('date.formatter'));
   }
 
   /**
@@ -489,15 +526,17 @@ class Calendar extends StylePluginBase {
    * Build one mini month.
    */
   public function calendarBuildMiniMonth() {
-    $month = date_format($this->currentDay, 'n');
-    date_modify($this->currentDay, '-' . strval(date_format($this->currentDay, 'j')-1) . ' days');
+    $month = $this->currentDay->format('n');
+    $day = $this->currentDay->format('j');
+    $this->currentDay->modify(($day - 1) . ' days');
     $rows = [];
-    // @todo the check in the while loop is not correct
-//    do {
+
+    do {
       $rows = array_merge($rows, $this->calendarBuildMiniWeek());
-//      $curday_date = date_format($this->currentDay, DATETIME_DATE_STORAGE_FORMAT);
-//      $curday_month = date_format($this->currentDay, 'n');
-//    } while ($curday_month == $month && $curday_date <= $this->dateInfo->max_date);
+      $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
+      $current_day_month = $this->currentDay->format('n');
+    } while ($current_day_month == $month && $current_day_date <= $this->dateInfo->max_date);
+
     // Merge the day names in as the first row.
     $rows = array_merge([CalendarHelper::weekHeader($this->view)], $rows);
     return $rows;
@@ -515,9 +554,72 @@ class Calendar extends StylePluginBase {
   /**
    * Build one mini week row.
    */
-  public function calendarBuildMiniWeek() {
-    // @todo Implement.
-    return ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+  public function calendarBuildMiniWeek($check_month = FALSE) {
+    $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
+    $weekdays = CalendarHelper::untranslatedDays();
+    $today = $this->dateFormatter->format(REQUEST_TIME, 'custom', DATETIME_DATE_STORAGE_FORMAT);
+    $month = $this->currentDay->format('n');
+    $week = date_week($current_day_date);
+
+    $first_day = \Drupal::config('system.date')->get('first_day');
+    // Move backwards to the first day of the week.
+    $day_week_day = $this->currentDay->format('w');
+    $this->currentDay->modify('-' . ((7 + $day_week_day - $first_day) % 7) . ' days');
+
+    $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
+
+    if (!empty($this->date_info->style_with_weekno)) {
+      $path = calendar_granularity_path($this->view, 'week');
+      if (!empty($path)) {
+        $url = $path . '/' . $this->dateInfo->year . '-W' . $week;
+        $week_number = l($week, $url, ['query' => !empty($this->dateInfo->append) ? $this->dateInfo->append : '']);
+      }
+      else {
+        // Do not link week numbers, if Week views are disabled.
+        $week_number = $week;
+      }
+      $rows[$week][] = [
+        'data' => $week_number,
+        'class' => 'mini week',
+        'id' => $this->view->name . '-weekno-' . $current_day_date,
+      ];
+    }
+
+    for ($i = 0; $i < 7; $i++) {
+      $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
+      $class = strtolower($weekdays[$i] . ' mini');
+      if ($check_month && ($current_day_date < $this->dateInfo->min_date_date || $current_day_date > $this->dateInfo->max_date_date || $this->currentDay->format('n') != $month)) {
+        $class .= ' empty';
+        $variables = [
+          'curday' => $current_day_date,
+          'view' => $this->view,
+        ];
+
+        $content = [
+          'date' => '',
+          'datebox' => '',
+          'empty' => '-',
+          //'empty' => theme('calendar_empty_day', $variables),
+          'link' => '',
+          'all_day' => [],
+          'items' => [],
+        ];
+      }
+      else {
+        $content = $this->calendarBuildDay();
+        $class .= ($current_day_date == $today ? ' today' : '') .
+          ($current_day_date < $today ? ' past' : '') .
+          ($current_day_date > $today ? ' future' : '') .
+          (empty($this->items[$current_day_date]) ? ' has-no-events' : ' has-events');
+      }
+      $rows[$week][] = [
+        'data' => $content,
+        'class' => $class,
+        'id' => $this->view->id() . '-' . $current_day_date,
+      ];
+      $this->currentDay->modify('+1 day');
+    }
+    return $rows;
   }
 
   /**
@@ -535,7 +637,75 @@ class Calendar extends StylePluginBase {
    * document accordingly.
    */
   public function calendarBuildDay() {
-    // @todo Implement.
-    return 'day';
+    $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
+    $selected = FALSE;
+    $max_events = !empty($this->dateInfo->style_max_items) ? $this->dateInfo->style_max_items : 0;
+    $ids = [];
+    $inner = [];
+    $all_day = [];
+    $empty = '';
+    $link = '';
+    $count = 0;
+    foreach ($this->items as $date => $day) {
+      if ($date == $current_day_date) {
+        $count = 0;
+        $selected = TRUE;
+        ksort($day);
+        foreach ($day as $time => $hour) {
+          foreach ($hour as $key => $item) {
+            $count++;
+            if (isset($item->type)) {
+              $ids[$item->type] = $item;
+            }
+            if (empty($this->date_info->mini) && ($max_events == CALENDAR_SHOW_ALL || $count <= $max_events || ($count > 0 && $max_events == CALENDAR_HIDE_ALL))) {
+              if ($item->calendar_all_day) {
+                $item->is_multi_day = TRUE;
+                $all_day[] = $item;
+              }
+              else {
+                $key = $item->calendar_start_date->format('H:i:s');
+                $inner[$key][] = $item;
+              }
+            }
+          }
+        }
+      }
+    }
+    ksort($inner);
+
+    if (empty($inner) && empty($all_day)) {
+      $empty = '-';
+      //$empty = theme('calendar_empty_day', ['curday' => $current_day_date, 'view' => $this->view]);
+    }
+    // We have hidden events on this day, use the theme('calendar_multiple_') to show a link.
+    if ($max_events != CALENDAR_SHOW_ALL && $count > 0 && $count > $max_events && $this->dateInfo->calendar_type != 'day' && !$this->dateInfo->mini) {
+      if ($this->dateInfo->style_max_items_behavior == 'hide' || $max_events == CALENDAR_HIDE_ALL) {
+        $all_day = [];
+        $inner = [];
+      }
+      $link = [
+        '#theme' => 'calendar_' . $this->dateInfo->calendar_type . '_multiple_entity',
+        '#curday' => $current_day_date,
+        '#count' => $count,
+        '#view' => $this->view,
+        '#ids' => $ids,
+      ];
+    }
+
+    $content = [
+      'date' => $current_day_date,
+      'datebox' => [
+        '#theme' => 'calendar_datebox',
+        '#date' => $current_day_date,
+        '#view' => $this->view,
+        '#items' => $this->items,
+        '#selected' => $selected,
+      ],
+      'empty' => $empty,
+      'link' => $link,
+      'all_day' => $all_day,
+      'items' => $inner,
+    ];
+    return $content;
   }
 }

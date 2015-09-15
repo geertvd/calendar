@@ -15,8 +15,6 @@ class CalendarHelper extends DateHelper {
   /**
    * Formats the weekday information into a table header format.
    *
-   * @ingroup event_support
-   *
    * @return array
    *   An array with weekday table header data.
    */

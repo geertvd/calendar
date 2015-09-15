@@ -15,36 +15,38 @@
  * @ingroup themeable
  */
 #}
-<div class="calendar-calendar"><div class="month-view">
-  {% if show_title %}
-    <div class="date-nav-wrapper clear-block">
-      <div class="date-nav">
-        <div class="date-heading">
-          <!-- print theme('date_nav_title', $params) -->
-        </div>
-       </div>
-    </div>
-  {% endif %}
-  <table class="mini">
-    <thead>
-      <tr>
-        {% for day_names in cell %}
-          <th class="{{ cell.class }}">
-            { cell.data }}
-          </th>
-        {% endfor %}
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in rows %}
+<div class="calendar-calendar">
+  <div class="month-view">
+    {% if show_title %}
+      <div class="date-nav-wrapper clear-block">
+        <div class="date-nav">
+          <div class="date-heading">
+            <!-- print theme('date_nav_title', $params) -->
+          </div>
+         </div>
+      </div>
+    {% endif %}
+    <table class="mini">
+      <thead>
         <tr>
-          {% for cell in row %}
-          <td id="{{ cell.id }}" class="{{ cell.class }}">
-            {{ cell.data }}
-          </td>
+          {% for day_names in cell %}
+            <th class="{{ cell.class }}">
+              { cell.data }}
+            </th>
           {% endfor %}
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div></div>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            {% for cell in row %}
+            <td id="{{ cell.id }}" class="{{ cell.class }}">
+              {{ cell.data }}
+            </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
