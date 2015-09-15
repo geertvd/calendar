@@ -200,12 +200,12 @@ function calendar_theme() {
     'calendar_datebox' => [
       'variables' => ['date' => NULL, 'view' => NULL, 'items' => NULL, 'selected' => NULL],
     ],
+    'calendar_empty_day' => [
+      'variables' => ['curday' => NULL, 'view' => NULL],
+    ],
     'calendar_item' => $base + array(
       'template' => 'calendar-item',
       'variables' => array('view' => NULL, 'rendered_fields' => NULL, 'item' => NULL),
-      ),
-    'calendar_empty_day' => $base + array(
-      'variables' => array('curday' => NULL, 'view' => NULL),
       ),
     'calendar_stripe_legend' => $base + array(
       'variables' => array('view' => NULL),

@@ -859,24 +859,6 @@ function theme_calendar_stripe_stripe($vars) {
 }
 
 /**
- * Format an empty day on a calendar
- *
- * @param day
- *   The day to display.
- */
-function theme_calendar_empty_day($vars) {
-  $curday = $vars['curday'];
-  $view = $vars['view'];
-
-  if ($view->date_info->calendar_type != 'day') {
-    return '<div class="calendar-empty">&nbsp;</div>' . "\n";
-  }
-  else {
-    return '<div class="calendar-dayview-empty">' . t('Empty day') . '</div>';
-  }
-}
-
-/**
  * Indent items based off a nested tree structure of overlapping items
  *
  * @param array $overlapped_items

@@ -266,15 +266,16 @@ class Calendar extends RowPluginBase {
     foreach ($result as $row) {
       // Use the entity id as the key so we don't create more than one value per
       // entity.
-      $id = $row->_entity->id();
+      // @todo Find out why $row->_entity->id() is not working.
+      $entity = $row->_entity;
 
       // Node revisions need special loading.
       // @todo handle node revisions properly
-      if ($this->view->base_table == 'node_revision') {
-        $this->entities[$id] = \Drupal::entityManager()->getStorage('node')->loadRevision($id);
+      if (isset($this->view->getBaseTables()['node_revision'])) {
+        $this->entities[$entity->id()] = \Drupal::entityManager()->getStorage('node')->loadRevision($entity->id());
       }
       else {
-        $ids[$id] = $id;
+        $ids[$entity->id()] = $entity->id();
       }
     }
 

@@ -447,7 +447,7 @@ class Calendar extends StylePluginBase {
     $items = [];
     foreach ($this->view->result as $row_index => $row) {
       $this->view->row_index = $row_index;
-      $rows = $this->view->rowPlugin->preRender($row);
+      //$rows = $this->view->rowPlugin->preRender($row);
       // @todo Check what comes out here.
 //      foreach ($rows as $key => $item) {
 //        $item->granularity = $this->dateInfo->granularity;
@@ -590,16 +590,15 @@ class Calendar extends StylePluginBase {
       $class = strtolower($weekdays[$i] . ' mini');
       if ($check_month && ($current_day_date < $this->dateInfo->min_date_date || $current_day_date > $this->dateInfo->max_date_date || $this->currentDay->format('n') != $month)) {
         $class .= ' empty';
-        $variables = [
-          'curday' => $current_day_date,
-          'view' => $this->view,
-        ];
 
         $content = [
           'date' => '',
           'datebox' => '',
-          'empty' => '-',
-          //'empty' => theme('calendar_empty_day', $variables),
+          'empty' => [
+            '#theme' => 'calendar_empty_day',
+            '#curday' => $current_day_date,
+            '#view' => $this->view,
+          ],
           'link' => '',
           'all_day' => [],
           'items' => [],
@@ -674,8 +673,11 @@ class Calendar extends StylePluginBase {
     ksort($inner);
 
     if (empty($inner) && empty($all_day)) {
-      $empty = '-';
-      //$empty = theme('calendar_empty_day', ['curday' => $current_day_date, 'view' => $this->view]);
+      $empty = [
+        '#theme' => 'calendar_empty_day',
+        '#curday' => $current_day_date,
+        '#view' => $this->view,
+      ];
     }
     // We have hidden events on this day, use the theme('calendar_multiple_') to show a link.
     if ($max_events != CALENDAR_SHOW_ALL && $count > 0 && $count > $max_events && $this->dateInfo->calendar_type != 'day' && !$this->dateInfo->mini) {
@@ -693,7 +695,7 @@ class Calendar extends StylePluginBase {
     }
 
     $content = [
-      'date' => $current_day_date,
+      '#date' => $current_day_date,
       'datebox' => [
         '#theme' => 'calendar_datebox',
         '#date' => $current_day_date,
@@ -701,10 +703,10 @@ class Calendar extends StylePluginBase {
         '#items' => $this->items,
         '#selected' => $selected,
       ],
-      'empty' => $empty,
-      'link' => $link,
-      'all_day' => $all_day,
-      'items' => $inner,
+      '#empty' => $empty,
+      '#link' => $link,
+      '#all_day' => $all_day,
+      '#items' => $inner,
     ];
     return $content;
   }
