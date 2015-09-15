@@ -9,6 +9,7 @@ namespace Drupal\calendar\Plugin\views\row;
 
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\views\Entity\View;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\row\RowPluginBase;
 use Drupal\views\ViewExecutable;
@@ -254,91 +255,90 @@ class Calendar extends RowPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function _preRender($result) {
+  public function preRender($result) {
 
-    // Preload each entity used in this view from the cache.
-    // Provides all the entity values relatively cheaply, and we don't
-    // need to do it repeatedly for the same entity if there are
-    // multiple results for one entity.
+    // Preload each entity used in this view from the cache. This provides all
+    // the entity values relatively cheaply, and we don't need to do it
+    // repeatedly for the same entity if there are multiple results for one
+    // entity.
     $ids = array();
-    $rows = [];
-    foreach ($rows as $row) {
-      // Use the $id as the key so we don't create more than one value per entity.
-      // This alias will automatically adjust to be the id of related entity, if applicable.
-      $id = $row->{$this->field_alias};
+    /** @var $row \Drupal\views\ResultRow */
+    foreach ($result as $row) {
+      // Use the entity id as the key so we don't create more than one value per
+      // entity.
+      $id = $row->_entity->id();
 
       // Node revisions need special loading.
+      // @todo handle node revisions properly
       if ($this->view->base_table == 'node_revision') {
         $this->entities[$id] = \Drupal::entityManager()->getStorage('node')->loadRevision($id);
       }
-      // For other entities we just create an array of ids to pass
-      // to entity_load().
       else {
         $ids[$id] = $id;
       }
     }
 
-    $base_tables = date_views_base_tables();
-    $this->entity_type = $base_tables[$this->view->base_table];
-    if (!empty($ids)) {
-      $this->entities = \Drupal::entityManager()->getStorage($this->entity_type);
-    }
-
-    // Let the style know if a link to create a new date is required.
-    $this->view->date_info->calendar_date_link = $this->options['calendar_date_link'];
-
-    // Identify the date argument and fields that apply to this view.
-    // Preload the Date Views field info for each field, keyed by the
-    // field name, so we know how to retrieve field values from the cached node.
-    $data = date_views_fields($this->view->base_table);
-    $data = $data['name'];
-    $date_fields = array();
-    foreach ($this->view->argument as $handler) {
-      if (date_views_handler_is_date($handler, 'argument')) {
-        // If this is the complex Date argument, the date fields are stored in the handler options,
-        // otherwise we are using the simple date field argument handler.
-        if ($handler->definition['handler'] != 'date_views_argument_handler') {
-          $alias = $handler->table_alias . '.' . $handler->field;
-          $info = $data[$alias];
-          $field_name  = str_replace(array('_value2', '_value'), '', $info['real_field_name']);
-          $date_fields[$field_name] = $info;
-        }
-        else {
-          foreach ($handler->options['date_fields'] as $alias) {
-            // If this date field is unknown (as when it has been deleted), ignore it.
-            if (!array_key_exists($alias, $data)) {
-              continue;
-            }
-            $info = $data[$alias];
-            $field_name  = str_replace(array('_value2', '_value'), '', $info['real_field_name']);
-
-            // This is ugly and hacky but I can't figure out any generic way to
-            // recognize that the node module is going to give some the revision timestamp
-            // a different field name on the entity than the actual column name in the database.
-            if ($this->view->base_table == 'node_revision' && $field_name == 'timestamp') {
-              $field_name = 'revision_timestamp';
-            }
-
-            $date_fields[$field_name] = $info;
-          }
-        }
-        $this->date_argument = $handler;
-        $this->date_fields = $date_fields;
-      }
-    }
-
-    // Get the language for this view.
-    $this->language = $this->display->handler->get_option('field_language');
-    $substitutions = views_views_query_substitutions($this->view);
-    if (array_key_exists($this->language, $substitutions)) {
-      $this->language = $substitutions[$this->language];
-    }
+//    $base_tables = ['node_field_data']; // @todo don't hardcode, use ViewsData::fetchBaseTables()
+//    $this->entity_type = $base_tables[key($this->view->getBaseTables())];
+//    if (!empty($ids)) {
+//      $this->entities = \Drupal::entityManager()->getStorage($this->entity_type);
+//    }
+//
+//    // Let the style know if a link to create a new date is required.
+//    $this->view->date_info->calendar_date_link = $this->options['calendar_date_link'];
+//
+//    // Identify the date argument and fields that apply to this view.
+//    // Preload the Date Views field info for each field, keyed by the
+//    // field name, so we know how to retrieve field values from the cached node.
+//    $data = date_views_fields($this->view->base_table);
+//    $data = $data['name'];
+//    $date_fields = array();
+//    foreach ($this->view->argument as $handler) {
+//      if (date_views_handler_is_date($handler, 'argument')) {
+//        // If this is the complex Date argument, the date fields are stored in the handler options,
+//        // otherwise we are using the simple date field argument handler.
+//        if ($handler->definition['handler'] != 'date_views_argument_handler') {
+//          $alias = $handler->table_alias . '.' . $handler->field;
+//          $info = $data[$alias];
+//          $field_name  = str_replace(array('_value2', '_value'), '', $info['real_field_name']);
+//          $date_fields[$field_name] = $info;
+//        }
+//        else {
+//          foreach ($handler->options['date_fields'] as $alias) {
+//            // If this date field is unknown (as when it has been deleted), ignore it.
+//            if (!array_key_exists($alias, $data)) {
+//              continue;
+//            }
+//            $info = $data[$alias];
+//            $field_name  = str_replace(array('_value2', '_value'), '', $info['real_field_name']);
+//
+//            // This is ugly and hacky but I can't figure out any generic way to
+//            // recognize that the node module is going to give some the revision timestamp
+//            // a different field name on the entity than the actual column name in the database.
+//            if ($this->view->base_table == 'node_revision' && $field_name == 'timestamp') {
+//              $field_name = 'revision_timestamp';
+//            }
+//
+//            $date_fields[$field_name] = $info;
+//          }
+//        }
+//        $this->date_argument = $handler;
+//        $this->date_fields = $date_fields;
+//      }
+//    }
+//
+//    // Get the language for this view.
+//    $this->language = $this->display->handler->get_option('field_language');
+//    $substitutions = views_views_query_substitutions($this->view);
+//    if (array_key_exists($this->language, $substitutions)) {
+//      $this->language = $substitutions[$this->language];
+//    }
   }
 
   /**
    * {@inheritdoc}
    */
-  public function render($row) {
+  public function _render($row) {
     $rows = [];
 
     $date_info = $this->date_argument->view->date_info;
