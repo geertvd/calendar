@@ -9,7 +9,6 @@ namespace Drupal\calendar\Plugin\views\row;
 
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\views\Entity\View;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\row\RowPluginBase;
 use Drupal\views\ViewExecutable;
@@ -288,17 +287,28 @@ class Calendar extends RowPluginBase {
 //    // Let the style know if a link to create a new date is required.
 //    $this->view->date_info->calendar_date_link = $this->options['calendar_date_link'];
 //
-//    // Identify the date argument and fields that apply to this view.
-//    // Preload the Date Views field info for each field, keyed by the
-//    // field name, so we know how to retrieve field values from the cached node.
+    // Identify the date argument and fields that apply to this view. Preload
+    // the Date Views field info for each field, keyed by the field name, so we
+    // know how to retrieve field values from the cached node.
+    // @todo don't hardcode
+
 //    $data = date_views_fields($this->view->base_table);
 //    $data = $data['name'];
-//    $date_fields = array();
-//    foreach ($this->view->argument as $handler) {
-//      if (date_views_handler_is_date($handler, 'argument')) {
+    $data['name'] = 'node_field_data.created_year';
+    $date_fields = [];
+    /** @var $handler \Drupal\views\Plugin\views\argument\Formula */
+    foreach ($this->view->getDisplay()->getHandlers('argument') as $handler) {
+      // @todo find appropriate check to see whether this is a date handler
+      if ($handler->getPluginDefinition()['id'] == 'date_year') {
+        $alias = $handler->table . '.' . $handler->field;
+
+//        $date_fields[$alias] = $info;
+
+
 //        // If this is the complex Date argument, the date fields are stored in the handler options,
 //        // otherwise we are using the simple date field argument handler.
-//        if ($handler->definition['handler'] != 'date_views_argument_handler') {
+        // views_handler_argument_date
+//        if (isset($handler->definition['handler']) && $handler->definition['handler'] != 'date_views_argument_handler') {
 //          $alias = $handler->table_alias . '.' . $handler->field;
 //          $info = $data[$alias];
 //          $field_name  = str_replace(array('_value2', '_value'), '', $info['real_field_name']);
@@ -323,10 +333,10 @@ class Calendar extends RowPluginBase {
 //            $date_fields[$field_name] = $info;
 //          }
 //        }
-//        $this->date_argument = $handler;
-//        $this->date_fields = $date_fields;
-//      }
-//    }
+        $this->date_argument = $handler;
+        $this->date_fields = $date_fields;
+      }
+    }
 //
 //    // Get the language for this view.
 //    $this->language = $this->display->handler->get_option('field_language');
@@ -339,19 +349,18 @@ class Calendar extends RowPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function _render($row) {
+  public function render($row) {
     $rows = [];
 
-    $date_info = $this->date_argument->view->date_info;
-    $id = $row->{$this->field_alias};
+    $date_info = $this->date_argument->view->dateInfo;
+    $id = $row->_entity->id();
 
     if (!is_numeric($id)) {
       return $rows;
     }
 
-    // There could be more than one date field in a view
-    // so iterate through all of them to find the right values
-    // for this view result.
+    // There could be more than one date field in a view so iterate through all
+    // of them to find the right values for this view result.
     foreach ($this->date_fields as $field_name => $info) {
 
       // Load the specified node:

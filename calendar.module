@@ -596,7 +596,8 @@ function date_views_handler_is_date($handler, $type = 'argument') {
     case 'filter':
       return $handler instanceof \Drupal\views\Plugin\views\filter\Date && !empty($handler->min_date);
     case 'argument':
-      return $handler instanceof \Drupal\views\Plugin\views\argument\Date;
+      // @todo if we don't find replacing d8 function, then expand with other types
+      return $handler instanceof \Drupal\views\Plugin\views\argument\YearDate;
   }
   return FALSE;
 }

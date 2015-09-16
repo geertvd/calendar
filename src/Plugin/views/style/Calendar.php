@@ -381,7 +381,7 @@ class Calendar extends StylePluginBase {
 //    if (empty($argument->min_date)) {
 //      return;
 //    }
-    $argument->min_date = new \DateTime('-3 months');
+    $argument->min_date = new \DateTime('0 months');
     $argument->max_date = new \DateTime('+3 months');
 
     // Add information from the date argument to the view.
@@ -448,17 +448,17 @@ class Calendar extends StylePluginBase {
     $items = [];
     foreach ($this->view->result as $row_index => $row) {
       $this->view->row_index = $row_index;
-      //$rows = $this->view->rowPlugin->preRender($row);
+      $rows = $this->view->rowPlugin->render($row);
       // @todo Check what comes out here.
-//      foreach ($rows as $key => $item) {
-//        $item->granularity = $this->dateInfo->granularity;
-//        $rendered_fields = array();
+      foreach ($rows as $key => $item) {
+        $item->granularity = $this->dateInfo->granularity;
+        $rendered_fields = [];
 //        $item_start = date_format($item->calendar_start_date, DATE_FORMAT_DATE);
 //        $item_end = date_format($item->calendar_end_date, DATE_FORMAT_DATE);
 //        $time_start = date_format($item->calendar_start_date, 'H:i:s');
 //        $item->rendered_fields = $this->rendered_fields[$row_index];
 //        $items[$item_start][$time_start][] = $item;
-//      }
+      }
     }
 
     ksort($items);
@@ -641,6 +641,8 @@ class Calendar extends StylePluginBase {
    * Build the datebox information for the current day.
    *
    * @todo expand documentation
+   * If a day has no events, the empty day theme info is added to the return
+   * array.
    *
    * @return array
    *   An array with information on the current day for use in a datebox.
