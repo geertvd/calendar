@@ -623,18 +623,27 @@ class Calendar extends StylePluginBase {
   }
 
   /**
-   * Build the contents of a single day for the $rows results.
+   * Fill in the selected day info into the event buckets.
+   *
+   * @param int $wday
+   *   The index of the day to fill in the event info for.
+   * @param array $multiday_buckets[][]
+   *   The buckets holding multiday event info for a week.
+   * @param array $singleday_buckets[]
+   *   The buckets holding singleday event info for a week.
    */
-  public function calendarBuildWeekDay() {
+  public function calendarBuildWeekDay($wday, &$multiday_buckets, &$singleday_buckets) {
     // @todo Implement.
-    return 'weekday';
+    // note: there is no return value since the buckets are passed by ref
   }
 
   /**
-   * Build the contents of a single day for the $rows results.
+   * Build the datebox information for the current day.
    *
-   * @todo find out that the difference is with calendarBuildWeekDay() and
-   * document accordingly.
+   * @todo expand documentation
+   *
+   * @return array
+   *   An array with information on the current day for use in a datebox.
    */
   public function calendarBuildDay() {
     $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
