@@ -388,10 +388,9 @@ class Calendar extends StylePluginBase {
     $this->dateInfo->granularity = $this->granularity();
     $this->dateInfo->calendar_type = $this->options['calendar_type'];
     $this->dateInfo->date_arg = $argument->argument;
-    // @todo Can we fix these with formatters?
-    $this->dateInfo->year = date_format($argument->min_date, 'Y');
-    $this->dateInfo->month = date_format($argument->min_date, 'n');;
-    $this->dateInfo->day = date_format($argument->min_date, 'j');
+    $this->dateInfo->year = $this->dateFormatter->format($argument->min_date->getTimestamp(), 'custom', 'Y');
+    $this->dateInfo->month = $this->dateFormatter->format($argument->min_date->getTimestamp(), 'custom', 'n');
+    $this->dateInfo->day = $this->dateFormatter->format($argument->min_date->getTimestamp(), 'custom', 'j');
     // @todo We shouldn't use DATETIME_DATE_STORAGE_FORMAT.
     $this->dateInfo->week = date_week(date_format($argument->min_date, DATETIME_DATE_STORAGE_FORMAT));
     // @todo implement date range
