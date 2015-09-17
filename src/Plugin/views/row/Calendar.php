@@ -12,6 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\row\RowPluginBase;
 use Drupal\views\ViewExecutable;
+use Drupal\views\Views;
 
 /**
  * Plugin which creates a view on the resulting object and formats it as a
@@ -27,9 +28,17 @@ use Drupal\views\ViewExecutable;
  */
 class Calendar extends RowPluginBase {
 
-  // Stores the entities loaded with pre_render.
-  // @TODO redefine
-  var $entities = array();
+  /**
+   * @var $entityType
+   *   The entity type being handled in the preRender() function.
+   */
+  protected $entityType;
+
+  /**
+   * @var $entities
+   *   The entities loaded in the preRender() function.
+   */
+  protected $entities = [];
 
   /**
    * {@inheritdoc}
@@ -278,29 +287,36 @@ class Calendar extends RowPluginBase {
       }
     }
 
-//    $base_tables = ['node_field_data']; // @todo don't hardcode, use ViewsData::fetchBaseTables()
-//    $this->entity_type = $base_tables[key($this->view->getBaseTables())];
-//    if (!empty($ids)) {
-//      $this->entities = \Drupal::entityManager()->getStorage($this->entity_type);
-//    }
-//
-//    // Let the style know if a link to create a new date is required.
-//    $this->view->date_info->calendar_date_link = $this->options['calendar_date_link'];
-//
+    $base_tables = Views::viewsData()->fetchBaseTables();
+    $base_table = key($base_tables);
+    $table_data = Views::viewsData()->get($base_table);
+    $this->entityType = $table_data['table']['entity type'];
+
+    if (!empty($ids)) {
+      $this->entities = \Drupal::entityManager()->getStorage($this->entityType)->loadMultiple($ids);
+    }
+
+    // Let the style know if a link to create a new date is required.
+    $this->view->dateInfo->calendar_date_link = $this->options['calendar_date_link'];
+
     // Identify the date argument and fields that apply to this view. Preload
     // the Date Views field info for each field, keyed by the field name, so we
     // know how to retrieve field values from the cached node.
-    // @todo don't hardcode
+    // @todo don't hardcode $date_fields, use viewsData() or viewsDataHelper()
 
 //    $data = date_views_fields($this->view->base_table);
 //    $data = $data['name'];
+
+    // node_field_data.created_year
     $data['name'] = 'node_field_data.created_year';
     $date_fields = [];
     /** @var $handler \Drupal\views\Plugin\views\argument\Formula */
     foreach ($this->view->getDisplay()->getHandlers('argument') as $handler) {
       // @todo find appropriate check to see whether this is a date handler
       if ($handler->getPluginDefinition()['id'] == 'date_year') {
-        $alias = $handler->table . '.' . $handler->field;
+        // @todo find the full info array
+        $date_fields[$handler->table] = $table_data[$handler->field];
+
 
 //        $date_fields[$alias] = $info;
 
@@ -367,6 +383,7 @@ class Calendar extends RowPluginBase {
       // We have to clone this or nodes on other views on this page,
       // like an Upcoming block on the same page as a calendar view,
       // will end up acquiring the values we set here.
+      // @todo implement
       $entity = clone($this->entities[$id]);
 
       if (empty($entity)) {
