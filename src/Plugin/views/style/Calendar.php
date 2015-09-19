@@ -7,7 +7,7 @@
 
 namespace Drupal\calendar\Plugin\views\style;
 
-use Drupal\calendar\Util\CalendarHelper;
+use Drupal\calendar\CalendarHelper;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\calendar\Plugin\views\row\Calendar as CalendarRow;
 use Drupal\Core\Form\FormStateInterface;

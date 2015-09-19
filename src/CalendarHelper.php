@@ -1,9 +1,9 @@
 <?php
 /**
  * @file
- * Contains \Drupal\calendar\Util\CalendarHelper.
+ * Contains \Drupal\calendar\CalendarHelper.
  */
-namespace Drupal\calendar\Util;
+namespace Drupal\calendar;
 
 use Drupal\Core\Datetime\DateHelper;
 
