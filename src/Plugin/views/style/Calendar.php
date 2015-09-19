@@ -307,6 +307,7 @@ class Calendar extends StylePluginBase {
   public function submitOptionsForm(&$form, FormStateInterface $form_state) {
     $multiday_hidden = $form_state->getValue(['style_options', 'multiday_hidden']);
     $form_state->setValue(['style_options', 'multiday_hidden'], array_filter($multiday_hidden));
+    parent::submitOptionsForm($form, $form_state);
   }
 
   /**
@@ -670,12 +671,13 @@ class Calendar extends StylePluginBase {
               $ids[$item->type] = $item;
             }
             if (empty($this->date_info->mini) && ($max_events == CALENDAR_SHOW_ALL || $count <= $max_events || ($count > 0 && $max_events == CALENDAR_HIDE_ALL))) {
-              if ($item->calendar_all_day) {
+              // @fixme
+              if (FALSE && $item->calendar_all_day) {
                 $item->is_multi_day = TRUE;
                 $all_day[] = $item;
               }
               else {
-                $key = $item->calendar_start_date->format('H:i:s');
+                $this->dateFormatter->format($item->getStartDate()->getTimestamp(), 'custom', 'H:i:s');
                 $inner[$key][] = $item;
               }
             }

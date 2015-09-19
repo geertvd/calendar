@@ -63,7 +63,8 @@ function calendar_preprocess_date_views_pager(&$vars) {
 /**
  * Implements hook_date_default_argument_alter().
  *
- * Adjust the default date for a view based on the stored session value.
+ * Adjust the default date for a view based on the stored session value. This is
+ * used for current date tracking.
  */
 function calendar_date_default_argument_alter(&$argument, &$value) {
   $user = \Drupal::currentUser();
@@ -466,20 +467,27 @@ function calendar_block_view($delta = '') {
 
 /**
  * Find the path for the calendar display that has a specific granularity.
+ *
+ * This only returns a value for page views defining path and arguments.
  */
 function calendar_granularity_path(ViewExecutable &$view, $granularity) {
   // @todo Find out what should happen here.
-  return;
+//  return;
   $paths = &drupal_static(__FUNCTION__, array());
-  if (!array_key_exists($view->name, $paths) || !(array_key_exists($granularity, $paths[$view->name]))) {
-    $paths[$view->name][$granularity] = '';
-    foreach ($view->display as $id => $display) {
-      // Check for !empty() in case the view is not fully formed or has displays that are marked to be deleted
-      if (!empty($display->deleted) || empty($display->display_options['style_plugin']) || (isset($display->display_options['enabled']) && $display->display_options['enabled'] == FALSE)) {
-        continue;
-      }
+  // @todo find out what replaced $view->name
+//  $view_name = $view->name;
+  $view_name = 'calendar';
+  if (!array_key_exists($view_name, $paths) || !(array_key_exists($granularity, $paths[$view->name]))) {
+    $paths[$view_name][$granularity] = '';
 
-      if ($display->display_plugin != 'feed' && !empty($display->display_options['path']) && !empty($display->display_options['arguments'])) {
+    foreach ($view->displayHandlers->getConfiguration() as $id => $display) {
+      // Check for !empty() in case the view is not fully formed or has displays that are marked to be deleted
+      // @todo handle deleted displays
+//      if (!empty($display->deleted) || empty($display->display_options['style_plugin']) || (isset($display->display_options['enabled']) && $display->display_options['enabled'] == FALSE)) {
+//        continue;
+//      }
+
+      if ($display['display_plugin'] != 'feed' && !empty($display['display_options']['path']) && !empty($display['display_options']['arguments'])) {
 
         // Set to the default value, reset below if another value is found.
         $type = 'month';
