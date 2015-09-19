@@ -62,12 +62,13 @@ class Calendar extends RowPluginBase {
     $options['colors'] = [
       'contains' => [
         'legend' => ['default' => ''],
-        'calendar_colors_type' => ['default' => array()],
+        'calendar_colors_type' => ['default' => []],
         'taxonomy_field' => ['default' => ''],
-        'calendar_colors_vocabulary' => ['default' => array()],
-        'calendar_colors_taxonomy' => ['default' => array()],
-        'calendar_colors_group' => ['default' => array()],
-      ]];
+        'calendar_colors_vocabulary' => ['default' => []],
+        'calendar_colors_taxonomy' => ['default' => []],
+        'calendar_colors_group' => ['default' => []],
+      ]
+    ];
     return $options;
   }
 
@@ -76,8 +77,6 @@ class Calendar extends RowPluginBase {
    */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     parent::buildOptionsForm($form, $form_state);
-
-    $form = [];
 
     $form['markup'] = [
       '#markup' => $this->t("The calendar row plugin will format view results as calendar items. Make sure this display has a 'Calendar' format and uses a 'Date' contextual filter, or this plugin will not work correctly."),
@@ -239,24 +238,24 @@ class Calendar extends RowPluginBase {
 
     if ($this->view->getBaseTables()['node_field_data']) {
       $link_display = $this->view->getDisplay()->getOption('link_display');
-      if (isset($link_display)) {
+      if (!empty($link_display)) {
         // @ TODO fix this
-        $default_display = $this->view->display['default']->display_options['link_display'];
-        $path = $this->view->display[$default_display]->handler->get_option('path');
-        // If this display has been set up as a default tab, the current path
-        // is actually the base path, i.e. if the path is 'calendar/month'
-        // and this is a default tab, the path for this display will actually
-        // be 'calendar'.
-        if ($this->view->display[$default_display]->handler->options['menu']['type'] == 'default tab') {
-          $parts = explode('/', $path);
-          array_pop($parts);
-          $path = implode('/', $parts);
-        }
-        calendar_clear_link_path($path);
-        if (!empty($form_state['values']['row_options']['calendar_date_link'])) {
-          $node_type = $form_state['values']['row_options']['calendar_date_link'];
-          calendar_set_link('node', $node_type, $path);
-        }
+//        $default_display = $this->view->display['default']->display_options['link_display'];
+//        $path = $this->view->display[$default_display]->handler->get_option('path');
+//        // If this display has been set up as a default tab, the current path
+//        // is actually the base path, i.e. if the path is 'calendar/month'
+//        // and this is a default tab, the path for this display will actually
+//        // be 'calendar'.
+//        if ($this->view->display[$default_display]->handler->options['menu']['type'] == 'default tab') {
+//          $parts = explode('/', $path);
+//          array_pop($parts);
+//          $path = implode('/', $parts);
+//        }
+//        calendar_clear_link_path($path);
+//        if (!empty($form_state['values']['row_options']['calendar_date_link'])) {
+//          $node_type = $form_state['values']['row_options']['calendar_date_link'];
+//          calendar_set_link('node', $node_type, $path);
+//        }
       }
     }
   }

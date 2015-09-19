@@ -4,6 +4,7 @@
  * @file
  * Theme functions for the Calendar module.
  */
+use Drupal\views\Views;
 
 /**
  * Preprocess an RSS feed
@@ -747,28 +748,36 @@ function theme_calendar_time_row_heading($vars) {
 }
 
 /**
- * Format a node stripe legend
+ * Format a node stripe legend.
+ *
+ * @param $vars array
+ *   An array with variables.
+ *
+ * @return string
+ *   The HTML output of the legend.
  */
-function theme_calendar_stripe_legend($vars) {
-  if (empty($vars) || !$view = $vars['view']) {
+function template_preprocess_calendar_stripe_legend(&$vars) {
+
+  if (empty($vars) || !$view = $vars['view_and_display_id']) {
     return '';
   }
 
   list($view_name, $display_id) = explode(':', $view);
 
-  $view = views_get_view($view_name);
-  $view->set_display($display_id);
-  $row_options = $view->display_handler->get_option('row_options');
+  $view = Views::getView($view_name);
+  $view->setDisplay($display_id);
+  $row_options = $view->display_handler->getOption('row')['options'];
 
   $legend_type = $row_options['colors']['legend'];
   $display_options = $row_options['colors']['calendar_colors_' . $legend_type];
-  $options = array();
+  $options = [];
   switch ($legend_type) {
 
     case 'type':
       $options = node_type_get_names();
       break;
 
+    // @todo handle taxonomy legends
     case 'taxonomy':
       $vocabularies = (array) $row_options['colors']['calendar_colors_vocabulary'];
       $term_colors = $row_options['colors']['calendar_colors_taxonomy'];
@@ -779,64 +788,44 @@ function theme_calendar_stripe_legend($vars) {
         }
       }
       break;
-
-    case 'group':
-      // The 7.1 version of OG.
-      if (function_exists('og_label')) {
-        $gids = og_get_all_group();
-        foreach ($gids as $gid) {
-          $options[$gid] = \Drupal\Component\Utility\SafeMarkup::checkPlain(t(og_label($gid)));
-        }
-      }
-
-      // The 7.2 version of OG.
-      else {
-        $types = og_get_all_group_entity();
-        foreach ($types as $entity_type => $name) {
-          $gids = og_get_all_group($entity_type);
-          $entities = \Drupal::entityManager()->getStorage($entity_type);
-          foreach ($entities as $entity) {
-            list($gid) = entity_extract_ids($entity_type, $entity);
-            $options[$gid] = \Drupal\Component\Utility\SafeMarkup::checkPlain(t($entity->label()));
-          }
-        }
-      }
-      break;
   }
 
-  $header = array(
-    array('class' => 'calendar-legend', 'data' => t('Item')),
-    array('class' => 'calendar-legend', 'data' => t('Key'))
-  );
+  $header = [
+    ['class' => 'calendar-legend', 'data' => t('Item')],
+    ['class' => 'calendar-legend', 'data' => t('Key')]
+  ];
 
-  $rows = array();
-  $output = '';
+  $rows = [];
   foreach ($options as $key => $label) {
     $stripe = array_key_exists($key, $display_options) ? $display_options[$key] : CALENDAR_EMPTY_STRIPE;
     if ($stripe != CALENDAR_EMPTY_STRIPE) {
-      $rows[] = array($label, '<div style="background-color:' . $stripe . ';color:' . $stripe . '" class="stripe" title="Key: ' . $label . '">&nbsp;</div>');
+      $rows[] = [
+        'data' => [
+          [
+            'data' => [
+              '#plain_text' => $label
+            ]
+          ],
+          [
+            'data' => [
+              // @todo find a way to add the style attribute and remove stripe as a label
+              '#markup' => '<div class="stripe" title="Key: ' . $label . '">' . $stripe .'&nbsp;</div>',
+              '#style' => "background-color:' . $stripe . ';color:' . $stripe . '",
+            ],
+          ]
+        ]
+      ];
     }
   }
 
   if (!empty($rows)) {
-    $variables = array(
-      'header' => $header,
-      'rows' => $rows,
-      'attributes' => array('class' => array('mini', 'calendar-legend')),
-    );
-    // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-// 
-// 
-// @see https://www.drupal.org/node/2195739
-// $output .= theme('table', $variables);
-
-    $output = '<div class="calendar legend">' . $output . '</div>';
+    $vars['legend'] = [
+      '#type' => 'table',
+      '#header' => $header,
+      '#rows' => $rows,
+      '#attributes' => ['class' => ['mini', 'calendar-legend']],
+    ];
   }
-  return $output;
 }
 
 /**

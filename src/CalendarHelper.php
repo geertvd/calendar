@@ -6,6 +6,7 @@
 namespace Drupal\calendar;
 
 use Drupal\Core\Datetime\DateHelper;
+use Drupal\views\Views;
 
 /**
  * Defines Gregorian Calendar date values.
@@ -59,4 +60,25 @@ class CalendarHelper extends DateHelper {
     return $untranslated_days;
   }
 
+  /**
+   * Return a list of all calendar views.
+   *
+   * @return array
+   *   A list of all calendar views.
+   */
+  public static function listCalendarViews() {
+    $calendar_views = [];
+    $views = Views::getEnabledViews();
+    foreach ($views as $view) {
+      $ve = $view->getExecutable();
+      $ve->initDisplay();
+      foreach ($ve->displayHandlers->getConfiguration() as $display_id => $display) {
+        if ($display_id != 'default' && $types = $ve->getStyle()->getPluginId() == 'calendar') {
+          $index = $ve->id() . ':' . $display_id;
+          $calendar_views[$index] = ucfirst($ve->id()) . ' ' . strtolower($display['display_title']) . ' [' . $ve->id() . ':' . $display['id'] . ']';
+        }
+      }
+    }
+    return $calendar_views;
+  }
 }
