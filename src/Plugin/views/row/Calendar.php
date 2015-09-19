@@ -379,17 +379,19 @@ class Calendar extends RowPluginBase {
     // of them to find the right values for this view result.
     foreach ($this->date_fields as $field_name => $info) {
 
-      // Load the specified node:
-      // We have to clone this or nodes on other views on this page,
-      // like an Upcoming block on the same page as a calendar view,
-      // will end up acquiring the values we set here.
-      // @todo implement
+      // Clone this entity so we can change it's values without altering other
+      // occurrences of this entity on the same page, for example in an
+      // "Upcoming" block.
       $entity = clone($this->entities[$id]);
 
       if (empty($entity)) {
         return $rows;
       }
 
+      // @todo remove
+      return $rows;
+
+      // @todo clean up
       $table_name  = $info['table_name'];
       $delta_field = $info['delta_field'];
       $tz_handling = $info['tz_handling'];
@@ -397,14 +399,15 @@ class Calendar extends RowPluginBase {
       $rrule_field = $info['rrule_field'];
       $is_field    = $info['is_field'];
 
-      $info = \Drupal::entityManager()->getDefinition($this->entity_type);
+      $info = \Drupal::entityManager()->getDefinition($this->entityType);
       $this->id_field = $info['entity keys']['id'];
       $this->id = $entity->{$this->id_field};
       $this->type = !empty($info['entity keys']['bundle']) ? $info['entity keys']['bundle'] : $this->entity_type;
       $this->title = $entity->label();
-      $uri = entity_uri($this->entity_type, $entity);
-      $uri['options']['absolute'] = TRUE;
+
       // @FIXME
+//      $uri = entity_uri($this->entity_type, $entity);
+//      $uri['options']['absolute'] = TRUE;
 // url() expects a route name or an external URI.
 // $this->url = url($uri['path'], $uri['options']);
 
