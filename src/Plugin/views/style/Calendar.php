@@ -317,7 +317,8 @@ class Calendar extends StylePluginBase {
     $i = 0;
     foreach ($this->view->argument as $name => $handler) {
       if (date_views_handler_is_date($handler, 'argument')) {
-        $this->dateInfo->date_arg_pos = $i;
+        //@fixme
+//        $this->dateInfo->date_arg_pos = $i;
         return $handler;
       }
       $i++;
@@ -447,16 +448,17 @@ class Calendar extends StylePluginBase {
     $items = [];
     foreach ($this->view->result as $row_index => $row) {
       $this->view->row_index = $row_index;
-      $rows = $this->view->rowPlugin->render($row);
+      $event_info = $this->view->rowPlugin->render($row);
       // @todo Check what comes out here.
-      foreach ($rows as $key => $item) {
-        $item->granularity = $this->dateInfo->granularity;
+      /** @var \Drupal\calendar\CalendarEvent $event */
+      foreach ($event_info as $event_info) {
+//        $event->granularity = $this->dateInfo->granularity;
         $rendered_fields = [];
-//        $item_start = date_format($item->calendar_start_date, DATE_FORMAT_DATE);
-//        $item_end = date_format($item->calendar_end_date, DATE_FORMAT_DATE);
-//        $time_start = date_format($item->calendar_start_date, 'H:i:s');
+        $item_start = $this->dateFormatter->format($event_info->getStartDate()->getTimestamp(), 'custom', 'Y-m-d');
+        $item_end = $this->dateFormatter->format($event_info->getEndDate()->getTimestamp(), 'custom', 'Y-m-d');
+        $time_start = $this->dateFormatter->format($event_info->getStartDate()->getTimestamp(), 'custom', 'H:i:s');
 //        $item->rendered_fields = $this->rendered_fields[$row_index];
-//        $items[$item_start][$time_start][] = $item;
+        $items[$item_start][$time_start][] = $event_info;
       }
     }
 

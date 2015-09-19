@@ -7,6 +7,7 @@
 
 namespace Drupal\calendar\Plugin\views\row;
 
+use Drupal\calendar\CalendarEvent;
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
@@ -297,7 +298,8 @@ class Calendar extends RowPluginBase {
     }
 
     // Let the style know if a link to create a new date is required.
-    $this->view->dateInfo->calendar_date_link = $this->options['calendar_date_link'];
+    // @todo implement
+//    $this->view->dateInfo->calendar_date_link = $this->options['calendar_date_link'];
 
     // Identify the date argument and fields that apply to this view. Preload
     // the Date Views field info for each field, keyed by the field name, so we
@@ -366,13 +368,13 @@ class Calendar extends RowPluginBase {
    * {@inheritdoc}
    */
   public function render($row) {
-    $rows = [];
+    $events = [];
 
     $date_info = $this->date_argument->view->dateInfo;
     $id = $row->_entity->id();
 
     if (!is_numeric($id)) {
-      return $rows;
+      return [];
     }
 
     // There could be more than one date field in a view so iterate through all
@@ -382,45 +384,40 @@ class Calendar extends RowPluginBase {
       // Clone this entity so we can change it's values without altering other
       // occurrences of this entity on the same page, for example in an
       // "Upcoming" block.
+      /** @var \Drupal\node\Entity\Node $entity */
       $entity = clone($this->entities[$id]);
 
       if (empty($entity)) {
-        return $rows;
+        return [];
       }
 
-      // @todo remove
-      return $rows;
-
       // @todo clean up
-      $table_name  = $info['table_name'];
-      $delta_field = $info['delta_field'];
-      $tz_handling = $info['tz_handling'];
-      $tz_field    = $info['timezone_field'];
-      $rrule_field = $info['rrule_field'];
-      $is_field    = $info['is_field'];
+//      $table_name  = $info['table_name'];
+//      $delta_field = $info['delta_field'];
+//      $tz_handling = $info['tz_handling'];
+//      $tz_field    = $info['timezone_field'];
+//      $rrule_field = $info['rrule_field'];
+//      $is_field    = $info['is_field'];
 
+      // @todo needed?
       $info = \Drupal::entityManager()->getDefinition($this->entityType);
-      $this->id_field = $info['entity keys']['id'];
-      $this->id = $entity->{$this->id_field};
-      $this->type = !empty($info['entity keys']['bundle']) ? $info['entity keys']['bundle'] : $this->entity_type;
-      $this->title = $entity->label();
 
-      // @FIXME
-//      $uri = entity_uri($this->entity_type, $entity);
-//      $uri['options']['absolute'] = TRUE;
-// url() expects a route name or an external URI.
-// $this->url = url($uri['path'], $uri['options']);
+      $event = new CalendarEvent();
+      $event->setTitle($entity->label());
+      $event->setEntityId($entity->id());
+      $event->setEntityTypeId($entity->getEntityType()->id());
+      $event->setUrl($entity->url());
 
 
       // Retrieve the field value(s) that matched our query from the cached node.
       // Find the date and set it to the right timezone.
-
       $entity->date_id = array();
       $item_start_date = NULL;
       $item_end_date   = NULL;
       $granularity = 'second';
       $increment = 1;
-      if ($is_field) {
+      // @todo implement
+      if (FALSE && $is_field) {
 
         // Set the date_id for the node, used to identify which field value to display for
         // fields that have multiple values. The theme expects it to be an array.
@@ -451,7 +448,8 @@ class Calendar extends RowPluginBase {
         $increment = $instance['widget']['settings']['increment'];
 
       }
-      elseif (!empty($entity->$field_name)) {
+      // @todo implement
+      elseif (FALSE && !empty($entity->$field_name)) {
         $item = $entity->$field_name;
         $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
         $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
@@ -461,33 +459,39 @@ class Calendar extends RowPluginBase {
       }
 
       // If we don't have a date value, go no further.
+      // @todo remove this once the above loop is fixed
+      $item_start_date = new \DateTime();
+      $item_start_date->setTimestamp($entity->getCreatedTime());
+      $item_end_date = new \DateTime();
+      $item_end_date->setTimestamp($entity->getCreatedTime() + 3600);
       if (empty($item_start_date)) {
         continue;
       }
 
       // Set the item date to the proper display timezone;
-      $item_start_date->setTimezone(new dateTimezone($to_zone));
-      $item_end_date->setTimezone(new dateTimezone($to_zone));
+      // @todo handle timezones
+//      $item_start_date->setTimezone(new dateTimezone($to_zone));
+//      $item_end_date->setTimezone(new dateTimezone($to_zone));
 
-      $event = new stdClass();
-      $event->id = $this->id;
-      $event->title = $this->title;
-      $event->type = $this->type;
-      $event->date_start = $item_start_date;
-      $event->date_end = $item_end_date;
-      $event->db_tz = $db_tz;
-      $event->to_zone = $to_zone;
-      $event->granularity = $granularity;
-      $event->increment = $increment;
-      $event->field = $is_field ? $item : NULL;
-      $event->url = $this->url;
-      $event->row = $row;
-      $event->entity = $entity;
-      $event->stripe = array();
-      $event->stripe_label = array();
+      $event->setStartDate($item_start_date);
+      $event->setEndDate($item_end_date);
+
+      // @todo remove while properties get transfered to the new object
+//      $event_container = new stdClass();
+//      $event_container->db_tz = $db_tz;f
+//      $event_container->to_zone = $to_zone;
+//      $event_container->granularity = $granularity;
+//      $event_container->increment = $increment;
+//      $event_container->field = $is_field ? $item : NULL;
+//      $event_container->url = $this->url;
+//      $event_container->row = $row;
+//      $event_container->entity = $entity;
+//      $event_container->stripe = array();
+//      $event_container->stripe_label = array();
 
       // All calendar row plugins should provide a date_id that the theme can use.
-      $event->date_id = $entity->date_id[0];
+      // @todo implement
+//      $event_container->date_id = $entity->date_id[0];
 
       // We are working with an array of partially rendered items
       // as we process the calendar, so we can group and organize them.
@@ -500,7 +504,7 @@ class Calendar extends RowPluginBase {
 // introduce security issues (see https://www.drupal.org/node/2195739). You
 // should use renderable arrays instead.
 // 
-// 
+//
 // @see https://www.drupal.org/node/2195739
 // $event->rendered = theme($this->theme_functions(),
 //       array(
@@ -511,22 +515,24 @@ class Calendar extends RowPluginBase {
 //       ));
 
 
-      $entities = $this->explode_values($event);
-      foreach ($entities as $entity) {
-        switch ($this->options['colors']['legend']) {
-          case 'type':
-            $this->calendar_node_type_stripe($entity);
-            break;
-          case 'taxonomy':
-            $this->calendar_taxonomy_stripe($entity);
-            break;
-        }
-        $rows[] = $entity;
-      }
+      // @todo implement
+//      $entities = $this->explode_values($event);
+//      foreach ($entities as $entity) {
+//        switch ($this->options['colors']['legend']) {
+//          case 'type':
+//            $this->calendar_node_type_stripe($entity);
+//            break;
+//          case 'taxonomy':
+//            $this->calendar_taxonomy_stripe($entity);
+//            break;
+//        }
+//        $rows[] = $entity;
+//      }
 
+      $events[] = $event;
     }
 
-    return $rows;
+    return $events;
   }
 
   function explode_values($event) {
