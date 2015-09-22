@@ -329,33 +329,29 @@ class Calendar extends StylePluginBase {
   }
 
   /**
-   * Inspect argument and view information to see which calendar period we
-   * should show. The argument tells us what to use if there is no value, the
-   * view args tell us what to use if there are values.
+   * Inspect argument information to see which calendar period we should show.
+   *
+   * @return string $view_granularity
+   *   The granularity for the current view. Defaults to "month".
    */
   protected function granularity() {
-    // @todo Document this.
     if (!$handler = $this->dateArgumentHandler()) {
       return 'month';
     }
-    $default_granularity = !empty($handler) && !empty($handler->granularity) ? $handler->granularity : 'month';
-    $wildcard = !empty($handler) ? $handler->options['exception']['value'] : '';
+
+    $default_granularity = !empty($handler->options['calendar']['granularity']) ? $handler->options['calendar']['granularity'] : 'month';
     $argument = $handler->argument;
 
-    // @todo Anything else we need to do for 'all' arguments?
-    if ($argument == $wildcard) {
-      $this->view_granularity = $default_granularity;
-    }
-    elseif (!empty($argument)) {
+    $view_granularity = $default_granularity;
+    if (!empty($argument)) {
+      // @todo implement
       module_load_include('inc', 'date_api', 'date_api_sql');
 
       $date_handler = new date_sql_handler();
-      $this->view_granularity = $date_handler->arg_granularity($argument);
+      $view_granularity = $date_handler->arg_granularity($argument);
     }
-    else {
-      $this->view_granularity = $default_granularity;
-    }
-    return $this->view_granularity;
+
+    return $view_granularity;
   }
 
   /**
@@ -396,8 +392,7 @@ class Calendar extends StylePluginBase {
     $this->dateInfo->day = $this->dateFormatter->format($argument->min_date->getTimestamp(), 'custom', 'j');
     // @todo We shouldn't use DATETIME_DATE_STORAGE_FORMAT.
     $this->dateInfo->week = date_week(date_format($argument->min_date, DATETIME_DATE_STORAGE_FORMAT));
-    // @todo implement date range
-//    $this->dateInfo->date_range = $argument->date_range;
+    $this->dateInfo->date_range = $argument->options['calendar']['date_range'];
     $this->dateInfo->min_date = $argument->min_date;
     $this->dateInfo->max_date = $argument->max_date;
     // @todo implement limit
