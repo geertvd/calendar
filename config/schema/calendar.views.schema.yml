@@ -1,0 +1,5 @@
+# Schema for the views argument plugins.
+
+views.argument.calendar_datetime:
+  type: views.argument.date
+  label: 'Calendar date and time'

@@ -5,6 +5,7 @@
  * This is the Calendar module for calendar filtering and display in views.
  */
 
+use Drupal\field\FieldStorageConfigInterface;
 use Drupal\views\ViewExecutable;
 
 define('CALENDAR_SHOW_ALL', 0);
