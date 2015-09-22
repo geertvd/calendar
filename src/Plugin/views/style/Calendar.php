@@ -373,7 +373,7 @@ class Calendar extends StylePluginBase {
       return;
     }
     if (!$argument = $this->dateArgumentHandler()) {
-      debug('\Drupal\calendar\Plugin\views\style\CalendarStyle: A date argument is required when using the calendar style, but it is missing or is not using the default date.');
+      debug('\Drupal\calendar\Plugin\views\style\CalendarStyle: A calendar date argument is required when using the calendar style, but it is missing or is not using the default date.');
       return;
     }
 
