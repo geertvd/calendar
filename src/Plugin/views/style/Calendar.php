@@ -853,7 +853,7 @@ class Calendar extends StylePluginBase {
 
     $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
 
-    if (!empty($this->date_info->style_with_weekno)) {
+    if (!empty($this->dateInfo->style_with_weekno)) {
       $path = calendar_granularity_path($this->view, 'week');
       if (!empty($path)) {
         $url = $path . '/' . $this->dateInfo->year . '-W' . $week;
@@ -952,7 +952,7 @@ class Calendar extends StylePluginBase {
             if (isset($item->type)) {
               $ids[$item->type] = $item;
             }
-            if (empty($this->date_info->mini) && ($max_events == CALENDAR_SHOW_ALL || $count <= $max_events || ($count > 0 && $max_events == CALENDAR_HIDE_ALL))) {
+            if (empty($this->dateInfo->mini) && ($max_events == CALENDAR_SHOW_ALL || $count <= $max_events || ($count > 0 && $max_events == CALENDAR_HIDE_ALL))) {
               // @fixme
               if (FALSE && $item->calendar_all_day) {
                 $item->is_multi_day = TRUE;
