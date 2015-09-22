@@ -11,6 +11,7 @@ use Drupal\calendar\CalendarHelper;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\calendar\Plugin\views\row\Calendar as CalendarRow;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\style\StylePluginBase;
 use Drupal\views\ViewExecutable;
@@ -403,8 +404,8 @@ class Calendar extends StylePluginBase {
 //    $this->dateInfo->limit = $argument->limit;
     // @todo What if the display doesn't have a route?
     //$this->dateInfo->url = $this->view->getUrl();
-//    $this->dateInfo->min_date_date = date_format($this->dateInfo->min_date, DATETIME_DATE_STORAGE_FORMAT);
-//    $this->dateInfo->max_date_date = date_format($this->dateInfo->max_date, DATETIME_DATE_STORAGE_FORMAT);
+    $this->dateInfo->min_date_date = $this->dateInfo->min_date->format(DATETIME_DATE_STORAGE_FORMAT);
+    $this->dateInfo->max_date_date = $this->dateInfo->max_date->format(DATETIME_DATE_STORAGE_FORMAT);
     $this->dateInfo->forbid = isset($argument->forbid) ? $argument->forbid : FALSE;
 
     // Add calendar style information to the view.
@@ -486,7 +487,7 @@ class Calendar extends StylePluginBase {
         $rows = $this->calendarBuildDay();
         break;
       case 'week':
-        $rows = $this->calendarBuildWeek();
+        $rows = $this->calendarBuildWeek(TRUE);
         // Merge the day names in as the first row.
         $rows = array_merge([calendar_week_header($this->view)], $rows);
         break;
@@ -521,8 +522,256 @@ class Calendar extends StylePluginBase {
    * Build one month.
    */
   public function calendarBuildMonth() {
-    // @todo Implement.
-    return 'month';
+    $weekdays = CalendarHelper::weekDays(TRUE);
+    $week_days = CalendarHelper::weekDaysOrdered($weekdays);
+    //$month = date_format($this->curday, 'n');
+    $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
+    $weekdays = CalendarHelper::untranslatedDays();
+    $today = new \DateTime();
+    $today = $today->format(DATETIME_DATE_STORAGE_FORMAT);
+    $day = $this->currentDay->format('j');
+    $this->currentDay->modify('-' . strval($day - 1) . ' days');
+    $rows = array();
+    do {
+      $init_day = clone($this->currentDay);
+      $month = $this->currentDay->format('n');
+      $week = date_week($current_day_date);
+      $first_day = \Drupal::config('system.date')->get('first_day');
+      list($multiday_buckets, $singleday_buckets, $total_rows) = array_values($this->calendarBuildWeek(TRUE));
+
+      $output = [];
+      $final_day = clone($this->currentDay);
+
+      $iehint = 0;
+      $max_multirow_count = 0;
+      $max_singlerow_count = 0;
+
+      for ($i = 0; $i < intval($total_rows + 1); $i++) {
+        $inner = [];
+
+        // If we're displaying the week number, add it as the first cell in the
+        // week.
+        if ($i == 0 && !empty($this->dateInfo->style_with_weekno) && !in_array($this->dateInfo->granularity, array('day', 'week'))) {
+          $path = calendar_granularity_path($this->view, 'week');
+          if (!empty($path)) {
+            $options = ['query' => !empty($this->dateInfo->append) ? $this->dateInfo->append : ''];
+            $url = Url::fromUri($path . '/' . $this->dateInfo->year . '-W' . $week, $options);
+            $week_number = \Drupal::l($week, $url);
+          }
+          else {
+            // Do not link week numbers, if week views are disabled.
+            $week_number = $week;
+          }
+          $item = array(
+            'entry' => $week_number,
+            'colspan' => 1,
+            'rowspan' => $total_rows + 1,
+            'id' => $this->view->id() . '-weekno-' . $current_day_date,
+            'class' => 'week',
+          );
+          $inner[] = [
+            '#theme' => 'calendar_month_col',
+            '#item' => $item
+          ];
+        }
+
+        $this->currentDay = clone($init_day);
+
+        // Move backwards to the first day of the week.
+        $day_week_day = $this->currentDay->format('w');
+        $this->currentDay->modify('-' . ((7 + $day_week_day - $first_day) % 7) . ' days');
+
+        for ($week_day = 0; $week_day < 7; $week_day++) {
+
+          $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
+          $item = NULL;
+          $in_month = !($current_day_date < $this->dateInfo->min_date_date || $current_day_date > $this->dateInfo->max_date_date || $this->currentDay->format('n') != $month);
+
+          // Add the datebox.
+          if ($i == 0) {
+            $item = array(
+              'entry' => [
+                '#theme' => 'calendar_datebox',
+                '#date' => $current_day_date,
+                '#view' => $this->view,
+                '#items' => $this->items,
+                '#selected' => $in_month,
+              ],
+              'colspan' => 1,
+              'rowspan' => 1,
+              'class' => 'date-box',
+              'date' => $current_day_date,
+              'id' => $this->view->id() . '-' . $current_day_date . '-date-box',
+              'header_id' => $week_days[$week_day],
+              'day_of_month' => $this->currentDay->format('j'),
+            );
+            $item['class'] .= ($current_day_date == $today && $in_month ? ' today' : '') .
+              ($current_day_date < $today ? ' past' : '') .
+              ($current_day_date > $today ? ' future' : '');
+          }
+          else {
+            $index = $i - 1;
+            $multi_count = count($multiday_buckets[$week_day]);
+
+            // Process multiday buckets first.
+            if ($index < $multi_count) {
+              // If this item is filled with either a blank or an entry.
+              if ($multiday_buckets[$week_day][$index]['filled']) {
+
+                // Add item and add class.
+                $item = $multiday_buckets[$week_day][$index];
+                $item['class'] =  'multi-day';
+                $item['date'] = $current_day_date;
+
+                // Check wheter this is an entry.
+                if (!$multiday_buckets[$week_day][$index]['avail']) {
+
+                  // If the item either starts or ends on today,then add tags so
+                  // we can style the borders.
+                  if ($current_day_date == $today && $in_month) {
+                    $item['class'] .= ' starts-today';
+                  }
+
+                  // Calculate on which day of this week this item ends on.
+                  $end_day = clone($this->currentDay);
+                  $span = $item['colspan'] - 1;
+                  $end_day->modify('+' . $span . ' day');
+                  $end_day_date = $end_day->format(DATETIME_DATE_STORAGE_FORMAT);
+
+                  // If it ends today, add class.
+                  if ($end_day_date == $today && $in_month) {
+                    $item['class'] .=  ' ends-today';
+                  }
+                }
+              }
+
+              // If this is an actual entry, add classes regarding the state of
+              // the item.
+              if ($multiday_buckets[$week_day][$index]['avail']) {
+                $item['class'] .= ' ' . $week_day . ' ' . $index . ' no-entry ';
+                $item['class'] .= ($current_day_date == $today && $in_month ? ' today' : '') .
+                  ($current_day_date < $today ? ' past' : '') .
+                  ($current_day_date > $today ? ' future' : '');
+              }
+            }
+            elseif ($index == $multi_count) {
+              $single_day_count = 0;
+              // If it's empty, add class.
+              if (count($singleday_buckets[$week_day]) == 0) {
+                // todo let's try to take that out.
+                $single_days = '&nbsp;';
+                if ($max_multirow_count == 0 ) {
+                  $class = ($multi_count > 0 ) ? 'single-day no-entry noentry-multi-day' : 'single-day no-entry';
+                }
+                else {
+                  $class = 'single-day';
+                }
+              }
+              else {
+                // todo fix this since $event['entry'] is a render array now.
+                $single_days = '';
+//                foreach ($singleday_buckets[$week_day] as $day) {
+//                  foreach ($day as $event) {
+//                    $single_day_count++;
+//                    $single_days .= (isset($event['more_link'])) ? '<div class="calendar-more">' . $event['entry'] . '</div>' : $event['entry'];
+//                  }
+//                }
+                $class = 'single-day';
+              }
+
+              $rowspan = $total_rows - $index;
+              $item = array(
+                'entry' => $single_days,
+                'colspan' => 1,
+                'rowspan' => $rowspan,
+                'class' => $class,
+                'date' => $current_day_date,
+                'id' => $this->view->id() . '-' . $current_day_date . '-' . $index,
+                'header_id' => $week_days[$week_day],
+                'day_of_month' => $this->currentDay->format('j'),
+              );
+
+              // Hack for ie to help it properly space single day rows.
+              // todo do we still need this?
+              if ($rowspan > 1 && $in_month && $single_day_count > 0) {
+                $max_multirow_count = max($max_multirow_count, $single_day_count);
+              }
+              else {
+                $max_singlerow_count = max($max_singlerow_count, $single_day_count);
+              }
+
+              // If the single row is bigger than the multi-row, then null out
+              // ieheight - I'm estimating that a single row is twice the size
+              // of multi-row. This is really the best that can be done with ie.
+              if ($max_singlerow_count >= $max_multirow_count || $max_multirow_count <= $multi_count / 2 ) {
+                $iehint = 0;
+              }
+              elseif ($rowspan > 1 && $in_month && $single_day_count > 0) {
+                // Calculate how many rows we need to adjust.
+                $iehint = max($iehint, $rowspan - 1);
+              }
+
+              // Set the class.
+              $item['class'] .= ($current_day_date == $today && $in_month ? ' today' : '') .
+                ($current_day_date < $today ? ' past' : '') .
+                ($current_day_date > $today ? ' future' : '');
+            }
+          }
+
+          // If there isn't an item, then add empty class.
+          if ($item != NULL) {
+            if (!$in_month) {
+              $item['class'] .= ' empty';
+            }
+            // Style this entry - it will be a <td>.
+            $inner[] = [
+              '#theme' => 'calendar_month_col',
+              '#item' => $item
+            ];
+          }
+          $this->currentDay->modify('+1 day');
+        }
+
+        if ($i == 0) {
+          $output[] = [
+            '#theme' => 'calendar_month_row',
+            '#inner' => $inner,
+            '#class' => 'date-box',
+            '#iehint' => $iehint,
+          ];
+        }
+        elseif ($i == $total_rows) {
+          $output[] = [
+            '#theme' => 'calendar_month_row',
+            '#inner' => $inner,
+            '#class' => 'single-day',
+            '#iehint' => $iehint,
+          ];
+          $iehint = 0;
+          $max_singlerow_count = 0;
+          $max_multirow_count = 0;
+        }
+        else {
+          // Style all the columns into a row.
+          $output[] = [
+            '#theme' => 'calendar_month_row',
+            '#inner' => $inner,
+            '#class' => 'multi-day',
+            '#iehint' => 0,
+          ];
+        }
+      }
+      $this->currentDay = $final_day;
+
+      // Add the row into the row array.
+      $rows[] = array('data' => $output);
+
+      $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
+      $current_day_month = $this->currentDay->format('n');
+    } while ($current_day_month == $month && $current_day_date <= $this->dateInfo->max_date_date);
+    // Merge the day names in as the first row.
+    $rows = array_merge(array(CalendarHelper::weekHeader($this->view)), $rows);
+    return $rows;
   }
 
   /**
@@ -549,9 +798,44 @@ class Calendar extends StylePluginBase {
   /**
    * Build one week row.
    */
-  public function calendarBuildWeek() {
-    // @todo Implement.
-    return 'week';
+  public function calendarBuildWeek($check_month) {
+    $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
+    $month = $this->currentDay->format('n');
+    $first_day = \Drupal::config('system.date')->get('first_day');
+
+    // Set up buckets.
+    $total_rows = 0;
+    $multiday_buckets = [[], [], [], [], [], [], []];
+    $singleday_buckets = [[], [], [], [], [], [], []];
+
+    // move backwards to the first day of the week.
+    $day_week_day = $this->currentDay->format('w');
+    $this->currentDay->modify('-' . ((7 + $day_week_day - $first_day) % 7) . ' days');
+
+    for ($i = 0; $i < 7; $i++) {
+      if ($check_month && ($current_day_date < $this->dateInfo->min_date_date || $current_day_date > $this->dateInfo->max_date_date || $this->currentDay->format('n') != $month)) {
+        $singleday_buckets[$i][][] = [
+          'entry' => [
+            '#theme' => 'calendar_empty_day',
+            '#curday' => $current_day_date,
+            '#view' => $this->view,
+          ],
+          'item' => NULL,
+        ];
+      }
+      else {
+        $this->calendarBuildWeekDay($i, $multiday_buckets, $singleday_buckets);
+      }
+      $total_rows = max(count($multiday_buckets[$i]) + 1, $total_rows);
+      $this->currentDay->modify('+1 day');
+      $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
+    }
+
+    return [
+      'multiday_buckets' => $multiday_buckets,
+      'singleday_buckets' => $singleday_buckets,
+      'total_rows' => $total_rows,
+    ];
   }
 
   /**

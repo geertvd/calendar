@@ -42,6 +42,17 @@ class Calendar extends RowPluginBase {
   protected $entities = [];
 
   /**
+   * @var $dateFields
+   *   todo document.
+   */
+  protected $dateFields = [];
+
+  /**
+   * @var \Drupal\views\Plugin\views\argument\Formula
+   */
+  protected $dateArgument;
+
+  /**
    * {@inheritdoc}
    */
   public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL) {
@@ -314,7 +325,7 @@ class Calendar extends RowPluginBase {
     /** @var $handler \Drupal\views\Plugin\views\argument\Formula */
     foreach ($this->view->getDisplay()->getHandlers('argument') as $handler) {
       // @todo find appropriate check to see whether this is a date handler
-      if ($handler->getPluginDefinition()['id'] == 'date_year') {
+      if ($handler->getPluginDefinition()['id'] == 'calendar_datetime') {
         // @todo find the full info array
         $date_fields[$handler->table] = $table_data[$handler->field];
 
@@ -350,8 +361,8 @@ class Calendar extends RowPluginBase {
 //            $date_fields[$field_name] = $info;
 //          }
 //        }
-        $this->date_argument = $handler;
-        $this->date_fields = $date_fields;
+        $this->dateArgument = $handler;
+        $this->dateFields = $date_fields;
       }
     }
 //
@@ -369,7 +380,7 @@ class Calendar extends RowPluginBase {
   public function render($row) {
     $events = [];
 
-    $date_info = $this->date_argument->view->dateInfo;
+    $date_info = $this->dateArgument->view->dateInfo;
     $id = $row->_entity->id();
 
     if (!is_numeric($id)) {
@@ -378,7 +389,7 @@ class Calendar extends RowPluginBase {
 
     // There could be more than one date field in a view so iterate through all
     // of them to find the right values for this view result.
-    foreach ($this->date_fields as $field_name => $info) {
+    foreach ($this->dateFields as $field_name => $info) {
 
       // Clone this entity so we can change it's values without altering other
       // occurrences of this entity on the same page, for example in an
@@ -537,7 +548,7 @@ class Calendar extends RowPluginBase {
   function explode_values($event) {
     $rows = array();
 
-    $date_info = $this->date_argument->view->date_info;
+    $date_info = $this->dateArgument->view->date_info;
     $item_start_date = $event->date_start;
     $item_end_date = $event->date_end;
     $to_zone = $event->to_zone;

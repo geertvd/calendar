@@ -206,26 +206,37 @@ function calendar_theme() {
     'calendar_empty_day' => [
       'variables' => ['curday' => NULL, 'view' => NULL],
     ],
+    'calendar_month_col' => [
+      'variables' => ['item' => NULL],
+    ],
+    'calendar_month_row' => [
+      'variables' => ['inner' => NULL, 'class' => NULL, 'iehint' => NULL],
+    ],
+    'calendar_month' => [
+      'variables' => [
+        'day_names' => [],
+        'rows' => [],
+        'view' => NULL,
+        'calendar_links' => NULL,
+        'display_type' => NULL,
+        'block' => NULL,
+        'min_date_formatted' => NULL,
+        'max_date_formatted' => NULL,
+        'date_id' => NULL,
+      ],
+    ],
+    'calendar_stripe_legend' => [
+      'variables' => ['view_and_display_id' => NULL, 'title' => NULL],
+    ],
     'calendar_item' => $base + array(
       'template' => 'calendar-item',
       'variables' => array('view' => NULL, 'rendered_fields' => NULL, 'item' => NULL),
       ),
-    'calendar_stripe_legend' => $base + [
-      'variables' => array('view_and_display_id' => NULL, 'title' => NULL),
-    ],
     'calendar_stripe_stripe' => $base + array(
       'variables' => array('node' => NULL),
       ),
     'calendar_time_row_heading' => $base + array(
       'variables' => array('start_time' => NULL, 'next_start_time' => NULL, 'curday_date' => NULL),
-      ),
-    'calendar_month_col' => $base + array(
-      'template' => 'calendar-month-col',
-      'variables' => array('item' => NULL),
-      ),
-    'calendar_month_row' => $base + array(
-      'template' => 'calendar-month-row',
-      'variables' => array('inner' => NULL, 'class' => NULL, 'iehint' => NULL),
       ),
   ];
 }
