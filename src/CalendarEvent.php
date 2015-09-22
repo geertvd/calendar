@@ -24,10 +24,10 @@ class CalendarEvent {
   protected $entityTypeId;
 
   /**
-   * @var \DateTime $start_date
+   * @var \DateTime $startDate
    *   The start date of the event.
    */
-  protected $start_date;
+  protected $startDate;
 
   /**
    * @var \DateTime $end_date
@@ -94,17 +94,17 @@ class CalendarEvent {
    *   The start date.
    */
   public function getStartDate() {
-    return $this->start_date;
+    return $this->startDate;
   }
 
   /**
    * Setter for the start date.
    *
-   * @param \DateTime $start_date
+   * @param \DateTime $startDate
    *   The start date.
    */
-  public function setStartDate($start_date) {
-    $this->start_date = $start_date;
+  public function setStartDate($startDate) {
+    $this->startDate = $startDate;
   }
 
   /**
@@ -114,17 +114,17 @@ class CalendarEvent {
    *   The end date.
    */
   public function getEndDate() {
-    return $this->end_date;
+    return $this->endDate;
   }
 
   /**
    * Setter for the end date.
    *
-   * @param \DateTime $end_date
+   * @param \DateTime $endDate
    *   The end date.
    */
-  public function setEndDate($end_date) {
-    $this->end_date = $end_date;
+  public function setEndDate($endDate) {
+    $this->endDate = $endDate;
   }
 
   /**
