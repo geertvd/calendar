@@ -21,7 +21,7 @@
 <table class="full">
   <thead>
     <tr>
-      {% for day_names in cell %}
+      {% for cell in day_names %}
         <th class="{{ cell.class }}" id="{{ cell.header_id }}">
           {{ cell.data }}
         </th>
@@ -29,12 +29,14 @@
     </tr>
   </thead>
   <tbody>
-    {% for rows in row %}
+    {% for row in rows %}
       {{ row.data }}
     {% endfor %}
   </tbody>
 </table>
 </div></div>
+<!--
+todo decide what we will do with this.
 <script>
 try {
   // ie hack to make the single day row expand to available space
@@ -50,4 +52,4 @@ try {
 }catch(e){
   // swallow 
 }
-</script>
+</script>-->

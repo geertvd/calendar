@@ -213,17 +213,8 @@ function calendar_theme() {
       'variables' => ['inner' => NULL, 'class' => NULL, 'iehint' => NULL],
     ],
     'calendar_month' => [
-      'variables' => [
-        'day_names' => [],
-        'rows' => [],
-        'view' => NULL,
-        'calendar_links' => NULL,
-        'display_type' => NULL,
-        'block' => NULL,
-        'min_date_formatted' => NULL,
-        'max_date_formatted' => NULL,
-        'date_id' => NULL,
-      ],
+      'variables' => ['view' => NULL, 'options' => [], 'rows' => []],
+      'file' => 'calendar.theme.inc',
     ],
     'calendar_stripe_legend' => [
       'variables' => ['view_and_display_id' => NULL, 'title' => NULL],

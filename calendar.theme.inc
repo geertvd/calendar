@@ -57,7 +57,7 @@ function template_preprocess_calendar_month(&$vars) {
           }
           $data .= $cell['link'];
         }
-        if ($view->date_info->mini) {
+        if ($view->dateInfo->mini) {
           $month_rows[$weekno][$day]['data'] = $data;
         }
         else {
@@ -70,9 +70,9 @@ function template_preprocess_calendar_month(&$vars) {
   $vars['rows'] = $month_rows;
   $vars['day_names'] = $day_names;
 
-  $vars['display_type'] = $view->date_info->granularity;
-  $vars['min_date_formatted'] = date_format($view->date_info->min_date, DATE_FORMAT_DATETIME);
-  $vars['max_date_formatted'] = date_format($view->date_info->max_date, DATE_FORMAT_DATETIME);
+  $vars['display_type'] = $view->dateInfo->granularity;
+  $vars['min_date_formatted'] = $view->dateInfo->min_date->format(DATETIME_DATE_STORAGE_FORMAT);
+  $vars['max_date_formatted'] = $view->dateInfo->max_date->format(DATETIME_DATE_STORAGE_FORMAT);
 }
 
 /**
@@ -411,7 +411,7 @@ function template_preprocess_calendar_week(&$vars) {
   }
 
   // Moved timed items into the right columns and render them.
-  $show_empty_times = $view->date_info->style_show_empty_times;
+  $show_empty_times = $view->dateInfo->style_show_empty_times;
   $end_start_time = '23:59:59';
 
   $grouped_items = array();
@@ -421,9 +421,9 @@ function template_preprocess_calendar_week(&$vars) {
 
   // Remove the count for singleday
   $vars['multiday_rows'] = max(0, $rows['total_rows'] - 1);
-  $display_overlap = ($view->date_info->style_multiday_theme == '1' && !empty($view->date_info->style_theme_style));
+  $display_overlap = ($view->dateInfo->style_multiday_theme == '1' && !empty($view->dateInfo->style_theme_style));
   $vars['display_overlap'] = $display_overlap;
-  $vars['scroll_content'] = !empty($view->date_info->style_theme_style) && $view->date_info->style_theme_style == 1;
+  $vars['scroll_content'] = !empty($view->dateInfo->style_theme_style) && $view->dateInfo->style_theme_style == 1;
 
   // Add optional css
   if ($display_overlap) {
@@ -458,7 +458,7 @@ function template_preprocess_calendar_week(&$vars) {
 // drupal_add_css(drupal_get_path('module', 'calendar') . '/css/calendar-overlap-no-scroll.css');
 
     }
-    $overlapped_items = array( array(), array(), array(), array(), array(), array(), array());
+    $overlapped_items = [[], [], [], [], [], [], []];
 
     // Locate the first item
     $first_time = '23:59:59';

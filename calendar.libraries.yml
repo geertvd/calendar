@@ -2,3 +2,8 @@ calendar-colorpicker:
   version: 1.x
   js:
     js/calendar_colorpicker.js: {}
+
+calendar-overlap:
+  version: 1.x
+  js:
+    js/calendar_overlap.js: {}

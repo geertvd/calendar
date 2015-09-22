@@ -656,10 +656,9 @@ class Calendar extends StylePluginBase {
             }
             elseif ($index == $multi_count) {
               $single_day_count = 0;
+              $single_days = '';
               // If it's empty, add class.
               if (count($singleday_buckets[$week_day]) == 0) {
-                // todo let's try to take that out.
-                $single_days = '&nbsp;';
                 if ($max_multirow_count == 0 ) {
                   $class = ($multi_count > 0 ) ? 'single-day no-entry noentry-multi-day' : 'single-day no-entry';
                 }

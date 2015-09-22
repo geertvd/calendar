@@ -1,7 +1,7 @@
 /*
  *  Create the splitter, set the viewport size, and set the position of the scrollbar to the first item.
  */
-(function($){
+(function($, Drupal){
   Drupal.behaviors.calendarSetScroll = {
   attach: function(context) {
     // Make multi-day resizable - stolen/borrowed from textarea.js
