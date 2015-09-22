@@ -522,16 +522,15 @@ class Calendar extends StylePluginBase {
    * Build one month.
    */
   public function calendarBuildMonth() {
-    $weekdays = CalendarHelper::weekDays(TRUE);
-    $week_days = CalendarHelper::weekDaysOrdered($weekdays);
+    $week_days = CalendarHelper::weekDays(TRUE);
+    $week_days = CalendarHelper::weekDaysOrdered($week_days);
     //$month = date_format($this->curday, 'n');
     $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
-    $weekdays = CalendarHelper::untranslatedDays();
     $today = new \DateTime();
     $today = $today->format(DATETIME_DATE_STORAGE_FORMAT);
     $day = $this->currentDay->format('j');
     $this->currentDay->modify('-' . strval($day - 1) . ' days');
-    $rows = array();
+    $rows = [];
     do {
       $init_day = clone($this->currentDay);
       $month = $this->currentDay->format('n');
@@ -562,13 +561,13 @@ class Calendar extends StylePluginBase {
             // Do not link week numbers, if week views are disabled.
             $week_number = $week;
           }
-          $item = array(
+          $item = [
             'entry' => $week_number,
             'colspan' => 1,
             'rowspan' => $total_rows + 1,
             'id' => $this->view->id() . '-weekno-' . $current_day_date,
             'class' => 'week',
-          );
+          ];
           $inner[] = [
             '#theme' => 'calendar_month_col',
             '#item' => $item

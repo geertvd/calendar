@@ -20,8 +20,8 @@ class CalendarHelper extends DateHelper {
    *   An array with weekday table header data.
    */
   public static function weekHeader($view) {
-    $len = isset($view->date_info->style_name_size) ? $view->date_info->style_name_size : (!empty($view->date_info->mini) ? 1 : 3);
-    $with_week = !empty($view->date_info->style_with_weekno);
+    $len = isset($view->dateInfo->style_name_size) ? $view->dateInfo->style_name_size : (!empty($view->dateInfo->mini) ? 1 : 3);
+    $with_week = !empty($view->dateInfo->style_with_weekno);
 
     // create week header
     $untranslated_days = self::untranslatedDays();
@@ -33,7 +33,7 @@ class CalendarHelper extends DateHelper {
       $translated_days = self::weekDaysOrdered(self::weekDaysAbbr(TRUE));
     }
     if ($with_week) {
-      $row[] = array('header' => TRUE, 'class' => "days week", 'data' => '&nbsp;', 'header_id' => 'Week');
+      $row[] = ['header' => TRUE, 'class' => 'days week', 'data' => '', 'header_id' => 'Week'];
     }
     foreach ($untranslated_days as $delta => $day) {
       $label = $len < 3 ? \Drupal\Component\Utility\Unicode::substr($translated_days[$delta], 0 , $len) : $translated_days[$delta];
