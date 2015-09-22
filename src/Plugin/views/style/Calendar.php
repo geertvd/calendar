@@ -8,6 +8,7 @@
 namespace Drupal\calendar\Plugin\views\style;
 
 use Drupal\calendar\CalendarHelper;
+use Drupal\calendar\Plugin\views\argument\CalendarDate;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\calendar\Plugin\views\row\Calendar as CalendarRow;
 use Drupal\Core\Form\FormStateInterface;
@@ -312,18 +313,22 @@ class Calendar extends StylePluginBase {
   }
 
   /**
-   * Helper function to find the date argument handler for this view.
+   * Helper function to find the first date argument handler for this view.
+   *
+   * This function also sets the date argument position into the $dateInfo
+   * object.
+   *
+   * @return CalendarDate|FALSE
+   *   Returns the CalendarDate handler if one is found, or FALSE otherwise.
    */
   protected function dateArgumentHandler() {
-    // @todo Fix this, check core/modules/datetime/datetime.views.inc.
-    $i = 0;
+    $current_position = 0;
     foreach ($this->view->argument as $name => $handler) {
-      if (date_views_handler_is_date($handler, 'argument')) {
-        //@fixme
-//        $this->dateInfo->date_arg_pos = $i;
+      if ($handler instanceof CalendarDate) {
+        $this->dateInfo->date_arg_pos = $current_position;
         return $handler;
       }
-      $i++;
+      $current_position++;
     }
     return FALSE;
   }
