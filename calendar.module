@@ -103,7 +103,7 @@ function calendar_views_pre_render(ViewExecutable $view) {
       // If this is not a default date, i.e. we have browsed to a new calendar
       // period on a display we were already on, store the midpoint of the current
       // view as the current date in a session.
-      if (date_views_handler_is_date($argument, 'argument') && empty($argument->is_default)) {
+      if ($argument instanceof \Drupal\calendar\Plugin\views\argument\CalendarDate && empty($argument->is_default)) {
         $date_range = $argument->date_handler->arg_range($argument->argument);
         $session_date = $date_range[0];
         $days = intval(($date_range[1]->format('U') - $date_range[0]->format('U')) / 3600 / 24 / 2);
@@ -495,25 +495,4 @@ function date_week($date) {
   }
 
   return $week;
-}
-
-/**
- * @deprecated Find the right d8 alternative.
- *
- * The instanceof function makes this work for any handler that was derived
- * from 'views_handler_filter_date' or 'views_handler_argument_date',
- * which includes core date fields like the node updated field.
- *
- * The test for $handler->min_date tells us that this is an argument that
- * not only is derived from the views date handler but also has been processed
- * by the Date Views filter or argument code.
- */
-function date_views_handler_is_date($handler, $type = 'argument') {
-  switch ($type) {
-    case 'filter':
-      return $handler instanceof \Drupal\views\Plugin\views\filter\Date && !empty($handler->min_date);
-    case 'argument':
-      return $handler instanceof \Drupal\calendar\Plugin\views\argument\CalendarDate;
-  }
-  return FALSE;
 }
