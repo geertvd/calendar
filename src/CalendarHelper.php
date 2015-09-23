@@ -81,4 +81,138 @@ class CalendarHelper extends DateHelper {
     }
     return $calendar_views;
   }
+
+  /**
+   * Computes difference between two days using a given measure.
+   *
+   * @param object $start_date
+   *   The start date.
+   * @param object $stop_date
+   *   The stop date.
+   * @param string $measure
+   *   (optional) A granularity date part. Defaults to 'seconds'.
+   * @param boolean $absolute
+   *   (optional) Indicate whether the absolute value of the difference should
+   *   be returned or if the sign should be retained. Defaults to TRUE.
+   *
+   * @return int
+   *   The difference between the 2 dates in the given measure.
+   */
+  public static function difference(\DateTime $start_date, \DateTime $stop_date, $measure = 'seconds', $absolute = TRUE) {
+    // Create cloned objects or original dates will be impacted by the
+    // date_modify() operations done in this code.
+    $date1 = clone($start_date);
+    $date2 = clone($stop_date);
+    if (is_object($date1) && is_object($date2)) {
+      $diff = $date2->format('U') - $date1->format('U');
+      if ($diff == 0) {
+        return 0;
+      }
+      elseif ($diff < 0 && $absolute) {
+        // Make sure $date1 is the smaller date.
+        $temp = $date2;
+        $date2 = $date1;
+        $date1 = $temp;
+        $diff = $date2->format('U') - $date1->format('U');
+      }
+      $year_diff = intval($date2->format('Y') - $date1->format('Y'));
+      switch ($measure) {
+        // The easy cases first.
+        case 'seconds':
+          return $diff;
+
+        case 'minutes':
+          return $diff / 60;
+
+        case 'hours':
+          return $diff / 3600;
+
+        case 'years':
+          return $year_diff;
+
+        case 'months':
+          $format = 'n';
+          $item1 = $date1->format($format);
+          $item2 = $date2->format($format);
+          if ($year_diff == 0) {
+            return intval($item2 - $item1);
+          }
+          elseif ($year_diff < 0) {
+            $item_diff = 0 - $item1;
+            $item_diff -= intval((abs($year_diff) - 1) * 12);
+            return $item_diff - (12 - $item2);
+          }
+          else {
+            $item_diff = 12 - $item1;
+            $item_diff += intval(($year_diff - 1) * 12);
+            return $item_diff + $item2;
+          }
+          break;
+
+        case 'days':
+          $format = 'z';
+          $item1 = $date1->format($format);
+          $item2 = $date2->format($format);
+          if ($year_diff == 0) {
+            return intval($item2 - $item1);
+          }
+          elseif ($year_diff < 0) {
+            $item_diff = 0 - $item1;
+            for ($i = 1; $i < abs($year_diff); $i++) {
+              $date1->modify('-1 year');
+              $item_diff -= self::daysInYear($date1);
+            }
+            return $item_diff - (self::daysInYear($date2) - $item2);
+          }
+          else {
+            $item_diff = self::daysInYear($date1) - $item1;
+            for ($i = 1; $i < $year_diff; $i++) {
+              $date1->modify('+1 year');
+              $item_diff += self::daysInYear($date1);
+            }
+            return $item_diff + $item2;
+          }
+          break;
+
+        case 'weeks':
+          $week_diff = $date2->format('W') - $date1->format('W');
+          $year_diff = $date2->format('o') - $date1->format('o');
+
+          $sign = ($year_diff < 0) ? -1 : 1;
+
+          for ($i = 1; $i <= abs($year_diff); $i++) {
+            $date1->modify((($sign > 0) ? '+': '-').'1 year');
+            $week_diff += (self::isoWeeksInYear($date1) * $sign);
+          }
+          return $week_diff;
+      }
+    }
+    return NULL;
+  }
+
+  /**
+   * Identifies the number of ISO weeks in a year for a date.
+   *
+   * December 28 is always in the last ISO week of the year.
+   *
+   * @param mixed $date
+   *   (optional) The current date object, or a date string. Defaults to NULL.
+   *
+   * @return integer
+   *   The number of ISO weeks in a year.
+   */
+  public static function isoWeeksInYear($date = NULL) {
+    if (empty($date)) {
+      $date = new \DateTime();
+    }
+    elseif (!is_object($date)) {
+      $date = new \DateTime($date);
+    }
+
+    if (is_object($date)) {
+      date_date_set($date, $date->format('Y'), 12, 28);
+      return $date->format('W');
+    }
+    return NULL;
+  }
 }

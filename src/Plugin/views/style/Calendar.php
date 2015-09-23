@@ -806,7 +806,7 @@ class Calendar extends StylePluginBase {
     $multiday_buckets = [[], [], [], [], [], [], []];
     $singleday_buckets = [[], [], [], [], [], [], []];
 
-    // move backwards to the first day of the week.
+    // Move backwards to the first day of the week.
     $day_week_day = $this->currentDay->format('w');
     $this->currentDay->modify('-' . ((7 + $day_week_day - $first_day) % 7) . ' days');
 
@@ -911,14 +911,183 @@ class Calendar extends StylePluginBase {
    *
    * @param int $wday
    *   The index of the day to fill in the event info for.
-   * @param array $multiday_buckets[][]
+   * @param array $multiday_buckets
    *   The buckets holding multiday event info for a week.
-   * @param array $singleday_buckets[]
+   * @param array $singleday_buckets
    *   The buckets holding singleday event info for a week.
    */
   public function calendarBuildWeekDay($wday, &$multiday_buckets, &$singleday_buckets) {
-    // @todo Implement.
-    // note: there is no return value since the buckets are passed by ref
+    $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
+
+    $max_events = $this->dateInfo->calendar_type == 'month' && !empty($this->dateInfo->style_max_items) ? $this->dateInfo->style_max_items : 0;
+    $hide = !empty($this->dateInfo->style_max_items_behavior) ? ($this->dateInfo->style_max_items_behavior == 'hide') : FALSE;
+    $multiday_theme = !empty($this->dateInfo->style_multiday_theme) && $this->dateInfo->style_multiday_theme == '1';
+    $current_count = 0;
+    $total_count = 0;
+    $ids = [];
+
+    // If we are hiding, count before processing further.
+    if ($max_events != CALENDAR_SHOW_ALL) {
+      foreach ($this->items as $date => $day) {
+        if ($date == $current_day_date) {
+          foreach ($day as $time => $hour) {
+            foreach ($hour as $key => $item) {
+              $total_count++;
+              $ids[] = $item->date_id;
+            }
+          }
+        }
+      }
+    }
+
+    // If we haven't already exceeded the max or we'll showing all, then process
+    // the items.
+    if ($max_events == CALENDAR_SHOW_ALL || !$hide || $total_count < $max_events) {
+      // Count currently filled items.
+      foreach ($multiday_buckets[$wday] as $bucket) {
+        if (!$bucket['avail']) {
+          $current_count++;
+        }
+      }
+      foreach ($this->items as $date => $day) {
+        if ($date == $current_day_date) {
+          ksort($day);
+          foreach ($day as $time => $hour) {
+            foreach ($hour as $key => $item) {
+              $all_day = $item->calendar_all_day;
+
+              // Parse out date part.
+              $start_ydate = $item->date_start->format(DATETIME_DATE_STORAGE_FORMAT);
+              $end_ydate = $item->date_end->format(DATETIME_DATE_STORAGE_FORMAT);
+              $cur_ydate = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
+
+              $is_multi_day = ($start_ydate < $cur_ydate || $end_ydate > $cur_ydate);
+
+              // Check if the event spans over multiple days.
+              if ($multiday_theme && ($is_multi_day || $all_day)) {
+
+                // Remove multiday items from the total count. We can't hide
+                // them or they will break.
+                $total_count--;
+
+                // If this the first day of the week, or is the start date of
+                // the multi-day event, then record this item, otherwise skip
+                // over.
+                $day_no = $this->currentDay->format('d');
+                if ($wday == 0 || $start_ydate == $cur_ydate || ($this->dateInfo->granularity == 'month' && $day_no == 1) || ($all_day && !$is_multi_day)) {
+                  // Calculate the colspan for this event.
+
+                  // If the last day of this event exceeds the end of the
+                  // current month or week, truncate the remaining days.
+                  $diff =  CalendarHelper::difference($this->currentDay, $this->dateInfo->max_date, 'days');
+                  $remaining_days = ($this->dateInfo->granularity == 'month') ? min(6 - $wday, $diff) : $diff - 1;
+                  // The bucket_cnt defines the colspan.  colspan = bucket_cnt + 1
+                  $days =  CalendarHelper::difference($this->currentDay, $item->date_end, 'days');
+                  $bucket_cnt = max(0, min($days, $remaining_days));
+
+                  // See if there is an available slot to add an event.  This will allow
+                  // an event to precede a row filled up by a previous day event
+                  $avail = FALSE;
+                  $bucket_index = count($multiday_buckets[$wday]);
+                  for ($i = 0; $i < $bucket_index; $i++) {
+                    if ($multiday_buckets[$wday][$i]['avail']) {
+                      $bucket_index = $i;
+                      break;
+                    }
+                  }
+
+                  // Add continuation attributes
+                  $item->continuation = $item->date_start < $this->currentDay;
+                  $item->continues = $days > $bucket_cnt;
+                  $item->is_multi_day = TRUE;
+
+                  // Assign the item to the available bucket
+                  $multiday_buckets[$wday][$bucket_index] = array(
+                    'colspan' => $bucket_cnt + 1,
+                    'rowspan' => 1,
+                    'filled' => TRUE,
+                    'avail' => FALSE,
+                    'all_day' => $all_day,
+                    'item' => $item,
+                    'wday' => $wday,
+                    'entry' => [
+                      '#theme' => 'calendar_item',
+                      '#view' => $this->view,
+                      // todo, why are we passing rendered_fields separately?
+                      '#rendered_fields' => $item->rendered_fields,
+                      '#item' => $item,
+                    ],
+                  );
+
+                  // Block out empty buckets for the next days in this event for
+                  // this week
+                  for ($i = 0; $i < $bucket_cnt; $i++) {
+                    $bucket = &$multiday_buckets[$i + $wday + 1];
+                    $bucket_row_count = count($bucket);
+                    $row_diff = $bucket_index - $bucket_row_count;
+
+                    // Fill up the preceding buckets - these are available for
+                    // future events
+                    for ( $j = 0; $j < $row_diff; $j++) {
+                      $bucket[($bucket_row_count + $j) ] = array(
+                        'entry' => '&nbsp;',
+                        'colspan' => 1,
+                        'rowspan' => 1,
+                        'filled' => TRUE,
+                        'avail' => TRUE,
+                        'wday' => $wday,
+                        'item' => NULL
+                      );
+                    }
+                    $bucket[$bucket_index] = array(
+                      'filled' => FALSE,
+                      'avail' => FALSE
+                    );
+                  }
+                }
+              }
+              elseif ($max_events == CALENDAR_SHOW_ALL || $current_count < $max_events) {
+                $current_count++;
+                // Assign to single day bucket
+                $singleday_buckets[$wday][$time][] = array(
+                  'entry' => [
+                    '#theme' => 'calendar_item',
+                    '#view' => $this->view,
+                    // todo, why are we passing rendered_fields separately?
+                    '#rendered_fields' => $item->rendered_fields,
+                    '#item' => $item,
+                  ],
+                  'item' => $item,
+                  'colspan' => 1,
+                  'rowspan' => 1,
+                  'filled' => TRUE,
+                  'avail' => FALSE,
+                  'wday' => $wday,
+                );
+              }
+
+            }
+          }
+        }
+      }
+    }
+
+    // Add a more link if necessary
+    if ($max_events != CALENDAR_SHOW_ALL && $total_count > 0 && $current_count < $total_count) {
+      if (!empty($entry)) {
+        $singleday_buckets[$wday][][] = array(
+          'entry' => [
+            '#theme' => 'calendar_' . $this->date_info->calendar_type . '_multiple_entity',
+            '#curday' => $current_day_date,
+            '#count' => $total_count,
+            '#view' => $this->view,
+            '#ids' => $ids,
+          ],
+          'more_link' => TRUE,
+          'item' => NULL
+        );
+      }
+    }
   }
 
   /**
