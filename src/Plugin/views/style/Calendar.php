@@ -1121,8 +1121,7 @@ class Calendar extends StylePluginBase {
               $ids[$item->type] = $item;
             }
             if (empty($this->dateInfo->mini) && ($max_events == CALENDAR_SHOW_ALL || $count <= $max_events || ($count > 0 && $max_events == CALENDAR_HIDE_ALL))) {
-              // @fixme
-              if (FALSE && $item->calendar_all_day) {
+              if ($item->calendar_all_day) {
                 $item->is_multi_day = TRUE;
                 $all_day[] = $item;
               }
