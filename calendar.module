@@ -223,6 +223,7 @@ function calendar_theme() {
     ],
     'calendar_item' => [
       'variables' => ['view' => NULL, 'rendered_fields' => NULL, 'item' => NULL],
+      'file' => 'calendar.theme.inc',
     ],
     'calendar_stripe_stripe' => $base + array(
       'variables' => array('node' => NULL),
@@ -382,12 +383,9 @@ function calendar_groupby_times($type = '') {
  */
 function calendar_granularity_path(ViewExecutable &$view, $granularity) {
   // @todo Find out what should happen here.
-//  return;
   $paths = &drupal_static(__FUNCTION__, array());
-  // @todo find out what replaced $view->name
-//  $view_name = $view->name;
-  $view_name = 'calendar';
-  if (!array_key_exists($view_name, $paths) || !(array_key_exists($granularity, $paths[$view->name]))) {
+  $view_name = $view->id();
+  if (!array_key_exists($view_name, $paths) || (isset($paths[$view->id()]) && !(array_key_exists($granularity, $paths[$view->id()])))) {
     $paths[$view_name][$granularity] = '';
 
     foreach ($view->displayHandlers->getConfiguration() as $id => $display) {
@@ -420,12 +418,12 @@ function calendar_granularity_path(ViewExecutable &$view, $granularity) {
             }
             $part_path = implode('/', $parts);
           }
-          $paths[$view->name][$granularity] = $part_path;
+          $paths[$view->id()][$granularity] = $part_path;
         }
       }
     }
   }
-  return $paths[$view->name][$granularity];
+  return $paths[$view->id()][$granularity];
 }
 
 /**
