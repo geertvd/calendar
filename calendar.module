@@ -178,7 +178,9 @@ function calendar_display_types() {
 function calendar_help($section, $arg) {
   switch ($section) {
     case 'admin/help#calendar':
-      return t("<p>View complete documentation at !link.</p>", array('!link' => \Drupal::l(t('Date and Calendar Documentation'), \Drupal\Core\Url::fromUri('http://drupal.org/node/262062'))));
+      return t("<p>View complete documentation at :link.</p>", [
+        ':link' => \Drupal::l(t('Date and Calendar Documentation'), \Drupal\Core\Url::fromUri('http://drupal.org/node/262062'))
+      ]);
   }
 }
 

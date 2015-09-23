@@ -957,9 +957,9 @@ class Calendar extends StylePluginBase {
               $all_day = $item->calendar_all_day;
 
               // Parse out date part.
-              $start_ydate = $item->date_start->format(DATETIME_DATE_STORAGE_FORMAT);
-              $end_ydate = $item->date_end->format(DATETIME_DATE_STORAGE_FORMAT);
-              $cur_ydate = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
+              $start_ydate = $this->dateFormatter->format($item->getStartDate()->getTimestamp(), 'custom', 'Y-m-d');
+              $end_ydate = $this->dateFormatter->format($item->getEndDate()->getTimestamp(), 'custom', 'Y-m-d');
+              $cur_ydate = $this->dateFormatter->format($this->currentDay->getTimestamp(), 'custom', 'Y-m-d');
 
               $is_multi_day = ($start_ydate < $cur_ydate || $end_ydate > $cur_ydate);
 
@@ -987,7 +987,6 @@ class Calendar extends StylePluginBase {
 
                   // See if there is an available slot to add an event.  This will allow
                   // an event to precede a row filled up by a previous day event
-                  $avail = FALSE;
                   $bucket_index = count($multiday_buckets[$wday]);
                   for ($i = 0; $i < $bucket_index; $i++) {
                     if ($multiday_buckets[$wday][$i]['avail']) {
@@ -1077,7 +1076,7 @@ class Calendar extends StylePluginBase {
       if (!empty($entry)) {
         $singleday_buckets[$wday][][] = array(
           'entry' => [
-            '#theme' => 'calendar_' . $this->date_info->calendar_type . '_multiple_entity',
+            '#theme' => 'calendar_' . $this->dateInfo->calendar_type . '_multiple_entity',
             '#curday' => $current_day_date,
             '#count' => $total_count,
             '#view' => $this->view,
