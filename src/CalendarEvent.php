@@ -24,6 +24,12 @@ class CalendarEvent {
   protected $entityTypeId;
 
   /**
+   * @var string $type
+   *   The type of the entity.
+   */
+  protected $type;
+
+  /**
    * @var \DateTime $startDate
    *   The start date of the event.
    */
@@ -52,6 +58,18 @@ class CalendarEvent {
    *   The public url for this event.
    */
   protected $url;
+
+  /**
+   * @var string $stripeLabel
+   *   The label to be used for this stripe option.
+   */
+  protected $stripeLabel;
+
+  /**
+   * @var string $stripeHex
+   *  The hex code of the color to be used.
+   */
+  protected $stripeHex;
 
   /**
    * Getter for the entity id.
@@ -91,6 +109,26 @@ class CalendarEvent {
    */
   public function setEntityTypeId($entityTypeId) {
     $this->entityTypeId = $entityTypeId;
+  }
+
+  /**
+   * Getter for the type.
+   *
+   * @return string
+   *   The type of the entity.
+   */
+  public function getType() {
+    return $this->type;
+  }
+
+  /**
+   * Setter for the type.
+   *
+   * @param string $type
+   *   The type of the entity.
+   */
+  public function setType($type) {
+    $this->type = $type;
   }
 
   /**
@@ -193,4 +231,43 @@ class CalendarEvent {
     $this->url = $url;
   }
 
+  /**
+   * Getter for the stripe label.
+   *
+   * @return string
+   *   The stripe label.
+   */
+  public function getStripeLabel() {
+    return $this->stripeLabel;
+  }
+
+  /**
+   * Setter for the stripe label.
+   *
+   * @param string $stripeLabel
+   *   The stripe label.
+   */
+  public function setStripeLabel($stripeLabel) {
+    $this->stripeLabel = $stripeLabel;
+  }
+
+  /**
+   * Getter for the stripe hex code.
+   *
+   * @return string
+   *   The stripe hex code.
+   */
+  public function getStripeHex() {
+    return $this->stripeHex;
+  }
+
+  /**
+   * The setter for the stripe hex code.
+   *
+   * @param string $stripeHex
+   *   The stripe hex code.
+   */
+  public function setStripeHex($stripeHex) {
+    $this->stripeHex = $stripeHex;
+  }
 }

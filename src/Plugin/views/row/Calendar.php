@@ -449,8 +449,8 @@ class Calendar extends RowPluginBase {
       $event->setTitle($entity->label());
       $event->setEntityId($entity->id());
       $event->setEntityTypeId($entity->getEntityType()->id());
+      $event->setType($entity->getType());
       $event->setUrl($entity->url());
-
 
       // Retrieve the field value(s) that matched our query from the cached node.
       // Find the date and set it to the right timezone.
@@ -559,19 +559,18 @@ class Calendar extends RowPluginBase {
 //       ));
 
 
-      // @todo implement
       $entities = $this->explode_values($event);
-//      foreach ($entities as $entity) {
-//        switch ($this->options['colors']['legend']) {
-//          case 'type':
-//            $this->calendar_node_type_stripe($entity);
-//            break;
-//          case 'taxonomy':
-//            $this->calendar_taxonomy_stripe($entity);
-//            break;
-//        }
-//        $rows[] = $entity;
-//      }
+      foreach ($entities as $entity) {
+        switch ($this->options['colors']['legend']) {
+          case 'type':
+            $this->nodeTypeStripe($entity);
+            break;
+          case 'taxonomy':
+            $this->calendar_taxonomy_stripe($entity);
+            break;
+        }
+        $rows[] = $entity;
+      }
 
       $events[] = $event;
     }
@@ -664,7 +663,7 @@ class Calendar extends RowPluginBase {
         unset($entity);
       }
 
-      $next->setTimestamp(strtotime(' +1 second', $next->getTimestamp()));
+      $next->setTimestamp(strtotime('+1 second', $next->getTimestamp()));
       $now = $this->dateFormatter->format($next->getTimestamp(), 'Y-m-d');
       $position++;
     }
@@ -673,19 +672,18 @@ class Calendar extends RowPluginBase {
 
   /**
    * Create a stripe base on node type.
+   *
+   * @param \Drupal\calendar\CalendarEvent $result
+   *   The event result object.
    */
-  function calendar_node_type_stripe(&$result) {
-    $colors = isset($this->options['colors']['calendar_colors_type']) ? $this->options['colors']['calendar_colors_type'] : array();
+  function nodeTypeStripe(&$result) {
+    $colors = isset($this->options['colors']['calendar_colors_type']) ? $this->options['colors']['calendar_colors_type'] : [];
     if (empty($colors)) {
-      return;
-    }
-    $entity = $result->entity;
-    if (empty($entity->type)) {
       return;
     }
 
     $type_names = node_type_get_names();
-    $type = $entity->type;
+    $type = $result->getType();
     $label = '';
     $stripe = '';
     if (array_key_exists($type, $type_names) || $colors[$type] == CALENDAR_EMPTY_STRIPE) {
@@ -695,15 +693,15 @@ class Calendar extends RowPluginBase {
       $stripe = $colors[$type];
     }
 
-    $result->stripe[] = $stripe;
-    $result->stripe_label[] = $label;
-    return;
+    $result->setStripeLabel($label);
+    $result->setStripeHex($stripe);
   }
 
    /**
    * Create a stripe based on a taxonomy term.
+    *
+    * @todo rename and document
    */
-
   function calendar_taxonomy_stripe(&$result) {
     $colors = isset($this->options['colors']['calendar_colors_taxonomy']) ? $this->options['colors']['calendar_colors_taxonomy'] : array();
     if (empty($colors)) {
