@@ -219,10 +219,9 @@ function calendar_theme() {
     'calendar_stripe_legend' => [
       'variables' => ['view_and_display_id' => NULL, 'title' => NULL],
     ],
-    'calendar_item' => $base + array(
-      'template' => 'calendar-item',
-      'variables' => array('view' => NULL, 'rendered_fields' => NULL, 'item' => NULL),
-      ),
+    'calendar_item' => [
+      'variables' => ['view' => NULL, 'rendered_fields' => NULL, 'item' => NULL],
+    ],
     'calendar_stripe_stripe' => $base + array(
       'variables' => array('node' => NULL),
       ),
