@@ -36,6 +36,12 @@ class CalendarEvent {
   protected $end_date;
 
   /**
+   * @var \DateTimeZone $timezone
+   *   The timezone of the event.
+   */
+  protected $timezone;
+
+  /**
    * @var string $title
    *   The title of the event.
    */
@@ -125,6 +131,26 @@ class CalendarEvent {
    */
   public function setEndDate($endDate) {
     $this->endDate = $endDate;
+  }
+
+  /**
+   * Getter for the timezone property.
+   *
+   * @return \DateTimeZone
+   *   The timezone of this event.
+   */
+  public function getTimezone() {
+    return $this->timezone;
+  }
+
+  /**
+   * Setter for the timezone property.
+   *
+   * @param \DateTimeZone $timezone
+   *   The timezone of this event.
+   */
+  public function setTimezone($timezone) {
+    $this->timezone = $timezone;
   }
 
   /**

@@ -8,12 +8,14 @@
 namespace Drupal\calendar\Plugin\views\row;
 
 use Drupal\calendar\CalendarEvent;
+use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\row\RowPluginBase;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Views;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin which creates a view on the resulting object and formats it as a
@@ -28,6 +30,12 @@ use Drupal\views\Views;
  * )
  */
 class Calendar extends RowPluginBase {
+
+  /**
+   * @var \Drupal\Core\Datetime\DateFormatter $dateFormatter
+   *   The date formatter service.
+   */
+  protected $dateFormatter;
 
   /**
    * @var $entityType
@@ -61,6 +69,31 @@ class Calendar extends RowPluginBase {
     // TODO needed?
 //     $this->base_table = $view->base_table;
 //     $this->baseField = $view->base_field;
+  }
+
+  /**
+   * Constructs a Calendar row plugin object.
+   *
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Datetime\DateFormatter $date_formatter
+   *   The date formatter service.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, DateFormatter $date_formatter) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+
+    $this->dateFormatter = $date_formatter;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static($configuration, $plugin_id, $plugin_definition, $container->get('date.formatter'));
   }
 
   /**
@@ -485,10 +518,11 @@ class Calendar extends RowPluginBase {
 
       $event->setStartDate($item_start_date);
       $event->setEndDate($item_end_date);
+      $event->setTimezone(new \DateTimeZone($date_info->display_timezone_name));
 
       // @todo remove while properties get transfered to the new object
 //      $event_container = new stdClass();
-//      $event_container->db_tz = $db_tz;f
+//      $event_container->db_tz = $db_tz;
 //      $event_container->to_zone = $to_zone;
 //      $event_container->granularity = $granularity;
 //      $event_container->increment = $increment;
@@ -526,7 +560,7 @@ class Calendar extends RowPluginBase {
 
 
       // @todo implement
-//      $entities = $this->explode_values($event);
+      $entities = $this->explode_values($event);
 //      foreach ($entities as $entity) {
 //        switch ($this->options['colors']['legend']) {
 //          case 'type':
@@ -545,79 +579,94 @@ class Calendar extends RowPluginBase {
     return $events;
   }
 
+  /**
+   * @todo rename and document
+   *
+   * @param \Drupal\calendar\CalendarEvent $event
+   * @return array
+   */
   function explode_values($event) {
-    $rows = array();
+    $rows = [];
 
-    $date_info = $this->dateArgument->view->date_info;
-    $item_start_date = $event->date_start;
-    $item_end_date = $event->date_end;
-    $to_zone = $event->to_zone;
-    $db_tz = $event->db_tz;
-    $granularity = $event->granularity;
-    $increment = $event->increment;
+    $dateInfo = $this->dateArgument->view->dateInfo;
+//    $item_start_date = $event->date_start;
+//    $item_end_date = $event->date_end;
+//    $to_zone = $event->to_zone;
+//    $db_tz = $event->db_tz;
+//    $granularity = $event->granularity;
+//    $increment = $event->increment;
 
-    // Now that we have an 'entity' for each view result, we need
-    // to remove anything outside the view date range,
-    // and possibly create additional nodes so that we have a 'node'
-    // for each day that this item occupies in this view.
-    $now = max($date_info->min_zone_string, $item_start_date->format(DATE_FORMAT_DATE));
-    $to  = min($date_info->max_zone_string, $item_end_date->format(DATE_FORMAT_DATE));
-    $next = new DateObject($now . ' 00:00:00', $date_info->display_timezone);
-    if ($date_info->display_timezone_name != $to_zone) {
-      // Make $start and $end (derived from $node) use the timezone $to_zone, just as the original dates do.
-      date_timezone_set($next, timezone_open($to_zone));
+    // Now that we have an 'entity' for each view result, we need to remove
+    // anything outside the view date range, and possibly create additional
+    // nodes so that we have a 'node' for each day that this item occupies in
+    // this view.
+    $now = max($dateInfo->min_zone_string, $this->dateFormatter->format($event->getStartDate()->getTimestamp(), 'Y-m-d'));
+    $to = min($dateInfo->max_zone_string, $this->dateFormatter->format($event->getEndDate()->getTimestamp(), 'Y-m-d'));
+    $next = new \DateTime();
+    $next->setTimestamp($event->getStartDate()->getTimestamp());
+
+    if ($dateInfo->display_timezone_name != $event->getTimezone()->getName()) {
+      // Make $start and $end (derived from $node) use the timezone $to_zone,
+      // just as the original dates do.
+      $next->setTimezone($event->getTimezone());
     }
+
     if (empty($to) || $now > $to) {
       $to = $now;
     }
+
     // $now and $next are midnight (in display timezone) on the first day where node will occur.
     // $to is midnight on the last day where node will occur.
     // All three were limited by the min-max date range of the view.
-    $pos = 0;
+    $position = 0;
     while (!empty($now) && $now <= $to) {
       $entity = clone($event);
 
       // Get start and end of current day.
-      $start = $next->format(DATE_FORMAT_DATETIME);
-      date_modify($next, '+1 day');
-      date_modify($next, '-1 second');
-      $end = $next->format(DATE_FORMAT_DATETIME);
+      $start = $this->dateFormatter->format($next->getTimestamp(), 'Y-m-d H:i:s');
+      $next->setTimestamp(strtotime(' +1 day -1 second', $next->getTimestamp()));
+      $end = $this->dateFormatter->format($next->getTimestamp(), 'Y-m-d H:i:s');
 
       // Get start and end of item, formatted the same way.
-      $item_start = $item_start_date->format(DATE_FORMAT_DATETIME);
-      $item_end = $item_end_date->format(DATE_FORMAT_DATETIME);
+      $item_start = $this->dateFormatter->format($event->getStartDate()->getTimestamp(), 'Y-m-d H:i:s');
+      $item_end = $this->dateFormatter->format($event->getEndDate()->getTimestamp(), 'Y-m-d H:i:s');
 
-      // Get intersection of current day and the node value's duration (as strings in $to_zone timezone).
-      $entity->calendar_start = $item_start < $start ? $start : $item_start;
-      $entity->calendar_end = !empty($item_end) ? ($item_end > $end ? $end : $item_end) : NULL;
-//      $entity->calendar_end = !empty($item_end) ? ($item_end > $end ? $end : $item_end) : $node->calendar_start;
+      // Get intersection of current day and the node value's duration (as
+      // strings in $to_zone timezone).
+      $start_string = $item_start < $start ? $start : $item_start;
+      $entity->start_date_string = $start_string;
+      $end_string = !empty($item_end) ? ($item_end > $end ? $end : $item_end) : NULL;
+      $entity->end_date_string = $end_string;
 
+      // @todo Find out what calendar start and end does.
       // Make date objects
-      $entity->calendar_start_date = date_create($entity->calendar_start, timezone_open($to_zone));
-      $entity->calendar_end_date = date_create($entity->calendar_end, timezone_open($to_zone));
-
+//      $entity->calendar_start_date = date_create($entity->calendar_start, timezone_open($to_zone));
+//      $entity->calendar_end_date = date_create($entity->calendar_end, timezone_open($to_zone));
       // Change string timezones into
       // calendar_start and calendar_end are UTC dates as formatted strings
-      $entity->calendar_start = date_format($entity->calendar_start_date, DATE_FORMAT_DATETIME);
-      $entity->calendar_end = date_format($entity->calendar_end_date, DATE_FORMAT_DATETIME);
-      $entity->calendar_all_day = date_is_all_day($entity->calendar_start, $entity->calendar_end, $granularity, $increment);
+//      $entity->calendar_start = date_format($entity->calendar_start_date, DATE_FORMAT_DATETIME);
+//      $entity->calendar_end = date_format($entity->calendar_end_date, DATE_FORMAT_DATETIME);
+//      $entity->calendar_all_day = date_is_all_day($entity->calendar_start, $entity->calendar_end, $granularity, $increment);
 
-      unset($entity->calendar_fields);
-      if (isset($entity) && (empty($entity->calendar_start))) {
+      $calendar_start = new \DateTime();
+      $calendar_start->setTimestamp($entity->getStartDate()->getTimestamp());
+
+
+//      unset($entity->calendar_fields);
+      if (isset($entity) && (empty($calendar_start))) {
         // if no date for the node and no date in the item
         // there is no way to display it on the calendar
         unset($entity);
       }
       else {
-        $entity->date_id .= '.' . $pos;
-
+        $entity->date_id .= '.' . $position;
         $rows[] = $entity;
         unset($entity);
       }
-      date_modify($next, '+1 second');
-      $now = date_format($next, DATE_FORMAT_DATE);
-      $pos++;
 
+      $next->setTimestamp(strtotime(' +1 second', $next->getTimestamp()));
+      $now = $this->dateFormatter->format($next->getTimestamp(), 'Y-m-d');
+      $position++;
     }
     return $rows;
   }
