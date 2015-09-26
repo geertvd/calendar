@@ -4,6 +4,7 @@
  * @file
  * Theme functions for the Calendar module.
  */
+use Drupal\Core\Url;
 use Drupal\views\Views;
 
 /**
@@ -651,10 +652,10 @@ function template_preprocess_calendar_datebox(&$vars) {
   $month_path = calendar_granularity_path($view, 'month');
   $year_path = calendar_granularity_path($view, 'year');
   $day_path = calendar_granularity_path($view, 'day');
-  $vars['url'] = '/url';
   // @FIXME
-  //$vars['url'] = str_replace(array($month_path, $year_path), $day_path, date_pager_url($view, NULL, $date, $force_view_url));
-  $vars['link'] = !empty($day_path) ? \Drupal::l($vars['day'], $vars['url']) : $vars['day'];
+  $vars['url'] = 'base:url';
+//  $vars['url'] = str_replace([$month_path, $year_path], $day_path, date_pager_url($view, NULL, $date, $force_view_url));
+  $vars['link'] = !empty($day_path) ? \Drupal::l($vars['day'], Url::fromUri($vars['url'])) : $vars['day'];
 
   $vars['granularity'] = $view->dateInfo->granularity;
   $vars['mini'] = !empty($view->dateInfo->mini);

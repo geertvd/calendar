@@ -5,6 +5,7 @@
  * This is the Calendar module for calendar filtering and display in views.
  */
 
+use Drupal\Core\Url;
 use Drupal\field\FieldStorageConfigInterface;
 use Drupal\views\ViewExecutable;
 
@@ -379,7 +380,14 @@ function calendar_groupby_times($type = '') {
 /**
  * Find the path for the calendar display that has a specific granularity.
  *
- * This only returns a value for page views defining path and arguments.
+ * @param \Drupal\views\ViewExecutable $view
+ *   The current view.
+ * @param string $granularity
+ *   The granularity to find.
+ *
+ * @return string
+ *   The path for the specific granularity, or an empty string if none was
+ *   found.
  */
 function calendar_granularity_path(ViewExecutable &$view, $granularity) {
   // @todo Find out what should happen here.
@@ -399,18 +407,19 @@ function calendar_granularity_path(ViewExecutable &$view, $granularity) {
 
         // Set to the default value, reset below if another value is found.
         $type = 'month';
-        foreach ($display->display_options['arguments'] as $name => $argument) {
-          if (!empty($argument['granularity'])) {
-            $type = $argument['granularity'];
+        foreach ($display['display_options']['arguments'] as $name => $argument) {
+          if (!empty($argument['calendar']['granularity'])) {
+            $type = $argument['calendar']['granularity'];
           }
         }
 
         if ($type == $granularity) {
-          $part_path =  $display->display_options['path'];
+          $part_path =  $display['display_options']['path'];
           $parts = explode('/', $part_path);
           if (in_array('%', $parts)) {
-            $current_path = parse_url($_GET['q']);
-            $current_parts = explode('/', $current_path['path']);
+            $url = Url::fromRoute('<current>');
+            $current_path = $url->toString();
+            $current_parts = explode('/', $current_path);
             foreach ($parts as $key => $part) {
               if ($part == '%' && !empty($current_parts[$key])) {
                 $parts[$key] = $current_parts[$key];
