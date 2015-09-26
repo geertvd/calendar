@@ -215,6 +215,9 @@ function calendar_theme() {
     'calendar_month_row' => [
       'variables' => ['inner' => NULL, 'class' => NULL, 'iehint' => NULL],
     ],
+    'calendar_day' => [
+      'variables' => ['view' => NULL, 'columns' => [], 'rows' => [], 'min_date_formatted' => NULL, 'max_date_formatted' => NULL],
+    ],
     'calendar_month' => [
       'variables' => ['view' => NULL, 'options' => [], 'rows' => []],
       'file' => 'calendar.theme.inc',
