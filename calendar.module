@@ -157,16 +157,6 @@ function calendar_menu_local_tasks_alter(&$data, $router_item, $root_path) {
 }
 
 /**
- * Implements hook_views_api().
- */
-function calendar_views_api() {
-  return array(
-    'api' => 3.0,
-    'path' => drupal_get_path('module', 'calendar') . '/includes',
-  );
-}
-
-/**
  * Calendar display types.
  */
 function calendar_display_types() {
@@ -189,12 +179,6 @@ function calendar_help($section, $arg) {
  * Implements hook_theme().
  */
 function calendar_theme() {
-  $module_path = drupal_get_path('module', 'calendar');
-
-  $base = array(
-    'file' => 'theme.inc',
-    'path' => "$module_path/templates",
-  );
   return [
     'calendar_mini' => [
       'variables' => ['view' => NULL, 'options' => [], 'rows' => []],
@@ -229,12 +213,20 @@ function calendar_theme() {
       'variables' => ['view' => NULL, 'rendered_fields' => NULL, 'item' => NULL],
       'file' => 'calendar.theme.inc',
     ],
-    'calendar_stripe_stripe' => $base + array(
-      'variables' => array('node' => NULL),
-      ),
-    'calendar_time_row_heading' => $base + array(
-      'variables' => array('start_time' => NULL, 'next_start_time' => NULL, 'curday_date' => NULL),
-      ),
+    'calendar_stripe_stripe' => [
+      'variables' => ['node' => NULL],
+    ],
+    'calendar_week' => [
+      'variables' => ['view' => NULL, 'day_names' => [], 'rows' => []  ,],
+      'file' => 'calendar.theme.inc',
+    ],
+    'calendar_time_row_heading' => [
+      'variables' => [
+        'start_time' => NULL,
+        'next_start_time' => NULL,
+        'curday_date' => NULL
+      ],
+    ],
   ];
 }
 

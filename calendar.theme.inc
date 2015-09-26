@@ -8,15 +8,6 @@ use Drupal\Core\Url;
 use Drupal\views\Views;
 
 /**
- * Preprocess an RSS feed
- */
-function template_preprocess_calendar_style(&$vars) {
-  global $base_url;
-  $language = \Drupal::languageManager()->getCurrentLanguage();
-
-}
-
-/**
  * Display a month view.
  */
 function template_preprocess_calendar_month(&$vars) {
@@ -401,7 +392,7 @@ function template_preprocess_calendar_week(&$vars) {
   $item_count = 0;
   $by_hour_count = 0;
   $start_time = NULL;
-  $columns = array();
+  $columns = [];
 
   if (sizeof($rows) > 1) {
     $day_names = array_shift($rows);
@@ -415,9 +406,9 @@ function template_preprocess_calendar_week(&$vars) {
   $show_empty_times = $view->dateInfo->style_show_empty_times;
   $end_start_time = '23:59:59';
 
-  $grouped_items = array();
+  $grouped_items = [];
 
-  // pass the multiday buckets
+  // Pass the multiday buckets.
   $vars['all_day'] = $rows['multiday_buckets'];
 
   // Remove the count for singleday
@@ -490,7 +481,7 @@ function template_preprocess_calendar_week(&$vars) {
         }
       }
     }
-    if ( $add_row ) {
+    if ($add_row) {
       $vars['multiday_rows']++;
     }
   }
@@ -707,7 +698,7 @@ function template_preprocess_calendar_month_multiple_entity(&$vars) {
 /**
  * Format the time row headings in the week and day view.
  */
-function theme_calendar_time_row_heading($vars) {
+function template_preprocess_calendar_time_row_heading($vars) {
   $start_time = $vars['start_time'];
   $next_start_time = $vars['next_start_time'];
   $curday_date = $vars['curday_date'];
@@ -791,9 +782,9 @@ function template_preprocess_calendar_stripe_legend(&$vars) {
       break;
   }
 
-  $header = [
-    ['class' => 'calendar-legend', 'data' => t('Item')],
-    ['class' => 'calendar-legend', 'data' => t('Key')]
+  $headers = [
+    ['label' => t('Item')],
+    ['label' => t('Key')]
   ];
 
   $rows = [];
@@ -801,31 +792,15 @@ function template_preprocess_calendar_stripe_legend(&$vars) {
     $stripe = array_key_exists($key, $display_options) ? $display_options[$key] : CALENDAR_EMPTY_STRIPE;
     if ($stripe != CALENDAR_EMPTY_STRIPE) {
       $rows[] = [
-        'data' => [
-          [
-            'data' => [
-              '#plain_text' => $label
-            ]
-          ],
-          [
-            'data' => [
-              // @todo find a way to add the style attribute and remove stripe as a label
-              '#markup' => '<div class="stripe" title="Key: ' . $label . '">' . $stripe .'&nbsp;</div>',
-              '#style' => "background-color:' . $stripe . ';color:' . $stripe . '",
-            ],
-          ]
-        ]
+        'label' => $label,
+        'stripe' => $stripe,
       ];
     }
   }
 
   if (!empty($rows)) {
-    $vars['legend'] = [
-      '#type' => 'table',
-      '#header' => $header,
-      '#rows' => $rows,
-      '#attributes' => ['class' => ['mini', 'calendar-legend']],
-    ];
+    $vars['headers'] = $headers;
+    $vars['rows'] = $rows;
   }
 }
 

@@ -313,16 +313,14 @@ class Calendar extends RowPluginBase {
     // the entity values relatively cheaply, and we don't need to do it
     // repeatedly for the same entity if there are multiple results for one
     // entity.
-    $ids = array();
+    $ids = [];
     /** @var $row \Drupal\views\ResultRow */
     foreach ($result as $row) {
       // Use the entity id as the key so we don't create more than one value per
       // entity.
-      // @todo Find out why $row->_entity->id() is not working.
       $entity = $row->_entity;
 
       // Node revisions need special loading.
-      // @todo handle node revisions properly
       if (isset($this->view->getBaseTables()['node_revision'])) {
         $this->entities[$entity->id()] = \Drupal::entityManager()->getStorage('node')->loadRevision($entity->id());
       }
@@ -352,48 +350,14 @@ class Calendar extends RowPluginBase {
 //    $data = date_views_fields($this->view->base_table);
 //    $data = $data['name'];
 
-    // node_field_data.created_year
     $data['name'] = 'node_field_data.created_year';
     $date_fields = [];
     /** @var $handler \Drupal\views\Plugin\views\argument\Formula */
     foreach ($this->view->getDisplay()->getHandlers('argument') as $handler) {
       // @todo find appropriate check to see whether this is a date handler
       if ($handler->getPluginDefinition()['id'] == 'calendar_datetime') {
-        // @todo find the full info array
         $date_fields[$handler->table] = $table_data[$handler->field];
 
-
-//        $date_fields[$alias] = $info;
-
-
-//        // If this is the complex Date argument, the date fields are stored in the handler options,
-//        // otherwise we are using the simple date field argument handler.
-        // views_handler_argument_date
-//        if (isset($handler->definition['handler']) && $handler->definition['handler'] != 'date_views_argument_handler') {
-//          $alias = $handler->table_alias . '.' . $handler->field;
-//          $info = $data[$alias];
-//          $field_name  = str_replace(array('_value2', '_value'), '', $info['real_field_name']);
-//          $date_fields[$field_name] = $info;
-//        }
-//        else {
-//          foreach ($handler->options['date_fields'] as $alias) {
-//            // If this date field is unknown (as when it has been deleted), ignore it.
-//            if (!array_key_exists($alias, $data)) {
-//              continue;
-//            }
-//            $info = $data[$alias];
-//            $field_name  = str_replace(array('_value2', '_value'), '', $info['real_field_name']);
-//
-//            // This is ugly and hacky but I can't figure out any generic way to
-//            // recognize that the node module is going to give some the revision timestamp
-//            // a different field name on the entity than the actual column name in the database.
-//            if ($this->view->base_table == 'node_revision' && $field_name == 'timestamp') {
-//              $field_name = 'revision_timestamp';
-//            }
-//
-//            $date_fields[$field_name] = $info;
-//          }
-//        }
         $this->dateArgument = $handler;
         $this->dateFields = $date_fields;
       }
@@ -454,11 +418,12 @@ class Calendar extends RowPluginBase {
 
       // Retrieve the field value(s) that matched our query from the cached node.
       // Find the date and set it to the right timezone.
-      $entity->date_id = array();
+      $entity->date_id = [];
       $item_start_date = NULL;
       $item_end_date   = NULL;
       $granularity = 'second';
       $increment = 1;
+
       // @todo implement
       if (FALSE && $is_field) {
 
@@ -527,11 +492,8 @@ class Calendar extends RowPluginBase {
 //      $event_container->granularity = $granularity;
 //      $event_container->increment = $increment;
 //      $event_container->field = $is_field ? $item : NULL;
-//      $event_container->url = $this->url;
 //      $event_container->row = $row;
 //      $event_container->entity = $entity;
-//      $event_container->stripe = array();
-//      $event_container->stripe_label = array();
 
       // All calendar row plugins should provide a date_id that the theme can use.
       // @todo implement
@@ -658,7 +620,7 @@ class Calendar extends RowPluginBase {
         unset($entity);
       }
       else {
-        $entity->date_id .= '.' . $position;
+//        $entity->date_id .= '.' . $position;
         $rows[] = $entity;
         unset($entity);
       }

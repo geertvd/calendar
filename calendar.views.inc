@@ -13,9 +13,9 @@ use Drupal\field\FieldStorageConfigInterface;
 function calendar_views_data_alter(array &$data) {
   foreach ($data as $table_name => $table_data) {
     foreach ($table_data as $property_name => $properties) {
-      if ($properties['argument']['id'] === 'date') {
+      if (isset($properties['argument']) && $properties['argument']['id'] === 'date') {
         $data[$table_name][$property_name . '_calendar'] = [
-          'title' => t('Calendar contextual filter for ' . $property_name),
+          'title' => t('Calendar contextual filter for @name', ['@name' => $property_name,]),
           'help' => t('A calendar contextual filter that handles granularity and range options.'),
           'argument' => [
             'field' => $property_name . '_calendar',
@@ -26,7 +26,6 @@ function calendar_views_data_alter(array &$data) {
     }
   }
 }
-
 
 /**
  * Implements hook_field_views_data_alter().

@@ -35,26 +35,26 @@ foreach ($day_names as $key => $value) {
       {% if by_hour_content > 0 or start_times is not empty %}
       <th class="calendar-agenda-hour">{% trans %}Time{% endtrans %}</th>
       {% endif %}
-      <?php foreach ($day_names as $cell): ?>
-        <th class="<?php print $cell['class']; ?>" id="<?php print $cell['header_id']; ?>">
-          <?php print $cell['data']; ?>
+      {% for cell in day_names %}
+        <th class="{{ cell.class }}" id="{{ cell.header_id }}">
+          {{ cell.data }}
         </th>
-      <?php endforeach; ?>
+      {% endfor %}
     </tr>
   </thead>
   <tbody>
-    <?php for ($i = 0; $i < $multiday_rows; $i++): ?>
+    {#<?php for ($i = 0; $i < $multiday_rows; $i++): ?>#}
     <?php 
-      $colpos = 0; 
-      $rowclass = "all-day";
-      if( $i == 0) {
-        $rowclass .= " first";
-      }
-      if( $i == $multiday_rows - 1) {
-        $rowclass .= " last";
-      }
+      {#$colpos = 0; #}
+      {#$rowclass = "all-day";#}
+      {#if( $i == 0) {#}
+        {#$rowclass .= " first";#}
+      {#}#}
+      {#if( $i == $multiday_rows - 1) {#}
+        {#$rowclass .= " last";#}
+      {#}#}
     ?>
-    <tr class="<?php print $rowclass?>">
+    <tr class="todo rowclass">
       <?php if($i == 0 && ($by_hour_count > 0 || !empty($start_times))) :?>
       <td class="<?php print $agenda_hour_class ?>" rowspan="<?php print $multiday_rows?>">
         <span class="calendar-hour"><?php print t('All day', array(), array('context' => 'datetime'))?></span>
