@@ -325,7 +325,8 @@ class Calendar extends StylePluginBase {
     $current_position = 0;
     foreach ($this->view->argument as $name => $handler) {
       if ($handler instanceof CalendarDate) {
-        $this->dateInfo->date_arg_pos = $current_position;
+        // todo define date_arg_pos properly
+//        $this->dateInfo->date_arg_pos = $current_position;
         return $handler;
       }
       $current_position++;
@@ -956,7 +957,8 @@ class Calendar extends StylePluginBase {
             /** @var \Drupal\calendar\CalendarEvent $item */
             foreach ($hour as $key => $item) {
               // todo calendar_all_day does not exist at this point
-              $all_day = $item->calendar_all_day;
+//              $all_day = $item->calendar_all_day;
+              $all_day = FALSE;
 
               // Parse out date part.
               $start_ydate = $this->dateFormatter->format($item->getStartDate()->getTimestamp(), 'custom', 'Y-m-d');
@@ -1055,7 +1057,8 @@ class Calendar extends StylePluginBase {
                     '#theme' => 'calendar_item',
                     '#view' => $this->view,
                     // todo, why are we passing rendered_fields separately?
-                    '#rendered_fields' => $item->rendered_fields,
+//                    '#rendered_fields' => $item->rendered_fields,
+                    '#rendered_fields' => null,
                     '#item' => $item,
                   ],
                   'item' => $item,
