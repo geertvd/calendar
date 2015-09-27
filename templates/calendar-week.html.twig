@@ -20,12 +20,6 @@
  * @see template_preprocess_calendar_week()
  *
  * @ingroup themeable
-
- $index = 0;
-$header_ids = array();
-foreach ($day_names as $key => $value) {
-  $header_ids[$key] = $value['header_id'];
-}
  */
 #}
 <div class="calendar-calendar"><div class="week-view">
@@ -43,8 +37,11 @@ foreach ($day_names as $key => $value) {
     </tr>
   </thead>
   <tbody>
-    {#<?php for ($i = 0; $i < $multiday_rows; $i++): ?>#}
-    <?php 
+    {%  for i in multiday_rows %}
+      {# todo convert to twig #}
+      {% set row_class = 'all-day' %}
+      {% set row_class = loop.first ?: 'first' %}
+      {% set row_class = loop.last ?: 'last' %}
       {#$colpos = 0; #}
       {#$rowclass = "all-day";#}
       {#if( $i == 0) {#}
@@ -53,8 +50,8 @@ foreach ($day_names as $key => $value) {
       {#if( $i == $multiday_rows - 1) {#}
         {#$rowclass .= " last";#}
       {#}#}
-    ?>
-    <tr class="todo rowclass">
+
+    <tr class="todo {{ row_class }}">
       <?php if($i == 0 && ($by_hour_count > 0 || !empty($start_times))) :?>
       <td class="<?php print $agenda_hour_class ?>" rowspan="<?php print $multiday_rows?>">
         <span class="calendar-hour"><?php print t('All day', array(), array('context' => 'datetime'))?></span>
@@ -78,44 +75,43 @@ foreach ($day_names as $key => $value) {
       <td class="multi-day no-entry"><div class="inner">&nbsp;</div></td>
       <?php endfor;?>
     </tr>
-    <?php endfor; ?>  
-    <?php foreach ($items as $time): ?>
+    {% endfor %}
+    {% for time in items %}
     <tr class="not-all-day">
       <td class="calendar-agenda-hour">
-        <span class="calendar-hour"><?php print $time['hour']; ?></span><span class="calendar-ampm"><?php print $time['ampm']; ?></span>
+        <span class="calendar-hour">{{ time.hour }}</span><span class="calendar-ampm">{{ time.ampm }}</span>
       </td>
-      <?php $curpos = 0; ?>
-      <?php foreach ($columns as $index => $column): ?>
-        <?php $colpos = (isset($time['values'][$column][0])) ? $time['values'][$column][0]['wday'] : $index; ?>
-        <?php for ($i = $curpos; $i < $colpos; $i++): ?>
+      {% set current_position = 0 %}
+      {% for column in columns %}
+        {% set column_position = time.values.column[0] ? time.values.column[0].wday : loop.index %}
+        {% for i in column_position %}
+          <td class="calendar-agenda-items single-day">
+            <div class="calendar">
+              <div class="inner">&nbsp</div>
+            </div>
+          </td>
+        {% endfor %}
+        {% set current_position = current_position + 1 %}
+        <td class="calendar-agenda-items single-day" headers="{{ header_ids[loop.index - 1] }}">
+          <div class="calendar">
+            <div class="inner">
+              {% for item in time.values[column] %}
+                {# todo this should render the full calendar_item entry {{ item.entry }} #}
+                {{ item.item.title }}
+              {% endfor %}
+            </div>
+          </div>
+        </td>
+      {% endfor %}
+      {% for i in current_position..7 %}
         <td class="calendar-agenda-items single-day">
           <div class="calendar">
             <div class="inner">&nbsp</div>
           </div>
         </td>
-        <?php endfor; ?>   
-        <?php $curpos = $colpos + 1;?>
-        <td class="calendar-agenda-items single-day" headers="<?php print $header_ids[$index] ?>">
-          <div class="calendar">
-          <div class="inner">
-            <?php if(!empty($time['values'][$column])) :?>
-              <?php foreach($time['values'][$column] as $item) :?>
-                <?php print $item['entry'] ?>
-              <?php endforeach; ?>
-            <?php endif; ?>
-          </div>
-          </div>
-        </td>
-      <?php endforeach; ?>   
-      <?php for ($i = $curpos; $i < 7; $i++): ?>
-        <td class="calendar-agenda-items single-day">
-          <div class="calendar">
-            <div class="inner">&nbsp</div>
-          </div>
-        </td>
-      <?php endfor; ?>   
+      {% endfor %}
     </tr>
-   <?php endforeach; ?>   
+    {% endfor %}
   </tbody>
 </table>
 </div></div>

@@ -953,7 +953,9 @@ class Calendar extends StylePluginBase {
         if ($date == $current_day_date) {
           ksort($day);
           foreach ($day as $time => $hour) {
+            /** @var \Drupal\calendar\CalendarEvent $item */
             foreach ($hour as $key => $item) {
+              // todo calendar_all_day does not exist at this point
               $all_day = $item->calendar_all_day;
 
               // Parse out date part.

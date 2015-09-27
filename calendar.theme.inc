@@ -4,6 +4,7 @@
  * @file
  * Theme functions for the Calendar module.
  */
+use Drupal\Core\Datetime\Entity\DateFormat;
 use Drupal\Core\Url;
 use Drupal\views\Views;
 
@@ -230,8 +231,8 @@ function template_preprocess_calendar_day(&$vars) {
   $vars['rows']['all_day'] = $grouped_items;
 
   // Moved timed items into the right columns and render them.
-  $start_times = $view->date_info->style_groupby_times;
-  $show_empty_times = $view->date_info->style_show_empty_times;
+  $start_times = $view->dateInfo->style_groupby_times;
+  $show_empty_times = $view->dateInfo->style_show_empty_times;
   $end_start_time = '23:59:59';
   $start_time = array_shift($start_times);
   $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
@@ -399,7 +400,7 @@ function template_preprocess_calendar_week(&$vars) {
   }
   else {
     $day_names = $rows;
-    $rows = array();
+    $rows = [];
   }
 
   // Moved timed items into the right columns and render them.
@@ -471,7 +472,7 @@ function template_preprocess_calendar_week(&$vars) {
   }
 
   // If we're not grouping by time, move all items into the 'all day' array.
-  if (empty($view->date_info->style_groupby_times)) {
+  if (empty($view->dateInfo->style_groupby_times)) {
     $add_row = FALSE;
     foreach ($vars['all_day'] as $index => &$day ) {
       foreach ($rows['singleday_buckets'][$index] as $item) {
@@ -489,11 +490,16 @@ function template_preprocess_calendar_week(&$vars) {
     foreach ($rows['singleday_buckets'] as $wday => $singleday_row) {
       $columns[] = $wday;
       foreach ($singleday_row as &$row) {
-        $start_times = $view->date_info->style_groupby_times;
+        $start_times = $view->dateInfo->style_groupby_times;
         $start_time = array_shift($start_times);
         $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
         foreach ($row as &$item) {
-          $time = date_format($item['item']->date_start, 'H:i:s');
+          // todo find out how empty days should be handled properly
+          if ($item['entry']['#theme'] === 'calendar_empty_day') {
+            continue;
+          }
+          $time = date_format($item['item']->getStartDate(), 'H:i:s');
+          // todo calendar_all_day does not exist here
           if ($item['item']->calendar_all_day) {
             $vars['all_day'][$item['wday']][] = $item;
             if ($vars['multiday_rows'] == 0) {
@@ -505,7 +511,7 @@ function template_preprocess_calendar_week(&$vars) {
             // slots if the option to show empty times was chosen.
             while ($time >= $next_start_time && $time < $end_start_time) {
               if (($show_empty_times || $display_overlap) && !array_key_exists($start_time, $grouped_items)) {
-                $grouped_items[$start_time]['values'][$wday] = array();
+                $grouped_items[$start_time]['values'][$wday] = [];
               }
               $start_time = $next_start_time;
               $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
@@ -549,15 +555,8 @@ function template_preprocess_calendar_week(&$vars) {
       'next_start_time' => $next_start_time,
       'curday_date' => (isset($row['data'])) ? $row['data']['date'] : NULL,
     );
-    // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-// 
-// 
-// @see https://www.drupal.org/node/2195739
-// $heading = theme('calendar_time_row_heading', $variables);
+
+    $heading = template_preprocess_calendar_time_row_heading($variables);
 
     $grouped_items[$start_time]['hour'] = $heading['hour'];
     $grouped_items[$start_time]['ampm'] = $heading['ampm'];
@@ -595,13 +594,19 @@ function template_preprocess_calendar_week(&$vars) {
 
   $vars['day_names'] = $day_names;
   $vars['columns'] = $columns;
-  $vars['start_times'] = $view->date_info->style_groupby_times;
+  $vars['start_times'] = $view->dateInfo->style_groupby_times;
   $vars['first_time'] = !empty($first_time) ? $first_time : '';
+
+  $header_ids = [];
+  foreach ($day_names as $key => $value) {
+    $header_ids[$key] = $value['header_id'];
+  }
+  $vars['header_ids'] = $header_ids;
 
   $vars['agenda_hour_class'] = 'calendar-agenda-hour';
   $first_column_width = 10;
 
-  if (empty($view->date_info->style_groupby_times)) {
+  if (empty($view->dateInfo->style_groupby_times)) {
     $vars['agenda_hour_class'] .= ' calendar-agenda-no-hours';
     $first_column_width = 1;
   }
@@ -697,6 +702,8 @@ function template_preprocess_calendar_month_multiple_entity(&$vars) {
 
 /**
  * Format the time row headings in the week and day view.
+ *
+ * TODO find out if this should be helper function instead of a preprocessor
  */
 function template_preprocess_calendar_time_row_heading($vars) {
   $start_time = $vars['start_time'];
@@ -704,19 +711,16 @@ function template_preprocess_calendar_time_row_heading($vars) {
   $curday_date = $vars['curday_date'];
   static $format_hour, $format_ampm;
   if (empty($format_hour)) {
-    // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// $format = variable_get('date_format_short', 'm/d/Y - H:i');
-
+    $format = DateFormat::load('short')->getPattern();
     if (substr($start_time, -5) == '00:00' && substr($next_start_time, -5) == '00:00') {
-      $limit = array('hour');
+      $limit = ['hour'];
     }
     else {
-      $limit = array('hour', 'minute');
+      $limit = ['hour', 'minute'];
     }
-    $format_hour = str_replace(array('a', 'A'), '', date_limit_format($format, $limit));
+    // TODO find date_limit_format() replacement
+//    $format_hour = str_replace(array('a', 'A'), '', date_limit_format($format, $limit));
+    $format_hour = str_replace(['a', 'A'], '', $format, $limit);
     $format_ampm = strstr($format, 'a') ? 'a' : (strstr($format, 'A') ? 'A' : '');
   }
   if ($start_time == '00:00:00' && $next_start_time == '23:59:59') {
@@ -736,7 +740,7 @@ function template_preprocess_calendar_time_row_heading($vars) {
   else {
     $ampm = '';
   }
-  return array('hour' => $hour, 'ampm' => $ampm);
+  return ['hour' => $hour, 'ampm' => $ampm];
 }
 
 /**
