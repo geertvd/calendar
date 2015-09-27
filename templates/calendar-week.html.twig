@@ -91,7 +91,7 @@
             </div>
           </td>
         {% endfor %}
-        {% set current_position = current_position + 1 %}
+        {% set current_position = column_position + 1 %}
         <td class="calendar-agenda-items single-day" headers="{{ header_ids[loop.index - 1] }}">
           <div class="calendar">
             <div class="inner">
@@ -103,13 +103,15 @@
           </div>
         </td>
       {% endfor %}
-      {% for i in current_position..7 %}
-        <td class="calendar-agenda-items single-day">
-          <div class="calendar">
-            <div class="inner">&nbsp</div>
-          </div>
-        </td>
-      {% endfor %}
+      {% if current_position < 7 %}
+        {% for i in current_position..7 %}
+          <td class="calendar-agenda-items single-day">
+            <div class="calendar">
+              <div class="inner">&nbsp</div>
+            </div>
+          </td>
+        {% endfor %}
+      {% endif %}
     </tr>
     {% endfor %}
   </tbody>
