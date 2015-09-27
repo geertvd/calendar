@@ -181,9 +181,8 @@ class Calendar extends RowPluginBase {
           '#attributes' => ['class' => ['edit-calendar-colorpicker']],
           '#attached' => [
             // Add Farbtastic color picker and the js to trigger it.
-            // TODO make the color picker actually work
             'library' => [
-              ['system', 'farbtastic', 'calendar/calendar-colorpicker'],
+              'calendar/calendar.colorpicker',
             ],
           ],
         ];
@@ -262,10 +261,9 @@ class Calendar extends RowPluginBase {
             '#suffix' => '<div class="calendar-colorpicker"></div></div>',
             '#attributes' => ['class' => ['edit-calendar-colorpicker']],
             '#attached' => [
-              // Add Farbtastic color picker.
-              // @TODO make this actually work
+              // Add Farbtastic color picker and the js to trigger it.
               'library' => [
-                ['system', 'farbtastic', 'calendar/calendar-colorpicker'],
+                'calendar/calendar.colorpicker',
               ],
             ],
           ];

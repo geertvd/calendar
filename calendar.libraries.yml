@@ -1,7 +1,9 @@
-calendar-colorpicker:
-  version: 1.x
+calendar.colorpicker:
+  version: VERSION
   js:
     js/calendar_colorpicker.js: {}
+  dependencies:
+    - core/jquery.farbtastic
 
 calendar-overlap:
   version: 1.x
