@@ -5,6 +5,4 @@ dependencies:
   - views
 package: Date/Time
 core: 8.x
-libraries:
-  - calendar/calendar.theme
 version: VERSION
