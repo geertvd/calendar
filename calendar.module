@@ -224,7 +224,11 @@ function calendar_theme() {
       'variables' => ['node' => NULL],
     ],
     'calendar_week' => [
-      'variables' => ['view' => NULL, 'day_names' => [], 'rows' => []  ,],
+      'variables' => ['view' => NULL, 'day_names' => [], 'rows' => [],],
+      'file' => 'calendar.theme.inc',
+    ],
+    'calendar_year' => [
+      'variables' => ['view' => NULL, 'rows' => [], 'months' => [], 'mini' => FALSE,],
       'file' => 'calendar.theme.inc',
     ],
     'calendar_time_row_heading' => [

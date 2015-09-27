@@ -4,6 +4,7 @@
  * @file
  * Theme functions for the Calendar module.
  */
+use Drupal\Component\Datetime\DateTimePlus;
 use Drupal\Core\Datetime\Entity\DateFormat;
 use Drupal\Core\Url;
 use Drupal\views\Views;
@@ -91,45 +92,39 @@ function template_preprocess_calendar_mini(&$vars) {
  */
 function template_preprocess_calendar_year(&$vars) {
 
-  // Construct a calendar for each month, adjusting the $view passed
-  // to the theme so it will produce the right results.
+  // Construct a calendar for each month, adjusting the $view passed to the
+  // theme so it will produce the right results.
   $view = clone($vars['view']);
-  $year = date_format($view->date_info->min_date, 'Y');
-  $view->date_info->style_with_weekno = FALSE;
+  $year = $view->dateInfo->min_date->format('Y');
+  $view->dateInfo->style_with_weekno = FALSE;
   $rows = $vars['rows'];
-  $months = array();
+  $months = [];
   foreach ($rows as $month => $month_rows) {
-    $view->date_info->month = $month;
-    $view->date_info->granularity = 'month';
-    $view->date_info->mini = TRUE;
-    $view->date_info->hide_nav = TRUE;
-    $view->date_info->show_title = TRUE;
-    $view->date_info->url = date_pager_url($view, NULL, \Drupal\Component\Datetime\DateTimePlus::datePad($year, 4) . '-' . \Drupal\Component\Datetime\DateTimePlus::datePad($month));
-    $view->date_info->min_date = new DateObject($view->date_info->year . '-' . \Drupal\Component\Datetime\DateTimePlus::datePad($month) . '-01 00:00:00', date_default_timezone());
-    $view->date_info->max_date = clone($view->date_info->min_date);
-    date_modify($view->date_info->max_date, '+1 month');
-    date_modify($view->date_info->max_date, '-1 second');
-    $variables = array(
-      'view' => $view,
-      'options' => $vars['options'],
-      'rows' => $month_rows,
-    );
-    // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-// 
-// 
-// @see https://www.drupal.org/node/2195739
-// $months[$month] = theme('calendar_mini', $variables);
-
+    $view->dateInfo->month = $month;
+    $view->dateInfo->granularity = 'month';
+    $view->dateInfo->mini = TRUE;
+    $view->dateInfo->hide_nav = TRUE;
+    $view->dateInfo->show_title = TRUE;
+    // TODO implement
+//    $view->dateInfo->url = date_pager_url($view, NULL, \Drupal\Component\Datetime\DateTimePlus::datePad($year, 4) . '-' . \Drupal\Component\Datetime\DateTimePlus::datePad($month));
+    // TODO handle timezone
+    $view->dateInfo->min_date = new DateTime($view->dateInfo->year . '-' . DateTimePlus::datePad($month) . '-01 00:00:00', new DateTimeZone('europe/brussels'));
+    $maxDate = clone($view->dateInfo->min_date);
+    $maxDate->modify('+1 month');
+    $maxDate->modify('-1 second');
+    $view->dateInfo->max_date = $maxDate;
+    $months[$month] = [
+      '#theme' => 'calendar_month',
+      '#view' => $view,
+      '#options' => $vars['options'],
+      '#rows' => $month_rows,
+    ];
   }
-  $view->date_info->mini = FALSE;
+  $view->dateInfo->mini = FALSE;
 
   $vars['months'] = $months;
-  $vars['view']->date_info->hide_nav = FALSE;
-  $vars['view']->date_info->granularity = 'year';
+  $vars['view']->dateInfo->hide_nav = FALSE;
+  $vars['view']->dateInfo->granularity = 'year';
   $vars['mini'] = FALSE;
 
 }
