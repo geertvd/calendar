@@ -1,10 +1,10 @@
 name: Calendar
+type: module
 description: 'Views plugin to display views containing dates as Calendars.'
 dependencies:
   - views
 package: Date/Time
 core: 8.x
-stylesheets:
-  all:
-    - css/calendar_multiday.css
-type: module
+libraries:
+  - calendar/calendar.theme
+version: VERSION
