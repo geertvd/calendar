@@ -1,15 +1,9 @@
-/**
- * Implementation of hook_elements.
- *
- * Much of the colorpicker code was adapted from the Colorpicker module.
- * That module has no stable release yet nor any D6 branch.
- */
-/*
- *  Bind the colorpicker event to the form element
- */
 (function ($) {
   "use strict";
 
+  /*
+   *  Bind the colorpicker event to the form element
+   */
   Drupal.behaviors.calendar_colorpicker = {
     attach: function(context) {
       $(".edit-calendar-colorpicker").on("focus", function() {
