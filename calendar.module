@@ -290,11 +290,12 @@ function calendar_set_link($entity_type, $bundle, $path) {
 /**
  * Helper function to clear previously-set links to calendars.
  *
- * @param $bundle, Clear all links for this bundle. If NULL, clear all links.
+ * @param string $bundle
+ *   The bundle to clear the links for. If NULL, all links are cleared.
  */
 function calendar_clear_link_bundle($bundle = NULL) {
+  // @todo figure out where to store the variables before fixing this
   if (empty($bundle)) {
-    // @FIXME
 // $result = db_select('variable', 'v')
 //       ->fields('v', 'name')
 //       ->condition('name', 'calendar_date_link_%', 'LIKE')
@@ -302,7 +303,6 @@ function calendar_clear_link_bundle($bundle = NULL) {
 
   }
   else {
-    // @FIXME
 // $result = db_select('variable', 'v')
 //       ->fields('v', 'name')
 //       ->condition('name', 'calendar_date_link_' . $bundle)
@@ -310,9 +310,8 @@ function calendar_clear_link_bundle($bundle = NULL) {
 
   }
   // Iterate over all the values and delete them.
+  $result = [];
   foreach ($result as $row) {
-    // @FIXME
-// // @FIXME
 // // The correct configuration object could not be determined. You'll need to
 // // rewrite this call manually.
 // variable_del($row['name']);
@@ -323,20 +322,21 @@ function calendar_clear_link_bundle($bundle = NULL) {
 /**
  * Helper function to clear previously-set links to calendars.
  *
- * @param $path, Clear all links to this path. If NULL, clear all links.
+ * @param $path
+ *   The path to which all links should be cleared. If NULL, all links are
+ *   cleared.
  */
 function calendar_clear_link_path($path = NULL) {
-  // @FIXME
+  // @todo figure out where to store the variables before fixing this
 // $result = db_select('variable', 'v')
 //     ->fields('v', array('name', 'value'))
 //     ->condition('name', 'calendar_date_link_%', 'LIKE')
 //     ->execute()->fetchAll(PDO::FETCH_ASSOC);
 
   // Iterate over all the values and delete them.
+  $result = [];
   foreach ($result as $row) {
     if (empty($path) || unserialize($row['value']) == $path) {
-      // @FIXME
-// // @FIXME
 // // The correct configuration object could not be determined. You'll need to
 // // rewrite this call manually.
 // variable_del($row['name']);
