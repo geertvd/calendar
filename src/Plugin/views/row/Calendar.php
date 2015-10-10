@@ -281,7 +281,6 @@ class Calendar extends RowPluginBase {
     if ($this->view->getBaseTables()['node_field_data']) {
       $link_display = $this->view->getDisplay()->getOption('link_display');
       if (!empty($link_display)) {
-        // @ TODO fix this
         $default_display = $this->view->displayHandlers->get('default')->getOption('link_display');
         $path = $this->view->displayHandlers->get($default_display)->getOption('path');
 
