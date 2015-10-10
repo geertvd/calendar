@@ -243,56 +243,47 @@ function calendar_theme() {
 
 /**
  * Implements hook_node_view().
- *
- * Add link to calendar to nodes, formerly hook_link().
- * Controlled by value of 'calendar_date_link' in the view.
  */
 function calendar_node_view($node, $view_mode, $langcode) {
-  // @FIXME
-// // @FIXME
-// // The correct configuration object could not be determined. You'll need to
-// // rewrite this call manually.
-// $path = variable_get('calendar_date_link_' . $node->type);
+  // @todo finding the bundle like this is probably not the right way
+  $path = \Drupal::state()->get('calendar_date_link_' . $node['title']['#bundle']);
 
   if (!empty($path)) {
-    $links['calendar_link'] = array(
+    $links['calendar_link'] = [
       'title' => t('Calendar'),
       'href' => $path,
-      'attributes' => array('title' => t('View the calendar.')),
-    );
-    $node->content['links']['calendar'] = array(
-      '#theme' => 'links__node__caledar',
+      'attributes' => ['title' => t('View the calendar.')],
+    ];
+    // @todo this rendering does not work
+    $node['links']['calendar'] = [
+      '#theme' => 'links__node__calendar',
       '#links' => $links,
-      '#attributes' => array('class' => array('links', 'inline')),
-    );
+      '#attributes' => ['class' => ['links', 'inline']],
+    ];
   }
 }
 
 /**
- * Helper function to link an entity type to a calendar.
+ * Helper function to add a link to the state storage.
  *
- * @param $entity_type - the type of entity.
- * @param $bundle - the entity bundle name.
- * @param $path - the calendar path to use for this bundle.
+ * @param string $entity_type
+ *   The type of entity.
+ * @param string $bundle
+ *   The entity bundle name.
+ * @param string $path
+ *   The calendar path to use for this bundle.
  */
 function calendar_set_link($entity_type, $bundle, $path) {
+  // @todo this should probably be stored in config instead of state storage
   switch ($entity_type) {
     case 'node':
-      // @FIXME
-// // @FIXME
-// // The correct configuration object could not be determined. You'll need to
-// // rewrite this call manually.
-// variable_set('calendar_date_link_' . $bundle, $path);
-
+      \Drupal::state()->set('calendar_date_link_' . $bundle, $path);
       break;
+
     default:
-      // @FIXME
-// // @FIXME
-// // The correct configuration object could not be determined. You'll need to
-// // rewrite this call manually.
-// variable_set('calendar_date_link_' . $entity_type . '_' . $bundle, $path);
-
+      \Drupal::state()->set('calendar_date_link_' . $entity_type . '_' . $bundle, $path);
       break;
+
   }
 }
 

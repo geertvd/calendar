@@ -282,22 +282,26 @@ class Calendar extends RowPluginBase {
       $link_display = $this->view->getDisplay()->getOption('link_display');
       if (!empty($link_display)) {
         // @ TODO fix this
-//        $default_display = $this->view->display['default']->display_options['link_display'];
-//        $path = $this->view->display[$default_display]->handler->get_option('path');
-//        // If this display has been set up as a default tab, the current path
-//        // is actually the base path, i.e. if the path is 'calendar/month'
-//        // and this is a default tab, the path for this display will actually
-//        // be 'calendar'.
-//        if ($this->view->display[$default_display]->handler->options['menu']['type'] == 'default tab') {
-//          $parts = explode('/', $path);
-//          array_pop($parts);
-//          $path = implode('/', $parts);
-//        }
+        $default_display = $this->view->displayHandlers->get('default')->getOption('link_display');
+        $path = $this->view->displayHandlers->get($default_display)->getOption('path');
+
+        // If this display has been set up as a default tab, the current path
+        // is actually the base path, i.e. if the path is 'calendar/month'
+        // and this is a default tab, the path for this display will actually
+        // be 'calendar'.
+        if ($this->view->displayHandlers->get($default_display)->getOption('menu')['type'] == 'default tab') {
+          // @todo check if this works
+          $parts = explode('/', $path);
+          array_pop($parts);
+          $path = implode('/', $parts);
+        }
+
+        // @todo uncomment after calendar_clear_link_path is fixed
 //        calendar_clear_link_path($path);
-//        if (!empty($form_state['values']['row_options']['calendar_date_link'])) {
-//          $node_type = $form_state['values']['row_options']['calendar_date_link'];
-//          calendar_set_link('node', $node_type, $path);
-//        }
+        if (!empty($form_state->getValue('row_options')['calendar_date_link'])) {
+          $node_type = $form_state->getValue('row_options')['calendar_date_link'];
+          calendar_set_link('node', $node_type, $path);
+        }
       }
     }
   }
