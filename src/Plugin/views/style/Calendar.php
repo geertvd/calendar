@@ -361,7 +361,10 @@ class Calendar extends StylePluginBase {
   }
 
   /**
-   * @todo Document this.
+   * Checks if this view uses the calendar row plugin.
+   *
+   * @return boolean
+   *   True if it does, false if it doesn't.
    */
   protected function hasCalendarRowPlugin() {
     return $this->view->rowPlugin instanceof CalendarRow;
