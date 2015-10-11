@@ -23,13 +23,7 @@
  * $max_date_formatted: The maximum date for this calendar in the format YYYY-MM-DD HH:MM:SS.
  * 
  */
-$header_ids = array();
-foreach ($day_names as $key => $value) {
-  $header_ids[$key] = $value['header_id'];
-}
-//dsm('Display: '. $display_type .': '. $min_date_formatted .' to '. $max_date_formatted);
 ?>
-
 <div class="calendar-calendar"><div class="week-view">
   <div id="header-container">
   <table class="full">
@@ -37,11 +31,11 @@ foreach ($day_names as $key => $value) {
     <tr class="holder"><td class="calendar-time-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder margin-right"></td></tr>
     <tr>
       <th class="calendar-agenda-hour">&nbsp;</th>
-      <?php foreach ($day_names as $cell): ?>
-        <th class="<?php print $cell['class']; ?>" id="<?php print $cell['header_id']; ?>">
-          <?php print $cell['data']; ?>
+      {% for cell in day_names %}
+        <th class="{{ cell.class }}" id="{{ cell.header_id }}">
+          {{ cell.data }}
         </th>
-      <?php endforeach; ?>
+      {% endfor %}
       <th class="calendar-day-holder margin-right"></th>
     </tr>
   </tbody>

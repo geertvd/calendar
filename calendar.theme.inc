@@ -525,7 +525,7 @@ function template_preprocess_calendar_week(&$vars) {
       if ($show_empty_times || $display_overlap) {
         while ($start_time < $end_start_time && ($start_time != NULL || $display_overlap)) {
           if ($start_time == NULL) {
-            $start_times = $view->date_info->style_groupby_times;
+            $start_times = $view->dateInfo->style_groupby_times;
             $start_time = array_shift($start_times);
             $next_start_time = array_shift($start_times);
           }

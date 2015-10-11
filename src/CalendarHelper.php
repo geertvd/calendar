@@ -215,4 +215,80 @@ class CalendarHelper extends DateHelper {
     }
     return NULL;
   }
+
+  /**
+   * @deprecated
+   *   This is a copy of the date_is_all_day() function from the date_api
+   *   module in D7.
+   * @TODO figure out where this should live
+   */
+  public static function dateIsAllDay($string1, $string2, $granularity = 'second', $increment = 1) {
+    if (empty($string1) || empty($string2)) {
+      return FALSE;
+    }
+    elseif (!in_array($granularity, array('hour', 'minute', 'second'))) {
+      return FALSE;
+    }
+
+    preg_match('/([0-9]{4}-[0-9]{2}-[0-9]{2}) (([0-9]{2}):([0-9]{2}):([0-9]{2}))/', $string1, $matches);
+    $count = count($matches);
+    $date1 = $count > 1 ? $matches[1] : '';
+    $time1 = $count > 2 ? $matches[2] : '';
+    $hour1 = $count > 3 ? intval($matches[3]) : 0;
+    $min1 = $count > 4 ? intval($matches[4]) : 0;
+    $sec1 = $count > 5 ? intval($matches[5]) : 0;
+    preg_match('/([0-9]{4}-[0-9]{2}-[0-9]{2}) (([0-9]{2}):([0-9]{2}):([0-9]{2}))/', $string2, $matches);
+    $count = count($matches);
+    $date2 = $count > 1 ? $matches[1] : '';
+    $time2 = $count > 2 ? $matches[2] : '';
+    $hour2 = $count > 3 ? intval($matches[3]) : 0;
+    $min2 = $count > 4 ? intval($matches[4]) : 0;
+    $sec2 = $count > 5 ? intval($matches[5]) : 0;
+    if (empty($date1) || empty($date2)) {
+      return FALSE;
+    }
+    if (empty($time1) || empty($time2)) {
+      return FALSE;
+    }
+
+    $tmp = self::seconds('s', TRUE, $increment);
+    $max_seconds = intval(array_pop($tmp));
+    $tmp = self::minutes('i', TRUE, $increment);
+    $max_minutes = intval(array_pop($tmp));
+
+    // See if minutes and seconds are the maximum allowed for an increment or the
+    // maximum possible (59), or 0.
+    switch ($granularity) {
+      case 'second':
+        $min_match = $time1 == '00:00:00'
+          || ($hour1 == 0 && $min1 == 0 && $sec1 == 0);
+        $max_match = $time2 == '00:00:00'
+          || ($hour2 == 23 && in_array($min2, array($max_minutes, 59)) && in_array($sec2, array($max_seconds, 59)))
+          || ($hour1 == 0 && $hour2 == 0 && $min1 == 0 && $min2 == 0 && $sec1 == 0 && $sec2 == 0);
+        break;
+      case 'minute':
+        $min_match = $time1 == '00:00:00'
+          || ($hour1 == 0 && $min1 == 0);
+        $max_match = $time2 == '00:00:00'
+          || ($hour2 == 23 && in_array($min2, array($max_minutes, 59)))
+          || ($hour1 == 0 && $hour2 == 0 && $min1 == 0 && $min2 == 0);
+        break;
+      case 'hour':
+        $min_match = $time1 == '00:00:00'
+          || ($hour1 == 0);
+        $max_match = $time2 == '00:00:00'
+          || ($hour2 == 23)
+          || ($hour1 == 0 && $hour2 == 0);
+        break;
+      default:
+        $min_match = TRUE;
+        $max_match = FALSE;
+    }
+
+    if ($min_match && $max_match) {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
 }

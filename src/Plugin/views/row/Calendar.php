@@ -8,9 +8,11 @@
 namespace Drupal\calendar\Plugin\views\row;
 
 use Drupal\calendar\CalendarEvent;
+use Drupal\calendar\CalendarHelper;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\TypedData\Plugin\DataType\DateTimeIso8601;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\row\RowPluginBase;
 use Drupal\views\ViewExecutable;
@@ -471,8 +473,10 @@ class Calendar extends RowPluginBase {
       // @todo remove this once the above loop is fixed
       $item_start_date = new \DateTime();
       $item_start_date->setTimestamp($entity->getCreatedTime());
+      $item_start_date->setTime(0, 0, 0);
       $item_end_date = new \DateTime();
-      $item_end_date->setTimestamp($entity->getCreatedTime() + 3600);
+      $item_end_date->setTimestamp($entity->getCreatedTime() + 3600 * 24);
+      $item_end_date->setTime(0, 0, 0);
       if (empty($item_start_date)) {
         continue;
       }
@@ -608,7 +612,11 @@ class Calendar extends RowPluginBase {
       // calendar_start and calendar_end are UTC dates as formatted strings
 //      $entity->calendar_start = date_format($entity->calendar_start_date, DATE_FORMAT_DATETIME);
 //      $entity->calendar_end = date_format($entity->calendar_end_date, DATE_FORMAT_DATETIME);
-//      $entity->calendar_all_day = date_is_all_day($entity->calendar_start, $entity->calendar_end, $granularity, $increment);
+
+      // @TODO don't hardcode granularity and increment
+      $granularity = 'hour';
+      $increment = 1;
+      $entity->calendar_all_day = CalendarHelper::dateIsAllDay($entity->getStartDate()->format('Y-m-d H:i:s'), $entity->getEndDate()->format('Y-m-d H:i:s'), $granularity, $increment);
 
       $calendar_start = new \DateTime();
       $calendar_start->setTimestamp($entity->getStartDate()->getTimestamp());

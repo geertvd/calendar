@@ -227,6 +227,10 @@ function calendar_theme() {
       'variables' => ['view' => NULL, 'day_names' => [], 'rows' => [],],
       'file' => 'calendar.theme.inc',
     ],
+    'calendar_week_overlap' => [
+      'variables' => ['view' => NULL, 'day_names' => [], 'rows' => [],],
+      'file' => 'calendar.theme.inc',
+    ],
     'calendar_year' => [
       'variables' => ['view' => NULL, 'rows' => [], 'months' => [], 'mini' => FALSE,],
       'file' => 'calendar.theme.inc',
