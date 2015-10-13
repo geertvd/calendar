@@ -1,5 +1,6 @@
-Creates calendar displays of Views results.
-
+# Drupal Calendar 8.x
+## Creates calendar displays of Views results.
+ 
 Create a new calendar by using the calendar template for the desired
 date field. See a link to create a view from a template at the top
 of the Views listing page.
@@ -12,9 +13,8 @@ the Date Tools Wizard to create a content type with a date field
 and a calendar that displays that field, all in a single step!
 
 
-=========================================================
-CACHING & PERFORMANCE
-=========================================================
+### CACHING & PERFORMANCE
+
 
 Calendars are very time-consuming to process, so caching is recommended.
 You can set up caching options for your calendar in the Advanced section
