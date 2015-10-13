@@ -2,7 +2,6 @@
 /**
  * @file
  * Install, update and uninstall functions for the calendar module.
- *
  */
 
 function calendar_update_last_removed() {
@@ -27,7 +26,8 @@ function calendar_update_7001() {
 }
 
 /**
- * Delete calendar_default_view_options(), which was used by the old default view and is no longer used.
+ * Delete calendar_default_view_options(), which was used by the old default
+ * view and is no longer used.
  */
 function calendar_update_7002() {
   \Drupal::config('calendar.settings')->clear('calendar_default_view_options')->save();

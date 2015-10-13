@@ -89,7 +89,8 @@
   margin: 0;
 }
 /**
- * Make sure paragraphs buried in calendar cells use padding, not margins, for separation so the background color doesn't come through.
+ * Make sure paragraphs buried in calendar cells use padding, not margins, for separation so the background color
+ * doesn't come through.
  */
 .calendar-calendar .inner p {
   padding: 0 0 .8em 0;

@@ -26,7 +26,6 @@ function calendar_page_attachments(array &$page) {
  * Creates a calendar_links array which is stored in the session and used
  * in calendar_menu_local_tasks_alter() to display the links as action items.
  * The links can be altered or deleted using hook_calendar_links_alter().
- *
  */
 function calendar_preprocess_date_views_pager(&$vars) {
   $view = $vars['plugin']->view;
@@ -99,7 +98,8 @@ function calendar_date_default_argument_alter(&$argument, &$value) {
 /**
  * Implements hook_views_pre_render().
  *
- * Track the current date as the user moves from calendar display to calendar display.
+ * Track the current date as the user moves from calendar display to calendar
+ * display.
  */
 function calendar_views_pre_render(ViewExecutable $view) {
   $user = \Drupal::currentUser();

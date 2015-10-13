@@ -823,7 +823,7 @@ function theme_calendar_stripe_stripe($vars) {
 }
 
 /**
- * Indent items based off a nested tree structure of overlapping items
+ * Indent items based off a nested tree structure of overlapping items.
  *
  * @param array $overlapped_items
  *   Tree of overlapped items
@@ -836,7 +836,8 @@ function theme_calendar_stripe_stripe($vars) {
  * @param int $depth
  *   Current depth of the tree
  * @return rc
- *   Returns an array with the max depth of the branch and whether an overlap occurred
+ *   Returns an array with the max depth of the branch and whether an overlap
+ *   occurred
  */
 function _calc_indents(&$overlapped_items, $start, $end, &$item, $depth = 0) {
 
@@ -923,7 +924,8 @@ function _calc_indents(&$overlapped_items, $start, $end, &$item, $depth = 0) {
 }
 
 /**
- * Calculates the indent based of the current depth and the depth of this branch in the tree
+ * Calculates the indent based of the current depth and the depth of this branch
+ * in the tree.
  *
  * @param int $cur_depth
  * @param int $depth
