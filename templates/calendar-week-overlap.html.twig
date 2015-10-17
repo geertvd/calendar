@@ -45,172 +45,161 @@
   <table class="full">
   <tbody>
   <tr class="holder"><td class="calendar-time-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td></tr>
-    <?php for ($i = 0; $i < $multiday_rows; $i++): ?>
-    <?php 
-      $colpos = 0; 
-      $rowclass = "all-day";
-      if ($i == 0) {
-        $rowclass .= " first";
-      }
-      if ($i == $multiday_rows - 1) {
-        $rowclass .= " last";
-      }
-    ?>
-    <tr class="<?php print $rowclass?>">
-      <?php if($i == 0 && ($by_hour_count > 0 || !empty($start_times))) :?>
-      <td class="<?php print $agenda_hour_class ?>" rowspan="<?php print $multiday_rows?>">
-        <span class="calendar-hour"><?php print t('All day', array(), array('context' => 'datetime'))?></span>
-      </td>
-      <?php endif; ?>
-      <?php for($j = 0; $j < 7; $j++): ?>
-        <?php $cell = (empty($all_day[$j][$i])) ? NULL : $all_day[$j][$i]; ?>
-        <?php if($cell != NULL && $cell['filled'] && $cell['wday'] == $j): ?>
-          <?php for($colpos; $colpos < $cell['wday']; $colpos++) : ?>
-          <?php 
-            $colclass = "calendar-agenda-items multi-day";
-            if ($colpos == 0) {
-              $colclass .= " first";
-            }
-            if ($colpos == 6) {
-              $colclass .= " last";
-            }
-          ?>
-          <td class="<?php print $colclass?>"><div class="inner">&nbsp;</div></td>
-          <?php endfor;?>
-          <?php 
-            $colclass = "calendar-agenda-items multi-day";
-            if ($colpos == 0) {
-              $colclass .= " first";
-            }
-            if ($colpos == 6) {
-              $colclass .= " last";
-            }
-          ?>
-          <td colspan="<?php print $cell['colspan']?>" class="<?php print $colclass?>">
-            <div class="inner">
-            <?php print $cell['entry']?>
-            </div>
-          </td>
-          <?php $colpos += $cell['colspan']; ?>
-        <?php endif; ?>
-      <?php endfor; ?>  
-      <?php while($colpos < 7) : ?>
-      <?php 
-        $colclass = "calendar-agenda-items multi-day no-entry";
-        if ($colpos == 0) {
-          $colclass .= " first";
-        }
-        if ($colpos == 6) {
-          $colclass .= " last";
-        }
-      ?>
-      <td class="<?php print $colclass?>"><div class="inner">&nbsp;</div></td>
-      <?php $colpos++; ?>
-      <?php endwhile;?>
-    </tr>
-    <?php endfor; ?>
-    <?php if ($multiday_rows == 0) :?>
-    <tr>
-      <td class="<?php print $agenda_hour_class ?>">
-        <span class="calendar-hour"><?php print t('All day', array(), array('context' => 'datetime'))?></span>
-      </td>
-      <?php for($j = 0; $j < 7; $j++): ?>
-      <?php 
-        $colclass = "calendar-agenda-items multi-day no-entry";
-        if ($j == 0) {
-          $colclass .= " first";
-        }
-        if ($j == 6) {
-          $colclass .= " last";
-        }
-      ?>
-      <td class="<?php print $colclass?>"><div class="inner">&nbsp;</div></td>
-      <?php endfor; ?>
-    </tr>
-    <?php endif; ?>
+    {% for i in multiday_rows %}
+      {% set row_class = 'all-day' %}
+      {% set row_class = loop.first ?: 'first' %}
+      {% set row_class = loop.last ?: 'last' %}
+      <tr class="{{ row_class }}">
+        {% if index == 0 and (by_hour_count > 0 or start_times is not empty) %}
+        <td class="{{ agenda_hour_class }}" rowspan="{{ multiday_rows }}">
+          <span class="calendar-hour">{% trans with {'context': 'datetime'} %}All day{% endtrans %}</span>
+        </td>
+        {% endif %}
+
+        {% for j in 0..7 %}
+          {% set cell = all_day[index][i] ? NULL : all_day[index][i] %}
+          {# TODO convert to twig #}
+          <?php if($cell != NULL && $cell['filled'] && $cell['wday'] == $j): ?>
+            <?php for($colpos; $colpos < $cell['wday']; $colpos++) : ?>
+            <?php
+              $colclass = "calendar-agenda-items multi-day";
+              if ($colpos == 0) {
+                $colclass .= " first";
+              }
+              if ($colpos == 6) {
+                $colclass .= " last";
+              }
+            ?>
+            <td class="<?php print $colclass?>"><div class="inner">&nbsp;</div></td>
+            <?php endfor;?>
+            <?php
+              $colclass = "calendar-agenda-items multi-day";
+              if ($colpos == 0) {
+                $colclass .= " first";
+              }
+              if ($colpos == 6) {
+                $colclass .= " last";
+              }
+            ?>
+            <td colspan="<?php print $cell['colspan']?>" class="<?php print $colclass?>">
+              <div class="inner">
+              <?php print $cell['entry']?>
+              </div>
+            </td>
+            <?php $colpos += $cell['colspan']; ?>
+          <?php endif; ?>
+        {% endfor %}
+        <?php while($colpos < 7) : ?>
+        <?php
+          $colclass = "calendar-agenda-items multi-day no-entry";
+          if ($colpos == 0) {
+            $colclass .= " first";
+          }
+          if ($colpos == 6) {
+            $colclass .= " last";
+          }
+        ?>
+        <td class="<?php print $colclass?>"><div class="inner">&nbsp;</div></td>
+        <?php $colpos++; ?>
+        <?php endwhile;?>
+      </tr>
+    {% endfor %}
+
+    {% if multiday_rows == 0 %}
+      <tr>
+        <td class="{{ agenda_hour_class }}">
+          <span class="calendar-hour">{% trans with {'context': 'datetime'} %}All day{% endtrans %}</span>
+        </td>
+        {% for j in 0..7 %}
+          {% set col_class = "calendar-agenda-items multi-day no-entry" %}
+          {% set col_class = loop.first ? '' : 'first' %}
+          {% set col_class = loop.index == 7 ? '' : 'last' %}
+          <td class="{{ col_class }}"><div class="inner">&nbsp;</div></td>
+        {% endfor %}
+      </tr>
+    {% endif %}
+
     <tr class="expand">
-      <td class="<?php print $agenda_hour_class ?>">
+      <td class="{{ agenda_hour_class }}">
         <span class="calendar-hour">&nbsp;</span>
       </td>
-      <?php for($j = 0; $j < 7; $j++): ?>
-      <?php 
-        $colclass = "calendar-agenda-items multi-day no-entry";
-        if ($j == 0) {
-          $colclass .= " first";
-        }
-        if ($j == 6) {
-          $colclass .= " last";
-        }
-      ?>
-      <td class="<?php print $colclass?>"><div class="inner">&nbsp;</div></td>
-      <?php endfor; ?>
+
+      {% for j in 0..7 %}
+        {% set col_class = "calendar-agenda-items multi-day no-entry" %}
+        {% set col_class_extra = '' %}
+        {% if loop.first %}{% set col_class_extra = 'first' %}{% endif %}
+        {% if loop.last %}{% set col_class_extra = 'last' %}{% endif %}
+        <td class="{{ col_class }} {{ col_class_extra }}"><div class="inner">&nbsp;</div></td>
+      {% endfor %}
+      <td class="{{ col_class }}"><div class="inner">&nbsp;</div></td>
      </tr>
   </thead> 
   </table>
   </div>
   <div class="header-body-divider">&nbsp;</div>
   <div id="single-day-container">
-    <?php if (!empty($scroll_content)) : ?>
+    {% if scroll_content is not empty %}
     <script>
       try {
+        // TODO move this to a separate file and include it when needed
         // Hide container while it renders...  Degrade w/o javascript support
         jQuery('#single-day-container').css('visibility','hidden');
       }catch(e){ 
         // swallow 
       }
     </script>
-    <?php endif; ?>
+    {% endif %}
     <table class="full">
       <tbody>
         <tr class="holder"><td class="calendar-time-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td></tr>
         <tr>
-          <?php for ($index = 0; $index < 8; $index++): ?>
-          <?php if ($index == 0 ): ?>
-          <td class="first" headers="<?php print $header_ids[$index]; ?>">
-          <?php elseif ($index == 7 ) : ?>
-          <td class="last"">
-          <?php else : ?>
-          <td headers="<?php print $header_ids[$index]; ?>">
-          <?php endif; ?>
-            <?php foreach ($start_times as $time_cnt => $start_time): ?>
-              <?php 
-                if ($time_cnt == 0) {
-                  $class = 'first ';
-                }
-                elseif ($time_cnt == count($start_times) - 1) {
-                  $class = 'last ';
-                }
-                else {
-                  $class = '';
-                } ?>
-              <?php if( $index == 0 ): ?>
-              <?php $time = $items[$start_time];?>
-              <div class="<?php print $class?>calendar-agenda-hour">
-                <span class="calendar-hour"><?php print $time['hour']; ?></span><span class="calendar-ampm"><?php print $time['ampm']; ?></span>
-              </div>
-              <?php else: ?>
-              <div class="<?php print $class?>calendar-agenda-items single-day">
+          {% for i in 0..7 %}
+            {% if loop.first %}
+              <td class="first" headers="{{ header_ids[loop.index] }}">
+            {% elseif loop.index0 == 7 %}
+              <td class="last">
+            {% else %}
+              <td headers="{{ header_ids[loop.index] }}">
+            {% endif %}
+
+            {% for time_cnt, start_time in start_times%}
+              {% if time_cnt == 0 %}
+                {% set class = 'first' %}
+              {% elseif time_cnt == start_times|length - 1 %}
+                {% set class = 'last' %}
+              {% else %}
+                {% set class = '' %}
+              {% endif %}
+
+              {% if loop.first %}
+                {% set time = items[start_time] %}
+                <div class="{{ class }}calendar-agenda-hour">
+                  <span class="calendar-hour">{{ time.hour }}</span><span class="calendar-ampm">{{ time.ampm }}</span>
+                </div>
+              {% else %}
+                <div class="{{ class }}calendar-agenda-items single-day">
                 <div class="half-hour">&nbsp;</div>
-                <div class="calendar item-wrapper">
-                  <div class="inner">
-                    <?php if(!empty($items[$start_time]['values'][$index - 1])) :?>
-                      <?php foreach($items[$start_time]['values'][$index - 1] as $item) :?>
-                        <?php if (isset($item['is_first']) && $item['is_first']) :?>
-                        <div class="item <?php print $item['class']?> first_item">
-                        <?php else : ?>
-                        <div class="item <?php print $item['class']?>">
-                        <?php endif; ?>
-                        <?php print $item['entry'] ?>
-                        </div>
-                      <?php endforeach; ?>
-                    <?php endif; ?>
+                  <div class="calendar item-wrapper">
+                    <div class="inner">
+                      {% if items[start_time]['values'][loop.index - 1] %}
+                      {% if iterms[start_time]['values'][loop.index - 1] %}
+                        {% for item in items[start_time]['values'][loop.index - 1]%}
+                          {% if item['is_first'] %}
+                            <div class="item item.class first_item">
+                          {% else %}
+                            <div class="item item.class">
+                          {% endif %}
+                              {{ item.entry }}
+                            </div>
+                        {% endfor %}
+                      {% endif %}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <?php endif; ?>
-            <?php endforeach;?>
-          </td>
-          <?php endfor;?>
+                {% endif %}
+              {% endfor %}
+            </td>
+          {% endfor %}
         </tr>
       </tbody>
     </table>
@@ -220,6 +209,7 @@
 <?php if (!empty($scroll_content)) : ?>
 <script>
 try {
+  // TODO move this to a separate file and include it when needed
   // Size and position the viewport inline so there are no delays
   calendar_resizeViewport(jQuery);
   calendar_scrollToFirst(jQuery);

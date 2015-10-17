@@ -52,11 +52,11 @@
       {#}#}
 
     <tr class="todo {{ row_class }}">
-      <?php if($i == 0 && ($by_hour_count > 0 || !empty($start_times))) :?>
-      <td class="<?php print $agenda_hour_class ?>" rowspan="<?php print $multiday_rows?>">
-        <span class="calendar-hour"><?php print t('All day', array(), array('context' => 'datetime'))?></span>
-      </td>
-      <?php endif; ?>
+      {% if index == 0 and (by_hour_count > 0 or start_times is not empty) %}
+        <td class="{{ agenda_hour_class }}" rowspan="{{ multiday_rows }}">
+          <span class="calendar-hour">{% trans with {'context': 'datetime'} %}All day{% endtrans %}</span>
+        </td>
+      {% endif %}
       <?php for($j = 0; $j < 6; $j++): ?>
         <?php $cell = (empty($all_day[$j][$i])) ? NULL : $all_day[$j][$i]; ?>
         <?php if($cell != NULL && $cell['filled'] && $cell['wday'] == $j): ?>
