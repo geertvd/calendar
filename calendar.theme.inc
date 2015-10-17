@@ -454,10 +454,14 @@ function template_preprocess_calendar_week(&$vars) {
     for ($i = 0; $i < 7; $i++) {
       if (count($rows['singleday_buckets'][$i]) > 0) {
         $time_slot = reset($rows['singleday_buckets'][$i]);
-        $time = date_format($time_slot[0]['item']->date_start, 'H:i:s');
-        if ($time < $first_time) {
-          $first_time = $time;
-          $first_time_index = $i;
+        // TODO item should not be empty at this point, find out why empty days
+        // get to this point, fix that, and remove this hack
+        if (isset($time_slot[0]['item'])) {
+          $time = date_format($time_slot[0]['item']->date_start, 'H:i:s');
+          if ($time < $first_time) {
+            $first_time = $time;
+            $first_time_index = $i;
+          }
         }
       }
     }

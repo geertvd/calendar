@@ -36,10 +36,10 @@ class CalendarEvent {
   protected $startDate;
 
   /**
-   * @var \DateTime $end_date
+   * @var \DateTime $endDate
    *   The end date of the event.
    */
-  protected $end_date;
+  protected $endDate;
 
   /**
    * @var \DateTimeZone $timezone

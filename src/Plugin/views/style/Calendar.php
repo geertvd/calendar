@@ -989,7 +989,7 @@ class Calendar extends StylePluginBase {
                   $diff =  CalendarHelper::difference($this->currentDay, $this->dateInfo->max_date, 'days');
                   $remaining_days = ($this->dateInfo->granularity == 'month') ? min(6 - $wday, $diff) : $diff - 1;
                   // The bucket_cnt defines the colspan.  colspan = bucket_cnt + 1
-                  $days =  CalendarHelper::difference($this->currentDay, $item->date_end, 'days');
+                  $days =  CalendarHelper::difference($this->currentDay, $item->getEndDate(), 'days');
                   $bucket_cnt = max(0, min($days, $remaining_days));
 
                   // See if there is an available slot to add an event.  This will allow
@@ -1003,7 +1003,7 @@ class Calendar extends StylePluginBase {
                   }
 
                   // Add continuation attributes
-                  $item->continuation = $item->date_start < $this->currentDay;
+                  $item->continuation = $item->getStartDate() < $this->currentDay;
                   $item->continues = $days > $bucket_cnt;
                   $item->is_multi_day = TRUE;
 
@@ -1020,7 +1020,7 @@ class Calendar extends StylePluginBase {
                       '#theme' => 'calendar_item',
                       '#view' => $this->view,
                       // todo, why are we passing rendered_fields separately?
-                      '#rendered_fields' => $item->rendered_fields,
+//                      '#rendered_fields' => $item->rendered_fields,
                       '#item' => $item,
                     ],
                   );
