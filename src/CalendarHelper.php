@@ -161,15 +161,23 @@ class CalendarHelper extends DateHelper {
             $item_diff = 0 - $item1;
             for ($i = 1; $i < abs($year_diff); $i++) {
               $date1->modify('-1 year');
-              $item_diff -= self::daysInYear($date1);
+              // @TODO self::daysInYear() throws a warning when used with a
+              // \DateTime object. See https://www.drupal.org/node/2596043
+//              $item_diff -= self::daysInYear($date1);
+              $item_diff -= 365;
             }
-            return $item_diff - (self::daysInYear($date2) - $item2);
+//            return $item_diff - (self::daysInYear($date2) - $item2);
+            return $item_diff - (365 - $item2);
           }
           else {
-            $item_diff = self::daysInYear($date1) - $item1;
+            // @TODO self::daysInYear() throws a warning when used with a
+            // \DateTime object. See https://www.drupal.org/node/2596043
+//            $item_diff = self::daysInYear($date1) - $item1;
+            $item_diff = 365 - $item1;
             for ($i = 1; $i < $year_diff; $i++) {
               $date1->modify('+1 year');
-              $item_diff += self::daysInYear($date1);
+//              $item_diff += self::daysInYear($date1);
+              $item_diff += 365;
             }
             return $item_diff + $item2;
           }
