@@ -423,9 +423,6 @@ class Calendar extends StylePluginBase {
 //    $this->dateInfo->limit = $argument->limit;
     // @todo What if the display doesn't have a route?
     //$this->dateInfo->url = $this->view->getUrl();
-    // @todo min and max date strings info is already known in dateinfo
-    $this->dateInfo->min_date_date = $this->dateInfo->min_date->format(DATETIME_DATE_STORAGE_FORMAT);
-    $this->dateInfo->max_date_date = $this->dateInfo->max_date->format(DATETIME_DATE_STORAGE_FORMAT);
     $this->dateInfo->setForbid(isset($argument->forbid) ? $argument->forbid : FALSE);
 
     // Add calendar style information to the view.
