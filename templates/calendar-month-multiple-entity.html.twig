@@ -14,12 +14,12 @@
 <div class="view-item view-item-{{ view.name }}>">
   <div class="calendar monthview" id="{{ curday }}">
     {% for id in ids %}
-      {% if view.dateInfo.style_max_items_behavior is not 'more' %}
+      {% if view.styleInfo.style_max_items_behavior is not 'more' %}
         - <!-- theme('calendar_stripe_stripe', $id); ?>-->
       {% endif %}
     {% endfor %}
     <div class="view-item">
-      {% if view.dateInfo.style_max_items_behavior is not 'more' %}
+      {% if view.styleInfo.style_max_items_behavior is not 'more' %}
       <div class="multiple-events">
         <!--<?php // @FIXME
 // l() expects a Url object, created from a route name or external URI.

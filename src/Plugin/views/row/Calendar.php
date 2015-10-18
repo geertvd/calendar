@@ -566,12 +566,13 @@ class Calendar extends RowPluginBase {
     // anything outside the view date range, and possibly create additional
     // nodes so that we have a 'node' for each day that this item occupies in
     // this view.
+    // @TODO make this work with the CalendarDateInfo object
     $now = max($dateInfo->min_zone_string, $this->dateFormatter->format($event->getStartDate()->getTimestamp(), 'Y-m-d'));
     $to = min($dateInfo->max_zone_string, $this->dateFormatter->format($event->getEndDate()->getTimestamp(), 'Y-m-d'));
     $next = new \DateTime();
     $next->setTimestamp($event->getStartDate()->getTimestamp());
 
-    if ($dateInfo->display_timezone_name != $event->getTimezone()->getName()) {
+    if ($this->dateArgument->view->styleInfo->display_timezone_name != $event->getTimezone()->getName()) {
       // Make $start and $end (derived from $node) use the timezone $to_zone,
       // just as the original dates do.
       $next->setTimezone($event->getTimezone());

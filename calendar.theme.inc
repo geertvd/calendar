@@ -51,7 +51,7 @@ function template_preprocess_calendar_month(&$vars) {
           }
           $data .= $cell['link'];
         }
-        if ($view->dateInfo->mini) {
+        if ($view->styleInfo->mini) {
           $month_rows[$weekno][$day]['data'] = $data;
         }
         else {
@@ -64,9 +64,9 @@ function template_preprocess_calendar_month(&$vars) {
   $vars['rows'] = $month_rows;
   $vars['day_names'] = $day_names;
 
-  $vars['display_type'] = $view->dateInfo->granularity;
-  $vars['min_date_formatted'] = $view->dateInfo->min_date->format(DATETIME_DATE_STORAGE_FORMAT);
-  $vars['max_date_formatted'] = $view->dateInfo->max_date->format(DATETIME_DATE_STORAGE_FORMAT);
+  $vars['display_type'] = $view->dateInfo->getGranularity();
+  $vars['min_date_formatted'] = $view->dateInfo->getMinDate()->format(DATETIME_DATE_STORAGE_FORMAT);
+  $vars['max_date_formatted'] = $view->dateInfo->getMaxDate->format(DATETIME_DATE_STORAGE_FORMAT);
 }
 
 /**
@@ -95,24 +95,24 @@ function template_preprocess_calendar_year(&$vars) {
   // Construct a calendar for each month, adjusting the $view passed to the
   // theme so it will produce the right results.
   $view = clone($vars['view']);
-  $year = $view->dateInfo->min_date->format('Y');
-  $view->dateInfo->style_with_weekno = FALSE;
+  $year = $view->dateInfo->getMinDate()->format('Y');
+  $view->styleInfo->style_with_weekno = FALSE;
   $rows = $vars['rows'];
   $months = [];
   foreach ($rows as $month => $month_rows) {
-    $view->dateInfo->month = $month;
-    $view->dateInfo->granularity = 'month';
-    $view->dateInfo->mini = TRUE;
-    $view->dateInfo->hide_nav = TRUE;
-    $view->dateInfo->show_title = TRUE;
+    $view->dateInfo->setMonth($month);
+    $view->dateInfo->setGranularity('month');
+    $view->styleInfo->mini = TRUE;
+    $view->styleInfo->hide_nav = TRUE;
+    $view->styleInfo->show_title = TRUE;
     // TODO implement
 //    $view->dateInfo->url = date_pager_url($view, NULL, \Drupal\Component\Datetime\DateTimePlus::datePad($year, 4) . '-' . \Drupal\Component\Datetime\DateTimePlus::datePad($month));
     // TODO handle timezone
-    $view->dateInfo->min_date = new DateTime($view->dateInfo->year . '-' . DateTimePlus::datePad($month) . '-01 00:00:00', new DateTimeZone('europe/brussels'));
-    $maxDate = clone($view->dateInfo->min_date);
+    $view->dateInfo->setMinDate(new DateTime($view->dateInfo->year . '-' . DateTimePlus::datePad($month) . '-01 00:00:00', new DateTimeZone('europe/brussels')));
+    $maxDate = clone($view->dateInfo->getMinDate());
     $maxDate->modify('+1 month');
     $maxDate->modify('-1 second');
-    $view->dateInfo->max_date = $maxDate;
+    $view->dateInfo->setMaxDate($maxDate);
     $months[$month] = [
       '#theme' => 'calendar_month',
       '#view' => $view,
@@ -120,11 +120,11 @@ function template_preprocess_calendar_year(&$vars) {
       '#rows' => $month_rows,
     ];
   }
-  $view->dateInfo->mini = FALSE;
+  $view->styleInfo->mini = FALSE;
 
   $vars['months'] = $months;
-  $vars['view']->dateInfo->hide_nav = FALSE;
-  $vars['view']->dateInfo->granularity = 'year';
+  $vars['view']->styleInfo->hide_nav = FALSE;
+  $vars['view']->dateInfo->setGranularity('year');
   $vars['mini'] = FALSE;
 
 }
@@ -226,8 +226,8 @@ function template_preprocess_calendar_day(&$vars) {
   $vars['rows']['all_day'] = $grouped_items;
 
   // Moved timed items into the right columns and render them.
-  $start_times = $view->dateInfo->style_groupby_times;
-  $show_empty_times = $view->dateInfo->style_show_empty_times;
+  $start_times = $view->styleInfo->style_groupby_times;
+  $show_empty_times = $view->styleInfo->style_show_empty_times;
   $end_start_time = '23:59:59';
   $start_time = array_shift($start_times);
   $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
@@ -399,7 +399,7 @@ function template_preprocess_calendar_week(&$vars) {
   }
 
   // Moved timed items into the right columns and render them.
-  $show_empty_times = $view->dateInfo->style_show_empty_times;
+  $show_empty_times = $view->styleInfo->style_show_empty_times;
   $end_start_time = '23:59:59';
 
   $grouped_items = [];
@@ -409,9 +409,9 @@ function template_preprocess_calendar_week(&$vars) {
 
   // Remove the count for singleday
   $vars['multiday_rows'] = max(0, $rows['total_rows'] - 1);
-  $display_overlap = ($view->dateInfo->style_multiday_theme == '1' && !empty($view->dateInfo->style_theme_style));
+  $display_overlap = ($view->styleInfo->style_multiday_theme == '1' && !empty($view->styleInfo->style_theme_style));
   $vars['display_overlap'] = $display_overlap;
-  $vars['scroll_content'] = !empty($view->dateInfo->style_theme_style) && $view->dateInfo->style_theme_style == 1;
+  $vars['scroll_content'] = !empty($view->styleInfo->style_theme_style) && $view->styleInfo->style_theme_style == 1;
 
   // Add optional css
   if ($display_overlap) {
@@ -471,7 +471,7 @@ function template_preprocess_calendar_week(&$vars) {
   }
 
   // If we're not grouping by time, move all items into the 'all day' array.
-  if (empty($view->dateInfo->style_groupby_times)) {
+  if (empty($view->styleInfo->style_groupby_times)) {
     $add_row = FALSE;
     foreach ($vars['all_day'] as $index => &$day ) {
       foreach ($rows['singleday_buckets'][$index] as $item) {
@@ -489,7 +489,7 @@ function template_preprocess_calendar_week(&$vars) {
     foreach ($rows['singleday_buckets'] as $wday => $singleday_row) {
       $columns[] = $wday;
       foreach ($singleday_row as &$row) {
-        $start_times = $view->dateInfo->style_groupby_times;
+        $start_times = $view->styleInfo->style_groupby_times;
         $start_time = array_shift($start_times);
         $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
         foreach ($row as &$item) {
@@ -529,7 +529,7 @@ function template_preprocess_calendar_week(&$vars) {
       if ($show_empty_times || $display_overlap) {
         while ($start_time < $end_start_time && ($start_time != NULL || $display_overlap)) {
           if ($start_time == NULL) {
-            $start_times = $view->dateInfo->style_groupby_times;
+            $start_times = $view->styleInfo->style_groupby_times;
             $start_time = array_shift($start_times);
             $next_start_time = array_shift($start_times);
           }
@@ -593,7 +593,7 @@ function template_preprocess_calendar_week(&$vars) {
 
   $vars['day_names'] = $day_names;
   $vars['columns'] = $columns;
-  $vars['start_times'] = $view->dateInfo->style_groupby_times;
+  $vars['start_times'] = $view->styleInfo->style_groupby_times;
   $vars['first_time'] = !empty($first_time) ? $first_time : '';
 
   $header_ids = [];
@@ -605,7 +605,7 @@ function template_preprocess_calendar_week(&$vars) {
   $vars['agenda_hour_class'] = 'calendar-agenda-hour';
   $first_column_width = 10;
 
-  if (empty($view->dateInfo->style_groupby_times)) {
+  if (empty($view->styleInfo->style_groupby_times)) {
     $vars['agenda_hour_class'] .= ' calendar-agenda-no-hours';
     $first_column_width = 1;
   }
@@ -643,7 +643,7 @@ function template_preprocess_calendar_datebox(&$vars) {
   $date = $vars['date'];
   $view = $vars['view'];
   $vars['day'] = intval(substr($date, 8, 2));
-  $force_view_url = !empty($view->dateInfo->block) ? TRUE : FALSE;
+//  $force_view_url = !empty($view->dateInfo->block) ? TRUE : FALSE;
   $month_path = calendar_granularity_path($view, 'month');
   $year_path = calendar_granularity_path($view, 'year');
   $day_path = calendar_granularity_path($view, 'day');
@@ -652,8 +652,8 @@ function template_preprocess_calendar_datebox(&$vars) {
 //  $vars['url'] = str_replace([$month_path, $year_path], $day_path, date_pager_url($view, NULL, $date, $force_view_url));
   $vars['link'] = !empty($day_path) ? \Drupal::l($vars['day'], Url::fromUri($vars['url'])) : $vars['day'];
 
-  $vars['granularity'] = $view->dateInfo->granularity;
-  $vars['mini'] = !empty($view->dateInfo->mini);
+  $vars['granularity'] = $view->dateInfo->getGranularity();
+  $vars['mini'] = !empty($view->styleInfo->mini);
   if ($vars['mini']) {
     if (!empty($vars['selected'])) {
       $vars['class'] = 'mini-day-on';
