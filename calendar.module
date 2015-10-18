@@ -53,7 +53,7 @@ function calendar_preprocess_date_views_pager(&$vars) {
   }
 
   // If an 'Add new ... link is provided, add it here.
-  if (!empty($view->date_info->calendar_date_link) && !empty($view->date_info->url)
+  if (!empty($view->dateInfo->getCalendarDateLink()) && !empty($view->date_info->url)
   && (\Drupal::currentUser()->hasPermission("administer nodes") || \Drupal::currentUser()->hasPermission('create ' . $view->date_info->calendar_date_link . ' content'))) {
     $name = node_type_get_name($view->date_info->calendar_date_link);
     $href = 'node/add/' . str_replace('_', '-', $view->date_info->calendar_date_link);

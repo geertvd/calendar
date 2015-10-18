@@ -9,6 +9,7 @@ namespace Drupal\calendar\Plugin\views\row;
 
 use Drupal\calendar\CalendarEvent;
 use Drupal\calendar\CalendarHelper;
+use Drupal\calendar\Plugin\views\argument\CalendarDate;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Form\FormStateInterface;
@@ -343,7 +344,9 @@ class Calendar extends RowPluginBase {
 
     // Let the style know if a link to create a new date is required.
     // @todo implement
-//    $this->view->dateInfo->calendar_date_link = $this->options['calendar_date_link'];
+    // see calendar_preprocess_date_views_pager() on some more info on how this
+    // is used.
+//    $this->view->dateInfo->setCalendarDateLink($this->options['calendar_date_link']);
 
     // Identify the date argument and fields that apply to this view. Preload
     // the Date Views field info for each field, keyed by the field name, so we
@@ -357,8 +360,7 @@ class Calendar extends RowPluginBase {
     $date_fields = [];
     /** @var $handler \Drupal\views\Plugin\views\argument\Formula */
     foreach ($this->view->getDisplay()->getHandlers('argument') as $handler) {
-      // @todo find appropriate check to see whether this is a date handler
-      if ($handler->getPluginDefinition()['id'] == 'calendar_datetime') {
+      if ($handler instanceof CalendarDate) {
         $date_fields[$handler->table] = $table_data[$handler->field];
 
         $this->dateArgument = $handler;
@@ -488,7 +490,7 @@ class Calendar extends RowPluginBase {
 
       $event->setStartDate($item_start_date);
       $event->setEndDate($item_end_date);
-      $event->setTimezone(new \DateTimeZone($date_info->display_timezone_name));
+      $event->setTimezone($date_info->display_timezone);
 
       // @todo remove while properties get transfered to the new object
 //      $event_container = new stdClass();

@@ -111,6 +111,14 @@ class CalendarDateInfo {
   protected $forbid;
 
   /**
+   * @TODO explain what this variable does.
+   *
+   * @var string
+   *   Type of calendar date link.
+   */
+  protected $calendarDateLink;
+
+  /**
    * Getter for the calendar type.
    *
    * @return string
@@ -352,4 +360,21 @@ class CalendarDateInfo {
     $this->forbid = $forbid;
   }
 
+  /**
+   * Getter for the calendar date link.
+   *
+   * @return string
+   */
+  public function getCalendarDateLink() {
+    return $this->calendarDateLink;
+  }
+
+  /**
+   * Setter for the calendar date link.
+   *
+   * @param string $calendarDateLink
+   */
+  public function setCalendarDateLink($calendarDateLink) {
+    $this->calendarDateLink = $calendarDateLink;
+  }
 }
