@@ -187,21 +187,21 @@ function template_preprocess_calendar_day(&$vars) {
   }
 
   // If we're not grouping by time, move all items into the 'all day' array.
-  if (empty($view->date_info->style_groupby_times)) {
+  if (empty($view->styleInfo->getCustomGroupByTimes())) {
     // Items are already grouped into times, so we need to process each time-group.
     foreach ($rows['items'] as $time => $items) {
       foreach ($items as $item) {
-        $rows['all_day'][] = $item;
+        $rows['#all_day'][] = $item;
       }
     }
-    $rows['items'] = array();
+    $rows['#items'] = array();
   }
 
   $columns = array();
 
   // Move all_day items into the right columns and render them.
   $grouped_items = array();
-  foreach ($rows['all_day'] as $item) {
+  foreach ($rows['#all_day'] as $item) {
     if (!empty($item->rendered_fields[$grouping_field])) {
       $column = $item->rendered_fields[$grouping_field];
       if (!in_array($column, $columns)) {
@@ -233,7 +233,7 @@ function template_preprocess_calendar_day(&$vars) {
   $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
 
   $grouped_items = array();
-  foreach ($rows['items'] as &$items) {
+  foreach ($rows['#items'] as &$items) {
     foreach ($items as &$item) {
       $time = date_format($item->calendar_start_date, 'H:i:s');
       if (!empty($item->rendered_fields[$grouping_field])) {
@@ -300,7 +300,7 @@ function template_preprocess_calendar_day(&$vars) {
 // 
 // 
 // @see https://www.drupal.org/node/2195739
-// $heading = theme('calendar_time_row_heading', $variables);
+    $heading = template_preprocess_calendar_time_row_heading($variables);
 
     $grouped_items[$start_time]['hour'] = $heading['hour'];
     $grouped_items[$start_time]['ampm'] = $heading['ampm'];
@@ -366,7 +366,7 @@ function template_preprocess_calendar_day(&$vars) {
   }
   $vars['item_count'] = $item_count;
   $vars['by_hour_count'] = $by_hour_count;
-  $vars['start_times'] = $view->date_info->style_groupby_times;
+  $vars['start_times'] = $view->styleInfo->getCustomGroupByField();
   return;
 }
 
