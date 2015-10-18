@@ -36,21 +36,21 @@
 #}
 <div class="{{ item.class|default('item') }}">
   <div class="view-item">
-  <div class="calendar {{ item.granularity }}view">
-    <!-- print theme('calendar_stripe_stripe', array('item' => $item)); -->
-    <div class="{{ item.date_id }} contents">
-      {% for field in rendered_fields %}
-        {% if (index + 1) == 0 and item.continuation %}
-          <div class="continuation">&laquo;</div>
-        {% endif %}
-        {{ field }}
-      {% endfor %}
+    <div class="calendar {{ item.granularity }}view">
+      {{ item | calendar_stripe }}
+      <div class="{{ item.date_id }} contents">
+        {% for field in rendered_fields %}
+          {% if (index + 1) == 0 and item.continuation %}
+            <div class="continuation">&laquo;</div>
+          {% endif %}
+          {{ field }}
+        {% endfor %}
+      </div>
+      {% if item.continues %}
+        <div class="continues">&raquo;</div>
+      {% else %}
+        <div class="cutoff">&nbsp;</div>
+      {% endif %}
     </div>
-    {% if item.continues %}
-      <div class="continues">&raquo;</div>
-    {% else %}
-      <div class="cutoff">&nbsp;</div>
-    {% endif %}
-  </div> 
   </div>   
 </div>

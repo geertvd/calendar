@@ -624,7 +624,10 @@ function template_preprocess_calendar_item(&$vars) {
 
   $multiday_hidden = !empty($vars['view']->style_options['multiday_hidden']) ? $vars['view']->style_options['multiday_hidden'] : array();
 
-  if (!empty($item->rendered) && empty($item->is_multi_day)) {
+  // @TODO figure out how to find the right rendered fields
+  $vars['rendered_fields'][] = $item->getTitle();
+
+  if (!empty($item->rendered) && empty($item->isMultiDay())) {
     $vars['rendered_fields'] = array($item->rendered);
   }
   else {
@@ -805,25 +808,6 @@ function template_preprocess_calendar_stripe_legend(&$vars) {
     $vars['headers'] = $headers;
     $vars['rows'] = $rows;
   }
-}
-
-/**
- * Format item stripes
- */
-function theme_calendar_stripe_stripe($vars) {
-  $item = $vars['item'];
-  if (empty($item->stripe) || (!count($item->stripe))) {
-    return;
-  }
-  $output = '';
-  if (is_array($item->stripe_label)) {
-    foreach ($item->stripe_label as $k => $stripe_label) {
-      if (!empty($item->stripe[$k]) && !empty($stripe_label)) {
-        $output .= '<div style="background-color:' . $item->stripe[$k] . ';color:' . $item->stripe[$k] . '" class="stripe" title="Key: ' . $item->stripe_label[$k] . '">&nbsp;</div>' . "\n";
-      }
-    }
-  }
-  return $output;
 }
 
 /**
