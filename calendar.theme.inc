@@ -66,7 +66,7 @@ function template_preprocess_calendar_month(&$vars) {
 
   $vars['display_type'] = $view->dateInfo->getGranularity();
   $vars['min_date_formatted'] = $view->dateInfo->getMinDate()->format(DATETIME_DATE_STORAGE_FORMAT);
-  $vars['max_date_formatted'] = $view->dateInfo->getMaxDate->format(DATETIME_DATE_STORAGE_FORMAT);
+  $vars['max_date_formatted'] = $view->dateInfo->getMaxDate()->format(DATETIME_DATE_STORAGE_FORMAT);
 }
 
 /**

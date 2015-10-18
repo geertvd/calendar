@@ -1000,7 +1000,7 @@ class Calendar extends StylePluginBase {
 
                   // If the last day of this event exceeds the end of the
                   // current month or week, truncate the remaining days.
-                  $diff =  CalendarHelper::difference($this->currentDay, $this->dateInfo->max_date, 'days');
+                  $diff =  CalendarHelper::difference($this->currentDay, $this->dateInfo->getMaxDate(), 'days');
                   $remaining_days = ($this->dateInfo->getGranularity() == 'month') ? min(6 - $wday, $diff) : $diff - 1;
                   // The bucket_cnt defines the colspan.  colspan = bucket_cnt + 1
                   $days =  CalendarHelper::difference($this->currentDay, $item->getEndDate(), 'days');
