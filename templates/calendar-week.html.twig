@@ -37,43 +37,37 @@
     </tr>
   </thead>
   <tbody>
-    {%  for i in multiday_rows %}
-      {# todo convert to twig #}
+    {%  for i in 0..multiday_rows %}
       {% set row_class = 'all-day' %}
-      {% set row_class = loop.first ?: 'first' %}
-      {% set row_class = loop.last ?: 'last' %}
-      {#$colpos = 0; #}
-      {#$rowclass = "all-day";#}
-      {#if( $i == 0) {#}
-        {#$rowclass .= " first";#}
-      {#}#}
-      {#if( $i == $multiday_rows - 1) {#}
-        {#$rowclass .= " last";#}
-      {#}#}
+      {% if loop.first %}{% set row_class_extra = 'first' %}{% endif %}
+      {% if loop.last %}{% set row_class_extra = 'last' %}{% endif %}
 
-    <tr class="todo {{ row_class }}">
+    <tr class="{{ row_class }} {{ row_class_extra }}">
       {% if index == 0 and (by_hour_count > 0 or start_times is not empty) %}
         <td class="{{ agenda_hour_class }}" rowspan="{{ multiday_rows }}">
           <span class="calendar-hour">{% trans with {'context': 'datetime'} %}All day{% endtrans %}</span>
         </td>
       {% endif %}
-      <?php for($j = 0; $j < 6; $j++): ?>
-        <?php $cell = (empty($all_day[$j][$i])) ? NULL : $all_day[$j][$i]; ?>
-        <?php if($cell != NULL && $cell['filled'] && $cell['wday'] == $j): ?>
-          <?php for($k = $colpos; $k < $cell['wday']; $k++) : ?>
-          <td class="multi-day no-entry"><div class="inner">&nbsp;</div></td>
-          <?php endfor;?>
-          <td colspan="<?php print $cell['colspan']?>" class="multi-day">
+
+      {% set colpos = 0 %}
+      {% for j in 0..6 %}
+        {% set cell = all_day[j][i] %}
+        {% if cell is not empty and cell.filled and cell['wday'] == j %}
+          {% for k in colpos..cell['wday'] %}
+            <td class="multi-day no-entry"><div class="inner">&nbsp;</div></td>
+          {% endfor %}
+          <td colspan="{{ cell['colspan'] }}" class="multi-day">
             <div class="inner">
-            <?php print $cell['entry']?>
+              {{ cell.entry }}
             </div>
           </td>
-          <?php $colpos = $cell['wday'] + $cell['colspan']; ?>
-        <?php endif; ?>
-      <?php endfor; ?>  
-      <?php for($j = $colpos; $j < 7; $j++) : ?>
-      <td class="multi-day no-entry"><div class="inner">&nbsp;</div></td>
-      <?php endfor;?>
+          {% set colpos = cell['wday'] + cell['colspan'] %}
+        {% endif %}
+      {% endfor %}
+
+      {% for j in colpos..6 %}
+        <td class="multi-day no-entry"><div class="inner">&nbsp;</div></td>
+      {% endfor %}
     </tr>
     {% endfor %}
     {% for time in items %}
