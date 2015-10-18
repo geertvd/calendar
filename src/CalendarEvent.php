@@ -72,6 +72,12 @@ class CalendarEvent {
   protected $stripeHex;
 
   /**
+   * @var bool $isMultiDay
+   *  Whether this event covers multiple days.
+   */
+  protected $isMultiDay;
+
+  /**
    * Getter for the entity id.
    *
    * @return int mixed
@@ -269,5 +275,33 @@ class CalendarEvent {
    */
   public function setStripeHex($stripeHex) {
     $this->stripeHex = $stripeHex;
+  }
+
+  /**
+   * Checks whether this event covers all day.
+   *
+   * @return boolean
+   */
+  public function isAllDay() {
+    // @TODO don't hardcode granularity and increment
+    $granularity = 'hour';
+    $increment = 1;
+    return CalendarHelper::dateIsAllDay($this->getStartDate()->format('Y-m-d H:i:s'), $this->getEndDate()->format('Y-m-d H:i:s'), $granularity, $increment);
+  }
+
+  /**
+   * The getter which indicates whether an event covers multiple days.
+   *
+   * @return boolean
+   */
+  public function getIsMultiDay() {
+    return $this->isMultiDay;
+  }
+
+  /**
+   * The setter to indicate whether an event covers multiple days.
+   */
+  public function setIsMultiDay($isMultiDay) {
+    $this->isMultiDay = $isMultiDay;
   }
 }

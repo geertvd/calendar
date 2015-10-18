@@ -592,41 +592,27 @@ class Calendar extends RowPluginBase {
     // All three were limited by the min-max date range of the view.
     $position = 0;
     while (!empty($now) && $now <= $to) {
+      /** @var $entity \Drupal\calendar\CalendarEvent */
       $entity = clone($event);
 
       // Get start and end of current day.
-      $start = $this->dateFormatter->format($next->getTimestamp(), 'Y-m-d H:i:s');
+      $start = $this->dateFormatter->format($next->getTimestamp(), 'custom', 'Y-m-d H:i:s');
       $next->setTimestamp(strtotime(' +1 day -1 second', $next->getTimestamp()));
-      $end = $this->dateFormatter->format($next->getTimestamp(), 'Y-m-d H:i:s');
+      $end = $this->dateFormatter->format($next->getTimestamp(), 'custom', 'Y-m-d H:i:s');
 
       // Get start and end of item, formatted the same way.
-      $item_start = $this->dateFormatter->format($event->getStartDate()->getTimestamp(), 'Y-m-d H:i:s');
-      $item_end = $this->dateFormatter->format($event->getEndDate()->getTimestamp(), 'Y-m-d H:i:s');
+      $item_start = $this->dateFormatter->format($event->getStartDate()->getTimestamp(), 'custom', 'Y-m-d H:i:s');
+      $item_end = $this->dateFormatter->format($event->getEndDate()->getTimestamp(), 'custom', 'Y-m-d H:i:s');
 
       // Get intersection of current day and the node value's duration (as
       // strings in $to_zone timezone).
       $start_string = $item_start < $start ? $start : $item_start;
-      $entity->start_date_string = $start_string;
+      $entity->setStartDate(new \DateTime($start_string));
       $end_string = !empty($item_end) ? ($item_end > $end ? $end : $item_end) : NULL;
-      $entity->end_date_string = $end_string;
-
-      // @todo Find out what calendar start and end does.
-      // Make date objects
-//      $entity->calendar_start_date = date_create($entity->calendar_start, timezone_open($to_zone));
-//      $entity->calendar_end_date = date_create($entity->calendar_end, timezone_open($to_zone));
-      // Change string timezones into
-      // calendar_start and calendar_end are UTC dates as formatted strings
-//      $entity->calendar_start = date_format($entity->calendar_start_date, DATE_FORMAT_DATETIME);
-//      $entity->calendar_end = date_format($entity->calendar_end_date, DATE_FORMAT_DATETIME);
-
-      // @TODO don't hardcode granularity and increment
-      $granularity = 'hour';
-      $increment = 1;
-      $entity->calendar_all_day = CalendarHelper::dateIsAllDay($entity->getStartDate()->format('Y-m-d H:i:s'), $entity->getEndDate()->format('Y-m-d H:i:s'), $granularity, $increment);
+      $entity->setEndDate(new \DateTime($end_string));
 
       $calendar_start = new \DateTime();
       $calendar_start->setTimestamp($entity->getStartDate()->getTimestamp());
-
 
 //      unset($entity->calendar_fields);
       if (isset($entity) && (empty($calendar_start))) {

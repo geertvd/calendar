@@ -1143,14 +1143,13 @@ class Calendar extends StylePluginBase {
         $selected = TRUE;
         ksort($day);
         foreach ($day as $time => $hour) {
+          /** @var $item \Drupal\calendar\CalendarEvent */
           foreach ($hour as $key => $item) {
             $count++;
-            if (isset($item->type)) {
-              $ids[$item->type] = $item;
-            }
+            $ids[$item->getType()] = $item;
             if (empty($this->styleInfo->isMini()) && ($max_events == CALENDAR_SHOW_ALL || $count <= $max_events || ($count > 0 && $max_events == CALENDAR_HIDE_ALL))) {
-              if ($item->calendar_all_day) {
-                $item->is_multi_day = TRUE;
+              if ($item->isAllDay()) {
+                $item->setIsMultiDay(TRUE);
                 $all_day[] = $item;
               }
               else {
@@ -1172,7 +1171,7 @@ class Calendar extends StylePluginBase {
       ];
     }
     // We have hidden events on this day, use the theme('calendar_multiple_') to show a link.
-    if ($max_events != CALENDAR_SHOW_ALL && $count > 0 && $count > $max_events && $this->dateInfo->calendar_type != 'day' && !$this->dateInfo->mini) {
+    if ($max_events != CALENDAR_SHOW_ALL && $count > 0 && $count > $max_events && $this->dateInfo->getCalendarType() != 'day' && !$this->styleInfo->isMini()) {
       if ($this->styleInfo->getMaxItemsStyle() == 'hide' || $max_events == CALENDAR_HIDE_ALL) {
         $all_day = [];
         $inner = [];
