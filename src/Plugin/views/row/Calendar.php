@@ -382,7 +382,8 @@ class Calendar extends RowPluginBase {
   public function render($row) {
     $events = [];
 
-    $date_info = $this->dateArgument->view->dateInfo;
+    /** @var \Drupal\calendar\CalendarDateInfo $dateInfo */
+    $dateInfo = $this->dateArgument->view->dateInfo;
     $id = $row->_entity->id();
 
     if (!is_numeric($id)) {
@@ -448,8 +449,8 @@ class Calendar extends RowPluginBase {
 
         $items = field_get_items($this->entity_type, $entity, $field_name, $this->language);
         $item  = $items[$delta];
-        $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
-        $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
+        $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_field) ? $item->$tz_field : timezone_name_get($dateInfo->getTimezone()));
+        $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field)) ? $item->$tz_field : timezone_name_get($dateInfo->getTimezone());
         if (isset($item['value'])) {
           $item_start_date = new dateObject($item['value'], $db_tz);
           $item_end_date   = array_key_exists('value2', $item) ? new dateObject($item['value2'], $db_tz) : $item_start_date;
@@ -464,8 +465,8 @@ class Calendar extends RowPluginBase {
       // @todo implement
       elseif (FALSE && !empty($entity->$field_name)) {
         $item = $entity->$field_name;
-        $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
-        $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field) ? $item->$tz_field : $date_info->display_timezone_name);
+        $db_tz   = date_get_timezone_db($tz_handling, isset($item->$tz_field) ? $item->$tz_field : timezone_name_get($dateInfo->getTimezone()));
+        $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field) ? $item->$tz_field : timezone_name_get($dateInfo->getTimezone()));
         $item_start_date = new dateObject($item, $db_tz);
         $item_end_date   = $item_start_date;
         $entity->date_id = array('calendar.' . $id . '.' . $field_name . '.0');
@@ -490,7 +491,7 @@ class Calendar extends RowPluginBase {
 
       $event->setStartDate($item_start_date);
       $event->setEndDate($item_end_date);
-      $event->setTimezone($date_info->display_timezone);
+      $event->setTimezone(new \DateTimeZone(timezone_name_get($dateInfo->getTimezone())));
 
       // @todo remove while properties get transfered to the new object
 //      $event_container = new stdClass();
@@ -569,12 +570,14 @@ class Calendar extends RowPluginBase {
     // nodes so that we have a 'node' for each day that this item occupies in
     // this view.
     // @TODO make this work with the CalendarDateInfo object
-    $now = max($dateInfo->min_zone_string, $this->dateFormatter->format($event->getStartDate()->getTimestamp(), 'Y-m-d'));
-    $to = min($dateInfo->max_zone_string, $this->dateFormatter->format($event->getEndDate()->getTimestamp(), 'Y-m-d'));
+//    $now = max($dateInfo->min_zone_string, $this->dateFormatter->format($event->getStartDate()->getTimestamp(), 'Y-m-d'));
+//    $to = min($dateInfo->max_zone_string, $this->dateFormatter->format($event->getEndDate()->getTimestamp(), 'Y-m-d'));
+    $now = $this->dateFormatter->format($event->getStartDate()->getTimestamp(), 'Y-m-d');
+    $to = $this->dateFormatter->format($event->getEndDate()->getTimestamp(), 'Y-m-d');
     $next = new \DateTime();
     $next->setTimestamp($event->getStartDate()->getTimestamp());
 
-    if ($this->dateArgument->view->styleInfo->display_timezone_name != $event->getTimezone()->getName()) {
+    if (timezone_name_get($this->dateArgument->view->dateInfo->getTimezone()) != $event->getTimezone()->getName()) {
       // Make $start and $end (derived from $node) use the timezone $to_zone,
       // just as the original dates do.
       $next->setTimezone($event->getTimezone());

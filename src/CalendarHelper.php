@@ -20,8 +20,9 @@ class CalendarHelper extends DateHelper {
    *   An array with weekday table header data.
    */
   public static function weekHeader($view) {
-    $len = isset($view->styleInfo->style_name_size) ? $view->styleInfo->style_name_size : (!empty($view->styleInfo->mini) ? 1 : 3);
-    $with_week = !empty($view->styleInfo->style_with_weekno);
+    $nameSize = $view->styleInfo->getNameSize();
+    $len = isset($nameSize) ? $view->styleInfo->getNameSize() : (!empty($view->styleInfo->isMini()) ? 1 : 3);
+    $with_week = !empty($view->styleInfo->isShowWeekNumbers());
 
     // create week header
     $untranslated_days = self::untranslatedDays();

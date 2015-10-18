@@ -51,7 +51,7 @@ function template_preprocess_calendar_month(&$vars) {
           }
           $data .= $cell['link'];
         }
-        if ($view->styleInfo->mini) {
+        if ($view->styleInfo->isMini()) {
           $month_rows[$weekno][$day]['data'] = $data;
         }
         else {
@@ -96,15 +96,15 @@ function template_preprocess_calendar_year(&$vars) {
   // theme so it will produce the right results.
   $view = clone($vars['view']);
   $year = $view->dateInfo->getMinDate()->format('Y');
-  $view->styleInfo->style_with_weekno = FALSE;
+  $view->styleInfo->setShowWeekNumbers(FALSE);
   $rows = $vars['rows'];
   $months = [];
   foreach ($rows as $month => $month_rows) {
     $view->dateInfo->setMonth($month);
     $view->dateInfo->setGranularity('month');
-    $view->styleInfo->mini = TRUE;
-    $view->styleInfo->hide_nav = TRUE;
-    $view->styleInfo->show_title = TRUE;
+    $view->styleInfo->setMini(TRUE);
+    $view->styleInfo->setShowNavigation(FALSE);
+    $view->styleInfo->setShowTitle(TRUE);
     // TODO implement
 //    $view->dateInfo->url = date_pager_url($view, NULL, \Drupal\Component\Datetime\DateTimePlus::datePad($year, 4) . '-' . \Drupal\Component\Datetime\DateTimePlus::datePad($month));
     // TODO handle timezone
@@ -120,10 +120,10 @@ function template_preprocess_calendar_year(&$vars) {
       '#rows' => $month_rows,
     ];
   }
-  $view->styleInfo->mini = FALSE;
+  $view->styleInfo->setMini(FALSE);
 
   $vars['months'] = $months;
-  $vars['view']->styleInfo->hide_nav = FALSE;
+  $vars['view']->styleInfo->setShowNavigation(TRUE);
   $vars['view']->dateInfo->setGranularity('year');
   $vars['mini'] = FALSE;
 
@@ -226,8 +226,8 @@ function template_preprocess_calendar_day(&$vars) {
   $vars['rows']['all_day'] = $grouped_items;
 
   // Moved timed items into the right columns and render them.
-  $start_times = $view->styleInfo->style_groupby_times;
-  $show_empty_times = $view->styleInfo->style_show_empty_times;
+  $start_times = $view->styleInfo->getCustomGroupByTimes();
+  $show_empty_times = $view->styleInfo->isShowEmptyTimes();
   $end_start_time = '23:59:59';
   $start_time = array_shift($start_times);
   $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
@@ -399,7 +399,7 @@ function template_preprocess_calendar_week(&$vars) {
   }
 
   // Moved timed items into the right columns and render them.
-  $show_empty_times = $view->styleInfo->style_show_empty_times;
+  $show_empty_times = $view->styleInfo->isShowEmptyTimes();
   $end_start_time = '23:59:59';
 
   $grouped_items = [];
@@ -409,9 +409,9 @@ function template_preprocess_calendar_week(&$vars) {
 
   // Remove the count for singleday
   $vars['multiday_rows'] = max(0, $rows['total_rows'] - 1);
-  $display_overlap = ($view->styleInfo->style_multiday_theme == '1' && !empty($view->styleInfo->style_theme_style));
+  $display_overlap = ($view->styleInfo->getMultiDayTheme() == '1' && !empty($view->styleInfo->getThemeStyle()));
   $vars['display_overlap'] = $display_overlap;
-  $vars['scroll_content'] = !empty($view->styleInfo->style_theme_style) && $view->styleInfo->style_theme_style == 1;
+  $vars['scroll_content'] = !empty($view->styleInfo->getThemeStyle()) && $view->styleInfo->getThemeStyle() == 1;
 
   // Add optional css
   if ($display_overlap) {
@@ -471,7 +471,7 @@ function template_preprocess_calendar_week(&$vars) {
   }
 
   // If we're not grouping by time, move all items into the 'all day' array.
-  if (empty($view->styleInfo->style_groupby_times)) {
+  if (empty($view->styleInfo->getCustomGroupByTimes())) {
     $add_row = FALSE;
     foreach ($vars['all_day'] as $index => &$day ) {
       foreach ($rows['singleday_buckets'][$index] as $item) {
@@ -489,7 +489,7 @@ function template_preprocess_calendar_week(&$vars) {
     foreach ($rows['singleday_buckets'] as $wday => $singleday_row) {
       $columns[] = $wday;
       foreach ($singleday_row as &$row) {
-        $start_times = $view->styleInfo->style_groupby_times;
+        $start_times = $view->styleInfo->getCustomGroupByTimes();
         $start_time = array_shift($start_times);
         $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
         foreach ($row as &$item) {
@@ -529,7 +529,7 @@ function template_preprocess_calendar_week(&$vars) {
       if ($show_empty_times || $display_overlap) {
         while ($start_time < $end_start_time && ($start_time != NULL || $display_overlap)) {
           if ($start_time == NULL) {
-            $start_times = $view->styleInfo->style_groupby_times;
+            $start_times = $view->styleInfo->getCustomGroupByTimes();
             $start_time = array_shift($start_times);
             $next_start_time = array_shift($start_times);
           }
@@ -593,7 +593,7 @@ function template_preprocess_calendar_week(&$vars) {
 
   $vars['day_names'] = $day_names;
   $vars['columns'] = $columns;
-  $vars['start_times'] = $view->styleInfo->style_groupby_times;
+  $vars['start_times'] = $view->styleInfo->getCustomGroupByTimes();
   $vars['first_time'] = !empty($first_time) ? $first_time : '';
 
   $header_ids = [];
@@ -605,7 +605,7 @@ function template_preprocess_calendar_week(&$vars) {
   $vars['agenda_hour_class'] = 'calendar-agenda-hour';
   $first_column_width = 10;
 
-  if (empty($view->styleInfo->style_groupby_times)) {
+  if (empty($view->styleInfo->getCustomGroupByTimes())) {
     $vars['agenda_hour_class'] .= ' calendar-agenda-no-hours';
     $first_column_width = 1;
   }
@@ -653,7 +653,7 @@ function template_preprocess_calendar_datebox(&$vars) {
   $vars['link'] = !empty($day_path) ? \Drupal::l($vars['day'], Url::fromUri($vars['url'])) : $vars['day'];
 
   $vars['granularity'] = $view->dateInfo->getGranularity();
-  $vars['mini'] = !empty($view->styleInfo->mini);
+  $vars['mini'] = !empty($view->styleInfo->isMini());
   if ($vars['mini']) {
     if (!empty($vars['selected'])) {
       $vars['class'] = 'mini-day-on';

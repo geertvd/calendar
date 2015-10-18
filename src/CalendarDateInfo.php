@@ -37,6 +37,14 @@ class CalendarDateInfo {
   protected $dateArgumentPosition;
 
   /**
+   * The timezone information for this calendar.
+   *
+   * @var \DateTimeZone
+   *   The timezone object.
+   */
+  protected $timezone;
+
+  /**
    * The granularity of this calendar.
    *
    * @var string
@@ -178,6 +186,26 @@ class CalendarDateInfo {
    */
   public function setDateArgumentPosition($dateArgumentPosition) {
     $this->dateArgumentPosition = $dateArgumentPosition;
+  }
+
+  /**
+   * Getter for the timezone variable.
+   *
+   * @return \DateTimeZone
+   *   The timezone variable.
+   */
+  public function getTimezone() {
+    return $this->timezone;
+  }
+
+  /**
+   * Setter for the timezone variable.
+   *
+   * @param \DateTimeZone $timezone
+   *   The timezone variable.
+   */
+  public function setTimezone($timezone) {
+    $this->timezone = $timezone;
   }
 
   /**
