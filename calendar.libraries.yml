@@ -9,6 +9,8 @@ calendar.overlap:
   version: 1.x
   js:
     js/calendar_overlap.js: {}
+  dependencies:
+    - core/jquery
 
 calendar.theme:
   version: VERSION

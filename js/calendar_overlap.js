@@ -1,9 +1,13 @@
 /*
  *  Create the splitter, set the viewport size, and set the position of the scrollbar to the first item.
  */
-(function($, Drupal){
+(function($){
+  "use strict";
+
   Drupal.behaviors.calendarSetScroll = {
   attach: function(context) {
+    $('#single-day-container').css('visibility','hidden');
+
     // Make multi-day resizable - stolen/borrowed from textarea.js
     $('.header-body-divider:not(.header-body-divider-processed)').each(function() {
       var divider = $(this).addClass('header-body-divider-processed');
@@ -60,28 +64,37 @@
       function endDrag(e) {
         $(document).unbind("mousemove", performDrag).unbind("mouseup", endDrag);
       }
-     });
+    });
 
-     // Size the window
-     calendar_resizeViewport($);
+    calendar_resizeViewport();
+    calendar_scrollToFirst();
+
+    $('#single-day-container').css('visibility','visible');
+
+    // Scroll the viewport to the first item
+    function calendar_scrollToFirst() {
+      if ($('div.first_item').size() > 0 ) {
+        var y = $('div.first_item').offset().top - $('#single-day-container').offset().top ;
+        $('#single-day-container').scrollTop(y);
+      }
+    }
+
+    // Size the single day view
+    function calendar_resizeViewport() {
+      // Size of the browser window
+      var viewportHeight = window.innerHeight ? window.innerHeight : $(window).height();
+
+      // TODO this is called too early, find out why and fix it
+      var top = 0;
+      if (typeof $('#single-day-container') == 'undefined')
+      {
+        top = $('#single-day-container').offset().top;
+      }
+      console.log(top);
+
+      // Give it a 20 pixel margin at the bottom
+      $('#single-day-container').height(viewportHeight - top - 20);
+    }
   }
 };
 })(jQuery);
-
-// Scroll the viewport to the first item
-function calendar_scrollToFirst($) {
-   if ($('div.first_item').size() > 0 ) {
-      var y = $('div.first_item').offset().top - $('#single-day-container').offset().top ;
-      $('#single-day-container').scrollTop(y);
-   }
-}
-
-// Size the single day view
-function calendar_resizeViewport($) {
-  // Size of the browser window
-  var viewportHeight = window.innerHeight ? window.innerHeight : $(window).height();
-  var top = $('#single-day-container').offset().top;
-
-  // Give it a 20 pixel margin at the bottom
-  $('#single-day-container').height(viewportHeight - top - 20);
-}

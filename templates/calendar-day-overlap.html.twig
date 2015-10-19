@@ -45,7 +45,7 @@
           {% for column in columns %}
           <div class="calendar">
             <div class="inner">
-              {% if rows['all_day'][column] %}
+              {% if rows['all_day'] is not empty and rows['all_day'][column] %}
                 {{ rows['allday'][column]|join }}
               {% else %}
                 &nbsp;
@@ -60,18 +60,6 @@
 </div>
 <div class="header-body-divider">&nbsp;</div>
 <div id="single-day-container">
-  {% if scroll_content|length %}
-  <script>
-    try {
-      // @todo: find a better way to do this.
-  	  // Hide container while it renders...  Degrade w/o javascript support
-//      jQuery('#single-day-container').css('visibility','hidden');
-    } catch(e) {
-      // @todo don't swallow.
-      // swallow 
-    }
-  </script>
-  {% endif %}
   <table class="full">
     <tbody>
       <tr class="holder">
@@ -130,17 +118,3 @@
 </div>
 <div class="single-day-footer">&nbsp;</div>
 </div></div>
-{% if scroll_content|length %}
-  <script>
-    try {
-      // @todo: find a better way to do this.
-      // Size and position the viewport inline so there are no delays
-      calendar_resizeViewport(jQuery);
-      calendar_scrollToFirst(jQuery);
-      jQuery('#single-day-container').css('visibility','hidden');
-    } catch(e) {
-      // @todo don't swallow.
-      // swallow
-    }
-  </script>
-{% endif %}

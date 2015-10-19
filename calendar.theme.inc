@@ -134,6 +134,10 @@ function template_preprocess_calendar_year(&$vars) {
  */
 function template_preprocess_calendar_day_overlap(&$vars) {
   template_preprocess_calendar_day($vars);
+
+  if (!empty($vars['scroll_content'])) {
+    $vars['#attached']['library'][] = 'calendar/calendar.overlap';
+  }
 }
 
 /**
@@ -164,17 +168,6 @@ function template_preprocess_calendar_day(&$vars) {
 // @see https://www.drupal.org/node/2408597
 // drupal_add_css(drupal_get_path('module', 'calendar') . '/css/calendar-overlap.css');
 
-    if (empty($view->live_preview) && !empty($vars['scroll_content'])) {
-      // @FIXME
-// The Assets API has totally changed. CSS, JavaScript, and libraries are now
-// attached directly to render arrays using the #attached property.
-// 
-// 
-// @see https://www.drupal.org/node/2169605
-// @see https://www.drupal.org/node/2408597
-// drupal_add_js(drupal_get_path('module', 'calendar') . '/js/calendar_overlap.js');
-
-    }
     if (empty($vars['scroll_content'])) {
       // @FIXME
 // The Assets API has totally changed. CSS, JavaScript, and libraries are now
@@ -292,7 +285,7 @@ function template_preprocess_calendar_day(&$vars) {
     $variables = array(
       'start_time' => $start_time,
       'next_start_time' => $next_start_time,
-      'curday_date' => $rows['date'],
+      'curday_date' => $rows['#date'],
     );
     // @FIXME
 // theme() has been renamed to _theme() and should NEVER be called directly.
