@@ -58,13 +58,13 @@
       {% for column in columns %}
        <td class="calendar-agenda-items multi-day">
          <div class="calendar">
-         <div class="inner">
-           {% if rows['all_day'][column] %}
-             {{ rows['all_day'][column]|join }}
-           {% else %}
-             &nbsp;
-           {% endif %}
-         </div>
+           <div class="inner">
+             {% if rows['all_day'][column] %}
+               {{ rows['all_day'][column]|join }}
+             {% else %}
+               &nbsp;
+             {% endif %}
+           </div>
          </div>
        </td>
       {% endfor %}

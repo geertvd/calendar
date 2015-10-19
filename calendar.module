@@ -207,7 +207,7 @@ function calendar_theme() {
       'variables' => ['inner' => NULL, 'class' => NULL, 'iehint' => NULL],
     ],
     'calendar_day' => [
-      'variables' => ['view' => NULL, 'columns' => [], 'rows' => [], 'min_date_formatted' => NULL, 'max_date_formatted' => NULL],
+      'variables' => ['view' => NULL, 'day_names' => [], 'rows' => [],],
     ],
     'calendar_month' => [
       'variables' => ['view' => NULL, 'options' => [], 'rows' => []],

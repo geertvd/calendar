@@ -140,19 +140,21 @@ function template_preprocess_calendar_day_overlap(&$vars) {
  * Display a day view.
  */
 function template_preprocess_calendar_day(&$vars) {
-  $vars['view']->style_with_weekno = FALSE;
+  $vars['view']->styleInfo->setShowWeekNumbers(FALSE);
   $view = $vars['view'];
   $rows = $vars['rows'];
 
   $item_count = 0;
   $by_hour_count = 0;
-  $grouping_field = !empty($view->date_info->style_groupby_field) ? ($view->date_info->style_groupby_field) : NULL;
-  $display_overlap = !empty($view->date_info->style_theme_style) && !empty($view->date_info->style_groupby_times);
-  $vars['scroll_content'] = !empty($view->date_info->style_theme_style) && $view->date_info->style_theme_style == 1;
+  /** @var \Drupal\calendar\CalendarStyleInfo $styleInfo */
+  $styleInfo = $view->styleInfo;
+  $grouping_field = !empty($styleInfo->getCustomGroupByField()) ? ($styleInfo->getCustomGroupByField()) : NULL;
+  $display_overlap = !empty($styleInfo->getThemeStyle()) && !empty($styleInfo->getCustomGroupByTimes());
+  $vars['scroll_content'] = !empty($styleInfo->getThemeStyle()) && $styleInfo->getThemeStyle() == 1;
 
   // Add optional css
   if ($display_overlap) {
-    $overlapped_items = array();
+    $overlapped_items = [];
     // @FIXME
 // The Assets API has totally changed. CSS, JavaScript, and libraries are now
 // attached directly to render arrays using the #attached property.
@@ -194,13 +196,13 @@ function template_preprocess_calendar_day(&$vars) {
         $rows['#all_day'][] = $item;
       }
     }
-    $rows['#items'] = array();
+    $rows['#items'] = [];
   }
 
-  $columns = array();
+  $columns = [];
 
   // Move all_day items into the right columns and render them.
-  $grouped_items = array();
+  $grouped_items = [];
   foreach ($rows['#all_day'] as $item) {
     if (!empty($item->rendered_fields[$grouping_field])) {
       $column = $item->rendered_fields[$grouping_field];
@@ -352,7 +354,7 @@ function template_preprocess_calendar_day(&$vars) {
   $vars['agenda_hour_class'] = 'calendar-agenda-hour';
   $first_column_width = 10;
 
-  if (empty($view->date_info->style_groupby_times)) {
+  if (empty($view->styleInfo->getCustomGroupByTimes())) {
     $vars['agenda_hour_class'] .= ' calendar-agenda-no-hours';
     $first_column_width = 1;
   }

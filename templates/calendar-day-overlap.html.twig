@@ -38,7 +38,7 @@
         <td class="calendar-day-holder"></td>
       </tr>
       <tr>
-        <td class="{{ agenda_hour_class }}  ?> first">
+        <td class="{{ agenda_hour_class }} first">
            <span class="calendar-hour">{% trans %}All day{% endtrans %}</span>
         </td>
         <td class="calendar-agenda-items multi-day last">
@@ -65,7 +65,7 @@
     try {
       // @todo: find a better way to do this.
   	  // Hide container while it renders...  Degrade w/o javascript support
-      jQuery('#single-day-container').css('visibility','hidden');
+//      jQuery('#single-day-container').css('visibility','hidden');
     } catch(e) {
       // @todo don't swallow.
       // swallow 
