@@ -817,6 +817,13 @@ class Calendar extends StylePluginBase {
 
   /**
    * Build one week row.
+   *
+   * @param boolean $check_month
+   *   TRUE to check the rest of the month, FALSE otherwise.
+   *
+   * @return array
+   *   An assosiative array containing the multiday buckets, the singleday
+   *   buckets and the total row count.
    */
   public function calendarBuildWeek($check_month) {
     $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
@@ -860,6 +867,12 @@ class Calendar extends StylePluginBase {
 
   /**
    * Build one mini week row.
+   *
+   * @param boolean $check_month
+   *   TRUE to check the rest of the month, FALSE otherwise.
+   *
+   * @return array
+   *   An array of rows with render info.
    */
   public function calendarBuildMiniWeek($check_month = FALSE) {
     $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);

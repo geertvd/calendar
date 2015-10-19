@@ -86,9 +86,9 @@ class CalendarHelper extends DateHelper {
   /**
    * Computes difference between two days using a given measure.
    *
-   * @param object $start_date
+   * @param \DateTime $start_date
    *   The start date.
-   * @param object $stop_date
+   * @param \DateTime $stop_date
    *   The stop date.
    * @param string $measure
    *   (optional) A granularity date part. Defaults to 'seconds'.
