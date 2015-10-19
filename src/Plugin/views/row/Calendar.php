@@ -380,8 +380,6 @@ class Calendar extends RowPluginBase {
    * {@inheritdoc}
    */
   public function render($row) {
-    $events = [];
-
     /** @var \Drupal\calendar\CalendarDateInfo $dateInfo */
     $dateInfo = $this->dateArgument->view->dateInfo;
     $id = $row->_entity->id();
@@ -541,11 +539,9 @@ class Calendar extends RowPluginBase {
         }
         $rows[] = $entity;
       }
-
-      $events[] = $event;
     }
 
-    return $events;
+    return $rows;
   }
 
   /**
@@ -656,8 +652,8 @@ class Calendar extends RowPluginBase {
       $stripe = $colors[$type];
     }
 
-    $result->setStripeLabel($label);
-    $result->setStripeHex($stripe);
+    $result->setStripeLabels($result->getStripeLabels() + [$label]);
+    $result->setStripeHexes($result->getStripeHexes() + [$stripe]);
   }
 
    /**
@@ -679,8 +675,8 @@ class Calendar extends RowPluginBase {
         if (!array_key_exists($term_for_entity->tid, $colors) || $colors[$term_for_entity->tid] == CALENDAR_EMPTY_STRIPE) {
           continue;
         }
-        $result->stripe[] = $colors[$term_for_entity->tid];
-        $result->stripe_label[] = $term_for_entity->name;
+        $result->setStripeLabels($result->getStripeLabels() + [$colors[$term_for_entity->tid]]);
+        $result->setStripeHexes($result->getStripeHexes() + [$term_for_entity->name]);
       }
     }
 

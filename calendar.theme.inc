@@ -381,7 +381,7 @@ function template_preprocess_calendar_week_overlap(&$vars) {
  * Display a week view.
  */
 function template_preprocess_calendar_week(&$vars) {
-  $vars['view']->style_with_weekno = FALSE;
+  $vars['view']->styleInfo->setShowWeekNumbers(FALSE);
 
   $view = $vars['view'];
   $rows = $vars['rows'];
@@ -620,19 +620,17 @@ function template_preprocess_calendar_week(&$vars) {
 function template_preprocess_calendar_item(&$vars) {
   // At the last possible minute we fix the values in rendered_fields so it
   // contains the correct rendered content for the type of item and item display.
+  /** @var \Drupal\calendar\CalendarEvent $item */
   $item = $vars['item'];
 
   $multiday_hidden = !empty($vars['view']->style_options['multiday_hidden']) ? $vars['view']->style_options['multiday_hidden'] : array();
 
-  // @TODO figure out how to find the right rendered fields
-  $vars['rendered_fields'][] = $item->getTitle();
-
-  if (!empty($item->rendered) && empty($item->isMultiDay())) {
-    $vars['rendered_fields'] = array($item->rendered);
+  if (!empty($item->getRenderedFields()) && empty($item->getIsMultiDay())) {
+    $vars['rendered_fields'] = array($item->getRenderedFields());
   }
   else {
     foreach ($vars['view']->field as $id => $field) {
-      if ($field->options['exclude'] || (!empty($item->is_multi_day) && in_array($id, $multiday_hidden))) {
+      if ($field->options['exclude'] || (!empty($item->is_multi_day()) && in_array($id, $multiday_hidden))) {
         unset($vars['rendered_fields'][$field->field]);
       }
     }

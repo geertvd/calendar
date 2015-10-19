@@ -60,16 +60,22 @@ class CalendarEvent {
   protected $url;
 
   /**
-   * @var string $stripeLabel
-   *   The label to be used for this stripe option.
+   * @var array
+   *   An array of the fields to render.
    */
-  protected $stripeLabel;
+  protected $renderedFields;
 
   /**
-   * @var string $stripeHex
-   *  The hex code of the color to be used.
+   * @var array $stripeLabels
+   *   The array of labels to be used for this stripe option.
    */
-  protected $stripeHex;
+  protected $stripeLabels;
+
+  /**
+   * @var string $stripeHexes
+   *  The hex code array of the color to be used.
+   */
+  protected $stripeHexes;
 
   /**
    * @var bool $isMultiDay
@@ -238,43 +244,73 @@ class CalendarEvent {
   }
 
   /**
-   * Getter for the stripe label.
+   * Getter for the rendered fields array.
    *
-   * @return string
-   *   The stripe label.
+   * @return array
+   *   The rendered fields array.
    */
-  public function getStripeLabel() {
-    return $this->stripeLabel;
+  public function getRenderedFields() {
+    return $this->renderedFields;
   }
 
   /**
-   * Setter for the stripe label.
+   * Setter for the rendered fields array.
    *
-   * @param string $stripeLabel
-   *   The stripe label.
+   * @param array $renderedFields
+   *   The rendered fields array.
    */
-  public function setStripeLabel($stripeLabel) {
-    $this->stripeLabel = $stripeLabel;
+  public function setRenderedFields($renderedFields) {
+    $this->renderedFields = $renderedFields;
   }
 
   /**
-   * Getter for the stripe hex code.
+   * Getter for the stripe label array.
    *
-   * @return string
-   *   The stripe hex code.
+   * If no array is defined, this initializes the variable to an empty array.
+   *
+   * @return array
+   *   The stripe labels.
    */
-  public function getStripeHex() {
-    return $this->stripeHex;
+  public function getStripeLabels() {
+    if (!isset($this->stripeLabels)) {
+      $this->stripeLabels = [];
+    }
+    return $this->stripeLabels;
   }
 
   /**
-   * The setter for the stripe hex code.
+   * Setter for the stripe label array.
    *
-   * @param string $stripeHex
-   *   The stripe hex code.
+   * @param string $stripeLabels
+   *   The stripe labels.
    */
-  public function setStripeHex($stripeHex) {
-    $this->stripeHex = $stripeHex;
+  public function setStripeLabels($stripeLabels) {
+    $this->stripeLabels = $stripeLabels;
+  }
+
+  /**
+   * Getter for the stripe hex code array.
+   *
+   * If no array is defined, this initializes the variable to an empty array.
+   *
+   * @return array
+   *   The stripe hex code array.
+   */
+  public function getStripeHexes() {
+    if (!isset($this->stripeHexes)) {
+      $this->stripeHexes = [];
+    }
+    return $this->stripeHexes;
+  }
+
+  /**
+   * The setter for the stripe hex code array.
+   *
+   * @param string $stripeHexes
+   *   The stripe hex code array.
+   */
+  public function setStripeHexes($stripeHexes) {
+    $this->stripeHexes = $stripeHexes;
   }
 
   /**

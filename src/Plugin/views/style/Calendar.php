@@ -477,11 +477,10 @@ class Calendar extends StylePluginBase {
       /** @var \Drupal\calendar\CalendarEvent $event */
       foreach ($event_info as $event_info) {
 //        $event->granularity = $this->dateInfo->granularity;
-        $rendered_fields = [];
         $item_start = $this->dateFormatter->format($event_info->getStartDate()->getTimestamp(), 'custom', 'Y-m-d');
         $item_end = $this->dateFormatter->format($event_info->getEndDate()->getTimestamp(), 'custom', 'Y-m-d');
         $time_start = $this->dateFormatter->format($event_info->getStartDate()->getTimestamp(), 'custom', 'H:i:s');
-//        $item->rendered_fields = $this->rendered_fields[$row_index];
+        $event_info->setRenderedFields($this->rendered_fields[$row_index]);
         $items[$item_start][$time_start][] = $event_info;
       }
     }
