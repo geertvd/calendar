@@ -807,7 +807,7 @@ class Calendar extends StylePluginBase {
       $rows = array_merge($rows, $this->calendarBuildMiniWeek());
       $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
       $current_day_month = $this->currentDay->format('n');
-    } while ($current_day_month == $month && $current_day_date <= $this->dateInfo->max_date->format(DATETIME_DATE_STORAGE_FORMAT));
+    } while ($current_day_month == $month && $current_day_date <= $this->dateInfo->getMaxDate()->format(DATETIME_DATE_STORAGE_FORMAT));
 
     // Merge the day names in as the first row.
     $rows = array_merge([CalendarHelper::weekHeader($this->view)], $rows);

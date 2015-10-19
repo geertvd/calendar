@@ -100,7 +100,7 @@ function template_preprocess_calendar_year(&$vars) {
   $rows = $vars['rows'];
   $months = [];
   foreach ($rows as $month => $month_rows) {
-    $view->dateInfo->setMonth($month);
+    $view->dateInfo->setMinMonth($month);
     $view->dateInfo->setGranularity('month');
     $view->styleInfo->setMini(TRUE);
     $view->styleInfo->setShowNavigation(FALSE);
