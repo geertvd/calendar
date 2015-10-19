@@ -138,17 +138,6 @@
   </div>
   <div class="header-body-divider">&nbsp;</div>
   <div id="single-day-container">
-    {% if scroll_content is not empty %}
-    <script>
-      try {
-        // TODO move this to a separate file and include it when needed
-        // Hide container while it renders...  Degrade w/o javascript support
-        jQuery('#single-day-container').css('visibility','hidden');
-      }catch(e){ 
-        // swallow 
-      }
-    </script>
-    {% endif %}
     <table class="full">
       <tbody>
         <tr class="holder"><td class="calendar-time-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td></tr>
@@ -205,18 +194,3 @@
   </div>
   <div class="single-day-footer">&nbsp;</div>
 </div></div>
-<?php if (!empty($scroll_content)) : ?>
-<script>
-try {
-  // TODO move this to a separate file and include it when needed
-  // Size and position the viewport inline so there are no delays
-  calendar_resizeViewport(jQuery);
-  calendar_scrollToFirst(jQuery);
-
-  // Show it now that it is complete and positioned
-  jQuery('#single-day-container').css('visibility','visible');
-}catch(e){ 
-  // swallow 
-}
-</script>
-<?php endif; ?>

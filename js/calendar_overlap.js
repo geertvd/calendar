@@ -90,7 +90,6 @@
       {
         top = $('#single-day-container').offset().top;
       }
-      console.log(top);
 
       // Give it a 20 pixel margin at the bottom
       $('#single-day-container').height(viewportHeight - top - 20);

@@ -370,6 +370,10 @@ function template_preprocess_calendar_day(&$vars) {
  */
 function template_preprocess_calendar_week_overlap(&$vars) {
   template_preprocess_calendar_week($vars);
+
+  if (!empty($vars['scroll_content'])) {
+    $vars['#attached']['library'][] = 'calendar/calendar.overlap';
+  }
 }
 
 /**
@@ -419,17 +423,6 @@ function template_preprocess_calendar_week(&$vars) {
 // @see https://www.drupal.org/node/2408597
 // drupal_add_css(drupal_get_path('module', 'calendar') . '/css/calendar-overlap.css');
 
-    if (empty($view->live_preview) && !empty($vars['scroll_content'])) {
-      // @FIXME
-// The Assets API has totally changed. CSS, JavaScript, and libraries are now
-// attached directly to render arrays using the #attached property.
-// 
-// 
-// @see https://www.drupal.org/node/2169605
-// @see https://www.drupal.org/node/2408597
-// drupal_add_js(drupal_get_path('module', 'calendar') . '/js/calendar_overlap.js');
-
-    }
     if (empty($vars['scroll_content'])) {
       // @FIXME
 // The Assets API has totally changed. CSS, JavaScript, and libraries are now
@@ -490,6 +483,10 @@ function template_preprocess_calendar_week(&$vars) {
         foreach ($row as &$item) {
           // todo find out how empty days should be handled properly
           if ($item['entry']['#theme'] === 'calendar_empty_day') {
+            continue;
+          }
+          // todo find out what to do when the item is no event
+          if (!is_object($item['item'])) {
             continue;
           }
           $time = date_format($item['item']->getStartDate(), 'H:i:s');
