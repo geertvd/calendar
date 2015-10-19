@@ -67,6 +67,14 @@ class CalendarStyleInfo {
   protected $showEmptyTimes;
 
   /**
+   * Defines the way of grouping items.
+   *
+   * @var string
+   *   The way of grouping items (e.g. 'hour', 'half').
+   */
+  protected $groupByTimes;
+
+  /**
    * Defines a custom way of grouping by times.
    *
    * @var string
@@ -252,6 +260,26 @@ class CalendarStyleInfo {
    */
   public function setShowEmptyTimes($showEmptyTimes) {
     $this->showEmptyTimes = $showEmptyTimes;
+  }
+
+  /**
+   * Getter for the group by times property.
+   *
+   * @return string
+   *   The group by time property.
+   */
+  public function getGroupByTimes() {
+    return $this->groupByTimes;
+  }
+
+  /**
+   * Setter for the group by times property.
+   *
+   * @param string $groupByTimes
+   *   The group by time property.
+   */
+  public function setGroupByTimes($groupByTimes) {
+    $this->groupByTimes = $groupByTimes;
   }
 
   /**

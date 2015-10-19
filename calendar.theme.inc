@@ -445,7 +445,7 @@ function template_preprocess_calendar_week(&$vars) {
         // TODO item should not be empty at this point, find out why empty days
         // get to this point, fix that, and remove this hack
         if (isset($time_slot[0]['item'])) {
-          $time = date_format($time_slot[0]['item']->date_start, 'H:i:s');
+          $time = date_format($time_slot[0]['item']->getStartDate(), 'H:i:s');
           if ($time < $first_time) {
             $first_time = $time;
             $first_time_index = $i;
@@ -558,11 +558,11 @@ function template_preprocess_calendar_week(&$vars) {
           if ($display_overlap) {
             $group_time = NULL;
             $divisor = NULL;
-            if ($view->style_options['groupby_times'] == 'half'){
+            if ($view->styleInfo->getGroupByTimes() == 'half'){
               $group_time = 30;
               $divisor = 7.5;
             }
-            elseif ($view->style_options['groupby_times'] == 'hour'){
+            elseif ($view->styleInfo->getGroupByTimes() == 'hour'){
               $group_time = 60;
               $divisor = 15;
             }

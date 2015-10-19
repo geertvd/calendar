@@ -47,61 +47,43 @@
   <tr class="holder"><td class="calendar-time-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td></tr>
     {% for i in multiday_rows %}
       {% set row_class = 'all-day' %}
-      {% set row_class = loop.first ?: 'first' %}
-      {% set row_class = loop.last ?: 'last' %}
-      <tr class="{{ row_class }}">
-        {% if index == 0 and (by_hour_count > 0 or start_times is not empty) %}
+      {% if loop.first %}{% set row_class_extra = 'first' %}{% endif %}
+      {% if loop.last %}{% set row_class_extra = 'last' %}{% endif %}
+
+      <tr class="{{ row_class }} {{ row_class_extra }}">
+        {% if loop.index0 == 0 and (by_hour_count > 0 or start_times is not empty) %}
         <td class="{{ agenda_hour_class }}" rowspan="{{ multiday_rows }}">
           <span class="calendar-hour">{% trans with {'context': 'datetime'} %}All day{% endtrans %}</span>
         </td>
         {% endif %}
 
-        {% for j in 0..7 %}
+        {% for j in 0..6 %}
           {% set cell = all_day[index][i] ? NULL : all_day[index][i] %}
-          {# TODO convert to twig #}
-          <?php if($cell != NULL && $cell['filled'] && $cell['wday'] == $j): ?>
-            <?php for($colpos; $colpos < $cell['wday']; $colpos++) : ?>
-            <?php
-              $colclass = "calendar-agenda-items multi-day";
-              if ($colpos == 0) {
-                $colclass .= " first";
-              }
-              if ($colpos == 6) {
-                $colclass .= " last";
-              }
-            ?>
-            <td class="<?php print $colclass?>"><div class="inner">&nbsp;</div></td>
-            <?php endfor;?>
-            <?php
-              $colclass = "calendar-agenda-items multi-day";
-              if ($colpos == 0) {
-                $colclass .= " first";
-              }
-              if ($colpos == 6) {
-                $colclass .= " last";
-              }
-            ?>
-            <td colspan="<?php print $cell['colspan']?>" class="<?php print $colclass?>">
+          {% if cell is not empty and cell.filled and cell['wday'] == j %}
+            {% for positin in colpos..cell['wday'] %}
+              {% set col_class = "calendar-agenda-items multi-day"%}
+              {% if loop.first %}{% set col_class_extra = 'first' %}{% endif %}
+              {% if loop.last %}{% set col_class_extra = 'last' %}{% endif %}
+
+              <td class="{{ col_class }} {{ col_class_extra }}"><div class="inner">&nbsp;</div></td>
+            {% endfor %}
+
+            <td colspan="{{ cell['colspan'] }}" class="{{ col_class }}">
               <div class="inner">
-              <?php print $cell['entry']?>
+                {{ cell['entry'] }}
               </div>
             </td>
-            <?php $colpos += $cell['colspan']; ?>
-          <?php endif; ?>
+            {% set colpos = colpos + cell['colspan'] %}
+          {% endif %}
         {% endfor %}
-        <?php while($colpos < 7) : ?>
-        <?php
-          $colclass = "calendar-agenda-items multi-day no-entry";
-          if ($colpos == 0) {
-            $colclass .= " first";
-          }
-          if ($colpos == 6) {
-            $colclass .= " last";
-          }
-        ?>
-        <td class="<?php print $colclass?>"><div class="inner">&nbsp;</div></td>
-        <?php $colpos++; ?>
-        <?php endwhile;?>
+
+        {% for k in colpos..6 %}
+          {% set col_class = "calendar-agenda-items multi-day no-entry" %}
+          {% if loop.first %}{% set col_class_extra = 'first' %}{% endif %}
+          {% if loop.last %}{% set col_class_extra = 'last' %}{% endif %}
+
+          <td class="{{ col_class }} {{ col_class_extra }}"><div class="inner">&nbsp;</div></td>
+        {% endfor %}
       </tr>
     {% endfor %}
 
@@ -112,9 +94,9 @@
         </td>
         {% for j in 0..7 %}
           {% set col_class = "calendar-agenda-items multi-day no-entry" %}
-          {% set col_class = loop.first ? '' : 'first' %}
-          {% set col_class = loop.index == 7 ? '' : 'last' %}
-          <td class="{{ col_class }}"><div class="inner">&nbsp;</div></td>
+          {% if loop.first %}{% set col_class_extra = 'first' %}{% endif %}
+          {% if loop.last %}{% set col_class_extra = 'last' %}{% endif %}
+          <td class="{{ col_class }} {{ col_class_extra }}"><div class="inner">&nbsp;</div></td>
         {% endfor %}
       </tr>
     {% endif %}

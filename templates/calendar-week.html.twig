@@ -43,7 +43,7 @@
       {% if loop.last %}{% set row_class_extra = 'last' %}{% endif %}
 
     <tr class="{{ row_class }} {{ row_class_extra }}">
-      {% if index == 0 and (by_hour_count > 0 or start_times is not empty) %}
+      {% if loop.index == 0 and (by_hour_count > 0 or start_times is not empty) %}
         <td class="{{ agenda_hour_class }}" rowspan="{{ multiday_rows }}">
           <span class="calendar-hour">{% trans with {'context': 'datetime'} %}All day{% endtrans %}</span>
         </td>
@@ -97,7 +97,7 @@
         </td>
       {% endfor %}
       {% if current_position < 7 %}
-        {% for i in current_position..7 %}
+        {% for i in current_position..6 %}
           <td class="calendar-agenda-items single-day">
             <div class="calendar">
               <div class="inner">&nbsp</div>

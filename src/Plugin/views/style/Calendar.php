@@ -439,11 +439,11 @@ class Calendar extends StylePluginBase {
     $this->styleInfo->setThemeStyle($this->options['theme_style']);
     $this->styleInfo->setMaxItems($this->options['max_items']);
     $this->styleInfo->setMaxItemsStyle($this->options['max_items_behavior']);
-    if (!empty($this->options['groupby_times_custom'])) { // string?
+    if (!empty($this->options['groupby_times_custom'])) {
       $this->styleInfo->setCustomGroupByTimes(explode(',', $this->options['groupby_times_custom']));
     }
     else {
-      $this->styleInfo->setCustomGroupByTimes(calendar_groupby_times($this->options['groupby_times']));
+      $this->styleInfo->setGroupByTimes(calendar_groupby_times($this->options['groupby_times']));
     }
     $this->styleInfo->setCustomGroupByField($this->options['groupby_field']);
 
