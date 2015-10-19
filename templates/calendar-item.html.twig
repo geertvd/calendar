@@ -43,7 +43,9 @@
           {% if (index + 1) == 0 and item.continuation %}
             <div class="continuation">&laquo;</div>
           {% endif %}
-          {{ field }}
+          {% for field_html in field %}
+            {{ field_html }}
+          {% endfor %}
         {% endfor %}
       </div>
       {% if item.continues %}

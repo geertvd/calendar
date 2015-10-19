@@ -31,6 +31,9 @@ class TwigExtension extends \Twig_Extension {
    * Adds a striped background to the passed event.
    *
    * @param \Drupal\calendar\CalendarEvent $event
+   *
+   * @return string
+   *   A HTML output string.
    */
   public function getCalendarStripe($event) {
     if (empty($event->getStripeHexes()) || (!count($event->getStripeHexes()))) {
