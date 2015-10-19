@@ -33,22 +33,15 @@ class TwigExtension extends \Twig_Extension {
    * @param \Drupal\calendar\CalendarEvent $event
    */
   public function getCalendarStripe($event) {
-    // @TODO implement
-
-//    $item = $vars['item'];
-//    if (empty($item->stripe) || (!count($item->stripe))) {
-//      return;
-//    }
-//    $output = '';
-//    if (is_array($item->stripe_label)) {
-//      foreach ($item->stripe_label as $k => $stripe_label) {
-//        if (!empty($item->stripe[$k]) && !empty($stripe_label)) {
-//          $output .= '<div style="background-color:' . $item->stripe[$k] . ';color:' . $item->stripe[$k] . '" class="stripe" title="Key: ' . $item->stripe_label[$k] . '">&nbsp;</div>' . "\n";
-//        }
-//      }
-//    }
-//    return $output;
-
-    return '<div style="background-color:' . 'red' . ';color:' . 'yellow' . '" class="stripe" title="Key: ' . 'label test' . '">&nbsp;</div>' . "\n";
+    if (empty($event->getStripeHexes()) || (!count($event->getStripeHexes()))) {
+      return;
+    }
+    $output = '';
+    foreach ($event->getStripeLabels() as $k => $stripe_label) {
+      if (!empty($event->getStripeHexes()[$k]) && !empty($stripe_label)) {
+        $output .= '<div style="background-color:' . $event->getStripeHexes()[$k] . ';color:' . $event->getStripeHexes()[$k] . '" class="stripe" title="Key: ' . $event->getStripeLabels()[$k] . '">&nbsp;</div>' . "\n";
+      }
+    }
+    return $output;
   }
 }

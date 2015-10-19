@@ -90,8 +90,7 @@
           <div class="calendar">
             <div class="inner">
               {% for item in time.values[column] %}
-                {# todo this should render the full calendar_item entry {{ item.entry }} #}
-                {{ item.item.title }}
+                {{ item.entry }}
               {% endfor %}
             </div>
           </div>
