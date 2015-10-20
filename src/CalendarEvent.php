@@ -42,6 +42,12 @@ class CalendarEvent {
   protected $endDate;
 
   /**
+   * @var boolean
+   *   Defines whether or not this event's duration is all day.
+   */
+  protected $allDay;
+
+  /**
    * @var \DateTimeZone $timezone
    *   The timezone of the event.
    */
@@ -184,6 +190,26 @@ class CalendarEvent {
   }
 
   /**
+   * Getter for the all day property.
+   *
+   * @return boolean
+   *   TRUE if the event is all day, FALSE otherwise.
+   */
+  public function isAllDay() {
+    return $this->allDay;
+  }
+
+  /**
+   * Setter for the all day property.
+   *
+   * @param boolean $allDay
+   *   TRUE if the event is all day, FALSE otherwise.
+   */
+  public function setAllDay($allDay) {
+    $this->allDay = $allDay;
+  }
+
+  /**
    * Getter for the timezone property.
    *
    * @return \DateTimeZone
@@ -311,18 +337,6 @@ class CalendarEvent {
    */
   public function setStripeHexes($stripeHexes) {
     $this->stripeHexes = $stripeHexes;
-  }
-
-  /**
-   * Checks whether this event covers all day.
-   *
-   * @return boolean
-   */
-  public function isAllDay() {
-    // @TODO don't hardcode granularity and increment
-    $granularity = 'hour';
-    $increment = 1;
-    return CalendarHelper::dateIsAllDay($this->getStartDate()->format('Y-m-d H:i:s'), $this->getEndDate()->format('Y-m-d H:i:s'), $granularity, $increment);
   }
 
   /**

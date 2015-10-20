@@ -606,6 +606,11 @@ class Calendar extends RowPluginBase {
       $entity->setStartDate(new \DateTime($start_string));
       $end_string = !empty($item_end) ? ($item_end > $end ? $end : $item_end) : NULL;
       $entity->setEndDate(new \DateTime($end_string));
+a
+      // @TODO don't hardcode granularity and increment
+      $granularity = 'hour';
+      $increment = 1;
+      $entity->setAllDay(CalendarHelper::dateIsAllDay($this->getStartDate()->format('Y-m-d H:i:s'), $this->getEndDate()->format('Y-m-d H:i:s'), $granularity, $increment));
 
       $calendar_start = new \DateTime();
       $calendar_start->setTimestamp($entity->getStartDate()->getTimestamp());

@@ -991,9 +991,7 @@ class Calendar extends StylePluginBase {
           foreach ($day as $time => $hour) {
             /** @var \Drupal\calendar\CalendarEvent $item */
             foreach ($hour as $key => $item) {
-              // todo calendar_all_day does not exist at this point
-//              $all_day = $item->calendar_all_day;
-              $all_day = FALSE;
+              $all_day = $item->isAllDay();
 
               // Parse out date part.
               $start_ydate = $this->dateFormatter->format($item->getStartDate()->getTimestamp(), 'custom', 'Y-m-d');

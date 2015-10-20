@@ -490,8 +490,8 @@ function template_preprocess_calendar_week(&$vars) {
             continue;
           }
           $time = date_format($item['item']->getStartDate(), 'H:i:s');
-          // todo calendar_all_day does not exist here
-          if (FALSE && $item['item']->calendar_all_day) {
+
+          if ($item['item']->isAllDay()) {
             $vars['all_day'][$item['wday']][] = $item;
             if ($vars['multiday_rows'] == 0) {
               $vars['multiday_rows']++;
