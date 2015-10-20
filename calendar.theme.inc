@@ -407,10 +407,7 @@ function template_preprocess_calendar_week(&$vars) {
   $vars['all_day'] = $rows['multiday_buckets'];
 
   // Remove the count for singleday
-  // @TODO find out if the total_rows count is wrong, or the handling in the
-  // theme file is wrong (rowspan should be 2)
-//  $vars['multiday_rows'] = max(0, $rows['total_rows'] - 1);
-  $vars['multiday_rows'] = max(0, $rows['total_rows']);
+  $vars['multiday_rows'] = max(0, $rows['total_rows'] - 1);
   $display_overlap = ($view->styleInfo->getMultiDayTheme() == '1' && !empty($view->styleInfo->getThemeStyle()));
   $vars['display_overlap'] = $display_overlap;
   $vars['scroll_content'] = !empty($view->styleInfo->getThemeStyle()) && $view->styleInfo->getThemeStyle() == 1;
