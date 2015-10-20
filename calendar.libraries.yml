@@ -18,5 +18,5 @@ calendar.theme:
     theme:
       css/calendar.css: {}
       css/calendar-overlap.css: {}
-      css/overlap-no-scroll.css: {}
+      css/calendar-overlap-no-scroll.css: {}
       css/calendar_multiday.css: {}
