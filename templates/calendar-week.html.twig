@@ -61,7 +61,7 @@
               {{ cell.entry }}
             </div>
           </td>
-          {% set colpos = cell['wday'] + cell['colspan'] %}
+          {% set colpos = cell['wday'] + cell['colspan'] + 1 %}
         {% endif %}
       {% endfor %}
 
