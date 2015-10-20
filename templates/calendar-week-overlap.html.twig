@@ -45,8 +45,9 @@
   <table class="full">
   <tbody>
   <tr class="holder"><td class="calendar-time-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td><td class="calendar-day-holder"></td></tr>
-    {% for i in multiday_rows %}
+    {% for i in 0..multiday_rows %}
       {% set row_class = 'all-day' %}
+      {% set row_class_extra = '' %}
       {% if loop.first %}{% set row_class_extra = 'first' %}{% endif %}
       {% if loop.last %}{% set row_class_extra = 'last' %}{% endif %}
 
@@ -57,11 +58,12 @@
         </td>
         {% endif %}
 
-        {% for j in 0..6 %}
-          {% set cell = all_day[index][i] ? NULL : all_day[index][i] %}
+        {% for j in 0..7 %}
+          {% set cell = all_day[j][i] %}
           {% if cell is not empty and cell.filled and cell['wday'] == j %}
-            {% for positin in colpos..cell['wday'] %}
+            {% for position in colpos..cell['wday'] %}
               {% set col_class = "calendar-agenda-items multi-day"%}
+              {% set col_class_extra = '' %}
               {% if loop.first %}{% set col_class_extra = 'first' %}{% endif %}
               {% if loop.last %}{% set col_class_extra = 'last' %}{% endif %}
 
@@ -70,18 +72,18 @@
 
             <td colspan="{{ cell['colspan'] }}" class="{{ col_class }}">
               <div class="inner">
-                {{ cell['entry'] }}
+                {{ cell.entry }}
               </div>
             </td>
             {% set colpos = colpos + cell['colspan'] %}
           {% endif %}
         {% endfor %}
 
-        {% for k in colpos..6 %}
+        {% for k in colpos..7 %}
           {% set col_class = "calendar-agenda-items multi-day no-entry" %}
+          {% set col_class_extra = '' %}
           {% if loop.first %}{% set col_class_extra = 'first' %}{% endif %}
           {% if loop.last %}{% set col_class_extra = 'last' %}{% endif %}
-
           <td class="{{ col_class }} {{ col_class_extra }}"><div class="inner">&nbsp;</div></td>
         {% endfor %}
       </tr>
@@ -94,6 +96,7 @@
         </td>
         {% for j in 0..7 %}
           {% set col_class = "calendar-agenda-items multi-day no-entry" %}
+          {% set col_class_extra = '' %}
           {% if loop.first %}{% set col_class_extra = 'first' %}{% endif %}
           {% if loop.last %}{% set col_class_extra = 'last' %}{% endif %}
           <td class="{{ col_class }} {{ col_class_extra }}"><div class="inner">&nbsp;</div></td>
@@ -126,14 +129,14 @@
         <tr>
           {% for i in 0..7 %}
             {% if loop.first %}
-              <td class="first" headers="{{ header_ids[loop.index] }}">
+              <td class="first" headers="{{ header_ids[loop.index0] }}">
             {% elseif loop.index0 == 7 %}
               <td class="last">
             {% else %}
-              <td headers="{{ header_ids[loop.index] }}">
+              <td headers="{{ header_ids[loop.index0] }}">
             {% endif %}
 
-            {% for time_cnt, start_time in start_times%}
+            {% for time_cnt, start_time in start_times %}
               {% if time_cnt == 0 %}
                 {% set class = 'first' %}
               {% elseif time_cnt == start_times|length - 1 %}
@@ -142,22 +145,22 @@
                 {% set class = '' %}
               {% endif %}
 
-              {% if loop.first %}
+              {% if loop.parent.loop.first %}
                 {% set time = items[start_time] %}
-                <div class="{{ class }}calendar-agenda-hour">
+                <div class="{{ class }} calendar-agenda-hour">
                   <span class="calendar-hour">{{ time.hour }}</span><span class="calendar-ampm">{{ time.ampm }}</span>
                 </div>
               {% else %}
-                <div class="{{ class }}calendar-agenda-items single-day">
+                <div class="{{ class }} calendar-agenda-items single-day">
                 <div class="half-hour">&nbsp;</div>
                   <div class="calendar item-wrapper">
                     <div class="inner">
-                      {% if items[start_time]['values'][loop.index - 1] %}
-                        {% for item in items[start_time]['values'][loop.index - 1]%}
+                      {% if items[start_time]['values'][loop.index0] %}
+                        {% for item in items[start_time]['values'][loop.index0] %}
                           {% if item['is_first'] %}
-                            <div class="item item.class first_item">
+                            <div class="item {{ item.class }} first_item">
                           {% else %}
-                            <div class="item item.class">
+                            <div class="item {{ item.class }}">
                           {% endif %}
                               {{ item.entry }}
                             </div>

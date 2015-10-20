@@ -407,7 +407,10 @@ function template_preprocess_calendar_week(&$vars) {
   $vars['all_day'] = $rows['multiday_buckets'];
 
   // Remove the count for singleday
-  $vars['multiday_rows'] = max(0, $rows['total_rows'] - 1);
+  // @TODO find out if the total_rows count is wrong, or the handling in the
+  // theme file is wrong (rowspan should be 2)
+//  $vars['multiday_rows'] = max(0, $rows['total_rows'] - 1);
+  $vars['multiday_rows'] = max(0, $rows['total_rows']);
   $display_overlap = ($view->styleInfo->getMultiDayTheme() == '1' && !empty($view->styleInfo->getThemeStyle()));
   $vars['display_overlap'] = $display_overlap;
   $vars['scroll_content'] = !empty($view->styleInfo->getThemeStyle()) && $view->styleInfo->getThemeStyle() == 1;
@@ -423,7 +426,7 @@ function template_preprocess_calendar_week(&$vars) {
 // @see https://www.drupal.org/node/2408597
 // drupal_add_css(drupal_get_path('module', 'calendar') . '/css/calendar-overlap.css');
 
-    if (empty($vars['scroll_content'])) {
+    if ($vars['scroll_content']) {
       // @FIXME
 // The Assets API has totally changed. CSS, JavaScript, and libraries are now
 // attached directly to render arrays using the #attached property.
@@ -459,7 +462,7 @@ function template_preprocess_calendar_week(&$vars) {
   }
 
   // If we're not grouping by time, move all items into the 'all day' array.
-  if (empty($view->styleInfo->getCustomGroupByTimes())) {
+  if (empty($view->styleInfo->getGroupByTimes())) {
     $add_row = FALSE;
     foreach ($vars['all_day'] as $index => &$day ) {
       foreach ($rows['singleday_buckets'][$index] as $item) {
@@ -521,7 +524,7 @@ function template_preprocess_calendar_week(&$vars) {
       if ($show_empty_times || $display_overlap) {
         while ($start_time < $end_start_time && ($start_time != NULL || $display_overlap)) {
           if ($start_time == NULL) {
-            $start_times = $view->styleInfo->getCustomGroupByTimes();
+            $start_times = $view->styleInfo->getGroupByTimes();
             $start_time = array_shift($start_times);
             $next_start_time = array_shift($start_times);
           }
@@ -585,7 +588,7 @@ function template_preprocess_calendar_week(&$vars) {
 
   $vars['day_names'] = $day_names;
   $vars['columns'] = $columns;
-  $vars['start_times'] = $view->styleInfo->getCustomGroupByTimes();
+  $vars['start_times'] = $start_times;
   $vars['first_time'] = !empty($first_time) ? $first_time : '';
 
   $header_ids = [];
@@ -603,7 +606,6 @@ function template_preprocess_calendar_week(&$vars) {
   }
   $vars['item_count'] = $item_count;
   $vars['by_hour_count'] = $by_hour_count;
-  return;
 }
 
 /**

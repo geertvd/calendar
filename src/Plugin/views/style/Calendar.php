@@ -440,7 +440,7 @@ class Calendar extends StylePluginBase {
     $this->styleInfo->setMaxItems($this->options['max_items']);
     $this->styleInfo->setMaxItemsStyle($this->options['max_items_behavior']);
     if (!empty($this->options['groupby_times_custom'])) {
-      $this->styleInfo->setCustomGroupByTimes(explode(',', $this->options['groupby_times_custom']));
+      $this->styleInfo->setGroupByTimes(explode(',', $this->options['groupby_times_custom']));
     }
     else {
       $this->styleInfo->setGroupByTimes(calendar_groupby_times($this->options['groupby_times']));
