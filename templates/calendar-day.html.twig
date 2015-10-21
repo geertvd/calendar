@@ -59,8 +59,8 @@
        <td class="calendar-agenda-items multi-day">
          <div class="calendar">
            <div class="inner">
-             {% if rows['all_day'][column] %}
-               {{ rows['all_day'][column]|join }}
+             {% if rows['all_day'][column] is not empty %}
+               {{ rows['all_day'][column] }}
              {% else %}
                &nbsp;
              {% endif %}
@@ -78,8 +78,8 @@
         <td class="calendar-agenda-items single-day">
           <div class="calendar">
           <div class="inner">
-            {% if hour['values'][column] %}
-              {{ hour['values'][column]|join }}
+            {% if hour['values'][column] is not empty %}
+              {{ hour['values'][column] }}
             {% else %}
               &nbsp;
             {% endif %}

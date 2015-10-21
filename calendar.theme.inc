@@ -182,21 +182,21 @@ function template_preprocess_calendar_day(&$vars) {
   }
 
   // If we're not grouping by time, move all items into the 'all day' array.
-  if (empty($view->styleInfo->getCustomGroupByTimes())) {
+  if (empty($view->styleInfo->getGroupByTimes())) {
     // Items are already grouped into times, so we need to process each time-group.
     foreach ($rows['items'] as $time => $items) {
       foreach ($items as $item) {
-        $rows['#all_day'][] = $item;
+        $rows['all_day'][] = $item;
       }
     }
-    $rows['#items'] = [];
+    $rows['items'] = [];
   }
 
   $columns = [];
 
   // Move all_day items into the right columns and render them.
   $grouped_items = [];
-  foreach ($rows['#all_day'] as $item) {
+  foreach ($rows['all_day'] as $item) {
     if (!empty($item->rendered_fields[$grouping_field])) {
       $column = $item->rendered_fields[$grouping_field];
       if (!in_array($column, $columns)) {
@@ -204,31 +204,28 @@ function template_preprocess_calendar_day(&$vars) {
       }
     }
     else {
-      $column = t('Items');
+      $column = 'Items';
     }
-    // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-// 
-// 
-// @see https://www.drupal.org/node/2195739
-// $grouped_items[$column][] = theme('calendar_item', array('view' => $view, 'rendered_fields' => $item->rendered_fields, 'item' => $item));
 
+    $grouped_items[$column][] = [
+      '#theme' => 'calendar_item',
+      '#view' => $view,
+      '#rendered_fields' => $item->getRenderedFields(),
+      '#item' => $item,
+    ];
     $item_count++;
   }
   $vars['rows']['all_day'] = $grouped_items;
 
   // Moved timed items into the right columns and render them.
-  $start_times = $view->styleInfo->getCustomGroupByTimes();
+  $start_times = $view->styleInfo->getGroupByTimes();
   $show_empty_times = $view->styleInfo->isShowEmptyTimes();
   $end_start_time = '23:59:59';
   $start_time = array_shift($start_times);
   $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
 
-  $grouped_items = array();
-  foreach ($rows['#items'] as &$items) {
+  $grouped_items = [];
+  foreach ($rows['items'] as &$items) {
     foreach ($items as &$item) {
       $time = date_format($item->calendar_start_date, 'H:i:s');
       if (!empty($item->rendered_fields[$grouping_field])) {
@@ -238,13 +235,13 @@ function template_preprocess_calendar_day(&$vars) {
         }
       }
       else {
-        $column = t('Items');
+        $column = 'Items';
       }
       // Find the next time slot and fill it. Populate the skipped
       // slots if the option to show empty times was chosen.
       while ($time >= $next_start_time && $time < $end_start_time) {
         if ((!empty($show_empty_times) || $display_overlap) && !array_key_exists($start_time, $grouped_items)) {
-          $grouped_items[$start_time]['values'] = array();
+          $grouped_items[$start_time]['values'] = [];
         }
         $start_time = $next_start_time;
         $next_start_time = count($start_times) ? array_shift($start_times) : $end_start_time;
@@ -287,14 +284,7 @@ function template_preprocess_calendar_day(&$vars) {
       'next_start_time' => $next_start_time,
       'curday_date' => $rows['#date'],
     );
-    // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-// 
-// 
-// @see https://www.drupal.org/node/2195739
+
     $heading = template_preprocess_calendar_time_row_heading($variables);
 
     $grouped_items[$start_time]['hour'] = $heading['hour'];
@@ -322,15 +312,13 @@ function template_preprocess_calendar_day(&$vars) {
             $item->class = 'd_' . $duration . ' o_' . $offset . ' i_' . $item->indent . ' md_' . min($item->max_depth, 5);
           }
         }
-        // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-// 
-// 
-// @see https://www.drupal.org/node/2195739
-// $grouped_items[$start_time]['values'][$column][$index] = theme('calendar_item', array('view' => $view, 'rendered_fields' => $item->rendered_fields, 'item' => $item));
+
+        $grouped_items[$start_time]['values'][$column][$index] = [
+          '#theme' => 'calendar_item',
+          '#view' => $view,
+          '#rendered_fields' => $item->getRenderedFields(),
+          '#item' => $item,
+        ];
 
       }
     }
@@ -340,7 +328,7 @@ function template_preprocess_calendar_day(&$vars) {
   $vars['rows']['items'] = $grouped_items;
 
   if (empty($columns)) {
-    $columns = array(t('Items'));
+    $columns = ['Items'];
   }
   $vars['columns'] = $columns;
 
@@ -361,8 +349,7 @@ function template_preprocess_calendar_day(&$vars) {
   }
   $vars['item_count'] = $item_count;
   $vars['by_hour_count'] = $by_hour_count;
-  $vars['start_times'] = $view->styleInfo->getCustomGroupByField();
-  return;
+  $vars['start_times'] = $view->styleInfo->getGroupByTimes();
 }
 
 /**
@@ -621,7 +608,7 @@ function template_preprocess_calendar_item(&$vars) {
   }
   else {
     foreach ($vars['view']->field as $id => $field) {
-      if ($field->options['exclude'] || (!empty($item->is_multi_day()) && in_array($id, $multiday_hidden))) {
+      if ($field->options['exclude'] || (!empty($item->getIsMultiDay()) && in_array($id, $multiday_hidden))) {
         unset($vars['rendered_fields'][$field->field]);
       }
     }

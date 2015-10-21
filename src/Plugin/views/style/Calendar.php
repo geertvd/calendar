@@ -1049,8 +1049,7 @@ class Calendar extends StylePluginBase {
                     'entry' => [
                       '#theme' => 'calendar_item',
                       '#view' => $this->view,
-                      // todo, why are we passing rendered_fields separately?
-//                      '#rendered_fields' => $item->rendered_fields,
+                      '#rendered_fields' => $item->getRenderedFields(),
                       '#item' => $item,
                     ],
                   ];
@@ -1089,9 +1088,7 @@ class Calendar extends StylePluginBase {
                   'entry' => [
                     '#theme' => 'calendar_item',
                     '#view' => $this->view,
-                    // todo, why are we passing rendered_fields separately?
-//                    '#rendered_fields' => $item->rendered_fields,
-                    '#rendered_fields' => null,
+                    '#rendered_fields' => $item->getRenderedFields(),
                     '#item' => $item,
                   ],
                   'item' => $item,
@@ -1196,7 +1193,7 @@ class Calendar extends StylePluginBase {
     }
 
     $content = [
-      '#date' => $current_day_date,
+      'date' => $current_day_date,
       'datebox' => [
         '#theme' => 'calendar_datebox',
         '#date' => $current_day_date,
@@ -1205,9 +1202,9 @@ class Calendar extends StylePluginBase {
         '#selected' => $selected,
       ],
       '#empty' => $empty,
-      '#link' => $link,
-      '#all_day' => $all_day,
-      '#items' => $inner,
+      'link' => $link,
+      'all_day' => $all_day,
+      'items' => $inner,
     ];
     return $content;
   }

@@ -45,8 +45,8 @@
           {% for column in columns %}
           <div class="calendar">
             <div class="inner">
-              {% if rows['all_day'] is not empty and rows['all_day'][column] %}
-                {{ rows['allday'][column]|join }}
+              {% if rows['all_day'] is not empty and rows['all_day'][column] is not empty %}
+                {{ rows['all_day'][column] }}
               {% else %}
                 &nbsp;
               {% endif %}
@@ -102,7 +102,7 @@
                 <div class="inner">
                   {% if hour['values']|length and hour['values'] is iterable and hour['values'][column] is defined %}
                     {% for item in hour['values'][column] %}
-                      {{ item }}
+                      {{ item.entry }}
                     {% endfor %}
                   {% else %}
                     &nbsp;
