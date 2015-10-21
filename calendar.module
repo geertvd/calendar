@@ -207,7 +207,8 @@ function calendar_theme() {
       'variables' => ['inner' => NULL, 'class' => NULL, 'iehint' => NULL],
     ],
     'calendar_day' => [
-      'variables' => ['view' => NULL, 'day_names' => [], 'rows' => [],],
+      'variables' => ['view' => NULL, 'options' => [], 'rows' => [],],
+      'file' => 'calendar.theme.inc',
     ],
     'calendar_month' => [
       'variables' => ['view' => NULL, 'options' => [], 'rows' => []],
@@ -232,7 +233,7 @@ function calendar_theme() {
       'file' => 'calendar.theme.inc',
     ],
     'calendar_day_overlap' => [
-      'variables' => ['view' => NULL, 'rows' => [],],
+      'variables' => ['view' => NULL, 'options' => [], 'rows' => [],],
       'file' => 'calendar.theme.inc',
     ],
     'calendar_year' => [
