@@ -164,13 +164,6 @@ function calendar_menu_local_tasks_alter(&$data, $router_item, $root_path) {
 }
 
 /**
- * Calendar display types.
- */
-function calendar_display_types() {
-  return array('year' => t('Year'), 'month' => t('Month'), 'day' => t('Day'), 'week' => t('Week'));
-}
-
-/**
  * Implementation of hook_help().
  */
 function calendar_help($section, $arg) {

@@ -165,7 +165,7 @@ class Calendar extends StylePluginBase {
       '#type' => 'select',
       '#description' => $this->t('Select the calendar time period for this display.'),
       '#default_value' => $this->options['calendar_type'],
-      '#options' => calendar_display_types(),
+      '#options' => CalendarHelper::displayTypes(),
     ];
     $form['mini'] = [
       '#title' => $this->t('Display as mini calendar'),

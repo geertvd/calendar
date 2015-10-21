@@ -301,4 +301,11 @@ class CalendarHelper extends DateHelper {
 
     return FALSE;
   }
+
+  /**
+   * Calendar display types.
+   */
+  public static function displayTypes() {
+    return ['year' => t('Year'), 'month' => t('Month'), 'day' => t('Day'), 'week' => t('Week')];
+  }
 }
