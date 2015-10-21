@@ -15,10 +15,12 @@ use Drupal\Core\Entity\Entity;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\TypedData\Plugin\DataType\DateTimeIso8601;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
+use Drupal\views\Plugin\views\display\DisplayRouterInterface;
 use Drupal\views\Plugin\views\row\RowPluginBase;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Routing\RouteCollection;
 
 /**
  * Plugin which creates a view on the resulting object and formats it as a
@@ -218,7 +220,7 @@ class Calendar extends RowPluginBase {
       }
 
       // Get the Vocabulary names.
-      $vocab_vids = array();
+      $vocab_vids = [];
       foreach ($vocabulary_field_options as $field_name => $label) {
         $field_config = \Drupal::entityManager()->getStorage('field_config')->loadByProperties(['field_name' => $field_name]);
 
@@ -236,11 +238,11 @@ class Calendar extends RowPluginBase {
 
       $this->options['colors']['calendar_colors_vocabulary'] = $vocab_vids;
 
-      $form['colors']['calendar_colors_vocabulary'] = array(
+      $form['colors']['calendar_colors_vocabulary'] = [
         '#title' => t('Vocabulary Legend Types'),
         '#type' => 'value',
         '#value' => $vocab_vids,
-      );
+      ];
 
       // Get the Vocabulary term id's and map to colors.
       $term_colors = $this->options['colors']['calendar_colors_taxonomy'];
@@ -282,27 +284,17 @@ class Calendar extends RowPluginBase {
     parent::submitOptionsForm($form, $form_state);
 
     if ($this->view->getBaseTables()['node_field_data']) {
+      // @todo figure out what the real default display is.
       $link_display = $this->view->getDisplay()->getOption('link_display');
       if (!empty($link_display)) {
-        $default_display = $this->view->displayHandlers->get('default')->getOption('link_display');
-        $path = $this->view->displayHandlers->get($default_display)->getOption('path');
+        $view_id = $this->view->storage->id();
+        $route = "view.$view_id.$link_display";
 
-        // If this display has been set up as a default tab, the current path
-        // is actually the base path, i.e. if the path is 'calendar/month'
-        // and this is a default tab, the path for this display will actually
-        // be 'calendar'.
-        if ($this->view->displayHandlers->get($default_display)->getOption('menu')['type'] == 'default tab') {
-          // @todo check if this works
-          $parts = explode('/', $path);
-          array_pop($parts);
-          $path = implode('/', $parts);
-        }
-
-        // @todo uncomment after calendar_clear_link_path is fixed
-//        calendar_clear_link_path($path);
+        // @todo uncomment after calendar_clear_link_path is fixed.
+        //calendar_clear_link_path($path);
         if (!empty($form_state->getValue('row_options')['calendar_date_link'])) {
           $node_type = $form_state->getValue('row_options')['calendar_date_link'];
-          calendar_set_link('node', $node_type, $path);
+          calendar_set_link('node', $node_type, $route);
         }
       }
     }
@@ -437,12 +429,12 @@ class Calendar extends RowPluginBase {
         $date_delta = 'date_delta_' . $field_name;
         if (isset($row->$date_id)) {
           $delta = $row->$date_delta;
-          $entity->date_id = array('calendar.' . $row->$date_id . '.' . $field_name. '.' . $delta);
+          $entity->date_id = ['calendar.' . $row->$date_id . '.' . $field_name. '.' . $delta];
           $delta_field = $date_delta;
         }
         else {
           $delta = isset($row->$delta_field) ? $row->$delta_field : 0;
-          $entity->date_id = array('calendar.' . $id . '.' . $field_name . '.' . $delta);
+          $entity->date_id = ['calendar.' . $id . '.' . $field_name . '.' . $delta];
         }
 
         $items = field_get_items($this->entity_type, $entity, $field_name, $this->language);
@@ -467,7 +459,7 @@ class Calendar extends RowPluginBase {
         $to_zone = date_get_timezone($tz_handling, isset($item->$tz_field) ? $item->$tz_field : timezone_name_get($dateInfo->getTimezone()));
         $item_start_date = new dateObject($item, $db_tz);
         $item_end_date   = $item_start_date;
-        $entity->date_id = array('calendar.' . $id . '.' . $field_name . '.0');
+        $entity->date_id = ['calendar.' . $id . '.' . $field_name . '.0'];
       }
 
       // If we don't have a date value, go no further.
@@ -667,7 +659,7 @@ class Calendar extends RowPluginBase {
     * @todo rename and document
    */
   function calendar_taxonomy_stripe(&$result) {
-    $colors = isset($this->options['colors']['calendar_colors_taxonomy']) ? $this->options['colors']['calendar_colors_taxonomy'] : array();
+    $colors = isset($this->options['colors']['calendar_colors_taxonomy']) ? $this->options['colors']['calendar_colors_taxonomy'] : [];
     if (empty($colors)) {
       return;
     }

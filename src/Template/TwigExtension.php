@@ -23,7 +23,7 @@ class TwigExtension extends \Twig_Extension {
    */
   public function getFilters() {
     return [
-      new \Twig_SimpleFilter('calendar_stripe', [$this, 'getCalendarStripe'], array('is_safe' => array('html'))),
+      new \Twig_SimpleFilter('calendar_stripe', [$this, 'getCalendarStripe'], ['is_safe' => ['html']]),
     ];
   }
 

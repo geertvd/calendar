@@ -571,7 +571,7 @@ class Calendar extends StylePluginBase {
 
         // If we're displaying the week number, add it as the first cell in the
         // week.
-        if ($i == 0 && !empty($this->styleInfo->isShowWeekNumbers()) && !in_array($this->dateInfo->getGranularity(), array('day', 'week'))) {
+        if ($i == 0 && !empty($this->styleInfo->isShowWeekNumbers()) && !in_array($this->dateInfo->getGranularity(), ['day', 'week'])) {
           $path = calendar_granularity_path($this->view, 'week');
           if (!empty($path)) {
             // @TODO find out what append should do
@@ -610,7 +610,7 @@ class Calendar extends StylePluginBase {
 
           // Add the datebox.
           if ($i == 0) {
-            $item = array(
+            $item = [
               'entry' => [
                 '#theme' => 'calendar_datebox',
                 '#date' => $current_day_date,
@@ -625,7 +625,7 @@ class Calendar extends StylePluginBase {
               'id' => $this->view->id() . '-' . $current_day_date . '-date-box',
               'header_id' => $week_days[$week_day],
               'day_of_month' => $this->currentDay->format('j'),
-            );
+            ];
             $item['class'] .= ($current_day_date == $today && $in_month ? ' today' : '') .
               ($current_day_date < $today ? ' past' : '') .
               ($current_day_date > $today ? ' future' : '');
@@ -700,7 +700,7 @@ class Calendar extends StylePluginBase {
               }
 
               $rowspan = $total_rows - $index;
-              $item = array(
+              $item = [
                 'entry' => $single_days,
                 'colspan' => 1,
                 'rowspan' => $rowspan,
@@ -709,7 +709,7 @@ class Calendar extends StylePluginBase {
                 'id' => $this->view->id() . '-' . $current_day_date . '-' . $index,
                 'header_id' => $week_days[$week_day],
                 'day_of_month' => $this->currentDay->format('j'),
-              );
+              ];
 
               // Hack for ie to help it properly space single day rows.
               // todo do we still need this?
@@ -784,13 +784,13 @@ class Calendar extends StylePluginBase {
       $this->currentDay = $final_day;
 
       // Add the row into the row array.
-      $rows[] = array('data' => $output);
+      $rows[] = ['data' => $output];
 
       $current_day_date = $this->currentDay->format(DATETIME_DATE_STORAGE_FORMAT);
       $current_day_month = $this->currentDay->format('n');
     } while ($current_day_month == $month && $current_day_date <= $this->dateInfo->getMaxDate()->format(DATETIME_DATE_STORAGE_FORMAT));
     // Merge the day names in as the first row.
-    $rows = array_merge(array(CalendarHelper::weekHeader($this->view)), $rows);
+    $rows = array_merge([CalendarHelper::weekHeader($this->view)], $rows);
     return $rows;
   }
 
@@ -1038,7 +1038,7 @@ class Calendar extends StylePluginBase {
                   $item->is_multi_day = TRUE;
 
                   // Assign the item to the available bucket
-                  $multiday_buckets[$wday][$bucket_index] = array(
+                  $multiday_buckets[$wday][$bucket_index] = [
                     'colspan' => $bucket_cnt + 1,
                     'rowspan' => 1,
                     'filled' => TRUE,
@@ -1053,7 +1053,7 @@ class Calendar extends StylePluginBase {
 //                      '#rendered_fields' => $item->rendered_fields,
                       '#item' => $item,
                     ],
-                  );
+                  ];
 
                   // Block out empty buckets for the next days in this event for
                   // this week
@@ -1065,7 +1065,7 @@ class Calendar extends StylePluginBase {
                     // Fill up the preceding buckets - these are available for
                     // future events
                     for ( $j = 0; $j < $row_diff; $j++) {
-                      $bucket[($bucket_row_count + $j) ] = array(
+                      $bucket[($bucket_row_count + $j) ] = [
                         'entry' => '&nbsp;',
                         'colspan' => 1,
                         'rowspan' => 1,
@@ -1073,19 +1073,19 @@ class Calendar extends StylePluginBase {
                         'avail' => TRUE,
                         'wday' => $wday,
                         'item' => NULL
-                      );
+                      ];
                     }
-                    $bucket[$bucket_index] = array(
+                    $bucket[$bucket_index] = [
                       'filled' => FALSE,
                       'avail' => FALSE
-                    );
+                    ];
                   }
                 }
               }
               elseif ($max_events == CALENDAR_SHOW_ALL || $current_count < $max_events) {
                 $current_count++;
                 // Assign to single day bucket
-                $singleday_buckets[$wday][$time][] = array(
+                $singleday_buckets[$wday][$time][] = [
                   'entry' => [
                     '#theme' => 'calendar_item',
                     '#view' => $this->view,
@@ -1100,7 +1100,7 @@ class Calendar extends StylePluginBase {
                   'filled' => TRUE,
                   'avail' => FALSE,
                   'wday' => $wday,
-                );
+                ];
               }
 
             }
@@ -1112,7 +1112,7 @@ class Calendar extends StylePluginBase {
     // Add a more link if necessary
     if ($max_events != CALENDAR_SHOW_ALL && $total_count > 0 && $current_count < $total_count) {
       if (!empty($entry)) {
-        $singleday_buckets[$wday][][] = array(
+        $singleday_buckets[$wday][][] = [
           'entry' => [
             '#theme' => 'calendar_' . $this->dateInfo->getCalendarType() . '_multiple_entity',
             '#curday' => $current_day_date,
@@ -1122,7 +1122,7 @@ class Calendar extends StylePluginBase {
           ],
           'more_link' => TRUE,
           'item' => NULL
-        );
+        ];
       }
     }
   }

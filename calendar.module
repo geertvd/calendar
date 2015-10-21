@@ -6,8 +6,8 @@
  */
 
 use Drupal\Core\Url;
-use Drupal\field\FieldStorageConfigInterface;
 use Drupal\views\ViewExecutable;
+use Drupal\node\NodeInterface;
 
 define('CALENDAR_SHOW_ALL', 0);
 define('CALENDAR_HIDE_ALL', -1);
@@ -250,24 +250,22 @@ function calendar_theme() {
 }
 
 /**
- * Implements hook_node_view().
+ * Implements hook_node_links_alter().
  */
-function calendar_node_view($node, $view_mode, $langcode) {
-  // @todo finding the bundle like this is probably not the right way
-  $path = \Drupal::state()->get('calendar_date_link_' . $node['title']['#bundle']);
+function calendar_node_links_alter(array &$links, NodeInterface $node, array &$context) {
+  $route = \Drupal::state()->get('calendar_date_link_' . $node->bundle());
 
-  if (!empty($path)) {
-    $links['calendar_link'] = [
-      'title' => t('Calendar'),
-      'href' => $path,
-      'attributes' => ['title' => t('View the calendar.')],
-    ];
-    // @todo this rendering does not work
-    $node['links']['calendar'] = [
+  if ($route) {
+    $links['calendar'] = array(
       '#theme' => 'links__node__calendar',
-      '#links' => $links,
-      '#attributes' => ['class' => ['links', 'inline']],
-    ];
+      '#attributes' => array('class' => array('links', 'inline')),
+      '#links' => array(
+        'node-report' => array(
+          'title' => t('Calendar'),
+          'url' => Url::fromRoute($route),
+        ),
+      ),
+    );
   }
 }
 

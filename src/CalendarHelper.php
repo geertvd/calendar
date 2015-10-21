@@ -7,6 +7,7 @@ namespace Drupal\calendar;
 
 use Drupal\Core\Datetime\DateHelper;
 use Drupal\views\Views;
+use Drupal\Component\Utility\Unicode;
 
 /**
  * Defines Gregorian Calendar date values.
@@ -37,8 +38,8 @@ class CalendarHelper extends DateHelper {
       $row[] = ['header' => TRUE, 'class' => 'days week', 'data' => '', 'header_id' => 'Week'];
     }
     foreach ($untranslated_days as $delta => $day) {
-      $label = $len < 3 ? \Drupal\Component\Utility\Unicode::substr($translated_days[$delta], 0 , $len) : $translated_days[$delta];
-      $row[] = array('header' => TRUE, 'class' => "days " . $day, 'data' => $label, 'header_id' => $full_translated_days[$delta]);
+      $label = $len < 3 ? Unicode::substr($translated_days[$delta], 0 , $len) : $translated_days[$delta];
+      $row[] = ['header' => TRUE, 'class' => "days " . $day, 'data' => $label, 'header_id' => $full_translated_days[$delta]];
     }
     return $row;
   }
@@ -235,7 +236,7 @@ class CalendarHelper extends DateHelper {
     if (empty($string1) || empty($string2)) {
       return FALSE;
     }
-    elseif (!in_array($granularity, array('hour', 'minute', 'second'))) {
+    elseif (!in_array($granularity, ['hour', 'minute', 'second'])) {
       return FALSE;
     }
 
@@ -272,14 +273,14 @@ class CalendarHelper extends DateHelper {
         $min_match = $time1 == '00:00:00'
           || ($hour1 == 0 && $min1 == 0 && $sec1 == 0);
         $max_match = $time2 == '00:00:00'
-          || ($hour2 == 23 && in_array($min2, array($max_minutes, 59)) && in_array($sec2, array($max_seconds, 59)))
+          || ($hour2 == 23 && in_array($min2, [$max_minutes, 59]) && in_array($sec2, [$max_seconds, 59]))
           || ($hour1 == 0 && $hour2 == 0 && $min1 == 0 && $min2 == 0 && $sec1 == 0 && $sec2 == 0);
         break;
       case 'minute':
         $min_match = $time1 == '00:00:00'
           || ($hour1 == 0 && $min1 == 0);
         $max_match = $time2 == '00:00:00'
-          || ($hour2 == 23 && in_array($min2, array($max_minutes, 59)))
+          || ($hour2 == 23 && in_array($min2, [$max_minutes, 59]))
           || ($hour1 == 0 && $hour2 == 0 && $min1 == 0 && $min2 == 0);
         break;
       case 'hour':
