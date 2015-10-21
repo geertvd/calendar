@@ -8,6 +8,7 @@
 use Drupal\Core\Url;
 use Drupal\views\ViewExecutable;
 use Drupal\node\NodeInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
 
 define('CALENDAR_SHOW_ALL', 0);
 define('CALENDAR_HIDE_ALL', -1);
@@ -166,12 +167,11 @@ function calendar_menu_local_tasks_alter(&$data, $router_item, $root_path) {
 /**
  * Implementation of hook_help().
  */
-function calendar_help($section, $arg) {
-  switch ($section) {
-    case 'admin/help#calendar':
-      return t("<p>View complete documentation at :link.</p>", [
-        ':link' => \Drupal::l(t('Date and Calendar Documentation'), \Drupal\Core\Url::fromUri('http://drupal.org/node/262062'))
-      ]);
+function calendar_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.calendar':
+      return '<p>' . t('View complete documentation at <a href=":link">Date and Calendar Documentation</a>.',
+      	array(':link' => 'http://drupal.org/node/262062')) . '</p>';
   }
 }
 
