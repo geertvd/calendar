@@ -180,7 +180,7 @@ class Calendar extends RowPluginBase {
           '#type' => 'textfield',
           '#size' => 7,
           '#maxlength' => 7,
-          '#element_validate' => ['calendar_validate_hex_color'],
+          '#element_validate' => [[$this, 'validateHexColor']],
           '#prefix' => '<div class="calendar-colorpicker-wrapper">',
           '#suffix' => '<div class="calendar-colorpicker"></div></div>',
           '#attributes' => ['class' => ['edit-calendar-colorpicker']],
@@ -261,7 +261,7 @@ class Calendar extends RowPluginBase {
             '#type' => 'textfield',
             '#size' => 7,
             '#maxlength' => 7,
-            '#element_validate' => [ 'calendar_validate_hex_color' ],
+            '#element_validate' => [[$this, 'validateHexColor']],
             '#prefix' => '<div class="calendar-colorpicker-wrapper">',
             '#suffix' => '<div class="calendar-colorpicker"></div></div>',
             '#attributes' => ['class' => ['edit-calendar-colorpicker']],
@@ -297,6 +297,21 @@ class Calendar extends RowPluginBase {
           calendar_set_link('node', $node_type, $route);
         }
       }
+    }
+  }
+
+  /**
+   *  Check to make sure the user has entered a valid 6 digit hex color.
+   */
+  public function validateHexColor($element, FormStateInterface $form_state) {
+    if (!$element['#required'] && empty($element['#value'])) {
+      return;
+    }
+    if (!preg_match('/^#(?:(?:[a-f\d]{3}){1,2})$/i', $element['#value'])) {
+      $form_state->setError($element, $this->t("'@color' is not a valid hex color", array('@color' => $element['#value'])));
+    }
+    else {
+      $form_state->setValueForElement($element, $element['#value']);
     }
   }
 

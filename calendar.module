@@ -433,21 +433,6 @@ function calendar_granularity_path(ViewExecutable &$view, $granularity) {
 }
 
 /**
- *  Check to make sure the user has entered a valid 6 digit hex color.
- */
-function calendar_validate_hex_color($element, &$form_state) {
-  if (!$element['#required'] && empty($element['#value'])) {
-    return;
-  }
-  if (!preg_match('/^#(?:(?:[a-f\d]{3}){1,2})$/i', $element['#value'])) {
-    form_error($element, t("'@color' is not a valid hex color", array('@color' => $element['#value'])));
-  }
-  else {
-    $form_state->setValueForElement($element, $element['#value']);
-  }
-}
-
-/**
  * @deprecated Find the right d8 alternative.
  *
  * The calendar week number for a date.
