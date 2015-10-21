@@ -415,7 +415,7 @@ class Calendar extends StylePluginBase {
     // Add information from the date argument to the view.
     $this->dateInfo->setGranularity($this->granularity());
     $this->dateInfo->setCalendarType($this->options['calendar_type']);
-    $this->dateInfo->setDateArgument($argument->argument);
+    $this->dateInfo->setDateArgument($argument);
     $this->dateInfo->setMinYear($this->dateFormatter->format($argument->min_date->getTimestamp(), 'custom', 'Y'));
     $this->dateInfo->setMinMonth($this->dateFormatter->format($argument->min_date->getTimestamp(), 'custom', 'n'));
     $this->dateInfo->setMinDay($this->dateFormatter->format($argument->min_date->getTimestamp(), 'custom', 'j'));

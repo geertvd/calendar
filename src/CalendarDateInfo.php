@@ -22,8 +22,7 @@ class CalendarDateInfo {
   /**
    * The date argument.
    *
-   * @TODO find out what type this is
-   * @var
+   * @var \Drupal\calendar\Plugin\views\argument\DateArgument $dateArgument
    *   The date argument.
    */
   protected $dateArgument;
@@ -149,8 +148,7 @@ class CalendarDateInfo {
   /**
    * Getter for the date argument.
    *
-   * @TODO find out what type this is
-   * @return mixed
+   * @return \Drupal\calendar\Plugin\views\argument\DateArgument
    *   The date argument.
    */
   public function getDateArgument() {
@@ -160,8 +158,7 @@ class CalendarDateInfo {
   /**
    * Setter for the date argument.
    *
-   * @TODO find out what type this is
-   * @param mixed $dateArgument
+   * @param \Drupal\calendar\Plugin\views\argument\DateArgument $dateArgument
    *   The date argument.
    */
   public function setDateArgument($dateArgument) {
