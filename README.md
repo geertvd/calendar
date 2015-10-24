@@ -1,4 +1,4 @@
-# Drupal Calendar 8.x
+# Drupal Calendar 8.x (deprecated, continue development on d.o)
 ## Creates calendar displays of Views results.
  
 Create a new calendar by using the calendar template for the desired
